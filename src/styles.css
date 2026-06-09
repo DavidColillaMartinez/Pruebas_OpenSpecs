@@ -14,6 +14,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -54,33 +55,8 @@ body {
   animation: complete-slab 3s ease-in-out infinite alternate;
 }
 
-.image-complete {
-  position: relative;
-  overflow: hidden;
-}
-
-.image-complete::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(251, 250, 247, 0.96), rgba(251, 250, 247, 0.18), transparent);
-  transform: translateX(-74%);
-  transition: transform 900ms ease;
-}
-
-.is-visible .image-complete::after,
-.group:hover .image-complete::after {
-  transform: translateX(88%);
-}
-
-.dynamic-image {
-  clip-path: inset(0 10% 0 0 round 2rem);
-  transition: clip-path 1000ms ease;
-}
-
-.is-visible .dynamic-image,
-.dynamic-image:hover {
-  clip-path: inset(0 0 0 0 round 2rem);
+.text-wrap-balance {
+  text-wrap: balance;
 }
 
 @keyframes complete-slab {
@@ -113,7 +89,6 @@ body {
     transform: none;
   }
 
-  .dynamic-image,
   .reveal-slab {
     clip-path: none;
   }
