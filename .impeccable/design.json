@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-09T00:00:00.000Z",
+  "title": "Design System: Bath Studio",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#151515", "tonalRamp": ["#0a0a0a", "#151515", "#1f1f1f", "#2e2e2e", "#404040", "#666666", "#999999", "#cccccc"] },
+      "graphite": { "role": "neutral", "displayName": "Graphite", "canonical": "#2e3134", "tonalRamp": ["#1a1c1e", "#2e3134", "#45484b", "#5e6164", "#797c7f", "#95989a", "#b3b5b7", "#d2d3d5"] },
+      "clay": { "role": "secondary", "displayName": "Clay", "canonical": "#b98364", "tonalRamp": ["#5c3f2f", "#7a5540", "#996c52", "#b98364", "#c99a7d", "#d9b399", "#e8ccba", "#f4e6db"] },
+      "mist": { "role": "neutral", "displayName": "Mist", "canonical": "#d9e4e2", "tonalRamp": ["#6b7d7a", "#8a9d9a", "#a5b6b3", "#bccbc9", "#d9e4e2", "#e3ebea", "#edf2f1", "#f6f8f8"] },
+      "stonewash": { "role": "neutral", "displayName": "Stonewash", "canonical": "#f4f1ec", "tonalRamp": ["#a0988c", "#bdb5a9", "#d4cdc2", "#e7e1d8", "#f4f1ec", "#f8f5f1", "#faf8f5", "#fcfbf9"] },
+      "porcelain": { "role": "neutral", "displayName": "Porcelain", "canonical": "#fbfaf7", "tonalRamp": ["#c5c2bc", "#d6d3cd", "#e3e1dc", "#efede8", "#fbfaf7", "#fcfbf9", "#fdfcfb", "#fefefd"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines only. Bold weight with tight negative tracking." },
+      "body": { "displayName": "Body", "purpose": "Description copy, card blurbs. Generous line height for readability." },
+      "label": { "displayName": "Label / Kicker", "purpose": "Section labels and category tags. Small uppercase with wide tracking." }
+    },
+    "shadows": [
+      { "name": "soft", "value": "0 24px 80px rgba(35, 31, 27, 0.12)", "purpose": "Default surface shadow for cards and panels at rest." },
+      { "name": "lift", "value": "0 18px 50px rgba(47, 45, 41, 0.16)", "purpose": "Elevated state — hover, active cards, nav bar, featured sections." },
+      { "name": "glass", "value": "0 1px 0 rgba(255,255,255,0.7) inset, 0 30px 70px rgba(30,30,30,0.12)", "purpose": "Inset top highlight for glossy, glazed surfaces." }
+    ],
+    "motion": [
+      { "name": "reveal", "value": "opacity 700ms ease, transform 700ms ease", "purpose": "Scroll-triggered entrance: fade + slide up 34px." },
+      { "name": "hover-lift", "value": "all 500ms ease", "purpose": "Card hover: translate-y with shadow swap." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button (ink)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid dark button for primary CTAs (hero CTA, nav CTA).",
+      "html": "<button class=\"ds-btn-primary\">Ver colecci\u00f3n</button>",
+      "css": ".ds-btn-primary { background: #151515; color: #fff; padding: 16px 28px; border: none; border-radius: 9999px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; box-shadow: 0 18px 50px rgba(47,45,41,0.16); transition: background 0.2s, transform 0.2s; } .ds-btn-primary:hover { background: #2e3134; transform: translateY(-2px); } .ds-btn-primary:focus-visible { outline: 2px solid #b98364; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button (ghost)",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ghost button with border for secondary actions.",
+      "html": "<button class=\"ds-btn-ghost\">Inspiraci\u00f3n visual</button>",
+      "css": ".ds-btn-ghost { background: rgba(255,255,255,0.75); color: #151515; padding: 16px 28px; border: 1px solid rgba(21,21,21,0.1); border-radius: 9999px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; box-shadow: 0 24px 80px rgba(35,31,27,0.12); transition: background 0.2s, transform 0.2s; } .ds-btn-ghost:hover { background: rgba(255,255,255,0.9); transform: translateY(-2px); } .ds-btn-ghost:focus-visible { outline: 2px solid #b98364; outline-offset: 2px; }"
+    },
+    {
+      "name": "CTA Button (clay)",
+      "kind": "button",
+      "refersTo": "button-sales",
+      "description": "Accent CTA — used exactly once, on the contact section.",
+      "html": "<button class=\"ds-btn-sales\">hola@bathstudio.local</button>",
+      "css": ".ds-btn-sales { background: #b98364; color: #fff; padding: 16px 24px; border: none; border-radius: 9999px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 18px 50px rgba(47,45,41,0.16); transition: background 0.2s, transform 0.2s; } .ds-btn-sales:hover { background: #996c52; transform: translateY(-2px); } .ds-btn-sales:focus-visible { outline: 2px solid #151515; outline-offset: 2px; }"
+    },
+    {
+      "name": "Category Card",
+      "kind": "card",
+      "refersTo": "card-category",
+      "description": "Product category card with gradient background, hover lift, and reveal delay.",
+      "html": "<article class=\"ds-card-category\"><div class=\"ds-card-visual\"><div class=\"ds-card-placeholder\"></div></div><p class=\"ds-card-label\">Vidrio templado</p><h3 class=\"ds-card-title\">Mamparas a medida</h3><p class=\"ds-card-copy\">Perfiles ligeros, cierre limpio y soluciones pensadas para ampliar visualmente el ba\u00f1o.</p></article>",
+      "css": ".ds-card-category { background: linear-gradient(135deg, rgba(217,228,226,0.8), #fff); border-radius: 2rem; padding: 1.25rem; box-shadow: 0 24px 80px rgba(35,31,27,0.12); transition: all 500ms ease; } .ds-card-category:hover { transform: translateY(-8px); box-shadow: 0 18px 50px rgba(47,45,41,0.16); } .ds-card-visual { height: 13rem; border-radius: 1.5rem; background: rgba(255,255,255,0.55); padding: 1.25rem; margin-bottom: 2rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); display: flex; align-items: flex-end; overflow: hidden; } .ds-card-placeholder { width: 100%; height: 10rem; border-radius: 1.2rem; border: 1px solid rgba(255,255,255,0.8); background: linear-gradient(135deg, #fff, #d9e4e2, rgba(46,49,52,0.3)); box-shadow: 0 24px 80px rgba(35,31,27,0.12); } .ds-card-label { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #b98364; margin: 0 0 0.75rem 0; } .ds-card-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.03em; color: #151515; margin: 0 0 1rem 0; } .ds-card-copy { font-size: 1rem; line-height: 1.75; color: rgba(46,49,52,0.7); margin: 0; }"
+    },
+    {
+      "name": "Navigation Bar",
+      "kind": "nav",
+      "refersTo": "nav-header",
+      "description": "Fixed top nav with glass background, rounded-full bar.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-logo\" href=\"#\"><span class=\"ds-nav-mark\">BS</span>Bath Studio</a><div class=\"ds-nav-links\"><a href=\"#\">Colecci\u00f3n</a><a href=\"#\">M\u00e9todo</a><a href=\"#\">Proyectos</a><a href=\"#\">Contacto</a></div><button class=\"ds-btn-primary\" style=\"padding:10px 20px\">Pedir asesor\u00eda</button></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; max-width: 80rem; margin: 0 auto; padding: 0.75rem 1rem; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.7); background: rgba(251,250,247,0.8); backdrop-filter: blur(24px); box-shadow: 0 18px 50px rgba(47,45,41,0.16); } .ds-nav-logo { display: flex; align-items: center; gap: 0.75rem; font-weight: 600; letter-spacing: -0.02em; color: #151515; text-decoration: none; } .ds-nav-mark { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border-radius: 9999px; background: #151515; color: #fff; font-size: 0.8125rem; } .ds-nav-links { display: flex; gap: 1.75rem; font-size: 0.875rem; font-weight: 500; color: rgba(46,49,52,0.75); } .ds-nav-links a { color: inherit; text-decoration: none; transition: color 0.2s; } .ds-nav-links a:hover { color: #151515; } @media (max-width: 767px) { .ds-nav-links { display: none; } }"
+    },
+    {
+      "name": "Process Step Card",
+      "kind": "card",
+      "refersTo": "card-process",
+      "description": "Numbered step card for the method section.",
+      "html": "<article class=\"ds-card-process\"><div class=\"ds-step-number\">01</div><div><h3 class=\"ds-step-title\">Medimos el espacio</h3><p class=\"ds-step-copy\">Analizamos dimensiones, estilo y uso diario antes de recomendar piezas.</p></div></article>",
+      "css": ".ds-card-process { display: flex; gap: 1.25rem; align-items: flex-start; border-radius: 2rem; border: 1px solid rgba(21,21,21,0.05); background: rgba(255,255,255,0.7); padding: 1.5rem; box-shadow: 0 24px 80px rgba(35,31,27,0.12); backdrop-filter: blur(8px); transition: all 500ms ease; } .ds-card-process:hover { transform: translateY(-4px); box-shadow: 0 18px 50px rgba(47,45,41,0.16); } .ds-step-number { display: grid; width: 3.5rem; height: 3.5rem; flex-shrink: 0; place-items: center; border-radius: 9999px; background: rgba(185,131,100,0.15); color: #b98364; font-weight: 600; font-size: 1.125rem; } .ds-step-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.03em; color: #151515; margin: 0 0 0.75rem 0; } .ds-step-copy { font-size: 1.125rem; line-height: 2; color: rgba(46,49,52,0.7); margin: 0; } @media (max-width: 639px) { .ds-card-process { flex-direction: column; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Mist Atelier",
+    "overview": "A design system built on layered translucency, material honesty, and warm restraint. Every surface reads as physical but soft \u2014 like steam settling on glazed tile, or light through a frosted glass shower screen. The palette is narrow and deliberate: warm near-whites, cool stone grays, and a single clay accent used at surgical precision. This system explicitly rejects SaaS-landing-page templates. No glassmorphism as default, no gradient text, no hero-metric grids, no eyebrow labels above every section. Depth comes from shadow and gradient, not from blur. Type is architecture: large, tight, and unapologetically structural.",
+    "keyCharacteristics": [
+      "Layered, lifted surfaces with soft shadows",
+      "Single accent (clay) used sparingly \u2014 its rarity is the point",
+      "Large display type with tight negative tracking",
+      "Generous whitespace and deliberate pacing",
+      "Motion that reveals, not decorates (panels assembling, surfaces completing)"
+    ],
+    "rules": [
+      { "name": "The Clay Rarity Rule", "body": "Clay appears on \u226410% of any given viewport. It exists to guide the eye, not to decorate. If clay is visible in more than one place at once, question which occurrence should be demoted to neutral.", "section": "colors" },
+      { "name": "The Float Rule", "body": "Surfaces at rest use shadow-soft. Hover and active states lift to shadow-lift and translate -2px\u2013-8px vertically. Flat is the ground; any shadow means the surface is above it.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use the clay accent sparingly \u2014 one element per viewport maximum.",
+      "Do layer shadows for depth: soft at rest, lift on hover.",
+      "Do keep body type at 65\u201375ch max-width for readability.",
+      "Do round generously \u2014 2rem is the default corner radius for cards.",
+      "Do use negative tracking (-0.06em to -0.03em) on headings for structural precision.",
+      "Do respect reduced-motion: reveal animations must have a visible static state.",
+      "Do test all text contrast: body \u22654.5:1, large text \u22653:1."
+    ],
+    "donts": [
+      "Don't use SaaS landing page templates: no hero-metric grids, no tiny uppercase eyebrows above every section, no identical card grids.",
+      "Don't use gradient text (background-clip: text with a gradient).",
+      "Don't use glassmorphism as a default surface treatment \u2014 it belongs on the nav bar only.",
+      "Don't use border-left or border-right greater than 1px as a colored accent stripe.",
+      "Don't use numbered section markers (01, 02, 03) as default scaffolding \u2014 numbers only when the sequence carries real order information.",
+      "Don't override Inter with a second sans-serif \u2014 one well-tuned family beats two competing faces.",
+      "Don't use all-caps for body copy.",
+      "Don't animate layout properties (width, height, top, left) \u2014 use transform and opacity only."
+    ]
+  }
+}
