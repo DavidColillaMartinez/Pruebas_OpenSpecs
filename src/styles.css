@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #151515;
+  background: #fbfaf7;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.product-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 3rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(217, 228, 226, 0.58)),
+    radial-gradient(circle at 16% 18%, rgba(185, 131, 100, 0.22), transparent 32%);
+  box-shadow: 0 34px 100px rgba(33, 31, 28, 0.16);
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 34px, 0);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.reveal-slab {
+  clip-path: inset(0 0 54% 0 round 0.2rem 0.2rem 2.8rem 2.8rem);
+  animation: complete-slab 3s ease-in-out infinite alternate;
+}
+
+.image-complete {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-complete::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(251, 250, 247, 0.96), rgba(251, 250, 247, 0.18), transparent);
+  transform: translateX(-74%);
+  transition: transform 900ms ease;
+}
+
+.is-visible .image-complete::after,
+.group:hover .image-complete::after {
+  transform: translateX(88%);
+}
+
+.dynamic-image {
+  clip-path: inset(0 10% 0 0 round 2rem);
+  transition: clip-path 1000ms ease;
+}
+
+.is-visible .dynamic-image,
+.dynamic-image:hover {
+  clip-path: inset(0 0 0 0 round 2rem);
+}
+
+@keyframes complete-slab {
+  from {
+    clip-path: inset(0 0 54% 0 round 0.2rem 0.2rem 2.8rem 2.8rem);
+    transform: translateY(0);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0.2rem 0.2rem 2.8rem 2.8rem);
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .dynamic-image,
+  .reveal-slab {
+    clip-path: none;
+  }
+}
