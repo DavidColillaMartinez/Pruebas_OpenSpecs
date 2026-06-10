@@ -63,6 +63,6 @@
 
 ## 10. Build verification and commits
 
-- [ ] 10.1 Run `npm run build` after each task group; fix any build error before commit.
-- [ ] 10.2 Make small, reversible commits per task group (e.g. `Fix mobile breakpoints`, `Rebuild mobile Inicio as minimal hero`, `Add mobile Visión video + reveal`).
-- [ ] 10.3 Do a final manual sweep on phone and tablet viewports; verify the desktop narrative is unchanged.
+- [x] 10.1 Run `npm run build` after each task group; fix any build error before commit.
+- [x] 10.2 Make small, reversible commits per task group (e.g. `Fix mobile breakpoints`, `Rebuild mobile Inicio as minimal hero`, `Add mobile Visión video + reveal`).
+- [x] 10.3 Do a final manual sweep on phone and tablet viewports; verify the desktop narrative is unchanged.
