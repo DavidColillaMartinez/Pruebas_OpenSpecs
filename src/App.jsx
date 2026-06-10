@@ -30,6 +30,13 @@ const sectionIds = ['inicio', 'coleccion', 'reformas', 'vision', 'contacto'];
 const chapterSteps = [3, 8, 0, 2, 1];
 const chapterType = ['step', 'step', 'continuous', 'step', 'step'];
 const TOTAL_CHAPTERS = sectionIds.length;
+const DESKTOP_MIN_WIDTH = 1024;
+const DESKTOP_MIN_HEIGHT = 720;
+
+function getDesktopGate() {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth >= DESKTOP_MIN_WIDTH && window.innerHeight >= DESKTOP_MIN_HEIGHT;
+}
 
 function LogoMark({ className = '', minimal = false }) {
   if (minimal) {
@@ -50,7 +57,7 @@ function useNarrativeScroll() {
   const [activeChapter, setActiveChapter] = useState(0);
   const [step, setStep] = useState(0);
   const [smoothProgress, setSmoothProgress] = useState(0);
-  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
+  const [isDesktop, setIsDesktop] = useState(getDesktopGate);
   const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false);
   const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const activeRef = useRef(0);
@@ -61,11 +68,12 @@ function useNarrativeScroll() {
   const targetRef = useRef(0);
 
   useEffect(() => {
-    const m = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(m.matches);
-    const h = (e) => setIsDesktop(e.matches);
+    const onResize = () => setIsDesktop(getDesktopGate());
+    window.addEventListener('resize', onResize);
+    const m = window.matchMedia(`(min-width: ${DESKTOP_MIN_WIDTH}px)`);
+    const h = () => setIsDesktop(getDesktopGate());
     m.addEventListener('change', h);
-    return () => m.removeEventListener('change', h);
+    return () => { window.removeEventListener('resize', onResize); m.removeEventListener('change', h); };
   }, []);
 
   useEffect(() => {
