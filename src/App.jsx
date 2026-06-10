@@ -224,7 +224,7 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
       <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/70 bg-pearl/82 px-4 py-3 shadow-lift">
         <a href="#inicio" className="flex items-center gap-3 font-semibold tracking-tight text-ink" aria-label="AREA LRMQ Tienda inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); } }}>
           <LogoMark className="h-10 w-10" />
-          <span className="font-display text-lg tracking-[0.08em]">AREA LRMQ Tienda</span>
+          <span className="font-display text-lg tracking-[0.08em]">AREA LRMQ DESIGN S.L.</span>
         </a>
         <div className="hidden items-center gap-7 text-sm font-medium md:flex">
           {navItems.map((item) => {
@@ -263,6 +263,7 @@ function Inicio({ step, isActive, cardless }) {
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
+        <p className="mt-4 text-sm font-semibold tracking-[0.28em] text-clay uppercase">DESIGN S.L.</p>
       </div>
       <div className={`absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-500 ${s >= 1 ? 'opacity-0' : 'opacity-100'}`}>
         <span className="block h-8 w-px bg-white/35 mx-auto" />
@@ -623,6 +624,7 @@ function MobileSections() {
         <div className="relative z-10 mx-auto max-w-lg px-6 pt-20 pb-28 text-center">
           <LogoMark className="mx-auto mb-6 h-20 w-20 opacity-90" />
           <h1 className="font-display text-4xl leading-[0.9] tracking-[0.045em] text-white sm:text-5xl text-wrap-balance">AREA LRMQ</h1>
+          <p className="mt-3 text-xs font-semibold tracking-[0.24em] text-clay uppercase">DESIGN S.L.</p>
         </div>
         <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-6">
           <div className="grid gap-3 sm:grid-cols-3">
