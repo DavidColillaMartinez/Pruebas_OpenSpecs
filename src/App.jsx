@@ -513,18 +513,20 @@ function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
           )}
         </div>
         {cardless ? (
-          <div>
+          <div className="border-l-2 border-clay/30 pl-6">
             <LogoMark className="mb-7 h-16 w-16" minimal />
             <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
             <p className={`mt-6 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
             <div className="mt-5 h-10">{!videoDone && <button type="button" onClick={handleSkip} className="rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}</div>
           </div>
         ) : (
-          <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
-            <LogoMark className="mb-7 h-16 w-16 opacity-35" />
-            <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
-            <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
-            <div className="mt-5 h-10">{!videoDone && <button type="button" onClick={handleSkip} className="rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}</div>
+          <div className="rounded-[2.4rem] border border-ink/6 bg-white p-8 shadow-soft backdrop-blur-sm">
+            <div className="border-l-2 border-clay/25 pl-5">
+              <LogoMark className="mb-7 h-16 w-16 opacity-35" />
+              <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
+              <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
+              <div className="mt-5 h-10">{!videoDone && <button type="button" onClick={handleSkip} className="rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}</div>
+            </div>
           </div>
         )}
       </div>
