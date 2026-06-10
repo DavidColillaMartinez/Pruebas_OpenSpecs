@@ -185,62 +185,32 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  if (isInicio) {
-    return (
-      <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex-1" />
-          <nav className="rounded-full border border-white/70 bg-pearl/82 px-6 py-3 shadow-lift">
-            <div className="flex items-center gap-7 text-sm font-medium">
-              {navItems.map((item) => {
-                const id = item.href.slice(1);
-                return <a key={item.href} className={`transition hover:text-ink ${activeSectionId === id ? 'text-ink' : 'text-graphite/70'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
-              })}
-            </div>
-          </nav>
-          <div className="flex flex-1 items-center justify-end gap-3">
-            <button className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-full bg-ink md:hidden" onClick={() => setMobileOpen((v) => !v)} aria-label="Menu" aria-expanded={mobileOpen}>
-              <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
-              <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
-            </button>
-            <button type="button" onClick={onToggleCardless} className="rounded-full border border-white/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70 transition hover:border-white/80 hover:text-white hover:bg-white/8" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
-            <a className="rounded-full bg-white/14 px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-white/22" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
-          </div>
-        </div>
-        {mobileOpen && (
-          <>
-            <div className="fixed inset-0 z-40 bg-ink/20 md:hidden" onClick={() => setMobileOpen(false)} aria-hidden="true" />
-            <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-white/70 bg-pearl p-6 shadow-lift md:hidden">
-              <div className="flex flex-col gap-3">{navItems.map((item) => <a key={item.href} className={`rounded-2xl px-4 py-3 text-lg font-medium transition ${activeSectionId === item.href.slice(1) ? 'bg-ink/5 text-ink' : 'text-graphite/75'}`} href={item.href} onClick={() => setMobileOpen(false)}>{item.label}</a>)}</div>
-            </div>
-          </>
-        )}
-      </header>
-    );
-  }
-
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/70 bg-pearl/82 px-4 py-3 shadow-lift">
-        <a href="#inicio" className="flex items-center gap-3 font-semibold tracking-tight text-ink" aria-label="AREA LRMQ Tienda inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); } }}>
-          <LogoMark className="h-10 w-10" />
-          <span className="font-display text-lg tracking-[0.08em]">AREA LRMQ DESIGN S.L.</span>
-        </a>
-        <div className="hidden items-center gap-7 text-sm font-medium md:flex">
-          {navItems.map((item) => {
-            const id = item.href.slice(1);
-            return <a key={item.href} className={`transition hover:text-ink ${activeSectionId === id ? 'text-ink' : 'text-graphite/70'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
-          })}
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <div className={`flex items-center gap-3 overflow-hidden transition-all duration-500 ease-out ${isInicio ? 'max-w-0 opacity-0 -translate-x-2' : 'max-w-md opacity-100 translate-x-0'}`}>
+          <a href="#inicio" className="flex items-center gap-3 font-semibold tracking-tight text-ink" aria-label="AREA LRMQ DESIGN S.L. inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); } }}>
+            <LogoMark className="h-10 w-10 shrink-0" />
+            <span className="font-display text-lg tracking-[0.08em] whitespace-nowrap">AREA LRMQ DESIGN S.L.</span>
+          </a>
         </div>
+        <nav className={`rounded-full border border-white/70 bg-pearl/82 shadow-lift transition-all duration-500 ease-out ${isInicio ? 'px-6 py-3' : 'px-4 py-3'}`}>
+          <div className="flex items-center gap-7 text-sm font-medium">
+            {navItems.map((item) => {
+              const id = item.href.slice(1);
+              return <a key={item.href} className={`transition hover:text-ink ${activeSectionId === id ? 'text-ink' : 'text-graphite/70'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
+            })}
+          </div>
+        </nav>
         <div className="flex items-center gap-3">
           <button className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-full bg-ink md:hidden" onClick={() => setMobileOpen((v) => !v)} aria-label="Menu" aria-expanded={mobileOpen}>
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
           </button>
-          <button type="button" onClick={onToggleCardless} className="rounded-full border border-ink/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-graphite/65 transition hover:border-ink/25 hover:text-ink" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
-          <a className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
+          <button type="button" onClick={onToggleCardless} className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-all duration-500 ease-out ${isInicio ? 'border border-white/50 text-white/70 hover:border-white/80 hover:text-white hover:bg-white/8' : 'border border-ink/15 text-graphite/65 hover:border-ink/25 hover:text-ink'}`} aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
+          <a className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out ${isInicio ? 'bg-white/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-white/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
-      </nav>
+      </div>
       {mobileOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-ink/20 md:hidden" onClick={() => setMobileOpen(false)} aria-hidden="true" />
