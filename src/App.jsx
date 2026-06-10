@@ -35,7 +35,7 @@ function LogoMark({ className = '', minimal = false }) {
   if (minimal) {
     return (
       <span className={`inline-block ${className}`} aria-hidden="true">
-        <img src="/LogoMark.png" alt="" className="h-full w-full object-contain" />
+        <img src="/logopng.png" alt="" className="h-full w-full object-contain" />
       </span>
     );
   }
