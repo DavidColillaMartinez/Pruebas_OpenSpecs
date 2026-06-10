@@ -190,7 +190,7 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
       <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex-1" />
-          <nav className="rounded-full border border-white/70 bg-pearl/82 px-6 py-3 shadow-lift backdrop-blur-xl">
+          <nav className="rounded-full border border-white/70 bg-pearl/82 px-6 py-3 shadow-lift">
             <div className="flex items-center gap-7 text-sm font-medium">
               {navItems.map((item) => {
                 const id = item.href.slice(1);
@@ -204,7 +204,7 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
               <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
             </button>
             <button type="button" onClick={onToggleCardless} className="rounded-full border border-white/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70 transition hover:border-white/80 hover:text-white hover:bg-white/8" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
-            <a className="rounded-full bg-white/14 px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-white/22 backdrop-blur-sm" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
+            <a className="rounded-full bg-white/14 px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-white/22" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
           </div>
         </div>
         {mobileOpen && (
@@ -221,7 +221,7 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/70 bg-pearl/82 px-4 py-3 shadow-lift backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/70 bg-pearl/82 px-4 py-3 shadow-lift">
         <a href="#inicio" className="flex items-center gap-3 font-semibold tracking-tight text-ink" aria-label="AREA LRMQ Tienda inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); } }}>
           <LogoMark className="h-10 w-10" />
           <span className="font-display text-lg tracking-[0.08em]">AREA LRMQ Tienda</span>
