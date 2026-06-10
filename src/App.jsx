@@ -520,7 +520,7 @@ function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
             <div className="mt-5 h-10">{!videoDone && <button type="button" onClick={handleSkip} className="rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}</div>
           </div>
         ) : (
-          <div className="rounded-[2.4rem] border border-ink/6 bg-white p-8 shadow-soft backdrop-blur-sm">
+          <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
             <div className="border-l-2 border-clay/25 pl-5">
               <LogoMark className="mb-7 h-16 w-16 opacity-35" />
               <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
@@ -734,6 +734,16 @@ function MobileSections() {
 export default function App() {
   const { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [cardless, setCardless] = useState(false);
+
+  useEffect(() => {
+    if (cardless) {
+      document.body.style.background = '#ffffff';
+    } else {
+      document.body.style.background = '';
+    }
+    return () => { document.body.style.background = ''; };
+  }, [cardless]);
+
   const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const chapters = [
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} cardless={cardless} />,
