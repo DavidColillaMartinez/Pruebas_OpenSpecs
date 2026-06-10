@@ -229,7 +229,7 @@ function Inicio({ step, isActive, cardless }) {
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
       <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
-       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-36 w-36 -translate-x-1/2 opacity-90" minimal={cardless} />
+       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" minimal={cardless} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
@@ -491,7 +491,7 @@ function Vision({ step, isActive, setBlocked, cardless }) {
         </div>
         {cardless ? (
           <div className="border-l-2 border-clay/30 pl-6">
-            <LogoMark className="mb-7 h-20 w-20" minimal />
+            <LogoMark className="mb-7 h-[7.5rem] w-[7.5rem]" minimal />
             <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
             <p className={`mt-6 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
           </div>
@@ -543,7 +543,7 @@ function Contact({ step, isActive, cardless }) {
         <div className={`space-y-4 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
           {cardless ? (
             <div>
-              <LogoMark className="mb-6 h-20 w-20" minimal />
+              <LogoMark className="mb-6 h-[7.5rem] w-[7.5rem]" minimal />
               <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
               <p className="mt-3 text-ink/65">{ADDRESS}</p>
             </div>
