@@ -54,12 +54,12 @@
 
 ## 9. SEO baseline
 
-- [ ] 9.1 Set a unique `<title>` under 60 characters and a unique `<meta name="description">` under 160 characters in `index.html`.
-- [ ] 9.2 Add Open Graph metadata (`og:title`, `og:description`, `og:type=website`, `og:image`, `og:url`, `og:locale=es_ES`).
-- [ ] 9.3 Add Twitter card metadata (`twitter:card=summary_large_image`, `twitter:title`, `twitter:description`, `twitter:image`).
-- [ ] 9.4 Embed a `LocalBusiness` JSON-LD with real `ADDRESS`, `PHONE`, and `INSTAGRAM_URL` constants.
-- [ ] 9.5 Add a canonical link element and a `theme-color` meta tag consistent with the brand clay color.
-- [ ] 9.6 Audit every `<img>` on the page: meaningful `alt` text, or `alt=""` + `aria-hidden="true"` for decorative images.
+- [x] 9.1 Set a unique `<title>` under 60 characters and a unique `<meta name="description">` under 160 characters in `index.html`.
+- [x] 9.2 Add Open Graph metadata (`og:title`, `og:description`, `og:type=website`, `og:image`, `og:url`, `og:locale=es_ES`).
+- [x] 9.3 Add Twitter card metadata (`twitter:card=summary_large_image`, `twitter:title`, `twitter:description`, `twitter:image`).
+- [x] 9.4 Embed a `LocalBusiness` JSON-LD with real `ADDRESS`, `PHONE`, and `INSTAGRAM_URL` constants.
+- [x] 9.5 Add a canonical link element and a `theme-color` meta tag consistent with the brand clay color.
+- [x] 9.6 Audit every `<img>` on the page: meaningful `alt` text, or `alt=""` + `aria-hidden="true"` for decorative images.
 
 ## 10. Build verification and commits
 
