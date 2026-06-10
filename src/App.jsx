@@ -31,10 +31,17 @@ const chapterSteps = [3, 8, 0, 2, 1];
 const chapterType = ['step', 'step', 'continuous', 'step', 'step'];
 const TOTAL_CHAPTERS = sectionIds.length;
 
-function LogoMark({ className = '' }) {
+function LogoMark({ className = '', minimal = false }) {
+  if (minimal) {
+    return (
+      <span className={`inline-block ${className}`} aria-hidden="true">
+        <img src="/LogoMark.png" alt="" className="h-full w-full object-contain" />
+      </span>
+    );
+  }
   return (
     <span className={`inline-grid place-items-center overflow-hidden rounded-full border border-clay/25 bg-white shadow-lift ${className}`} aria-hidden="true">
-      <img src="/logo-area-lrmq.jpeg" alt="" className="h-full w-full scale-[1.85] object-contain" />
+      <img src="/logo-area-lrmq.jpeg" alt="" className="h-full w-full scale-[1.35] object-contain" />
     </span>
   );
 }
@@ -170,13 +177,47 @@ function useNarrativeScroll() {
   return { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
 }
 
-function Header({ activeSectionId, onNavigate, cardless, onToggleCardless }) {
+function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isInicio }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
     if (mobileOpen) { window.addEventListener('keydown', onKey); document.body.style.overflow = 'hidden'; }
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [mobileOpen]);
+
+  if (isInicio) {
+    return (
+      <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex-1" />
+          <nav className="rounded-full border border-white/70 bg-pearl/82 px-6 py-3 shadow-lift backdrop-blur-xl">
+            <div className="flex items-center gap-7 text-sm font-medium">
+              {navItems.map((item) => {
+                const id = item.href.slice(1);
+                return <a key={item.href} className={`transition hover:text-ink ${activeSectionId === id ? 'text-ink' : 'text-graphite/70'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
+              })}
+            </div>
+          </nav>
+          <div className="flex flex-1 items-center justify-end gap-3">
+            <button className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-full bg-ink md:hidden" onClick={() => setMobileOpen((v) => !v)} aria-label="Menu" aria-expanded={mobileOpen}>
+              <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
+              <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
+            </button>
+            <button type="button" onClick={onToggleCardless} className="rounded-full border border-white/50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70 transition hover:border-white/80 hover:text-white hover:bg-white/8" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
+            <a className="rounded-full bg-white/14 px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-white/22 backdrop-blur-sm" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
+          </div>
+        </div>
+        {mobileOpen && (
+          <>
+            <div className="fixed inset-0 z-40 bg-ink/20 md:hidden" onClick={() => setMobileOpen(false)} aria-hidden="true" />
+            <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-white/70 bg-pearl p-6 shadow-lift md:hidden">
+              <div className="flex flex-col gap-3">{navItems.map((item) => <a key={item.href} className={`rounded-2xl px-4 py-3 text-lg font-medium transition ${activeSectionId === item.href.slice(1) ? 'bg-ink/5 text-ink' : 'text-graphite/75'}`} href={item.href} onClick={() => setMobileOpen(false)}>{item.label}</a>)}</div>
+            </div>
+          </>
+        )}
+      </header>
+    );
+  }
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
@@ -218,9 +259,9 @@ function Inicio({ step, isActive, cardless }) {
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
       <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
-       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-28 w-28 -translate-x-1/2 opacity-90" />
+       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-28 w-28 -translate-x-1/2 opacity-90" minimal={cardless} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.34em] text-clay">Tienda</p>
+        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ Tienda</h1>
         <p className="mx-auto mt-5 max-w-2xl text-xl leading-8 text-white/82">Baños, materiales y decisiones visuales con medida.</p>
       </div>
@@ -228,7 +269,7 @@ function Inicio({ step, isActive, cardless }) {
         <span className="block h-8 w-px bg-white/35 mx-auto" />
         <span className="mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Gira para avanzar</span>
       </div>
-      <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-14 sm:px-6">
+      <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-32 sm:px-6">
         <div className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-3">
           {methodSteps.map((item, index) => (
             cardless ? (
@@ -373,10 +414,14 @@ function Reformas({ smoothProgress, isActive, cardless }) {
 
   return (
     <div className="flex h-full items-center bg-transparent px-6">
-      <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.18fr_0.82fr] lg:items-center">
-        <div className="relative overflow-hidden rounded-[2.4rem] border border-white/70 bg-white/44 p-3 shadow-lift backdrop-blur-sm">
-          <video ref={videoRef} src="/reforma-bano.mp4" muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.8rem]" aria-label="Video stopmotion de reforma de bano completo" />
-        </div>
+      <div className={`mx-auto grid w-full max-w-7xl gap-10 ${cardless ? 'lg:grid-cols-[1.55fr_0.75fr]' : 'lg:grid-cols-[1.18fr_0.82fr]'} lg:items-center`}>
+        {cardless ? (
+          <video ref={videoRef} src="/reforma-bano.mp4" muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.2rem]" aria-label="Video stopmotion de reforma de baño completo" />
+        ) : (
+          <div className="relative overflow-hidden rounded-[2.4rem] border border-white/70 bg-white/44 p-3 shadow-lift backdrop-blur-sm">
+            <video ref={videoRef} src="/reforma-bano.mp4" muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.8rem]" aria-label="Video stopmotion de reforma de bano completo" />
+          </div>
+        )}
         {cardless ? (
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
@@ -433,7 +478,7 @@ function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
     const rect = sliderRef.current.getBoundingClientRect();
     setSliderX(Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)));
   };
-  const onPointerDown = (e) => { if (!videoDone) return; draggingRef.current = true; setFromClientX(e.clientX); };
+  const onPointerDown = (e) => { if (!videoDone) return; e.preventDefault(); draggingRef.current = true; setFromClientX(e.clientX); };
   useEffect(() => {
     const move = (e) => { if (draggingRef.current) setFromClientX(e.clientX); };
     const up = () => { draggingRef.current = false; };
@@ -445,26 +490,31 @@ function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
   return (
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
-        <div ref={sliderRef} role="slider" tabIndex={0} aria-label="Comparar boceto con imagen final" aria-valuenow={Math.round(sliderX * 100)} aria-valuemin={0} aria-valuemax={100} onPointerDown={onPointerDown} onKeyDown={(e) => { if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }} className="relative overflow-hidden rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift focus:outline-none focus:ring-2 focus:ring-clay/30">
-          <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full rounded-[1.8rem] object-contain bg-white" />
+        <div ref={sliderRef} role="slider" tabIndex={0} aria-label="Comparar boceto con imagen final" aria-valuenow={Math.round(sliderX * 100)} aria-valuemin={0} aria-valuemax={100}
+          onPointerDown={onPointerDown}
+          onKeyDown={(e) => { if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
+          className={`relative select-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-clay/30 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
+          style={{ touchAction: 'none' }}>
+
           {videoDone ? (
             <>
-              <div className="absolute inset-3 overflow-hidden rounded-[1.8rem]" style={{ width: `calc(${sliderX * 100}% - 0.75rem)` }}>
-                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="h-full w-full object-contain bg-white" style={{ filter: 'grayscale(0.35) contrast(1.08)' }} />
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className={`aspect-[4/3] w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} />
+              <div className={`absolute overflow-hidden ${cardless ? 'inset-0' : 'inset-[0.75rem]'}`} style={{ width: `${sliderX * 100}%` }}>
+                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className={`absolute inset-0 w-full h-full object-contain bg-white`} style={{ filter: 'grayscale(0.35) contrast(1.08)' }} draggable={false} />
               </div>
-              <div className="absolute bottom-6 left-6 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">Boceto</div>
-              <div className="absolute bottom-6 right-6 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">Final</div>
-              <div className="absolute bottom-3 top-3 w-0.5 bg-clay shadow-lg" style={{ left: `calc(${sliderX * 100}% + 0.75rem)` }}>
+              <div className="absolute bottom-4 left-4 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none">Boceto</div>
+              <div className="absolute bottom-4 right-4 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none">Final</div>
+              <div className="absolute bottom-0 top-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
                 <div className="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift"><span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span></div>
               </div>
             </>
           ) : (
-            <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className="absolute inset-3 aspect-[4/3] h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-[1.8rem] bg-white object-contain" aria-label="Video de boceto dibujandose" />
+            <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className={`aspect-[4/3] w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
           )}
         </div>
         {cardless ? (
           <div>
-            <LogoMark className="mb-7 h-16 w-16 opacity-35" />
+            <LogoMark className="mb-7 h-16 w-16" minimal />
             <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
             <p className={`mt-6 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
             {!videoDone && <button type="button" onClick={handleSkip} className="mt-5 rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}
@@ -516,7 +566,7 @@ function Contact({ step, isActive, cardless }) {
         <div className={`space-y-4 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
           {cardless ? (
             <div>
-              <LogoMark className="mb-6 h-16 w-16" />
+              <LogoMark className="mb-6 h-16 w-16" minimal />
               <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
               <p className="mt-3 text-ink/65">{ADDRESS}</p>
             </div>
@@ -694,7 +744,7 @@ export default function App() {
   return (
     <main className="font-body text-ink" id="contenido">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
-      <Header activeSectionId={activeSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} />
+      <Header activeSectionId={activeSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} isInicio={activeChapter === 0} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
           <ChapterDots active={activeChapter} labels={chapterLabels} />
