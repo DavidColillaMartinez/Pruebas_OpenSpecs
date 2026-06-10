@@ -170,7 +170,7 @@ function useNarrativeScroll() {
   return { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
 }
 
-function Header({ activeSectionId, onNavigate }) {
+function Header({ activeSectionId, onNavigate, cardless, onToggleCardless }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
@@ -196,6 +196,7 @@ function Header({ activeSectionId, onNavigate }) {
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
           </button>
+          <button type="button" onClick={onToggleCardless} className="rounded-full border border-ink/15 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-graphite/65 transition hover:border-ink/25 hover:text-ink" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
           <a className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </nav>
@@ -211,7 +212,7 @@ function Header({ activeSectionId, onNavigate }) {
   );
 }
 
-function Inicio({ step, isActive }) {
+function Inicio({ step, isActive, cardless }) {
   const s = isActive ? step : 0;
   return (
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
@@ -230,11 +231,19 @@ function Inicio({ step, isActive }) {
       <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-14 sm:px-6">
         <div className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-3">
           {methodSteps.map((item, index) => (
-            <article key={item.title} className={`rounded-[1.6rem] border border-white/14 bg-ink/30 p-5 text-left shadow-lift backdrop-blur-sm transition-all duration-500 ease-out ${s > index ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}>
-              <span className="font-display text-3xl text-clay">{index + 1}</span>
-              <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>
-            </article>
+            cardless ? (
+              <article key={item.title} className={`border-l-2 border-clay/40 pl-5 text-left transition-all duration-500 ease-out ${s > index ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}>
+                <span className="font-display text-3xl text-clay">{index + 1}</span>
+                <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>
+              </article>
+            ) : (
+              <article key={item.title} className={`rounded-[1.6rem] border border-white/14 bg-ink/30 p-5 text-left shadow-lift backdrop-blur-sm transition-all duration-500 ease-out ${s > index ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}>
+                <span className="font-display text-3xl text-clay">{index + 1}</span>
+                <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>
+              </article>
+            )
           ))}
         </div>
       </div>
@@ -242,12 +251,56 @@ function Inicio({ step, isActive }) {
   );
 }
 
-function Coleccion({ step, isActive }) {
+function Coleccion({ step, isActive, cardless }) {
   const s = isActive ? step : 0;
   const featured = categories[0];
   const tray = categories[1];
   const taps = categories[2];
   const accessories = categories[3];
+
+  if (cardless) {
+    return (
+      <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-10 md:pt-36">
+        <div className="mx-auto w-full max-w-5xl">
+          <div className="mb-10 text-center">
+            <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Cuatro decisiones, una lectura.</h2>
+            <p className={`mx-auto mt-5 max-w-2xl text-lg leading-8 text-ink/74 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>La tienda no separa piezas por catálogo. Ordena vidrio, superficie, metal y detalle para que el baño tenga una sola dirección visual.</p>
+          </div>
+          <div className="grid gap-10 lg:grid-cols-[1fr_0.76fr]">
+            <div className={`transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[2px]'}`}>
+              <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.8rem] object-cover" loading="lazy" />
+              <div className={`mt-6 transition-all duration-500 ease-out ${s >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+                <p className="mb-2 border-l-2 border-clay/35 pl-4 text-sm font-semibold text-clay">{featured.label}</p>
+                <h3 className="font-display text-4xl leading-none tracking-[0.035em] text-ink">{featured.title}</h3>
+                <p className="mt-4 max-w-xl text-base leading-7 text-ink/72">{featured.copy}</p>
+              </div>
+            </div>
+            <div className="space-y-8 self-end">
+              <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 4 ? 'opacity-100 translate-x-0 blur-0' : 'opacity-0 translate-x-8 blur-[1px]'}`}>
+                <p className="text-sm font-semibold text-clay">{tray.label}</p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{tray.title}</h3>
+                <p className="mt-3 text-base leading-7 text-ink/68">{tray.copy}</p>
+              </div>
+              <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 5 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
+                <p className="text-sm font-semibold text-clay">{taps.label}</p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{taps.title}</h3>
+                <p className="mt-3 text-base leading-7 text-ink/68">{taps.copy}</p>
+              </div>
+              <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 6 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
+                <p className="text-sm font-semibold text-clay">{accessories.label}</p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{accessories.title}</h3>
+                <p className="mt-3 text-base leading-7 text-ink/68">{accessories.copy}</p>
+              </div>
+              <aside className={`border-l-2 border-clay/20 pl-4 transition-all duration-500 ease-out ${s >= 7 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}>
+                <p className="text-base leading-7 text-ink/68">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen. Por eso el conjunto se decide antes que el objeto.</p>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-10 md:pt-36">
       <div className="mx-auto w-full max-w-7xl">
@@ -306,7 +359,7 @@ function Coleccion({ step, isActive }) {
   );
 }
 
-function Reformas({ smoothProgress, isActive }) {
+function Reformas({ smoothProgress, isActive, cardless }) {
   const videoRef = useRef(null);
   const [duration, setDuration] = useState(13.7);
   const progress = isActive ? smoothProgress : 0;
@@ -324,23 +377,37 @@ function Reformas({ smoothProgress, isActive }) {
         <div className="relative overflow-hidden rounded-[2.4rem] border border-white/70 bg-white/44 p-3 shadow-lift backdrop-blur-sm">
           <video ref={videoRef} src="/reforma-bano.mp4" muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.8rem]" aria-label="Video stopmotion de reforma de bano completo" />
         </div>
-        <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
-          <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>
-          <div className="mt-7 space-y-4 text-base leading-relaxed text-ink/75">
-            {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
-              <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
-            ))}
+        {cardless ? (
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
+            <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>
+            <div className="mt-7 space-y-4">
+              {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
+                <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span className="text-ink/72">{text}</span></p>
+              ))}
+            </div>
+            <div className="mt-7 h-1.5 w-full rounded-full bg-ink/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${progress * 100}%` }} /></div>
+            <p className="mt-3 text-xs font-medium uppercase tracking-wider text-ink/40">{videoProgress >= 1 ? 'Proyecto completo. Gira para continuar.' : `Avance de obra ${Math.round(videoProgress * 100)}%`}</p>
           </div>
-          <div className="mt-7 h-1.5 w-full rounded-full bg-ink/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${progress * 100}%` }} /></div>
-          <p className="mt-3 text-center text-xs font-medium uppercase tracking-wider text-ink/40">{videoProgress >= 1 ? 'Proyecto completo. Gira para continuar.' : `Avance de obra ${Math.round(videoProgress * 100)}%`}</p>
-        </div>
+        ) : (
+          <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
+            <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>
+            <div className="mt-7 space-y-4 text-base leading-relaxed text-ink/75">
+              {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
+                <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
+              ))}
+            </div>
+            <div className="mt-7 h-1.5 w-full rounded-full bg-ink/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${progress * 100}%` }} /></div>
+            <p className="mt-3 text-center text-xs font-medium uppercase tracking-wider text-ink/40">{videoProgress >= 1 ? 'Proyecto completo. Gira para continuar.' : `Avance de obra ${Math.round(videoProgress * 100)}%`}</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function Vision({ step, isActive, setBlocked, skipBlocked }) {
+function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
@@ -395,18 +462,27 @@ function Vision({ step, isActive, setBlocked, skipBlocked }) {
             <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className="absolute inset-3 aspect-[4/3] h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] rounded-[1.8rem] bg-white object-contain" aria-label="Video de boceto dibujandose" />
           )}
         </div>
-        <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
-          <LogoMark className="mb-7 h-16 w-16 opacity-35" />
-          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
-          <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
-          {!videoDone && <button type="button" onClick={handleSkip} className="mt-5 rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}
-        </div>
+        {cardless ? (
+          <div>
+            <LogoMark className="mb-7 h-16 w-16 opacity-35" />
+            <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
+            <p className={`mt-6 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
+            {!videoDone && <button type="button" onClick={handleSkip} className="mt-5 rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}
+          </div>
+        ) : (
+          <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
+            <LogoMark className="mb-7 h-16 w-16 opacity-35" />
+            <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
+            <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
+            {!videoDone && <button type="button" onClick={handleSkip} className="mt-5 rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function Contact({ step, isActive }) {
+function Contact({ step, isActive, cardless }) {
   const s = isActive ? step : 0;
   const [form, setForm] = useState({ nombre: '', telefono: '', mensaje: '' });
   const whatsappText = encodeURIComponent(`Hola AREA LRMQ, quiero información sobre una reforma. Nombre: ${form.nombre}. Teléfono: ${form.telefono}. Mensaje: ${form.mensaje}`);
@@ -414,28 +490,60 @@ function Contact({ step, isActive }) {
   return (
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-6xl items-start gap-8 lg:grid-cols-[1fr_0.9fr]">
-        <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/82 p-8 shadow-soft backdrop-blur-sm">
-          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
-          <p className="mt-4 text-lg leading-8 text-ink/76">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
-          <form className="mt-7 space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <input type="text" placeholder="Nombre" aria-label="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <input type="tel" placeholder="Teléfono" aria-label="Teléfono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <textarea placeholder="Medidas, estilo y plazo..." aria-label="Medidas, estilo y plazo" value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} rows={3} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <a href={`https://wa.me/${PHONE_INTL}?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" className="block rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</a>
-          </form>
-        </div>
-        <div className={`space-y-4 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
-          <div className="rounded-[2.4rem] border border-ink/6 bg-ink p-7 text-white shadow-lift">
-            <LogoMark className="mb-6 h-16 w-16" />
-            <p className="font-display text-3xl leading-tight">AREA LRMQ Tienda</p>
-            <p className="mt-3 text-white/70">{ADDRESS}</p>
+        {cardless ? (
+          <div>
+            <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
+            <p className="mt-4 text-lg leading-8 text-ink/72">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
+            <form className="mt-7 space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <input type="text" placeholder="Nombre" aria-label="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full border-b border-ink/15 bg-transparent py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
+              <input type="tel" placeholder="Teléfono" aria-label="Teléfono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full border-b border-ink/15 bg-transparent py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
+              <textarea placeholder="Medidas, estilo y plazo..." aria-label="Medidas, estilo y plazo" value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} rows={3} className="w-full resize-none border-b border-ink/15 bg-transparent py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
+              <a href={`https://wa.me/${PHONE_INTL}?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" className="block rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</a>
+            </form>
           </div>
-          <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#25D366]/15 text-[#25D366]">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
-          <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-ink/8 text-xs font-bold tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-clay">IG</span><span className="font-semibold">Instagram</span></a>
-          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
-            <div className="grid h-32 place-items-center bg-[linear-gradient(135deg,#d8d0c2,#f8f6f1_45%,#b98364_160%)] text-center text-sm font-semibold text-ink/75">Ver ubicacion en Google Maps</div>
-          </a>
+        ) : (
+          <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/82 p-8 shadow-soft backdrop-blur-sm">
+            <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
+            <p className="mt-4 text-lg leading-8 text-ink/76">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
+            <form className="mt-7 space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <input type="text" placeholder="Nombre" aria-label="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+              <input type="tel" placeholder="Teléfono" aria-label="Teléfono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+              <textarea placeholder="Medidas, estilo y plazo..." aria-label="Medidas, estilo y plazo" value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} rows={3} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+              <a href={`https://wa.me/${PHONE_INTL}?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" className="block rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</a>
+            </form>
+          </div>
+        )}
+        <div className={`space-y-4 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
+          {cardless ? (
+            <div>
+              <LogoMark className="mb-6 h-16 w-16" />
+              <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
+              <p className="mt-3 text-ink/65">{ADDRESS}</p>
+            </div>
+          ) : (
+            <div className="rounded-[2.4rem] border border-ink/6 bg-ink p-7 text-white shadow-lift">
+              <LogoMark className="mb-6 h-16 w-16" />
+              <p className="font-display text-3xl leading-tight">AREA LRMQ Tienda</p>
+              <p className="mt-3 text-white/70">{ADDRESS}</p>
+            </div>
+          )}
+          {cardless ? (
+            <>
+              <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-[#25D366] text-sm font-bold">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
+              <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-xs font-bold text-ink/50 tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-sm font-bold text-clay">IG</span><span className="font-semibold">Instagram</span></a>
+              <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block py-3 text-ink transition hover:opacity-70"><span className="font-semibold">Ver ubicación</span></a>
+            </>
+          ) : (
+            <>
+              <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#25D366]/15 text-[#25D366]">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
+              <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-ink/8 text-xs font-bold tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-clay">IG</span><span className="font-semibold">Instagram</span></a>
+              <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
+                <div className="grid h-32 place-items-center bg-[linear-gradient(135deg,#d8d0c2,#f8f6f1_45%,#b98364_160%)] text-center text-sm font-semibold text-ink/75">Ver ubicación</div>
+              </a>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -573,19 +681,20 @@ function MobileSections() {
 
 export default function App() {
   const { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
+  const [cardless, setCardless] = useState(false);
   const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const chapters = [
-    <Inicio step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} />,
-    <Coleccion step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
-    <Reformas smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} />,
-    <Vision step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} skipBlocked={skipBlocked} />,
-    <Contact step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} />,
+    <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} cardless={cardless} />,
+    <Coleccion key="coleccion" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} cardless={cardless} />,
+    <Reformas key="reformas" smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} cardless={cardless} />,
+    <Vision key="vision" step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} skipBlocked={skipBlocked} cardless={cardless} />,
+    <Contact key="contacto" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} cardless={cardless} />,
   ];
 
   return (
     <main className="font-body text-ink" id="contenido">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
-      <Header activeSectionId={activeSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} />
+      <Header activeSectionId={activeSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
           <ChapterDots active={activeChapter} labels={chapterLabels} />
