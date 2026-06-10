@@ -225,7 +225,7 @@ function Inicio({ step, isActive }) {
       </div>
       <div className={`absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-500 ${s >= 1 ? 'opacity-0' : 'opacity-100'}`}>
         <span className="block h-8 w-px bg-white/35 mx-auto" />
-        <span className="mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Desliza</span>
+        <span className="mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Gira para avanzar</span>
       </div>
       <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-14 sm:px-6">
         <div className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-3">
@@ -333,7 +333,7 @@ function Reformas({ smoothProgress, isActive }) {
             ))}
           </div>
           <div className="mt-7 h-1.5 w-full rounded-full bg-ink/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${progress * 100}%` }} /></div>
-          <p className="mt-3 text-center text-xs font-medium uppercase tracking-wider text-ink/40">{videoProgress >= 1 ? 'Video completo. Un gesto mas para continuar.' : `Avance de obra ${Math.round(videoProgress * 100)}%`}</p>
+          <p className="mt-3 text-center text-xs font-medium uppercase tracking-wider text-ink/40">{videoProgress >= 1 ? 'Proyecto completo. Gira para continuar.' : `Avance de obra ${Math.round(videoProgress * 100)}%`}</p>
         </div>
       </div>
     </div>
@@ -409,7 +409,7 @@ function Vision({ step, isActive, setBlocked, skipBlocked }) {
 function Contact({ step, isActive }) {
   const s = isActive ? step : 0;
   const [form, setForm] = useState({ nombre: '', telefono: '', mensaje: '' });
-  const whatsappText = encodeURIComponent(`Hola AREA LRMQ, quiero informacion sobre una reforma. Nombre: ${form.nombre}. Telefono: ${form.telefono}. Mensaje: ${form.mensaje}`);
+  const whatsappText = encodeURIComponent(`Hola AREA LRMQ, quiero información sobre una reforma. Nombre: ${form.nombre}. Teléfono: ${form.telefono}. Mensaje: ${form.mensaje}`);
 
   return (
     <div className="flex h-full items-center bg-transparent px-6">
@@ -418,9 +418,9 @@ function Contact({ step, isActive }) {
           <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
           <p className="mt-4 text-lg leading-8 text-ink/76">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
           <form className="mt-7 space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <input type="text" placeholder="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <input type="tel" placeholder="Telefono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <textarea placeholder="Medidas, estilo y plazo..." value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} rows={3} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <input type="text" placeholder="Nombre" aria-label="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <input type="tel" placeholder="Teléfono" aria-label="Teléfono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <textarea placeholder="Medidas, estilo y plazo..." aria-label="Medidas, estilo y plazo" value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} rows={3} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
             <a href={`https://wa.me/${PHONE_INTL}?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" className="block rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</a>
           </form>
         </div>
@@ -528,14 +528,15 @@ function MobileSections() {
         <div className="mx-auto max-w-lg">
           <h2 className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Del boceto al baño.</h2>
           <p className="mt-4 text-base leading-7 text-ink/72">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
-          <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-ink/6 p-3 shadow-soft">
-            <div className="relative">
-              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full rounded-[1.5rem] object-contain bg-white" />
-              <div className="absolute inset-0 flex items-center justify-center" style={{ width: '50%' }}>
-                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="h-full w-full rounded-l-[1.5rem] object-contain bg-white" style={{ clipPath: 'inset(0 0 0 0)', filter: 'grayscale(0.35) contrast(1.08)' }} />
+          <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-ink/4 p-2 shadow-soft">
+            <div className="relative overflow-hidden rounded-[1.5rem]">
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full object-contain bg-white" />
+              <div className="absolute inset-y-0 left-0 overflow-hidden" style={{ width: '50%' }}>
+                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="h-full w-full object-contain bg-white" style={{ filter: 'grayscale(0.35) contrast(1.08)', objectPosition: 'left' }} />
               </div>
-              <div className="absolute bottom-3 left-3 rounded-full bg-ink/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">Boceto</div>
-              <div className="absolute bottom-3 right-3 rounded-full bg-ink/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">Final</div>
+              <div className="absolute inset-y-0 left-0 w-px bg-clay shadow-lg" style={{ left: '50%' }} />
+              <span className="absolute bottom-2 left-2 rounded-full bg-ink/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm">Boceto</span>
+              <span className="absolute bottom-2 right-2 rounded-full bg-ink/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm">Final</span>
             </div>
           </div>
         </div>
@@ -559,9 +560,9 @@ function MobileSections() {
             </a>
           </div>
           <form className="mt-5 space-y-3" onSubmit={(e) => e.preventDefault()}>
-            <input type="text" placeholder="Nombre" className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <input type="tel" placeholder="Teléfono" className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
-            <textarea placeholder="Medidas, estilo y plazo..." rows={2} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <input type="text" placeholder="Nombre" aria-label="Nombre" className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <input type="tel" placeholder="Teléfono" aria-label="Teléfono" className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <textarea placeholder="Medidas, estilo y plazo..." aria-label="Medidas, estilo y plazo" rows={2} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
             <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero información sobre una reforma.')}`} target="_blank" rel="noopener noreferrer" className="block rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</a>
           </form>
         </div>
