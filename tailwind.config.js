@@ -6,6 +6,7 @@ export default {
       colors: {
         ink: '#151515',
         stonewash: '#f4f1ec',
+        pearl: '#f7f3eb',
         porcelain: '#fbfaf7',
         clay: '#b98364',
         graphite: '#2e3134',
@@ -17,8 +18,8 @@ export default {
         glass: '0 1px 0 rgba(255,255,255,0.7) inset, 0 30px 70px rgba(30,30,30,0.12)',
       },
       fontFamily: {
-        display: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        body: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },
