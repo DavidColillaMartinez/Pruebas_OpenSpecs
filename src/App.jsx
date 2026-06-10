@@ -259,7 +259,7 @@ function Inicio({ step, isActive, cardless }) {
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
       <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
-       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-28 w-28 -translate-x-1/2 opacity-90" minimal={cardless} />
+       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-36 w-36 -translate-x-1/2 opacity-90" minimal={cardless} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ Tienda</h1>
@@ -452,72 +452,82 @@ function Reformas({ smoothProgress, isActive, cardless }) {
   );
 }
 
-function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
+function Vision({ step, isActive, setBlocked, cardless }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
   const [videoDone, setVideoDone] = useState(false);
+  const [showReveal, setShowReveal] = useState(false);
   const [sliderX, setSliderX] = useState(0.5);
   const s = isActive ? step : 0;
 
   useEffect(() => {
-    if (!isActive) { if (videoRef.current) videoRef.current.pause(); return; }
-    if (!videoRef.current || videoDone) return;
+    if (!isActive) { if (videoRef.current) videoRef.current.pause(); setVideoDone(false); setShowReveal(false); return; }
+    if (!videoRef.current) return;
+    if (videoDone) { videoRef.current.pause(); return; }
     setBlocked(true);
     videoRef.current.currentTime = 0;
+    setShowReveal(false);
     videoRef.current.play().catch(() => { setVideoDone(true); setBlocked(false); });
-    const done = () => { setVideoDone(true); setBlocked(false); };
+    const done = () => { videoRef.current?.pause(); setShowReveal(true); setBlocked(false); };
     videoRef.current.addEventListener('ended', done);
     return () => { videoRef.current?.removeEventListener('ended', done); setBlocked(false); };
   }, [isActive, setBlocked, videoDone]);
 
-  const handleSkip = () => { if (skipBlocked) skipBlocked(); setVideoDone(true); setBlocked(false); };
+  const handleReveal = () => { setVideoDone(true); };
 
   const setFromClientX = (clientX) => {
     if (!sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
     setSliderX(Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)));
   };
-  const onPointerDown = (e) => { if (!videoDone) return; e.preventDefault(); draggingRef.current = true; setFromClientX(e.clientX); };
+  const onPointerDown = (e) => { e.preventDefault(); draggingRef.current = true; setFromClientX(e.clientX); };
   useEffect(() => {
     const move = (e) => { if (draggingRef.current) setFromClientX(e.clientX); };
     const up = () => { draggingRef.current = false; };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
-  }, [videoDone]);
+  }, []);
 
   return (
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
         <div ref={sliderRef} role="slider" tabIndex={0} aria-label="Comparar boceto con imagen final" aria-valuenow={Math.round(sliderX * 100)} aria-valuemin={0} aria-valuemax={100}
           onPointerDown={onPointerDown}
-          onKeyDown={(e) => { if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
+          onKeyDown={(e) => { if (!videoDone) return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
           className={`relative aspect-[4/3] select-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-clay/30 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
-          style={{ touchAction: 'none' }}>
+          style={{ touchAction: videoDone ? 'none' : 'auto' }}>
 
-          {videoDone ? (
-            <>
+          <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className={`absolute inset-0 h-full w-full object-cover bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
+
+          {videoDone && (
+            <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
               <img src="/boceto-final.png" alt="Imagen final del proyecto" className={`absolute inset-0 h-full w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} />
-              <div className={`absolute inset-0 overflow-hidden ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} style={{ clipPath: `inset(0 ${(1 - sliderX) * 100}% 0 0)` }}>
-                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" style={{ filter: 'grayscale(0.35) contrast(1.08)' }} draggable={false} />
-              </div>
+            </div>
+          )}
+
+          {videoDone && (
+            <>
               <span className={`absolute bottom-3 left-3 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none ${sliderX < 0.15 ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>Boceto</span>
               <span className={`absolute bottom-3 right-3 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none ${sliderX > 0.85 ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>Final</span>
               <div className="absolute bottom-0 top-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
                 <div className="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift"><span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span></div>
               </div>
             </>
-          ) : (
-            <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className={`absolute inset-0 h-full w-full object-cover bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
+          )}
+
+          {showReveal && !videoDone && (
+            <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
+              <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-white px-8 py-3.5 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
+            </div>
           )}
         </div>
         {cardless ? (
           <div className="border-l-2 border-clay/30 pl-6">
-            <LogoMark className="mb-7 h-16 w-16" minimal />
+            <LogoMark className="mb-7 h-20 w-20" minimal />
             <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
             <p className={`mt-6 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
-            <div className="mt-5 h-10">{!videoDone && <button type="button" onClick={handleSkip} className="rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}</div>
           </div>
         ) : (
           <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
@@ -525,7 +535,6 @@ function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
               <LogoMark className="mb-7 h-16 w-16 opacity-35" />
               <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
               <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
-              <div className="mt-5 h-10">{!videoDone && <button type="button" onClick={handleSkip} className="rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}</div>
             </div>
           </div>
         )}
@@ -568,7 +577,7 @@ function Contact({ step, isActive, cardless }) {
         <div className={`space-y-4 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
           {cardless ? (
             <div>
-              <LogoMark className="mb-6 h-16 w-16" minimal />
+              <LogoMark className="mb-6 h-20 w-20" minimal />
               <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
               <p className="mt-3 text-ink/65">{ADDRESS}</p>
             </div>
@@ -749,7 +758,7 @@ export default function App() {
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} cardless={cardless} />,
     <Coleccion key="coleccion" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} cardless={cardless} />,
     <Reformas key="reformas" smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} cardless={cardless} />,
-    <Vision key="vision" step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} skipBlocked={skipBlocked} cardless={cardless} />,
+    <Vision key="vision" step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} cardless={cardless} />,
     <Contact key="contacto" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} cardless={cardless} />,
   ];
 
