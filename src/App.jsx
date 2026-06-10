@@ -449,11 +449,123 @@ function ChapterDots({ active, labels }) {
 function MobileSections() {
   return (
     <>
-      <section id="inicio" className="relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden px-4 sm:px-6"><Inicio step={3} isActive /></section>
-      <section id="coleccion" className="min-h-screen px-4 py-20 sm:px-6"><Coleccion step={8} isActive /></section>
-      <section id="reformas" className="min-h-screen px-4 py-20 sm:px-6"><Reformas smoothProgress={1} isActive /></section>
-      <section id="vision" className="min-h-screen px-4 py-20 sm:px-6"><Vision step={2} isActive setBlocked={() => {}} skipBlocked={() => {}} /></section>
-      <section id="contacto" className="min-h-screen px-4 py-20 sm:px-6"><Contact step={1} isActive /></section>
+      <section id="inicio" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=1200&q=80" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/40 to-ink/78" />
+        <div className="relative z-10 mx-auto max-w-lg px-6 pt-20 pb-28 text-center">
+          <LogoMark className="mx-auto mb-6 h-20 w-20 opacity-90" />
+          <h1 className="font-display text-4xl leading-[0.9] tracking-[0.045em] text-white sm:text-5xl text-wrap-balance">AREA LRMQ Tienda</h1>
+          <p className="mx-auto mt-4 max-w-xs text-lg leading-8 text-white/78">Baños, materiales y decisiones visuales con medida.</p>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-6">
+          <div className="grid gap-3 sm:grid-cols-3">
+            {methodSteps.map((item, index) => (
+              <article key={item.title} className="rounded-[1.2rem] border border-white/12 bg-ink/28 p-4 shadow-lift backdrop-blur-sm">
+                <span className="font-display text-2xl text-clay">{index + 1}</span>
+                <h3 className="mt-2 text-base font-semibold text-white">{item.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-white/65">{item.copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="coleccion" className="bg-transparent px-5 py-16 sm:px-6">
+        <div className="mx-auto max-w-lg">
+          <h2 className="text-center font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Cuatro decisiones, una lectura.</h2>
+          <p className="mx-auto mt-4 max-w-sm text-center text-base leading-7 text-ink/72">La tienda ordena vidrio, superficie, metal y detalle para que el baño tenga una sola dirección visual.</p>
+        </div>
+        <div className="mx-auto mt-10 flex max-w-lg flex-col gap-5">
+          <article className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 shadow-soft">
+            <img src={categories[0].image} alt={categories[0].imageAlt} className="aspect-[4/3] w-full object-cover" loading="lazy" />
+            <div className="p-5">
+              <p className="text-sm font-semibold text-clay">{categories[0].label}</p>
+              <h3 className="mt-2 font-display text-3xl leading-none tracking-[0.035em] text-ink">{categories[0].title}</h3>
+              <p className="mt-3 text-base leading-7 text-ink/72">{categories[0].copy}</p>
+            </div>
+          </article>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <article className="rounded-[1.6rem] border border-ink/6 bg-pearl/82 p-4 shadow-soft">
+              <img src={categories[1].image} alt={categories[1].imageAlt} className="aspect-square w-full rounded-[1.1rem] object-cover" loading="lazy" />
+              <p className="mt-3 text-sm font-semibold text-clay">{categories[1].label}</p>
+              <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-ink">{categories[1].title}</h3>
+            </article>
+            <article className="rounded-[1.6rem] border border-ink/6 bg-white/62 shadow-soft">
+              <img src={categories[2].image} alt={categories[2].imageAlt} className="aspect-[4/3] w-full rounded-t-[1.6rem] object-cover" loading="lazy" />
+              <div className="p-4">
+                <p className="text-sm font-semibold text-clay">{categories[2].label}</p>
+                <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-ink">{categories[2].title}</h3>
+              </div>
+            </article>
+          </div>
+          <article className="rounded-[1.6rem] border border-ink/6 bg-ink p-5 text-white shadow-lift">
+            <p className="text-sm font-semibold text-clay">{categories[3].label}</p>
+            <h3 className="mt-2 font-display text-2xl leading-none tracking-[0.035em]">{categories[3].title}</h3>
+            <p className="mt-3 text-sm leading-7 text-white/68">{categories[3].copy}</p>
+          </article>
+          <aside className="rounded-[1.6rem] border border-clay/20 bg-white/70 p-5 shadow-soft">
+            <p className="text-base leading-7 text-ink/72">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section id="reformas" className="bg-transparent px-5 py-16 sm:px-6">
+        <div className="mx-auto max-w-lg">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
+          <h2 className="mt-3 font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Reforma en 21 días.</h2>
+          <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/44 p-3 shadow-lift">
+            <video src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="w-full rounded-[1.5rem]" aria-label="Video stopmotion de reforma de baño completo" />
+          </div>
+          <div className="mt-6 space-y-3 text-base leading-relaxed text-ink/72">
+            {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
+              <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="vision" className="bg-transparent px-5 py-16 sm:px-6">
+        <div className="mx-auto max-w-lg">
+          <h2 className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Del boceto al baño.</h2>
+          <p className="mt-4 text-base leading-7 text-ink/72">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
+          <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-ink/6 p-3 shadow-soft">
+            <div className="relative">
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full rounded-[1.5rem] object-contain bg-white" />
+              <div className="absolute inset-0 flex items-center justify-center" style={{ width: '50%' }}>
+                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="h-full w-full rounded-l-[1.5rem] object-contain bg-white" style={{ clipPath: 'inset(0 0 0 0)', filter: 'grayscale(0.35) contrast(1.08)' }} />
+              </div>
+              <div className="absolute bottom-3 left-3 rounded-full bg-ink/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">Boceto</div>
+              <div className="absolute bottom-3 right-3 rounded-full bg-ink/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">Final</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contacto" className="bg-transparent px-5 py-16 sm:px-6">
+        <div className="mx-auto max-w-lg">
+          <h2 className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Hablemos de tu baño.</h2>
+          <p className="mt-3 text-base leading-7 text-ink/72">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
+          <div className="mt-6 rounded-[2rem] border border-ink/6 bg-ink p-5 text-white shadow-lift">
+            <LogoMark className="mb-5 h-14 w-14" />
+            <p className="font-display text-2xl leading-tight">AREA LRMQ Tienda</p>
+            <p className="mt-2 text-white/65 text-sm">{ADDRESS}</p>
+          </div>
+          <div className="mt-4 space-y-3">
+            <a href={`https://wa.me/${PHONE_INTL}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#25D366]/15 text-xs font-bold text-[#25D366]">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
+            <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-ink/8 text-xs font-bold tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-xs font-bold text-clay">IG</span><span className="font-semibold">Instagram</span></a>
+            <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
+              <div className="grid h-28 place-items-center bg-[linear-gradient(135deg,#d8d0c2,#f8f6f1_45%,#b98364_160%)] text-center text-sm font-semibold text-ink/75">Ver ubicación</div>
+            </a>
+          </div>
+          <form className="mt-5 space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <input type="text" placeholder="Nombre" className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <input type="tel" placeholder="Teléfono" className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <textarea placeholder="Medidas, estilo y plazo..." rows={2} className="w-full resize-none rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+            <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero información sobre una reforma.')}`} target="_blank" rel="noopener noreferrer" className="block rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</a>
+          </form>
+        </div>
+      </section>
     </>
   );
 }
