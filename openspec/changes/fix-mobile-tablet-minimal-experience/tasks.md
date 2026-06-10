@@ -45,12 +45,12 @@
 
 ## 8. Header, navigation, and a11y baseline
 
-- [ ] 8.1 Confirm the `Saltar al contenido` link is the first focusable element on mobile too and is visually hidden until focused.
-- [ ] 8.2 Ensure the hamburger drawer is dismissible with Escape and outside click and that body scroll is locked while open.
-- [ ] 8.3 Set `lang="es"` on `<html>` and verify all interactive header elements have at least 44px hit area on mobile.
-- [ ] 8.4 Audit heading order: one `<h1>` (Inicio), one `<h2>` per section, no skipped levels; add `aria-labelledby` to each section.
-- [ ] 8.5 Verify CSS does not remove outlines globally; add a visible focus ring (clay) on every interactive element with at least 3:1 contrast.
-- [ ] 8.6 Audit text contrast on white (ink/graphite/clay) and adjust any failing combination to meet WCAG AA.
+- [x] 8.1 Confirm the `Saltar al contenido` link is the first focusable element on mobile too and is visually hidden until focused.
+- [x] 8.2 Ensure the hamburger drawer is dismissible with Escape and outside click and that body scroll is locked while open.
+- [x] 8.3 Set `lang="es"` on `<html>` and verify all interactive header elements have at least 44px hit area on mobile.
+- [x] 8.4 Audit heading order: one `<h1>` (Inicio), one `<h2>` per section, no skipped levels; add `aria-labelledby` to each section.
+- [x] 8.5 Verify CSS does not remove outlines globally; add a visible focus ring (clay) on every interactive element with at least 3:1 contrast.
+- [x] 8.6 Audit text contrast on white (ink/graphite/clay) and adjust any failing combination to meet WCAG AA.
 
 ## 9. SEO baseline
 

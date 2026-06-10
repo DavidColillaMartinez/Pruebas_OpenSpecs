@@ -9,6 +9,7 @@ export default {
         pearl: '#f7f3eb',
         porcelain: '#fbfaf7',
         clay: '#b98364',
+        'clay-deep': '#7a4d33',
         graphite: '#2e3134',
         mist: '#d9e4e2',
       },
