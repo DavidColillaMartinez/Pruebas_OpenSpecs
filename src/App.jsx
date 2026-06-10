@@ -239,9 +239,9 @@ function Inicio({ step, isActive, cardless }) {
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
        <LogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" minimal={cardless} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
-        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay-deep"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
+        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
-        <p className="mt-4 text-3xl font-semibold tracking-[0.16em] text-clay-deep uppercase">DESIGN S.L.</p>
+        <p className="mt-4 text-3xl font-semibold tracking-[0.16em] text-clay uppercase">DESIGN S.L.</p>
       </div>
       <div className={`absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-500 ${s >= 1 ? 'opacity-0' : 'opacity-100'}`}>
         <span className="block h-8 w-px bg-white/35 mx-auto" />
@@ -252,13 +252,13 @@ function Inicio({ step, isActive, cardless }) {
           {methodSteps.map((item, index) => (
             cardless ? (
               <article key={item.title} className={`border-l-2 border-clay/40 pl-5 text-left transition-all duration-500 ease-out ${s > index ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}>
-                <span className="font-display text-3xl text-clay-deep">{index + 1}</span>
+                <span className="font-display text-3xl text-clay">{index + 1}</span>
                 <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>
               </article>
             ) : (
               <article key={item.title} className={`rounded-[1.6rem] border border-white/14 bg-ink/30 p-5 text-left shadow-lift backdrop-blur-sm transition-all duration-500 ease-out ${s > index ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}>
-                <span className="font-display text-3xl text-clay-deep">{index + 1}</span>
+                <span className="font-display text-3xl text-clay">{index + 1}</span>
                 <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>
               </article>
@@ -289,24 +289,24 @@ function Coleccion({ step, isActive, cardless }) {
             <div className={`transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[2px]'}`}>
               <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.8rem] object-cover" loading="lazy" />
               <div className={`mt-6 transition-all duration-500 ease-out ${s >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-                <p className="mb-2 border-l-2 border-clay/35 pl-4 text-sm font-semibold text-clay-deep">{featured.label}</p>
+                <p className="mb-2 border-l-2 border-clay/35 pl-4 text-sm font-semibold text-clay">{featured.label}</p>
                 <h3 className="font-display text-4xl leading-none tracking-[0.035em] text-ink">{featured.title}</h3>
                 <p className="mt-4 max-w-xl text-base leading-7 text-ink/72">{featured.copy}</p>
               </div>
             </div>
             <div className="space-y-8 self-end">
               <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 4 ? 'opacity-100 translate-x-0 blur-0' : 'opacity-0 translate-x-8 blur-[1px]'}`}>
-                <p className="text-sm font-semibold text-clay-deep">{tray.label}</p>
+                <p className="text-sm font-semibold text-clay">{tray.label}</p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{tray.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/68">{tray.copy}</p>
               </div>
               <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 5 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
-                <p className="text-sm font-semibold text-clay-deep">{taps.label}</p>
+                <p className="text-sm font-semibold text-clay">{taps.label}</p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{taps.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/68">{taps.copy}</p>
               </div>
               <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 6 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
-                <p className="text-sm font-semibold text-clay-deep">{accessories.label}</p>
+                <p className="text-sm font-semibold text-clay">{accessories.label}</p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{accessories.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/68">{accessories.copy}</p>
               </div>
@@ -336,7 +336,7 @@ function Coleccion({ step, isActive, cardless }) {
               <img src={featured.image} alt={featured.imageAlt} className="absolute inset-0 h-full w-full object-cover opacity-95 transition duration-700 group-hover:scale-[1.03]" loading="lazy" />
             </div>
             <div className={`px-3 pb-2 pt-5 transition-all duration-500 ease-out ${s >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-7'}`}>
-              <p className="text-sm font-semibold text-clay-deep">{featured.label}</p>
+              <p className="text-sm font-semibold text-clay">{featured.label}</p>
               <h3 className="mt-3 font-display text-4xl leading-none tracking-[0.035em] text-ink">{featured.title}</h3>
               <p className="mt-4 max-w-xl text-base leading-7 text-ink/76">{featured.copy}</p>
             </div>
@@ -346,7 +346,7 @@ function Coleccion({ step, isActive, cardless }) {
             <article className={`flex min-h-[140px] gap-5 rounded-[2rem] border border-ink/6 bg-pearl/82 p-4 shadow-soft transition-all duration-500 ease-out ${s >= 4 ? 'opacity-100 translate-x-0 blur-0' : 'opacity-0 translate-x-8 blur-[1px]'}`}>
               <img src={tray.image} alt={tray.imageAlt} className="h-28 w-28 shrink-0 rounded-[1.4rem] object-cover shadow-soft" loading="lazy" />
               <div className="self-center">
-                <p className="text-sm font-semibold text-clay-deep">{tray.label}</p>
+                <p className="text-sm font-semibold text-clay">{tray.label}</p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{tray.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/72">{tray.copy}</p>
               </div>
@@ -356,13 +356,13 @@ function Coleccion({ step, isActive, cardless }) {
               <article className={`overflow-hidden rounded-[2rem] border border-ink/6 bg-white/62 shadow-soft transition-all duration-500 ease-out ${s >= 5 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
                 <img src={taps.image} alt={taps.imageAlt} className="h-32 w-full object-cover" loading="lazy" />
                 <div className="p-5">
-                  <p className="text-sm font-semibold text-clay-deep">{taps.label}</p>
+                  <p className="text-sm font-semibold text-clay">{taps.label}</p>
                   <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink">{taps.title}</h3>
                 </div>
               </article>
 
               <article className={`rounded-[2rem] border border-ink/6 bg-ink p-6 text-white shadow-lift transition-all duration-500 ease-out ${s >= 6 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
-                <p className="text-sm font-semibold text-clay-deep">{accessories.label}</p>
+                <p className="text-sm font-semibold text-clay">{accessories.label}</p>
                 <h3 className="mt-3 font-display text-3xl leading-none tracking-[0.035em]">{accessories.title}</h3>
                 <p className="mt-4 text-sm leading-7 text-white/72">{accessories.copy}</p>
               </article>
@@ -402,11 +402,11 @@ function Reformas({ smoothProgress, isActive, cardless }) {
         )}
         {cardless ? (
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay-deep">Proyecto real</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
             <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>
             <div className="mt-7 space-y-4">
               {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
-                <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay-deep">{index + 1}</span><span className="text-ink/72">{text}</span></p>
+                <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span className="text-ink/72">{text}</span></p>
               ))}
             </div>
             <div className="mt-7 h-1.5 w-full rounded-full bg-ink/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${videoProgress * 100}%` }} /></div>
@@ -414,11 +414,11 @@ function Reformas({ smoothProgress, isActive, cardless }) {
           </div>
         ) : (
           <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay-deep">Proyecto real</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
             <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>
             <div className="mt-7 space-y-4 text-base leading-relaxed text-ink/75">
               {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
-                <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay-deep">{index + 1}</span><span>{text}</span></p>
+                <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
               ))}
             </div>
             <div className="mt-7 h-1.5 w-full rounded-full bg-ink/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${videoProgress * 100}%` }} /></div>
@@ -568,14 +568,14 @@ function Contact({ step, isActive, cardless }) {
             <>
               <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-[#25D366] text-sm font-bold">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
               <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-xs font-bold text-ink/50 tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
-              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-sm font-bold text-clay-deep">IG</span><span className="font-semibold">Instagram</span></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 py-3 text-ink transition hover:opacity-70"><span className="text-sm font-bold text-clay">IG</span><span className="font-semibold">Instagram</span></a>
               <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block py-3 text-ink transition hover:opacity-70"><span className="font-semibold">Ver ubicación</span></a>
             </>
           ) : (
             <>
               <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#25D366]/15 text-[#25D366]">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
               <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-ink/8 text-xs font-bold tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
-              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-clay-deep">IG</span><span className="font-semibold">Instagram</span></a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-clay">IG</span><span className="font-semibold">Instagram</span></a>
               <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
                 <div className="grid h-32 place-items-center bg-[linear-gradient(135deg,#d8d0c2,#f8f6f1_45%,#b98364_160%)] text-center text-sm font-semibold text-ink/75">Ver ubicación</div>
               </a>
@@ -606,7 +606,7 @@ function MobileSections({ cardless, reducedMotion }) {
 function MobileSectionShell({ id, label, titleId, children, ariaLabel }) {
   return (
     <section id={id} aria-labelledby={titleId} aria-label={ariaLabel} className="px-5 py-20 sm:px-8 sm:py-24">
-      {label && <p className="mx-auto max-w-2xl text-xs font-semibold uppercase tracking-[0.22em] text-clay-deep">{label}</p>}
+      {label && <p className="mx-auto max-w-2xl text-xs font-semibold uppercase tracking-[0.22em] text-clay">{label}</p>}
       <div className="mx-auto max-w-2xl pt-3">{children}</div>
     </section>
   );
@@ -621,7 +621,7 @@ function MobileInicio({ cardless }) {
         <div className="relative z-10 mx-auto max-w-lg px-6 pt-20 pb-28 text-center">
           <LogoMark className="mx-auto mb-6 h-20 w-20 opacity-90" />
           <h1 className="font-display text-4xl leading-[0.9] tracking-[0.045em] text-white sm:text-5xl text-wrap-balance">AREA LRMQ</h1>
-          <p className="mt-3 text-xl font-semibold tracking-[0.14em] text-clay-deep uppercase">DESIGN S.L.</p>
+          <p className="mt-3 text-xl font-semibold tracking-[0.14em] text-clay uppercase">DESIGN S.L.</p>
         </div>
       </section>
     );
@@ -631,7 +631,7 @@ function MobileInicio({ cardless }) {
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center">
         <LogoMark className="mb-8 h-28 w-28 sm:h-32 sm:w-32" minimal />
         <h1 id="mobile-inicio-title" className="font-display text-5xl leading-[0.92] tracking-[0.045em] text-ink sm:text-6xl text-wrap-balance">AREA LRMQ</h1>
-        <p className="mt-3 text-base font-semibold tracking-[0.18em] text-clay-deep uppercase sm:text-lg">DESIGN S.L.</p>
+        <p className="mt-3 text-base font-semibold tracking-[0.18em] text-clay uppercase sm:text-lg">DESIGN S.L.</p>
         <p className="mt-6 max-w-md text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Baños, materiales y decisiones visuales con medida. Mamparas a medida, platos minerales, grifería premium y accesorios.</p>
         <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero pedir asesoría para mi baño.')}`} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Pedir asesoría</a>
       </div>
@@ -655,7 +655,7 @@ function MobileColeccion({ cardless }) {
           <article className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/70 shadow-soft">
             <img src={categories[0].image} alt={categories[0].imageAlt} className="aspect-[4/3] w-full object-cover" loading="lazy" />
             <div className="p-5">
-              <p className="text-sm font-semibold text-clay-deep">{categories[0].label}</p>
+              <p className="text-sm font-semibold text-clay">{categories[0].label}</p>
               <h3 className="mt-2 font-display text-3xl leading-none tracking-[0.035em] text-ink">{categories[0].title}</h3>
               <p className="mt-3 text-base leading-7 text-ink/72">{categories[0].copy}</p>
             </div>
@@ -663,19 +663,19 @@ function MobileColeccion({ cardless }) {
           <div className="grid gap-5 sm:grid-cols-2">
             <article className="rounded-[1.6rem] border border-ink/6 bg-pearl/82 p-4 shadow-soft">
               <img src={categories[1].image} alt={categories[1].imageAlt} className="aspect-square w-full rounded-[1.1rem] object-cover" loading="lazy" />
-              <p className="mt-3 text-sm font-semibold text-clay-deep">{categories[1].label}</p>
+              <p className="mt-3 text-sm font-semibold text-clay">{categories[1].label}</p>
               <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-ink">{categories[1].title}</h3>
             </article>
             <article className="rounded-[1.6rem] border border-ink/6 bg-white/62 shadow-soft">
               <img src={categories[2].image} alt={categories[2].imageAlt} className="aspect-[4/3] w-full rounded-t-[1.6rem] object-cover" loading="lazy" />
               <div className="p-4">
-                <p className="text-sm font-semibold text-clay-deep">{categories[2].label}</p>
+                <p className="text-sm font-semibold text-clay">{categories[2].label}</p>
                 <h3 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-ink">{categories[2].title}</h3>
               </div>
             </article>
           </div>
           <article className="rounded-[1.6rem] border border-ink/6 bg-ink p-5 text-white shadow-lift">
-            <p className="text-sm font-semibold text-clay-deep">{categories[3].label}</p>
+            <p className="text-sm font-semibold text-clay">{categories[3].label}</p>
             <h3 className="mt-2 font-display text-2xl leading-none tracking-[0.035em]">{categories[3].title}</h3>
             <p className="mt-3 text-sm leading-7 text-white/68">{categories[3].copy}</p>
           </article>
@@ -692,23 +692,23 @@ function MobileColeccion({ cardless }) {
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">La tienda no separa piezas por catálogo. Ordena vidrio, superficie, metal y detalle para que el baño tenga una sola dirección visual.</p>
       <div className="mt-10 overflow-hidden border-l-2 border-clay/35 pl-5">
         <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.4rem] object-cover" loading="lazy" />
-        <p className="mt-6 text-sm font-semibold text-clay-deep">{featured.label}</p>
+        <p className="mt-6 text-sm font-semibold text-clay">{featured.label}</p>
         <h3 className="mt-2 font-display text-3xl leading-none tracking-[0.035em] text-ink sm:text-4xl">{featured.title}</h3>
         <p className="mt-3 text-base leading-7 text-ink/72">{featured.copy}</p>
       </div>
       <div className="mt-10 space-y-7">
         <div className="border-l-2 border-clay/25 pl-5">
-          <p className="text-sm font-semibold text-clay-deep">{tray.label}</p>
+          <p className="text-sm font-semibold text-clay">{tray.label}</p>
           <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{tray.title}</h3>
           <p className="mt-2 text-base leading-7 text-ink/72">{tray.copy}</p>
         </div>
         <div className="border-l-2 border-clay/25 pl-5">
-          <p className="text-sm font-semibold text-clay-deep">{taps.label}</p>
+          <p className="text-sm font-semibold text-clay">{taps.label}</p>
           <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{taps.title}</h3>
           <p className="mt-2 text-base leading-7 text-ink/72">{taps.copy}</p>
         </div>
         <div className="border-l-2 border-clay/25 pl-5">
-          <p className="text-sm font-semibold text-clay-deep">{accessories.label}</p>
+          <p className="text-sm font-semibold text-clay">{accessories.label}</p>
           <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{accessories.title}</h3>
           <p className="mt-2 text-base leading-7 text-ink/72">{accessories.copy}</p>
         </div>
@@ -738,14 +738,14 @@ function MobileReformas({ cardless, reducedMotion }) {
     return (
       <section id="reformas" aria-labelledby="mobile-reformas-title" className="bg-transparent px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-lg">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-clay-deep">Proyecto real</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
           <h2 id="mobile-reformas-title" className="mt-3 font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Reforma en 21 días.</h2>
           <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/44 p-3 shadow-lift">
             <video src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="w-full rounded-[1.5rem]" aria-label="Video stopmotion de reforma de baño completo" />
           </div>
           <div className="mt-6 space-y-3 text-base leading-relaxed text-ink/72">
             {facts.map((text, index) => (
-              <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay-deep">{index + 1}</span><span>{text}</span></p>
+              <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
             ))}
           </div>
         </div>
@@ -766,7 +766,7 @@ function MobileReformas({ cardless, reducedMotion }) {
       <ol className="mt-8 space-y-4 border-l-2 border-clay/30 pl-5 text-base leading-7 text-ink/75 sm:text-lg">
         {facts.map((text, index) => (
           <li key={text} className="flex items-start gap-3">
-            <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay-deep">{index + 1}</span>
+            <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span>
             <span>{text}</span>
           </li>
         ))}
@@ -897,7 +897,7 @@ function MobileContacto({ cardless }) {
           <div className="mt-4 space-y-3">
             <a href={`https://wa.me/${PHONE_INTL}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-[#25D366]/15 text-xs font-bold text-[#25D366]">WA</span><span className="font-semibold">WhatsApp {PHONE}</span></a>
             <a href={`tel:+34${PHONE}`} className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-ink/8 text-xs font-bold tracking-[0.08em]">TEL</span><span className="font-semibold">Llamar {PHONE}</span></a>
-            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-xs font-bold text-clay-deep">IG</span><span className="font-semibold">Instagram</span></a>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 rounded-2xl border border-ink/8 bg-white/78 p-4 text-ink shadow-soft transition hover:-translate-y-0.5"><span className="grid h-10 w-10 place-items-center rounded-full bg-clay/12 text-xs font-bold text-clay">IG</span><span className="font-semibold">Instagram</span></a>
             <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
               <div className="grid h-28 place-items-center bg-[linear-gradient(135deg,#d8d0c2,#f8f6f1_45%,#b98364_160%)] text-center text-sm font-semibold text-ink/75">Ver ubicación</div>
             </a>
@@ -923,25 +923,25 @@ function MobileContacto({ cardless }) {
       </div>
       <ul className="mt-6 space-y-1 border-l-2 border-clay/15 pl-5">
         <li>
-          <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay-deep sm:text-base">
+          <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-[#25D366]/15 text-[10px] font-bold tracking-[0.08em] text-[#25D366]">WA</span>
             <span className="font-semibold">WhatsApp {PHONE}</span>
           </a>
         </li>
         <li>
-          <a href={`tel:+34${PHONE}`} className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay-deep sm:text-base">
+          <a href={`tel:+34${PHONE}`} className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-ink/8 text-[10px] font-bold tracking-[0.08em] text-ink/70">TEL</span>
             <span className="font-semibold">Llamar {PHONE}</span>
           </a>
         </li>
         <li>
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay-deep sm:text-base">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-clay/12 text-[10px] font-bold text-clay-deep">IG</span>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-clay/12 text-[10px] font-bold text-clay">IG</span>
             <span className="font-semibold">Instagram</span>
           </a>
         </li>
         <li>
-          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay-deep sm:text-base">
+          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-ink/8 text-[10px] font-bold text-ink/70">MAP</span>
             <span className="font-semibold">Ver ubicación</span>
           </a>
@@ -949,15 +949,15 @@ function MobileContacto({ cardless }) {
       </ul>
       <form className="mt-10 space-y-5 border-l-2 border-clay/15 pl-5" onSubmit={(e) => e.preventDefault()}>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay-deep">Nombre</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Nombre</span>
           <input type="text" required aria-label="Nombre" aria-required="true" placeholder="Tu nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="mt-2 w-full border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay-deep">Teléfono</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Teléfono</span>
           <input type="tel" required aria-label="Teléfono" aria-required="true" placeholder="6XX XX XX XX" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="mt-2 w-full border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
         </label>
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay-deep">Mensaje</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Mensaje</span>
           <textarea required aria-label="Mensaje" aria-required="true" placeholder="Medidas, estilo y plazo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
         </label>
         <a href={`https://wa.me/${PHONE_INTL}?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Enviar por WhatsApp</a>
