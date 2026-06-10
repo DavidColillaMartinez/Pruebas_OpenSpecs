@@ -591,10 +591,31 @@ function ChapterDots({ active, labels }) {
   return <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">{sectionIds.map((_, index) => <span key={index} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === active ? 'scale-125 bg-ink' : 'bg-ink/20'}`} />)}<span className="mt-2 text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/50">{labels[active]}</span></div>;
 }
 
-function MobileSections() {
+function MobileSections({ cardless, reducedMotion }) {
   return (
-    <>
-      <section id="inicio" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
+    <div className="bg-transparent text-ink">
+      <MobileInicio cardless={cardless} />
+      <MobileColeccion cardless={cardless} />
+      <MobileReformas cardless={cardless} reducedMotion={reducedMotion} />
+      <MobileVision cardless={cardless} reducedMotion={reducedMotion} />
+      <MobileContacto cardless={cardless} />
+    </div>
+  );
+}
+
+function MobileSectionShell({ id, label, titleId, children, ariaLabel }) {
+  return (
+    <section id={id} aria-labelledby={titleId} aria-label={ariaLabel} className="px-5 py-20 sm:px-8 sm:py-24">
+      {label && <p className="mx-auto max-w-2xl text-xs font-semibold uppercase tracking-[0.22em] text-clay">{label}</p>}
+      <div className="mx-auto max-w-2xl pt-3">{children}</div>
+    </section>
+  );
+}
+
+function MobileInicio({ cardless }) {
+  if (!cardless) {
+    return (
+      <section id="inicio" aria-label="Inicio" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=1200&q=80" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/40 to-ink/78" />
         <div className="relative z-10 mx-auto max-w-lg px-6 pt-20 pb-28 text-center">
@@ -602,22 +623,32 @@ function MobileSections() {
           <h1 className="font-display text-4xl leading-[0.9] tracking-[0.045em] text-white sm:text-5xl text-wrap-balance">AREA LRMQ</h1>
           <p className="mt-3 text-xl font-semibold tracking-[0.14em] text-clay uppercase">DESIGN S.L.</p>
         </div>
-        <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-6">
-          <div className="grid gap-3 sm:grid-cols-3">
-            {methodSteps.map((item, index) => (
-              <article key={item.title} className="rounded-[1.2rem] border border-white/12 bg-ink/28 p-4 shadow-lift backdrop-blur-sm">
-                <span className="font-display text-2xl text-clay">{index + 1}</span>
-                <h3 className="mt-2 text-base font-semibold text-white">{item.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-white/65">{item.copy}</p>
-              </article>
-            ))}
-          </div>
-        </div>
       </section>
+    );
+  }
+  return (
+    <section id="inicio" aria-labelledby="mobile-inicio-title" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-white px-6 pt-24 pb-16 sm:pt-32">
+      <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center">
+        <LogoMark className="mb-8 h-28 w-28 sm:h-32 sm:w-32" minimal />
+        <h1 id="mobile-inicio-title" className="font-display text-5xl leading-[0.92] tracking-[0.045em] text-ink sm:text-6xl text-wrap-balance">AREA LRMQ</h1>
+        <p className="mt-3 text-base font-semibold tracking-[0.18em] text-clay uppercase sm:text-lg">DESIGN S.L.</p>
+        <p className="mt-6 max-w-md text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Baños, materiales y decisiones visuales con medida. Mamparas a medida, platos minerales, grifería premium y accesorios.</p>
+        <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero pedir asesoría para mi baño.')}`} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Pedir asesoría</a>
+      </div>
+    </section>
+  );
+}
 
-      <section id="coleccion" className="bg-transparent px-5 py-16 sm:px-6">
+function MobileColeccion({ cardless }) {
+  const featured = categories[0];
+  const tray = categories[1];
+  const taps = categories[2];
+  const accessories = categories[3];
+  if (!cardless) {
+    return (
+      <section id="coleccion" aria-labelledby="mobile-coleccion-title" className="bg-transparent px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-lg">
-          <h2 className="text-center font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Cuatro decisiones, una lectura.</h2>
+          <h2 id="mobile-coleccion-title" className="text-center font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Cuatro decisiones, una lectura.</h2>
           <p className="mx-auto mt-4 max-w-sm text-center text-base leading-7 text-ink/72">La tienda ordena vidrio, superficie, metal y detalle para que el baño tenga una sola dirección visual.</p>
         </div>
         <div className="mx-auto mt-10 flex max-w-lg flex-col gap-5">
@@ -653,43 +684,210 @@ function MobileSections() {
           </aside>
         </div>
       </section>
+    );
+  }
+  return (
+    <MobileSectionShell id="coleccion" titleId="mobile-coleccion-title" ariaLabel="Colección">
+      <h2 id="mobile-coleccion-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Cuatro decisiones, una lectura.</h2>
+      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">La tienda no separa piezas por catálogo. Ordena vidrio, superficie, metal y detalle para que el baño tenga una sola dirección visual.</p>
+      <div className="mt-10 overflow-hidden border-l-2 border-clay/35 pl-5">
+        <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.4rem] object-cover" loading="lazy" />
+        <p className="mt-6 text-sm font-semibold text-clay">{featured.label}</p>
+        <h3 className="mt-2 font-display text-3xl leading-none tracking-[0.035em] text-ink sm:text-4xl">{featured.title}</h3>
+        <p className="mt-3 text-base leading-7 text-ink/72">{featured.copy}</p>
+      </div>
+      <div className="mt-10 space-y-7">
+        <div className="border-l-2 border-clay/25 pl-5">
+          <p className="text-sm font-semibold text-clay">{tray.label}</p>
+          <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{tray.title}</h3>
+          <p className="mt-2 text-base leading-7 text-ink/72">{tray.copy}</p>
+        </div>
+        <div className="border-l-2 border-clay/25 pl-5">
+          <p className="text-sm font-semibold text-clay">{taps.label}</p>
+          <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{taps.title}</h3>
+          <p className="mt-2 text-base leading-7 text-ink/72">{taps.copy}</p>
+        </div>
+        <div className="border-l-2 border-clay/25 pl-5">
+          <p className="text-sm font-semibold text-clay">{accessories.label}</p>
+          <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{accessories.title}</h3>
+          <p className="mt-2 text-base leading-7 text-ink/72">{accessories.copy}</p>
+        </div>
+      </div>
+      <p className="mt-10 max-w-xl border-l-2 border-clay/15 pl-5 text-base leading-7 text-ink/65">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen. Por eso el conjunto se decide antes que el objeto.</p>
+    </MobileSectionShell>
+  );
+}
 
-      <section id="reformas" className="bg-transparent px-5 py-16 sm:px-6">
+function MobileReformas({ cardless, reducedMotion }) {
+  const videoRef = useRef(null);
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onTime = () => {
+      if (!v.duration) return;
+      setProgress(Math.min(v.currentTime / v.duration, 1));
+    };
+    v.addEventListener('timeupdate', onTime);
+    v.addEventListener('ended', () => setProgress(1));
+    return () => { v.removeEventListener('timeupdate', onTime); };
+  }, []);
+  const facts = ['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'];
+
+  if (!cardless) {
+    return (
+      <section id="reformas" aria-labelledby="mobile-reformas-title" className="bg-transparent px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-lg">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
-          <h2 className="mt-3 font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Reforma en 21 días.</h2>
+          <h2 id="mobile-reformas-title" className="mt-3 font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Reforma en 21 días.</h2>
           <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/44 p-3 shadow-lift">
             <video src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="w-full rounded-[1.5rem]" aria-label="Video stopmotion de reforma de baño completo" />
           </div>
           <div className="mt-6 space-y-3 text-base leading-relaxed text-ink/72">
-            {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
+            {facts.map((text, index) => (
               <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
             ))}
           </div>
         </div>
       </section>
+    );
+  }
+  return (
+    <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas">
+      <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
+      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
+      <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white">
+        <video ref={videoRef} src="/reforma-bano.mp4" controls muted playsInline preload="metadata" poster="/boceto-poster.jpg" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
+      </div>
+      <div className="mt-3 h-1.5 w-full rounded-full bg-ink/8" role="progressbar" aria-label="Avance de obra" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-full rounded-full bg-clay transition-[width] duration-200 ease-linear" style={{ width: `${progress * 100}%` }} />
+      </div>
+      <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{progress >= 1 ? 'Proyecto completo' : `Avance de obra ${Math.round(progress * 100)}%`}</p>
+      <ol className="mt-8 space-y-4 border-l-2 border-clay/30 pl-5 text-base leading-7 text-ink/75 sm:text-lg">
+        {facts.map((text, index) => (
+          <li key={text} className="flex items-start gap-3">
+            <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span>
+            <span>{text}</span>
+          </li>
+        ))}
+      </ol>
+      <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero información sobre una reforma.')}`} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Pedir asesoría</a>
+      {reducedMotion && <span className="sr-only">El video se reproduce bajo demanda porque el usuario ha pedido reducir movimiento.</span>}
+    </MobileSectionShell>
+  );
+}
 
-      <section id="vision" className="bg-transparent px-5 py-16 sm:px-6">
+function MobileVision({ cardless, reducedMotion }) {
+  const videoRef = useRef(null);
+  const sliderRef = useRef(null);
+  const draggingRef = useRef(false);
+  const [videoDone, setVideoDone] = useState(false);
+  const [showReveal, setShowReveal] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [sliderX, setSliderX] = useState(0.5);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (reducedMotion) return;
+    const playPromise = v.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => setAutoplayBlocked(true));
+    }
+    const done = () => { v.pause(); setShowReveal(true); setVideoDone(true); };
+    v.addEventListener('ended', done);
+    return () => { v.removeEventListener('ended', done); v.pause(); };
+  }, [reducedMotion]);
+
+  const handlePlay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    setAutoplayBlocked(false);
+    v.play().catch(() => setAutoplayBlocked(true));
+  };
+  const handleReveal = () => { setVideoDone(true); setShowReveal(false); };
+  const setFromClientX = (clientX) => {
+    if (!sliderRef.current) return;
+    const rect = sliderRef.current.getBoundingClientRect();
+    setSliderX(Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)));
+  };
+  const onPointerDown = (e) => { e.preventDefault(); draggingRef.current = true; setFromClientX(e.clientX); };
+  useEffect(() => {
+    const move = (e) => { if (draggingRef.current) setFromClientX(e.clientX); };
+    const up = () => { draggingRef.current = false; };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); };
+  }, []);
+
+  if (!cardless) {
+    return (
+      <section id="vision" aria-labelledby="mobile-vision-title" className="bg-transparent px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-lg">
-          <h2 className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Del boceto al baño.</h2>
+          <h2 id="mobile-vision-title" className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Del boceto al baño.</h2>
           <p className="mt-4 text-base leading-7 text-ink/72">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
           <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-ink/4 p-2 shadow-soft">
             <div className="relative overflow-hidden rounded-[1.5rem]">
               <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full object-contain bg-white" />
-              <div className="absolute inset-y-0 left-0 overflow-hidden" style={{ width: '50%' }}>
-                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="h-full w-full object-contain bg-white" style={{ filter: 'grayscale(0.35) contrast(1.08)', objectPosition: 'left' }} />
-              </div>
-              <div className="absolute inset-y-0 left-0 w-px bg-clay shadow-lg" style={{ left: '50%' }} />
-              <span className="absolute bottom-2 left-2 rounded-full bg-ink/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm">Boceto</span>
-              <span className="absolute bottom-2 right-2 rounded-full bg-ink/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm">Final</span>
             </div>
           </div>
         </div>
       </section>
+    );
+  }
+  return (
+    <MobileSectionShell id="vision" titleId="mobile-vision-title" ariaLabel="Visión">
+      <h2 id="mobile-vision-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Del boceto al baño.</h2>
+      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
+      <div ref={sliderRef} role="slider" tabIndex={0} aria-label="Comparar boceto con imagen final" aria-valuenow={Math.round(sliderX * 100)} aria-valuemin={0} aria-valuemax={100}
+        onPointerDown={onPointerDown}
+        onKeyDown={(e) => { if (!videoDone) return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
+        className="relative mt-8 aspect-[4/3] w-full select-none overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
+        style={{ touchAction: videoDone ? 'none' : 'auto' }}>
+        <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="metadata" poster="/boceto-poster.jpg" className="absolute inset-0 h-full w-full object-cover" aria-label="Video de boceto dibujándose" />
+        {videoDone && (
+          <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
+            <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" draggable={false} />
+          </div>
+        )}
+        {videoDone && (
+          <div className="absolute inset-y-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
+            <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift" aria-hidden="true">
+              <span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span>
+            </div>
+          </div>
+        )}
+        {showReveal && videoDone === false && (
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
+            <button type="button" onClick={handleReveal} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Revelar</button>
+          </div>
+        )}
+        {autoplayBlocked && !videoDone && !showReveal && (
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
+            <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
+          </div>
+        )}
+        {reducedMotion && !videoDone && (
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/15">
+            <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
+          </div>
+        )}
+      </div>
+      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{videoDone ? 'Arrastra para comparar' : 'Toca reproducir y luego revela'}</p>
+    </MobileSectionShell>
+  );
+}
 
-      <section id="contacto" className="bg-transparent px-5 py-16 sm:px-6">
+function MobileContacto({ cardless }) {
+  const [form, setForm] = useState({ nombre: '', telefono: '', mensaje: '' });
+  const whatsappText = encodeURIComponent(`Hola AREA LRMQ, quiero información sobre una reforma. Nombre: ${form.nombre}. Teléfono: ${form.telefono}. Mensaje: ${form.mensaje}`);
+
+  if (!cardless) {
+    return (
+      <section id="contacto" aria-labelledby="mobile-contacto-title" className="bg-transparent px-5 py-16 sm:px-6">
         <div className="mx-auto max-w-lg">
-          <h2 className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Hablemos de tu baño.</h2>
+          <h2 id="mobile-contacto-title" className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Hablemos de tu baño.</h2>
           <p className="mt-3 text-base leading-7 text-ink/72">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
           <div className="mt-6 rounded-[2rem] border border-ink/6 bg-ink p-5 text-white shadow-lift">
             <LogoMark className="mb-5 h-14 w-14" />
@@ -712,7 +910,59 @@ function MobileSections() {
           </form>
         </div>
       </section>
-    </>
+    );
+  }
+  return (
+    <MobileSectionShell id="contacto" titleId="mobile-contacto-title" ariaLabel="Contacto">
+      <h2 id="mobile-contacto-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Hablemos de tu baño.</h2>
+      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
+      <div className="mt-8 border-l-2 border-clay/30 pl-5">
+        <LogoMark className="mb-5 h-16 w-16" minimal />
+        <p className="font-display text-2xl leading-tight text-ink sm:text-3xl">AREA LRMQ Tienda</p>
+        <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm text-ink/70 underline-offset-2 hover:underline sm:text-base">{ADDRESS}</a>
+      </div>
+      <ul className="mt-6 space-y-1 border-l-2 border-clay/15 pl-5">
+        <li>
+          <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#25D366]/15 text-[10px] font-bold tracking-[0.08em] text-[#25D366]">WA</span>
+            <span className="font-semibold">WhatsApp {PHONE}</span>
+          </a>
+        </li>
+        <li>
+          <a href={`tel:+34${PHONE}`} className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-ink/8 text-[10px] font-bold tracking-[0.08em] text-ink/70">TEL</span>
+            <span className="font-semibold">Llamar {PHONE}</span>
+          </a>
+        </li>
+        <li>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-clay/12 text-[10px] font-bold text-clay">IG</span>
+            <span className="font-semibold">Instagram</span>
+          </a>
+        </li>
+        <li>
+          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-ink/8 text-[10px] font-bold text-ink/70">MAP</span>
+            <span className="font-semibold">Ver ubicación</span>
+          </a>
+        </li>
+      </ul>
+      <form className="mt-10 space-y-5 border-l-2 border-clay/15 pl-5" onSubmit={(e) => e.preventDefault()}>
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Nombre</span>
+          <input type="text" required aria-label="Nombre" aria-required="true" placeholder="Tu nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="mt-2 w-full border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
+        </label>
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Teléfono</span>
+          <input type="tel" required aria-label="Teléfono" aria-required="true" placeholder="6XX XX XX XX" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="mt-2 w-full border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
+        </label>
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Mensaje</span>
+          <textarea required aria-label="Mensaje" aria-required="true" placeholder="Medidas, estilo y plazo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
+        </label>
+        <a href={`https://wa.me/${PHONE_INTL}?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Enviar por WhatsApp</a>
+      </form>
+    </MobileSectionShell>
   );
 }
 
@@ -749,7 +999,7 @@ export default function App() {
             {chapters.map((chapter, index) => <div key={index} className="w-full" style={{ height: '100svh' }}>{chapter}</div>)}
           </div>
         </div>
-      ) : <MobileSections />}
+      ) : <MobileSections cardless={cardless} reducedMotion={reducedMotion} />}
     </main>
   );
 }

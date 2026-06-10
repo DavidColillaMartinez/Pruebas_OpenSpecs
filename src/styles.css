@@ -45,7 +45,7 @@ body::before {
   mask-image: linear-gradient(to bottom, rgba(0,0,0,0.52), transparent 76%);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) and (min-height: 720px) {
   body {
     overflow: hidden;
     height: 100svh;
