@@ -493,23 +493,23 @@ function Vision({ step, isActive, setBlocked, skipBlocked, cardless }) {
         <div ref={sliderRef} role="slider" tabIndex={0} aria-label="Comparar boceto con imagen final" aria-valuenow={Math.round(sliderX * 100)} aria-valuemin={0} aria-valuemax={100}
           onPointerDown={onPointerDown}
           onKeyDown={(e) => { if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
-          className={`relative select-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-clay/30 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
+          className={`relative aspect-[4/3] select-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-clay/30 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
           style={{ touchAction: 'none' }}>
 
           {videoDone ? (
             <>
-              <img src="/boceto-final.png" alt="Imagen final del proyecto" className={`aspect-[4/3] w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} />
-              <div className={`absolute overflow-hidden ${cardless ? 'inset-0' : 'inset-[0.75rem]'}`} style={{ width: `${sliderX * 100}%` }}>
-                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className={`absolute inset-0 w-full h-full object-contain bg-white`} style={{ filter: 'grayscale(0.35) contrast(1.08)' }} draggable={false} />
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className={`absolute inset-0 h-full w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} />
+              <div className={`absolute inset-0 overflow-hidden ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} style={{ clipPath: `inset(0 ${(1 - sliderX) * 100}% 0 0)` }}>
+                <img src="/boceto-poster.jpg" alt="Boceto del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" style={{ filter: 'grayscale(0.35) contrast(1.08)' }} draggable={false} />
               </div>
-              <div className="absolute bottom-4 left-4 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none">Boceto</div>
-              <div className="absolute bottom-4 right-4 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none">Final</div>
+              <span className={`absolute bottom-3 left-3 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none ${sliderX < 0.15 ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>Boceto</span>
+              <span className={`absolute bottom-3 right-3 rounded-full bg-ink/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm pointer-events-none ${sliderX > 0.85 ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200`}>Final</span>
               <div className="absolute bottom-0 top-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
                 <div className="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift"><span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span></div>
               </div>
             </>
           ) : (
-            <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className={`aspect-[4/3] w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
+            <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="auto" className={`absolute inset-0 h-full w-full object-cover bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
           )}
         </div>
         {cardless ? (
