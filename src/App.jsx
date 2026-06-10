@@ -7,23 +7,23 @@ const MAPS_URL = `https://maps.google.com/?q=${encodeURIComponent(ADDRESS)}`;
 const INSTAGRAM_URL = 'https://www.instagram.com/arealrmqtienda/';
 
 const navItems = [
-  { label: 'Coleccion', href: '#coleccion' },
+  { label: 'Colección', href: '#coleccion' },
   { label: 'Reformas', href: '#reformas' },
-  { label: 'Vision', href: '#vision' },
+  { label: 'Visión', href: '#vision' },
   { label: 'Contacto', href: '#contacto' },
 ];
 
 const categories = [
-  { title: 'Mamparas a medida', label: 'Vidrio templado', copy: 'Perfiles ligeros y cierre limpio para ampliar visualmente el bano.', image: 'https://images.unsplash.com/photo-1572742482459-e04d6cfdd6f3?auto=format&fit=crop&w=700&q=85', imageAlt: 'Cabina de ducha con mampara de vidrio' },
+  { title: 'Mamparas a medida', label: 'Vidrio templado', copy: 'Perfiles ligeros y cierre limpio para ampliar visualmente el baño.', image: 'https://images.unsplash.com/photo-1572742482459-e04d6cfdd6f3?auto=format&fit=crop&w=700&q=85', imageAlt: 'Cabina de ducha con mampara de vidrio' },
   { title: 'Platos de ducha', label: 'Textura mineral', copy: 'Superficies antideslizantes con cortes precisos y acabados sobrios.', image: 'https://images.unsplash.com/photo-1656646523907-97b094c7e63a?auto=format&fit=crop&w=700&q=85', imageAlt: 'Suelo de ducha con baldosas blancas' },
-  { title: 'Griferia premium', label: 'Lineas puras', copy: 'Monomandos con presencia escultural para uso diario confortable.', image: 'https://images.unsplash.com/photo-1623111771733-d3ab4d26ce41?auto=format&fit=crop&w=700&q=85', imageAlt: 'Grifo monomando plateado' },
-  { title: 'Accesorios de bano', label: 'Detalle final', copy: 'Piezas funcionales que completan el proyecto sin romper la armonia.', image: 'https://images.unsplash.com/photo-1608651061499-ff031fbf6645?auto=format&fit=crop&w=700&q=85', imageAlt: 'Toallero en bano minimalista' },
+  { title: 'Grifería premium', label: 'Líneas puras', copy: 'Monomandos con presencia escultural para uso diario confortable.', image: 'https://images.unsplash.com/photo-1623111771733-d3ab4d26ce41?auto=format&fit=crop&w=700&q=85', imageAlt: 'Grifo monomando plateado' },
+  { title: 'Accesorios de baño', label: 'Detalle final', copy: 'Piezas funcionales que completan el proyecto sin romper la armonía.', image: 'https://images.unsplash.com/photo-1608651061499-ff031fbf6645?auto=format&fit=crop&w=700&q=85', imageAlt: 'Toallero en baño minimalista' },
 ];
 
 const methodSteps = [
   { title: 'Medimos el espacio', copy: 'Dimensiones, uso diario y estilo antes de recomendar piezas.' },
-  { title: 'Componemos la solucion', copy: 'Mampara, plato, griferia y accesorios en una linea visual.' },
-  { title: 'Preparamos la instalacion', copy: 'Compra, entrega e instalacion sin improvisar.' },
+  { title: 'Componemos la solución', copy: 'Mampara, plato, grifería y accesorios en una línea visual.' },
+  { title: 'Preparamos la instalación', copy: 'Compra, entrega e instalación sin improvisar.' },
 ];
 
 const sectionIds = ['inicio', 'coleccion', 'reformas', 'vision', 'contacto'];
@@ -163,7 +163,7 @@ function Header({ activeSectionId, onNavigate }) {
       <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-white/70 bg-pearl/82 px-4 py-3 shadow-lift backdrop-blur-xl">
         <a href="#inicio" className="flex items-center gap-3 font-semibold tracking-tight text-ink" aria-label="AREA LRMQ Tienda inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); } }}>
           <LogoMark className="h-10 w-10" />
-          <span className="font-display text-lg tracking-[0.02em]">AREA LRMQ Tienda</span>
+          <span className="font-display text-lg tracking-[0.08em]">AREA LRMQ Tienda</span>
         </a>
         <div className="hidden items-center gap-7 text-sm font-medium md:flex">
           {navItems.map((item) => {
@@ -176,7 +176,7 @@ function Header({ activeSectionId, onNavigate }) {
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
           </button>
-          <a className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoria</a>
+          <a className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite" href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </nav>
       {mobileOpen && (
@@ -200,8 +200,8 @@ function Inicio({ step, isActive }) {
        <LogoMark className="absolute left-1/2 top-[15%] z-10 h-28 w-28 -translate-x-1/2 opacity-90" />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 text-sm font-semibold uppercase tracking-[0.34em] text-clay">Tienda</p>
-        <h1 className="font-display text-6xl leading-[0.88] tracking-[0.01em] text-white sm:text-8xl lg:text-[7rem] text-wrap-balance">AREA LRMQ Tienda</h1>
-        <p className="mx-auto mt-5 max-w-2xl text-xl leading-8 text-white/82">Banos, materiales y decisiones visuales con medida.</p>
+        <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ Tienda</h1>
+        <p className="mx-auto mt-5 max-w-2xl text-xl leading-8 text-white/82">Baños, materiales y decisiones visuales con medida.</p>
       </div>
       <div className={`absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-500 ${s >= 1 ? 'opacity-0' : 'opacity-100'}`}>
         <span className="block h-8 w-px bg-white/35 mx-auto" />
@@ -274,9 +274,9 @@ function Reformas({ smoothProgress, isActive }) {
         </div>
         <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
-          <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.01em] text-ink text-wrap-balance">Reforma en 21 dias.</h2>
+          <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>
           <div className="mt-7 space-y-4 text-base leading-relaxed text-ink/75">
-            {['Bano principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y griferia mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfaccion del cliente: 9.6 / 10.'].map((text, index) => (
+            {['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'].map((text, index) => (
               <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
             ))}
           </div>
@@ -343,8 +343,8 @@ function Vision({ step, isActive, setBlocked }) {
         </div>
         <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
           <LogoMark className="mb-7 h-16 w-16 opacity-35" />
-          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.01em] text-ink sm:text-6xl text-wrap-balance">Del boceto al bano.</h2>
-          <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporcion, paso de luz y continuidad. El resultado no empieza en catalogo, empieza en una imagen que ya encaja.</p>
+          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
+          <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
           {!videoDone && <p className="mt-5 text-sm font-medium text-clay animate-pulse">Reproduciendo boceto...</p>}
         </div>
       </div>
@@ -361,8 +361,8 @@ function Contact({ step, isActive }) {
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-6xl items-start gap-8 lg:grid-cols-[1fr_0.9fr]">
         <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/82 p-8 shadow-soft backdrop-blur-sm">
-          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.01em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu bano.</h2>
-          <p className="mt-4 text-lg leading-8 text-ink/76">Envia medidas, estilo y plazo. Te devolvemos una seleccion inicial.</p>
+          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
+          <p className="mt-4 text-lg leading-8 text-ink/76">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
           <form className="mt-7 space-y-4" onSubmit={(e) => e.preventDefault()}>
             <input type="text" placeholder="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
             <input type="tel" placeholder="Telefono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} className="w-full rounded-2xl border border-ink/10 bg-white/75 px-5 py-3.5 text-ink placeholder:text-graphite/45 focus:border-ink/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />

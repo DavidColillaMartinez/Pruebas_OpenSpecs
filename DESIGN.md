@@ -10,19 +10,19 @@ colors:
   mist: "#d9e4e2"
 typography:
   display:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Marcellus, Georgia, serif"
     fontSize: "clamp(2.5rem, 6vw, 5rem)"
-    fontWeight: 600
+    fontWeight: 400
     lineHeight: 0.95
-    letterSpacing: "-0.06em"
+    letterSpacing: "0.035em"
   body:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Manrope, ui-sans-serif, system-ui, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.7
     letterSpacing: "normal"
   label:
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Manrope, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 600
     letterSpacing: "0.22em"
@@ -79,14 +79,14 @@ A restrained mineral palette: warm-whites, cool stone greys, and a single clay a
 
 ## 3. Typography
 
-**Display Font:** Inter, ui-sans-serif, system-ui, sans-serif
-**Body Font:** Inter, ui-sans-serif, system-ui, sans-serif
+**Display Font:** Marcellus, Georgia, serif
+**Body Font:** Manrope, ui-sans-serif, system-ui, sans-serif
 
-**Character:** A single-family system where weight, size, and tracking do all the work. Inter at 600 weight with tight negative tracking carries the brand's structural precision. Body text at regular 400 with generous line height provides the reading rhythm. The pairing is architectural: the same typeface, two distinct jobs.
+**Character:** A restrained two-family system: Marcellus carries the carved, architectural display voice, while Manrope keeps body copy precise and readable. The pairing should feel closer to a brass showroom plaque and technical product note than to an editorial magazine spread.
 
 ### Hierarchy
-- **Display** (600, clamp(2.5rem, 6vw, 5rem), 0.95): Hero headings. Tight tracking (-0.06em) and bold weight make the phrase a visual object. Max size ~80px.
-- **Section heading** (600, clamp(2rem, 4.5vw, 3.75rem), 1): Section titles. Tracking -0.04em.
+- **Display** (400, clamp(2.5rem, 6vw, 5rem), 0.95): Hero headings. Open tracking and high contrast make the phrase a visual object. Max size ~96px.
+- **Section heading** (400, clamp(2rem, 4.5vw, 3.75rem), 1): Section titles. Tracking 0.03em–0.04em.
 - **Card title** (600, 1.5rem, 1.2): Product and process card headings. Tracking -0.03em.
 - **Body** (400, 1rem–1.125rem, 1.7): Description copy, card blurbs. Max line length 65–75ch.
 - **Label / Kicker** (600, 0.8125rem, 1, 0.22em tracking, uppercase): Section labels. Used sparingly — one per section at most, not as a default scaffold.
@@ -151,6 +151,6 @@ Shadows are the primary depth mechanism. The system uses layered shadows that ma
 - **Don't** use glassmorphism as a default surface treatment — it belongs on the nav bar only.
 - **Don't** use border-left or border-right greater than 1px as a colored accent stripe.
 - **Don't** use numbered section markers (01, 02, 03) as default scaffolding — numbers only when the sequence carries real order information.
-- **Don't** override Inter with a second sans-serif — one well-tuned family beats two competing faces.
+- **Don't** introduce additional display families beyond Marcellus and Manrope — the logo already provides the third visual voice.
 - **Don't** use all-caps for body copy.
 - **Don't** animate layout properties (width, height, top, left) — use transform and opacity only.

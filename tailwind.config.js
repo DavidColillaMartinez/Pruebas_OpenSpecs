@@ -18,7 +18,7 @@ export default {
         glass: '0 1px 0 rgba(255,255,255,0.7) inset, 0 30px 70px rgba(30,30,30,0.12)',
       },
       fontFamily: {
-        display: ['Cormorant Garamond', 'Georgia', 'serif'],
+        display: ['Marcellus', 'Georgia', 'serif'],
         body: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
