@@ -44,6 +44,8 @@ function useNarrativeScroll() {
   const [step, setStep] = useState(0);
   const [smoothProgress, setSmoothProgress] = useState(0);
   const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
+  const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false);
+  const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const activeRef = useRef(0);
   const stepRef = useRef(0);
   const blockedRef = useRef(false);
@@ -59,7 +61,20 @@ function useNarrativeScroll() {
     return () => m.removeEventListener('change', h);
   }, []);
 
+  useEffect(() => {
+    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(m.matches);
+    const h = (e) => setReducedMotion(e.matches);
+    m.addEventListener('change', h);
+    return () => m.removeEventListener('change', h);
+  }, []);
+
   const setBlocked = useCallback((value) => { blockedRef.current = value; }, []);
+
+  const skipBlocked = useCallback(() => {
+    blockedRef.current = false;
+    cooldownRef.current = false;
+  }, []);
 
   const navigateTo = useCallback((index, startStep = 0) => {
     if (index < 0 || index >= TOTAL_CHAPTERS) return;
@@ -73,7 +88,7 @@ function useNarrativeScroll() {
   }, []);
 
   useEffect(() => {
-    if (!isDesktop) return;
+    if (!isDesktop || reducedMotion) return;
     let raf;
     const loop = () => {
       const target = targetRef.current;
@@ -85,7 +100,7 @@ function useNarrativeScroll() {
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, [isDesktop]);
+  }, [isDesktop, reducedMotion]);
 
   useEffect(() => {
     if (!isDesktop) return;
@@ -105,7 +120,7 @@ function useNarrativeScroll() {
           stepRef.current = nextStep;
           setStep(nextStep);
           cooldownRef.current = true;
-          setTimeout(() => { cooldownRef.current = false; }, 420);
+          setTimeout(() => { cooldownRef.current = false; }, reducedMotion ? 100 : 420);
         }
         return;
       }
@@ -119,21 +134,26 @@ function useNarrativeScroll() {
         accumulatedRef.current = 1950;
         targetRef.current = 0.93;
       } else {
-        targetRef.current = Math.min(0.999, raw);
+        if (reducedMotion) {
+          setSmoothProgress(Math.min(0.999, raw));
+        } else {
+          targetRef.current = Math.min(0.999, raw);
+        }
       }
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-  }, [isDesktop, navigateTo]);
+  }, [isDesktop, navigateTo, reducedMotion]);
 
   useEffect(() => {
     if (!isDesktop) return;
     const onKey = (e) => {
       if (!['ArrowDown', 'PageDown', 'ArrowUp', 'PageUp'].includes(e.key)) return;
       e.preventDefault();
-      const direction = e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1;
       const current = activeRef.current;
+      const direction = e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1;
+      if (blockedRef.current) { blockedRef.current = false; return; }
       if (chapterType[current] === 'continuous') {
         navigateTo(Math.max(0, Math.min(TOTAL_CHAPTERS - 1, current + direction)));
         return;
@@ -147,7 +167,7 @@ function useNarrativeScroll() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isDesktop, navigateTo]);
 
-  return { activeChapter, step, smoothProgress, setBlocked, isDesktop, activeSectionId: sectionIds[activeChapter], navigateTo };
+  return { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
 }
 
 function Header({ activeSectionId, onNavigate }) {
@@ -320,7 +340,7 @@ function Reformas({ smoothProgress, isActive }) {
   );
 }
 
-function Vision({ step, isActive, setBlocked }) {
+function Vision({ step, isActive, setBlocked, skipBlocked }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
@@ -338,6 +358,8 @@ function Vision({ step, isActive, setBlocked }) {
     videoRef.current.addEventListener('ended', done);
     return () => { videoRef.current?.removeEventListener('ended', done); setBlocked(false); };
   }, [isActive, setBlocked, videoDone]);
+
+  const handleSkip = () => { if (skipBlocked) skipBlocked(); setVideoDone(true); setBlocked(false); };
 
   const setFromClientX = (clientX) => {
     if (!sliderRef.current) return;
@@ -377,7 +399,7 @@ function Vision({ step, isActive, setBlocked }) {
           <LogoMark className="mb-7 h-16 w-16 opacity-35" />
           <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
           <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
-          {!videoDone && <p className="mt-5 text-sm font-medium text-clay animate-pulse">Reproduciendo boceto...</p>}
+          {!videoDone && <button type="button" onClick={handleSkip} className="mt-5 rounded-full border border-clay/30 bg-white/90 px-5 py-2.5 text-sm font-semibold text-clay shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">Saltar boceto</button>}
         </div>
       </div>
     </div>
@@ -420,8 +442,8 @@ function Contact({ step, isActive }) {
   );
 }
 
-function ChapterDots({ active }) {
-  return <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 md:flex">{sectionIds.map((_, index) => <span key={index} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === active ? 'scale-125 bg-ink' : 'bg-ink/20'}`} />)}</div>;
+function ChapterDots({ active, labels }) {
+  return <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">{sectionIds.map((_, index) => <span key={index} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === active ? 'scale-125 bg-ink' : 'bg-ink/20'}`} />)}<span className="mt-2 text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/50">{labels[active]}</span></div>;
 }
 
 function MobileSections() {
@@ -430,19 +452,20 @@ function MobileSections() {
       <section id="inicio" className="relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden px-4 sm:px-6"><Inicio step={3} isActive /></section>
       <section id="coleccion" className="min-h-screen px-4 py-20 sm:px-6"><Coleccion step={8} isActive /></section>
       <section id="reformas" className="min-h-screen px-4 py-20 sm:px-6"><Reformas smoothProgress={1} isActive /></section>
-      <section id="vision" className="min-h-screen px-4 py-20 sm:px-6"><Vision step={2} isActive setBlocked={() => {}} /></section>
+      <section id="vision" className="min-h-screen px-4 py-20 sm:px-6"><Vision step={2} isActive setBlocked={() => {}} skipBlocked={() => {}} /></section>
       <section id="contacto" className="min-h-screen px-4 py-20 sm:px-6"><Contact step={1} isActive /></section>
     </>
   );
 }
 
 export default function App() {
-  const { activeChapter, step, smoothProgress, setBlocked, isDesktop, activeSectionId, navigateTo } = useNarrativeScroll();
+  const { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
+  const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const chapters = [
     <Inicio step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} />,
     <Coleccion step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
     <Reformas smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} />,
-    <Vision step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} />,
+    <Vision step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} skipBlocked={skipBlocked} />,
     <Contact step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} />,
   ];
 
@@ -452,8 +475,8 @@ export default function App() {
       <Header activeSectionId={activeSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
-          <ChapterDots active={activeChapter} />
-          <div className="absolute inset-0 transition-transform duration-500 ease-out" style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
+          <ChapterDots active={activeChapter} labels={chapterLabels} />
+          <div className={`absolute inset-0 ease-out ${reducedMotion ? 'transition-none' : 'transition-transform duration-500'}`} style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
             {chapters.map((chapter, index) => <div key={index} className="w-full" style={{ height: '100svh' }}>{chapter}</div>)}
           </div>
         </div>
