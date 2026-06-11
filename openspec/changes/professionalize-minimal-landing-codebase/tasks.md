@@ -8,11 +8,11 @@
 
 ## 2. Phase 2 — Responsive header rewrite
 
-- [ ] 2.1 Split `Header` into two render branches gated by viewport: a desktop branch and a mobile/tablet branch. Hide the horizontal nav and the desktop "Pedir asesoría" pill below the desktop gate.
-- [ ] 2.2 Add a `MobileDrawer` component that exposes the four sections, the visual mode toggle, and the WhatsApp CTA. Wire it to the existing hamburger control.
-- [ ] 2.3 Derive `isInicio` from `activeSectionId` on both viewports, not from a sticky desktop assumption. In Inicio (id `inicio`) the header is in Inicio style; in any other section it is in the other style.
-- [ ] 2.4 Make the drawer dismissible with Escape, outside click, and a close button. Lock body scroll while open. Mirror accessibility baseline: focus ring, 44px tap target, accessible name.
-- [ ] 2.5 Verify header on phone (375px), tablet (768px and 1024px), and desktop (1280x800, 1440x900). Confirm `npm run build` is green. Commit as `Phase 2: responsive header with mobile drawer`. Stop and wait for confirmation before phase 3.
+- [x] 2.1 Split `Header` into two render branches gated by viewport: a desktop branch and a mobile/tablet branch. Hide the horizontal nav and the desktop "Pedir asesoría" pill below the desktop gate.
+- [x] 2.2 Add a `MobileDrawer` component that exposes the four sections, the visual mode toggle, and the WhatsApp CTA. Wire it to the existing hamburger control.
+- [x] 2.3 Derive `isInicio` from `activeSectionId` on both viewports, not from a sticky desktop assumption. In Inicio (id `inicio`) the header is in Inicio style; in any other section it is in the other style.
+- [x] 2.4 Make the drawer dismissible with Escape, outside click, and a close button. Lock body scroll while open. Mirror accessibility baseline: focus ring, 44px tap target, accessible name.
+- [x] 2.5 Verify header on phone (375px), tablet (768px and 1024px), and desktop (1280x800, 1440x900). Confirm `npm run build` is green. Commit as `Phase 2: responsive header with mobile drawer`. Stop and wait for confirmation before phase 3.
 
 ## 3. Phase 3 — Mobile Visión and Reformas bugfixes
 

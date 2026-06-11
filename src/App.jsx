@@ -179,13 +179,61 @@ function useNarrativeScroll() {
   return { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
 }
 
-function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isInicio }) {
+function MobileDrawer({ activeSectionId, cardless, onToggleCardless, onNavigate, onClose }) {
+  const drawerNavItems = [
+    { label: 'Inicio', href: '#inicio' },
+    ...navItems,
+  ];
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-ink/20" onClick={onClose} aria-hidden="true" />
+      <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-white/70 bg-pearl p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+        <div className="flex items-center justify-between">
+          <span className="font-display text-lg tracking-[0.08em] text-ink">AREA LRMQ</span>
+          <button type="button" onClick={onClose} className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-ink/8 text-ink/70 transition hover:bg-ink/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label="Cerrar menú">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+          </button>
+        </div>
+        <nav className="mt-5 flex flex-col gap-2" aria-label="Navegación principal">
+          {drawerNavItems.map((item) => {
+            const id = item.href.slice(1);
+            const isActive = activeSectionId === id;
+            return <a key={item.href} className={`min-h-[44px] rounded-2xl px-4 py-3 text-lg font-medium transition ${isActive ? 'bg-ink/5 text-ink' : 'text-graphite/75 hover:text-ink'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } onClose(); }}>{item.label}</a>;
+          })}
+        </nav>
+        <div className="mt-5 flex flex-col gap-3 border-t border-ink/8 pt-5">
+          <button type="button" onClick={() => { onToggleCardless(); onClose(); }} className="min-h-[44px] rounded-full border border-ink/15 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-graphite/65 transition hover:border-ink/25 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
+          <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={onClose}>Pedir asesoría</a>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isInicio, isDesktop }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
     if (mobileOpen) { window.addEventListener('keydown', onKey); document.body.style.overflow = 'hidden'; }
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [mobileOpen]);
+
+  if (!isDesktop) {
+    return (
+      <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <a href="#inicio" className="flex items-center gap-3" aria-label="AREA LRMQ DESIGN S.L. inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); setMobileOpen(false); } }}>
+            <LogoMark className="h-10 w-10 shrink-0" minimal />
+          </a>
+          <button className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-full bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú" aria-expanded={mobileOpen}>
+            <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
+            <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
+          </button>
+        </div>
+        {mobileOpen && <MobileDrawer activeSectionId={activeSectionId} cardless={cardless} onToggleCardless={onToggleCardless} onNavigate={onNavigate} onClose={() => setMobileOpen(false)} />}
+      </header>
+    );
+  }
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
@@ -211,22 +259,10 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
           </div>
         </nav>
         <div className="flex items-center justify-self-end gap-3">
-          <button className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-full bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 md:hidden" onClick={() => setMobileOpen((v) => !v)} aria-label="Menu" aria-expanded={mobileOpen}>
-            <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
-            <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
-          </button>
           <button type="button" onClick={onToggleCardless} className={`min-h-[44px] rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'border border-white/50 text-white/70 hover:border-white/80 hover:text-white hover:bg-white/8' : 'border border-ink/15 text-graphite/65 hover:border-ink/25 hover:text-ink'}`} aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
           <a className={`min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-white/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-white/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </div>
-      {mobileOpen && (
-        <>
-          <div className="fixed inset-0 z-40 bg-ink/20 md:hidden" onClick={() => setMobileOpen(false)} aria-hidden="true" />
-          <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-white/70 bg-pearl p-6 shadow-lift md:hidden">
-            <div className="flex flex-col gap-3">{navItems.map((item) => <a key={item.href} className={`rounded-2xl px-4 py-3 text-lg font-medium transition ${activeSectionId === item.href.slice(1) ? 'bg-ink/5 text-ink' : 'text-graphite/75'}`} href={item.href} onClick={() => setMobileOpen(false)}>{item.label}</a>)}</div>
-          </div>
-        </>
-      )}
     </header>
   );
 }
@@ -969,6 +1005,7 @@ function MobileContacto({ cardless }) {
 export default function App() {
   const { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [cardless, setCardless] = useState(true);
+  const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
 
   useEffect(() => {
     if (cardless) {
@@ -978,6 +1015,28 @@ export default function App() {
     }
     return () => { document.body.style.background = ''; };
   }, [cardless]);
+
+  useEffect(() => {
+    if (isDesktop) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setMobileActiveSection(entry.target.id);
+          }
+        }
+      },
+      { threshold: 0, rootMargin: '-40% 0px -40% 0px' }
+    );
+    for (const id of sectionIds) {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [isDesktop]);
+
+  const currentSectionId = isDesktop ? activeSectionId : mobileActiveSection;
+  const isInicio = currentSectionId === 'inicio';
 
   const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const chapters = [
@@ -991,7 +1050,7 @@ export default function App() {
   return (
     <main className="font-body text-ink" id="contenido">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
-      <Header activeSectionId={activeSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} isInicio={activeChapter === 0} />
+      <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} isDesktop={isDesktop} isInicio={isInicio} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
           <ChapterDots active={activeChapter} labels={chapterLabels} />
