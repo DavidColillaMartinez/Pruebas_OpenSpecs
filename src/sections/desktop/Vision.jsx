@@ -2,6 +2,8 @@ import { useRef, useState, useEffect } from 'react';
 import { LogoMark } from '../../components/LogoMark';
 import { CompareSlider } from '../../components/CompareSlider';
 
+const visionSeenRef = { current: false };
+
 export function Vision({ step, isActive, setBlocked, cardless }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
@@ -14,17 +16,26 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
   useEffect(() => {
     if (!isActive) { if (videoRef.current) videoRef.current.pause(); setVideoDone(false); setShowReveal(false); return; }
     if (!videoRef.current) return;
+    if (visionSeenRef.current) { videoRef.current.pause(); setShowReveal(true); return; }
     if (videoDone) { videoRef.current.pause(); return; }
     setBlocked(true);
     videoRef.current.currentTime = 0;
     setShowReveal(false);
     videoRef.current.play().catch(() => { setVideoDone(true); setBlocked(false); });
-    const done = () => { videoRef.current?.pause(); setShowReveal(true); setBlocked(false); };
+    const done = () => { videoRef.current?.pause(); setShowReveal(true); setBlocked(false); visionSeenRef.current = true; };
     videoRef.current.addEventListener('ended', done);
     return () => { videoRef.current?.removeEventListener('ended', done); setBlocked(false); };
   }, [isActive, setBlocked, videoDone]);
 
   const handleReveal = () => { setVideoDone(true); };
+
+  const handleReplay = () => {
+    if (!videoRef.current) return;
+    videoRef.current.currentTime = 0;
+    setShowReveal(false);
+    setVideoDone(false);
+    videoRef.current.play().catch(() => {});
+  };
 
   const setFromClientX = (clientX) => {
     if (!sliderRef.current) return;
@@ -57,9 +68,20 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
           finalImageAlt="Imagen final del proyecto"
         >
           {showReveal && !videoDone && (
-            <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
-              <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-white px-8 py-3.5 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
-            </div>
+            <>
+              <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
+                <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-white px-8 py-3.5 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
+              </div>
+              <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute top-3 right-3 z-10">
+                <span className="replay-orbit" aria-hidden="true" />
+                <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">
+                    <path d="M20 12a8 8 0 1 1-2.34-5.66" />
+                    <path d="M20 4v4.5h-4.5" />
+                  </svg>
+                </span>
+              </button>
+            </>
           )}
         </CompareSlider>
         {cardless ? (

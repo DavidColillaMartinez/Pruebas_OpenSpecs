@@ -24,7 +24,7 @@ export function Contacto({ step, isActive, cardless }) {
             <ContactForm form={form} setForm={setForm} />
           </div>
         )}
-        <div className={`space-y-4 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
+        <div className={`space-y-10 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
           {cardless ? (
             <div>
               <LogoMark className="mb-6 h-[7.5rem] w-[7.5rem]" minimal />
