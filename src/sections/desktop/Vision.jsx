@@ -52,7 +52,7 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
           isCompare={videoDone}
           cardless={cardless}
           videoSrc="/boceto-video.mp4"
-          poster="/boceto-poster.jpg"
+          poster="/boceto-poster.webp"
           finalImage="/boceto-final.png"
           finalImageAlt="Imagen final del proyecto"
         >

@@ -52,8 +52,8 @@
 
 ## 7. Phase 7 — Asset and performance polish
 
-- [ ] 7.1 Replace `public/boceto-poster.jpg` with an optimized WebP or AVIF under 500 KB. Update every `<video poster=...>` reference to the new file.
-- [ ] 7.2 Replace `public/logo-area-lrmq.jpeg` with an optimized WebP or AVIF under 200 KB. Keep JPEG as a fallback in `srcset` if the brand prefers broad compatibility.
-- [ ] 7.3 Add `loading="lazy"` and explicit `width`/`height` (or aspect-ratio classes) to every non-hero `<img>`. Hero images MAY be eager but MUST have explicit dimensions.
-- [ ] 7.4 Housekeep OpenSpec artifacts: either commit the `fix-mobile-tablet-minimal-experience` change's `proposal.md`, `design.md`, and `specs/` files into `main` (preferred), or archive the change. Decide based on the user's preference.
-- [ ] 7.5 Final `npm run build` and a manual sweep at phone (375px), tablet (768px, 1024px), and desktop (1280x800, 1440x900). Verify the desktop narrative and the mobile/tablet minimal flow look correct. Commit as `Phase 7: asset optimization and OpenSpec housekeeping`. Stop and report.
+- [x] 7.1 Replace `public/boceto-poster.jpg` with an optimized WebP or AVIF under 500 KB. Update every `<video poster=...>` reference to the new file.
+- [x] 7.2 Replace `public/logo-area-lrmq.jpeg` with an optimized WebP or AVIF under 200 KB. Keep JPEG as a fallback in `srcset` if the brand prefers broad compatibility.
+- [x] 7.3 Add `loading="lazy"` and explicit `width`/`height` (or aspect-ratio classes) to every non-hero `<img>`. Hero images MAY be eager but MUST have explicit dimensions.
+- [x] 7.4 Housekeep OpenSpec artifacts: either commit the `fix-mobile-tablet-minimal-experience` change's `proposal.md`, `design.md`, and `specs/` files into `main` (preferred), or archive the change. Decide based on the user's preference.
+- [x] 7.5 Final `npm run build` and a manual sweep at phone (375px), tablet (768px, 1024px), and desktop (1280x800, 1440x900). Verify the desktop narrative and the mobile/tablet minimal flow look correct. Commit as `Phase 7: asset optimization and OpenSpec housekeeping`. Stop and report.

@@ -5,7 +5,7 @@ export function MobileInicio({ cardless }) {
   if (!cardless) {
     return (
       <section id="inicio" aria-label="Inicio" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=1200&q=80" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+        <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=1200&q=80" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/40 to-ink/78" />
         <div className="relative z-10 mx-auto max-w-lg px-6 pt-20 pb-28 text-center">
           <LogoMark className="mx-auto mb-6 h-20 w-20 opacity-90" />

@@ -48,7 +48,7 @@ export function MobileVision({ cardless, reducedMotion }) {
           <p className="mt-4 text-base leading-7 text-ink/72">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
           <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-ink/4 p-2 shadow-soft">
             <div className="relative overflow-hidden rounded-[1.5rem]">
-              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full object-contain bg-white" />
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full object-contain bg-white" loading="lazy" />
             </div>
           </div>
         </div>
@@ -71,11 +71,11 @@ export function MobileVision({ cardless, reducedMotion }) {
         onPointerDown={onPointerDown}
         className="relative mt-8 aspect-[4/3] w-full select-none overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
         style={{ touchAction: state === 'compare' ? 'none' : 'auto' }}>
-        <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="metadata" poster="/boceto-poster.jpg" className="absolute inset-0 h-full w-full object-cover" aria-label="Video de boceto dibujándose" />
+        <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="metadata" poster="/boceto-poster.webp" className="absolute inset-0 h-full w-full object-cover" aria-label="Video de boceto dibujándose" />
         {state === 'compare' && (
           <>
             <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
-              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" draggable={false} />
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" draggable={false} loading="lazy" />
             </div>
             <div className="absolute inset-y-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
               <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift" aria-hidden="true">

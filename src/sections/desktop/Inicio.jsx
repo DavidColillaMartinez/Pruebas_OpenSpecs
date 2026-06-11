@@ -6,7 +6,7 @@ export function Inicio({ step, isActive, cardless }) {
   const s = isActive ? step : 0;
   return (
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
-      <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+      <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
        <LogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" minimal={cardless} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">

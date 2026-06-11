@@ -16,7 +16,7 @@ export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onK
       <video ref={videoRef} src={videoSrc} muted playsInline preload="metadata" poster={poster} className={`absolute inset-0 h-full w-full object-cover bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
       {isCompare && (
         <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
-          <img src={finalImage} alt={finalImageAlt} className={`absolute inset-0 h-full w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} />
+          <img src={finalImage} alt={finalImageAlt} className={`absolute inset-0 h-full w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} loading="lazy" />
         </div>
       )}
       {isCompare && (
