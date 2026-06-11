@@ -44,11 +44,11 @@
 
 ## 6. Phase 6 — SEO and metadata sync
 
-- [ ] 6.1 Update `<meta name="theme-color">` in `index.html` to `#c1aa67` (the current brand gold). Remove the legacy `#b98364`.
-- [ ] 6.2 Replace the hardcoded `linear-gradient(135deg, #d8d0c2, #f8f6f1 45%, #b98364 160%)` in the "Ver ubicación" tiles with a shared brand utility class or a CSS variable that uses the current gold.
-- [ ] 6.3 Move the `LocalBusiness` JSON-LD constants into `src/data/business.js`. Generate the JSON-LD at build time or render it via a tiny `BusinessJsonLd` component from the same module. Drop `geo` and `openingHoursSpecification` from the JSON-LD unless the brand confirms the data in the same module.
-- [ ] 6.4 Add `<link rel="preconnect">` to `fonts.googleapis.com` and `fonts.gstatic.com` plus the `<link rel="stylesheet">` to load Marcellus and Manrope. Remove the `@import` of Google Fonts from `styles.css`.
-- [ ] 6.5 Confirm `npm run build` is green. Commit as `Phase 6: theme color, JSON-LD single source, preconnected fonts`. Stop and wait for confirmation before phase 7.
+- [x] 6.1 Update `<meta name="theme-color">` in `index.html` to `#c1aa67` (the current brand gold). Remove the legacy `#b98364`.
+- [x] 6.2 Replace the hardcoded `linear-gradient(135deg, #d8d0c2, #f8f6f1 45%, #b98364 160%)` in the "Ver ubicación" tiles with a shared brand utility class or a CSS variable that uses the current gold.
+- [x] 6.3 Move the `LocalBusiness` JSON-LD constants into `src/data/business.js`. Generate the JSON-LD at build time or render it via a tiny `BusinessJsonLd` component from the same module. Drop `geo` and `openingHoursSpecification` from the JSON-LD unless the brand confirms the data in the same module.
+- [x] 6.4 Add `<link rel="preconnect">` to `fonts.googleapis.com` and `fonts.gstatic.com` plus the `<link rel="stylesheet">` to load Marcellus and Manrope. Remove the `@import` of Google Fonts from `styles.css`.
+- [x] 6.5 Confirm `npm run build` is green. Commit as `Phase 6: theme color, JSON-LD single source, preconnected fonts`. Stop and wait for confirmation before phase 7.
 
 ## 7. Phase 7 — Asset and performance polish
 

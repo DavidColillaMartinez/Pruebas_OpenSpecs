@@ -12,6 +12,7 @@ import { MobileReformas } from './sections/mobile/Reformas';
 import { MobileVision } from './sections/mobile/Vision';
 import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
+import { BusinessJsonLd } from './components/BusinessJsonLd';
 
 function ChapterDots({ active, labels }) {
   return <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">{sectionIds.map((_, index) => <span key={index} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === active ? 'scale-125 bg-ink' : 'bg-ink/20'}`} />)}<span className="mt-2 text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/50">{labels[active]}</span></div>;
@@ -76,6 +77,7 @@ export default function App() {
   return (
     <main className="font-body text-ink" id="contenido">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
+      <BusinessJsonLd />
       <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} isDesktop={isDesktop} isInicio={isInicio} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>

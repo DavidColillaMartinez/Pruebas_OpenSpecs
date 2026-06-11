@@ -5,3 +5,7 @@
 .text-wrap-balance {
   text-wrap: balance;
 }
+
+.bg-brand-map {
+  background: var(--brand-map-gradient);
+}

@@ -1,10 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  --brand-map-gradient: linear-gradient(135deg, #d8d0c2, #f8f6f1 45%, #c1aa67 160%);
   color: #151515;
   background: #f7f3eb;
   background-image:
