@@ -16,13 +16,13 @@
 
 ## 3. Phase 3 — Mobile Visión and Reformas bugfixes
 
-- [ ] 3.1 Refactor `MobileVision` into a state machine with `idle`, `playing`, `reveal`, and `compare` states. Start in `idle` on every mount.
-- [ ] 3.2 Remove autoplay on `MobileVision` mount. The user MUST press "Reproducir boceto" (or the video `controls`) to start.
-- [ ] 3.3 On `prefers-reduced-motion: reduce`, the section MUST start in `idle` and the video MUST NOT autoplay. The state machine is still usable.
-- [ ] 3.4 Wire the `ended` event to transition to `reveal`. Clicking "Revelar" transitions to `compare`. In `compare`, render the slider with `role="slider"` and keyboard arrow support. In other states, the slider is not in the DOM and not focusable.
-- [ ] 3.5 In `MobileReformas`, store the `timeupdate` and `ended` handlers in named constants and remove BOTH listeners in the cleanup. Verify the progress bar reaches 100% when the video ends.
-- [ ] 3.6 In `MobileReformas`, remove the unrelated `boceto-poster.jpg` and either use a Reforma-themed poster or remove the `poster` attribute. Add `preload="metadata"` if not present.
-- [ ] 3.7 Confirm `npm run build` is green. Commit as `Phase 3: stabilize mobile vision reveal and reformas progress`. Stop and wait for confirmation before phase 4.
+- [x] 3.1 Refactor `MobileVision` into a state machine with `idle`, `playing`, `reveal`, and `compare` states. Start in `idle` on every mount.
+- [x] 3.2 Remove autoplay on `MobileVision` mount. The user MUST press "Reproducir boceto" (or the video `controls`) to start.
+- [x] 3.3 On `prefers-reduced-motion: reduce`, the section MUST start in `idle` and the video MUST NOT autoplay. The state machine is still usable.
+- [x] 3.4 Wire the `ended` event to transition to `reveal`. Clicking "Revelar" transitions to `compare`. In `compare`, render the slider with `role="slider"` and keyboard arrow support. In other states, the slider is not in the DOM and not focusable.
+- [x] 3.5 In `MobileReformas`, store the `timeupdate` and `ended` handlers in named constants and remove BOTH listeners in the cleanup. Verify the progress bar reaches 100% when the video ends.
+- [x] 3.6 In `MobileReformas`, remove the unrelated `boceto-poster.jpg` and either use a Reforma-themed poster or remove the `poster` attribute. Add `preload="metadata"` if not present.
+- [x] 3.7 Confirm `npm run build` is green. Commit as `Phase 3: stabilize mobile vision reveal and reformas progress`. Stop and wait for confirmation before phase 4.
 
 ## 4. Phase 4 — Codebase refactor
 

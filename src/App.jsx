@@ -764,9 +764,10 @@ function MobileReformas({ cardless, reducedMotion }) {
       if (!v.duration) return;
       setProgress(Math.min(v.currentTime / v.duration, 1));
     };
+    const onEnded = () => setProgress(1);
     v.addEventListener('timeupdate', onTime);
-    v.addEventListener('ended', () => setProgress(1));
-    return () => { v.removeEventListener('timeupdate', onTime); };
+    v.addEventListener('ended', onEnded);
+    return () => { v.removeEventListener('timeupdate', onTime); v.removeEventListener('ended', onEnded); };
   }, []);
   const facts = ['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'];
 
@@ -793,7 +794,7 @@ function MobileReformas({ cardless, reducedMotion }) {
       <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
       <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white">
-        <video ref={videoRef} src="/reforma-bano.mp4" controls muted playsInline preload="metadata" poster="/boceto-poster.jpg" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
+        <video ref={videoRef} src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
       </div>
       <div className="mt-3 h-1.5 w-full rounded-full bg-ink/8" role="progressbar" aria-label="Avance de obra" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
         <div className="h-full rounded-full bg-clay transition-[width] duration-200 ease-linear" style={{ width: `${progress * 100}%` }} />
@@ -817,31 +818,26 @@ function MobileVision({ cardless, reducedMotion }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
-  const [videoDone, setVideoDone] = useState(false);
-  const [showReveal, setShowReveal] = useState(false);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [state, setState] = useState('idle'); // idle | playing | reveal | compare
   const [sliderX, setSliderX] = useState(0.5);
 
   useEffect(() => {
     const v = videoRef.current;
-    if (!v) return;
-    if (reducedMotion) return;
-    const playPromise = v.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(() => setAutoplayBlocked(true));
-    }
-    const done = () => { v.pause(); setShowReveal(true); setVideoDone(true); };
-    v.addEventListener('ended', done);
-    return () => { v.removeEventListener('ended', done); v.pause(); };
-  }, [reducedMotion]);
+    if (!v || state !== 'playing') return;
+    const onEnded = () => { v.pause(); setState('reveal'); };
+    v.addEventListener('ended', onEnded);
+    return () => v.removeEventListener('ended', onEnded);
+  }, [state]);
 
   const handlePlay = () => {
     const v = videoRef.current;
     if (!v) return;
-    setAutoplayBlocked(false);
-    v.play().catch(() => setAutoplayBlocked(true));
+    setState('playing');
+    v.play().catch(() => setState('idle'));
   };
-  const handleReveal = () => { setVideoDone(true); setShowReveal(false); };
+
+  const handleReveal = () => setState('compare');
+
   const setFromClientX = (clientX) => {
     if (!sliderRef.current) return;
     const rect = sliderRef.current.getBoundingClientRect();
@@ -876,41 +872,43 @@ function MobileVision({ cardless, reducedMotion }) {
     <MobileSectionShell id="vision" titleId="mobile-vision-title" ariaLabel="Visión">
       <h2 id="mobile-vision-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Del boceto al baño.</h2>
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
-      <div ref={sliderRef} role="slider" tabIndex={0} aria-label="Comparar boceto con imagen final" aria-valuenow={Math.round(sliderX * 100)} aria-valuemin={0} aria-valuemax={100}
+      <div
+        ref={sliderRef}
+        role={state === 'compare' ? 'slider' : undefined}
+        tabIndex={state === 'compare' ? 0 : undefined}
+        aria-label={state === 'compare' ? 'Comparar boceto con imagen final' : undefined}
+        aria-valuenow={state === 'compare' ? Math.round(sliderX * 100) : undefined}
+        aria-valuemin={state === 'compare' ? 0 : undefined}
+        aria-valuemax={state === 'compare' ? 100 : undefined}
+        onKeyDown={(e) => { if (state !== 'compare') return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
         onPointerDown={onPointerDown}
-        onKeyDown={(e) => { if (!videoDone) return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
         className="relative mt-8 aspect-[4/3] w-full select-none overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
-        style={{ touchAction: videoDone ? 'none' : 'auto' }}>
+        style={{ touchAction: state === 'compare' ? 'none' : 'auto' }}>
         <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="metadata" poster="/boceto-poster.jpg" className="absolute inset-0 h-full w-full object-cover" aria-label="Video de boceto dibujándose" />
-        {videoDone && (
-          <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
-            <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" draggable={false} />
-          </div>
-        )}
-        {videoDone && (
-          <div className="absolute inset-y-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
-            <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift" aria-hidden="true">
-              <span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span>
+        {state === 'compare' && (
+          <>
+            <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" draggable={false} />
             </div>
-          </div>
+            <div className="absolute inset-y-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
+              <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift" aria-hidden="true">
+                <span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span>
+              </div>
+            </div>
+          </>
         )}
-        {showReveal && videoDone === false && (
+        {state === 'reveal' && (
           <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
             <button type="button" onClick={handleReveal} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Revelar</button>
           </div>
         )}
-        {autoplayBlocked && !videoDone && !showReveal && (
-          <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
-            <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
-          </div>
-        )}
-        {reducedMotion && !videoDone && (
+        {state === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-ink/15">
             <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
           </div>
         )}
       </div>
-      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{videoDone ? 'Arrastra para comparar' : 'Toca reproducir y luego revela'}</p>
+      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{state === 'compare' ? 'Arrastra para comparar' : state === 'reveal' ? 'Revela el resultado final' : 'Toca reproducir'}</p>
     </MobileSectionShell>
   );
 }
