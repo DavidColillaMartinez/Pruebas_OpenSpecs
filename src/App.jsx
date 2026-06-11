@@ -208,7 +208,9 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
               const id = item.href.slice(1);
               const isActive = activeSectionId === id;
               if (cardless) {
-                return <a key={item.href} className={`relative pb-1 text-ink/88 transition after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-clay after:transition-all hover:text-ink ${isActive ? 'text-ink after:w-full' : 'after:w-0 hover:after:w-full'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
+                const muted = isInicio ? 'text-ink/88 hover:text-ink' : 'text-graphite/45 hover:text-ink/80';
+                const active = 'text-ink after:w-full';
+                return <a key={item.href} className={`relative pb-1 transition after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-clay after:transition-all ${isActive ? active : `${muted} after:w-0 hover:after:w-full`}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
               }
               return <a key={item.href} className={`transition ${isActive ? 'text-clay' : 'text-ink/88 hover:text-clay'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
             })}
