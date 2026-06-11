@@ -10,7 +10,7 @@ export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onK
       aria-valuemax={isCompare ? 100 : undefined}
       onKeyDown={isCompare ? onKeyDown : undefined}
       onPointerDown={onPointerDown}
-      className={`relative select-none overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
+      className={`relative aspect-[4/3] select-none overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
       style={{ touchAction: isCompare ? 'none' : 'auto' }}
     >
       <video ref={videoRef} src={videoSrc} muted playsInline preload="metadata" poster={poster} className={`absolute inset-0 h-full w-full object-cover bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
