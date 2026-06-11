@@ -36,11 +36,11 @@
 
 ## 5. Phase 5 — Mobile minimal polish
 
-- [ ] 5.1 Replace the `<a>` masquerading as a submit in `MobileContacto` with a real `<form>` whose `onSubmit` calls `e.preventDefault()` and opens WhatsApp with the encoded form data. Required fields MUST be enforced.
-- [ ] 5.2 Add visible `<label>` with `<span>` text and matching `for`/`id` pairs to every contact form field. Keep the `aria-label` for assistive technology as a backup. Mark required fields with both `aria-required` and `required`.
-- [ ] 5.3 Refine the mobile minimal section spacing rhythm so that sections breathe differently. Hero sections get more vertical air; transitional sections stay tighter.
-- [ ] 5.4 Verify keyboard navigation through the mobile minimal flow: tab order, focus visibility, drawer escape, and form submission. Confirm WCAG AA contrast for the brand gold accent.
-- [ ] 5.5 Confirm `npm run build` is green. Commit as `Phase 5: real contact form and minimal polish`. Stop and wait for confirmation before phase 6.
+- [x] 5.1 Replace the `<a>` masquerading as a submit in `MobileContacto` with a real `<form>` whose `onSubmit` calls `e.preventDefault()` and opens WhatsApp with the encoded form data. Required fields MUST be enforced.
+- [x] 5.2 Add visible `<label>` with `<span>` text and matching `for`/`id` pairs to every contact form field. Keep the `aria-label` for assistive technology as a backup. Mark required fields with both `aria-required` and `required`.
+- [x] 5.3 Refine the mobile minimal section spacing rhythm so that sections breathe differently. Hero sections get more vertical air; transitional sections stay tighter.
+- [x] 5.4 Verify keyboard navigation through the mobile minimal flow: tab order, focus visibility, drawer escape, and form submission. Confirm WCAG AA contrast for the brand gold accent.
+- [x] 5.5 Confirm `npm run build` is green. Commit as `Phase 5: real contact form and minimal polish`. Stop and wait for confirmation before phase 6.
 
 ## 6. Phase 6 — SEO and metadata sync
 

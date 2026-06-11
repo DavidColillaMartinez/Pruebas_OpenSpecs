@@ -49,7 +49,7 @@ export function MobileColeccion({ cardless }) {
     );
   }
   return (
-    <MobileSectionShell id="coleccion" titleId="mobile-coleccion-title" ariaLabel="Colección">
+    <MobileSectionShell id="coleccion" titleId="mobile-coleccion-title" ariaLabel="Colección" className="py-14 sm:py-16">
       <h2 id="mobile-coleccion-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Cuatro decisiones, una lectura.</h2>
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">La tienda no separa piezas por catálogo. Ordena vidrio, superficie, metal y detalle para que el baño tenga una sola dirección visual.</p>
       <div className="mt-10 overflow-hidden border-l-2 border-clay/35 pl-5">

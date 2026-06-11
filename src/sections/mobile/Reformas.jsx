@@ -40,7 +40,7 @@ export function MobileReformas({ cardless, reducedMotion }) {
     );
   }
   return (
-    <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas">
+    <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas" className="py-16 sm:py-20">
       <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
       <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white">
