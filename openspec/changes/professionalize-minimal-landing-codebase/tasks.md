@@ -26,13 +26,13 @@
 
 ## 4. Phase 4 — Codebase refactor
 
-- [ ] 4.1 Create `src/data/` with `business.js`, `categories.js`, `methodSteps.js`, `projectFacts.js`, `copy.js`. Move the constants and copy from `App.jsx` into these modules.
-- [ ] 4.2 Create `src/hooks/` with `useNarrativeScroll.js`, `useMediaGate.js`, `useCompareSlider.js`, `usePrefersReducedMotion.js`. Move the hooks from `App.jsx`.
-- [ ] 4.3 Create `src/components/` with `LogoMark`, `Header`, `MobileDrawer`, `Button`, `GoldLabel`, `SectionTitle`, `CompareSlider`, `ProgressBar`, `ProjectFacts`, `ContactLinks`, `ContactForm`, `MobileSectionShell`. Extract the JSX and the shared classes.
-- [ ] 4.4 Create `src/sections/desktop/` and `src/sections/mobile/` with the existing five sections each. The mobile versions of `Inicio`, `Coleccion`, `Reformas`, `Vision`, `Contacto` live in `src/sections/mobile/`. The desktop versions live in `src/sections/desktop/`.
-- [ ] 4.5 Reduce `src/App.jsx` to a thin entry that wires data, hooks, and section components. It MUST be short and declarative.
-- [ ] 4.6 Move `src/styles.css` content into `src/styles/index.css` and `src/styles/utilities.css` if it helps. Keep the global `body` reset and the reduced-motion rules.
-- [ ] 4.7 Confirm `npm run build` is green. Commit as `Phase 4: split src/ into data, hooks, components, sections, styles`. Stop and wait for confirmation before phase 5.
+- [x] 4.1 Create `src/data/` with `business.js`, `categories.js`, `methodSteps.js`, `projectFacts.js`, `copy.js`. Move the constants and copy from `App.jsx` into these modules.
+- [x] 4.2 Create `src/hooks/` with `useNarrativeScroll.js`, `useMediaGate.js`, `useCompareSlider.js`, `usePrefersReducedMotion.js`. Move the hooks from `App.jsx`.
+- [x] 4.3 Create `src/components/` with `LogoMark`, `Header`, `MobileDrawer`, `Button`, `GoldLabel`, `SectionTitle`, `CompareSlider`, `ProgressBar`, `ProjectFacts`, `ContactLinks`, `ContactForm`, `MobileSectionShell`. Extract the JSX and the shared classes.
+- [x] 4.4 Create `src/sections/desktop/` and `src/sections/mobile/` with the existing five sections each. The mobile versions of `Inicio`, `Coleccion`, `Reformas`, `Vision`, `Contacto` live in `src/sections/mobile/`. The desktop versions live in `src/sections/desktop/`.
+- [x] 4.5 Reduce `src/App.jsx` to a thin entry that wires data, hooks, and section components. It MUST be short and declarative.
+- [x] 4.6 Move `src/styles.css` content into `src/styles/index.css` and `src/styles/utilities.css` if it helps. Keep the global `body` reset and the reduced-motion rules.
+- [x] 4.7 Confirm `npm run build` is green. Commit as `Phase 4: split src/ into data, hooks, components, sections, styles`. Stop and wait for confirmation before phase 5.
 
 ## 5. Phase 5 — Mobile minimal polish
 
