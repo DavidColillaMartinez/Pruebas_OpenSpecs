@@ -1,10 +1,10 @@
 ## 1. Phase 1 — Default state and dead code cleanup
 
-- [ ] 1.1 In `src/App.jsx`, change the `useState(false)` for `cardless` to `useState(true)`. Verify the header toggle label on first paint is "Tarjetas".
-- [ ] 1.2 Remove `skipBlocked` from `useNarrativeScroll` (callback, return value, and any consumer in `App`).
-- [ ] 1.3 Remove the unused `chapterLabels` array declared inside `useNarrativeScroll`.
-- [ ] 1.4 Remove the redundant destructuring of `skipBlocked` in `App`.
-- [ ] 1.5 Confirm `npm run build` is green. Commit as `Phase 1: make minimal the default and remove dead hook state`. Stop and wait for confirmation before phase 2.
+- [x] 1.1 In `src/App.jsx`, change the `useState(false)` for `cardless` to `useState(true)`. Verify the header toggle label on first paint is "Tarjetas".
+- [x] 1.2 Remove `skipBlocked` from `useNarrativeScroll` (callback, return value, and any consumer in `App`).
+- [x] 1.3 Remove the unused `chapterLabels` array declared inside `useNarrativeScroll`.
+- [x] 1.4 Remove the redundant destructuring of `skipBlocked` in `App`.
+- [x] 1.5 Confirm `npm run build` is green. Commit as `Phase 1: make minimal the default and remove dead hook state`. Stop and wait for confirmation before phase 2.
 
 ## 2. Phase 2 — Responsive header rewrite
 
