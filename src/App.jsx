@@ -59,7 +59,6 @@ function useNarrativeScroll() {
   const [smoothProgress, setSmoothProgress] = useState(0);
   const [isDesktop, setIsDesktop] = useState(getDesktopGate);
   const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false);
-  const chapterLabels = ['Inicio', 'Colección', 'Reformas', 'Visión', 'Contacto'];
   const activeRef = useRef(0);
   const stepRef = useRef(0);
   const blockedRef = useRef(false);
@@ -85,11 +84,6 @@ function useNarrativeScroll() {
   }, []);
 
   const setBlocked = useCallback((value) => { blockedRef.current = value; }, []);
-
-  const skipBlocked = useCallback(() => {
-    blockedRef.current = false;
-    cooldownRef.current = false;
-  }, []);
 
   const navigateTo = useCallback((index, startStep = 0) => {
     if (index < 0 || index >= TOTAL_CHAPTERS) return;
@@ -182,7 +176,7 @@ function useNarrativeScroll() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isDesktop, navigateTo]);
 
-  return { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
+  return { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
 }
 
 function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isInicio }) {
@@ -973,8 +967,8 @@ function MobileContacto({ cardless }) {
 }
 
 export default function App() {
-  const { activeChapter, step, smoothProgress, setBlocked, skipBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
-  const [cardless, setCardless] = useState(false);
+  const { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
+  const [cardless, setCardless] = useState(true);
 
   useEffect(() => {
     if (cardless) {
