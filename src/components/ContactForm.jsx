@@ -9,7 +9,7 @@ export function ContactForm({ form, setForm, minimal = false }) {
 
   if (minimal) {
     return (
-      <form className="mt-10 space-y-5 border-l-2 border-clay/15 pl-5" onSubmit={handleSubmit}>
+      <form className="mt-16 space-y-5 border-l-2 border-clay/15 pl-5" onSubmit={handleSubmit}>
         <label className="block" htmlFor="contact-name">
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Nombre</span>
           <input id="contact-name" type="text" required aria-label="Nombre" aria-required="true" placeholder="Tu nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} className="mt-2 w-full border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
