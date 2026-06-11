@@ -206,7 +206,11 @@ function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isIni
           <div className="flex items-center gap-7 text-sm font-medium">
             {navItems.map((item) => {
               const id = item.href.slice(1);
-              return <a key={item.href} className={`transition hover:text-ink ${activeSectionId === id ? 'text-ink' : 'text-graphite/70'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
+              const isActive = activeSectionId === id;
+              if (cardless) {
+                return <a key={item.href} className={`relative pb-1 text-ink/88 transition after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-clay after:transition-all hover:text-ink ${isActive ? 'text-ink after:w-full' : 'after:w-0 hover:after:w-full'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
+              }
+              return <a key={item.href} className={`transition ${isActive ? 'text-clay' : 'text-ink/88 hover:text-clay'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
             })}
           </div>
         </nav>
