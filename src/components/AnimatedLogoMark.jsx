@@ -5,6 +5,7 @@ export function AnimatedLogoMark({ className = '' }) {
   const outerClipId = `${clipId}-logo-outer`;
   const innerClipId = `${clipId}-logo-inner`;
   const lineClipId = `${clipId}-logo-line`;
+  const thinFilterId = `${clipId}-logo-thin`;
 
   return (
     <span className={`animated-logo inline-block ${className}`} aria-hidden="true">
@@ -25,21 +26,23 @@ export function AnimatedLogoMark({ className = '' }) {
           <clipPath id={lineClipId}>
             <rect x="98" y="232" width="304" height="8" rx="1.5" />
           </clipPath>
+          <filter id={thinFilterId} x="-4%" y="-4%" width="108%" height="108%" colorInterpolationFilters="sRGB">
+            <feMorphology in="SourceAlpha" operator="erode" radius="0.75" result="thinAlpha" />
+            <feComposite in="SourceGraphic" in2="thinAlpha" operator="in" />
+          </filter>
         </defs>
 
         <g className="logo-gold-line">
-          <image href="/logopng.png" width="500" height="306" preserveAspectRatio="none" clipPath={`url(#${lineClipId})`} />
+          <image href="/logopng.png" width="500" height="306" preserveAspectRatio="none" clipPath={`url(#${lineClipId})`} filter={`url(#${thinFilterId})`} />
         </g>
 
         <g className="logo-outer" clipPath={`url(#${outerClipId})`}>
-          <image href="/logopng.png" width="500" height="306" preserveAspectRatio="none" />
+          <image href="/logopng.png" width="500" height="306" preserveAspectRatio="none" filter={`url(#${thinFilterId})`} />
         </g>
 
         <g className="logo-inner" clipPath={`url(#${innerClipId})`}>
-          <image href="/logopng.png" width="500" height="306" preserveAspectRatio="none" />
+          <image href="/logopng.png" width="500" height="306" preserveAspectRatio="none" filter={`url(#${thinFilterId})`} />
         </g>
-
-        <image className="logo-exact-finish" href="/logopng.png" width="500" height="306" preserveAspectRatio="none" />
       </svg>
     </span>
   );
