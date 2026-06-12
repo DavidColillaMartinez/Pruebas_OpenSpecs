@@ -13,28 +13,16 @@ export function AnimatedLogoMark({ className = '' }) {
 
         <g className="logo-outer">
           <path
-            d="M250 53 L350 252 L329 252 L250 95 L171 252 L150 252 Z"
-            fill="#050505"
-          />
-        </g>
-
-        <g className="logo-middle">
-          <path
-            d="M250 143 L318 291 L296 291 L250 184 L204 291 L182 291 Z"
+            d="M250 53 L350 252 L329 252 L250 96 L171 252 L150 252 Z"
             fill="#050505"
           />
         </g>
 
         <g className="logo-inner">
           <path
-            d="M250 184 L302 291 L282 291 L250 222 L218 291 L198 291 Z"
+            d="M132 291 L197 291 L250 144 L303 291 L368 291 L360 273 L316 273 L250 95 L184 273 L140 273 Z"
             fill="#050505"
           />
-        </g>
-
-        <g className="logo-feet">
-          <path d="M140 253 H198 L184 291 H132 Z" fill="#050505" />
-          <path d="M302 253 H360 L368 291 H316 Z" fill="#050505" />
         </g>
       </svg>
     </span>
