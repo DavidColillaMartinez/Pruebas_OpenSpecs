@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { LogoMark } from '../../components/LogoMark';
+import { AnimatedLogoMark } from '../../components/AnimatedLogoMark';
 import { methodSteps } from '../../data/methodSteps';
 
 export function Inicio({ step, isActive, cardless }) {
@@ -8,7 +9,11 @@ export function Inicio({ step, isActive, cardless }) {
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
       <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
-       <LogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" minimal={cardless} />
+       {cardless ? (
+         <LogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" minimal />
+       ) : (
+         <AnimatedLogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" />
+       )}
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
