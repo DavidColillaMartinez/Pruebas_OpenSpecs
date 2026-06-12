@@ -20,10 +20,30 @@ export function AnimatedLogoMark({ className = '' }) {
             <feComposite in="SourceGraphic" in2="thinAlpha" operator="in" />
           </filter>
           <mask id={outerMaskId} maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="306">
-            <rect className="logo-outer-mask" x="0" y="0" width="760" height="720" fill="white" />
+            <rect width="500" height="306" fill="black" />
+            <path
+              className="logo-outer-draw-mask"
+              d="M150 252 L250 53 L350 252"
+              fill="none"
+              stroke="white"
+              strokeWidth="54"
+              strokeLinecap="butt"
+              strokeLinejoin="miter"
+              pathLength="1"
+            />
           </mask>
           <mask id={innerMaskId} maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="306">
-            <rect className="logo-inner-mask" x="0" y="0" width="760" height="720" fill="white" />
+            <rect width="500" height="306" fill="black" />
+            <path
+              className="logo-inner-draw-mask"
+              d="M368 291 L304 291 L250 143 L196 291 L132 291"
+              fill="none"
+              stroke="white"
+              strokeWidth="56"
+              strokeLinecap="butt"
+              strokeLinejoin="miter"
+              pathLength="1"
+            />
           </mask>
         </defs>
 

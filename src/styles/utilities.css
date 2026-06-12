@@ -25,16 +25,16 @@
   overflow: visible;
 }
 
-.animated-logo .logo-outer-mask {
-  transform: translate(-660px, -165px) rotate(-18deg);
-  transform-origin: 0 0;
-  animation: logo-outer-mask-sweep 3200ms cubic-bezier(0.42, 0, 0.16, 1) 0ms 1 forwards;
+.animated-logo .logo-outer-draw-mask {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: logo-outer-draw 3200ms cubic-bezier(0.42, 0, 0.16, 1) 0ms 1 forwards;
 }
 
-.animated-logo .logo-inner-mask {
-  transform: translate(410px, -165px) rotate(18deg);
-  transform-origin: 0 0;
-  animation: logo-inner-mask-sweep 3000ms cubic-bezier(0.42, 0, 0.16, 1) 420ms 1 forwards;
+.animated-logo .logo-inner-draw-mask {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: logo-inner-draw 3000ms cubic-bezier(0.42, 0, 0.16, 1) 420ms 1 forwards;
 }
 
 .animated-logo .logo-gold-line {
@@ -46,20 +46,18 @@
 
 .animated-logo .logo-outer,
 .animated-logo .logo-inner,
-.animated-logo .logo-gold-line,
-.animated-logo .logo-outer-mask,
-.animated-logo .logo-inner-mask {
+.animated-logo .logo-gold-line {
   transform-box: fill-box;
 }
 
-@keyframes logo-outer-mask-sweep {
-  0%   { transform: translate(-660px, -165px) rotate(-18deg); }
-  100% { transform: translate(40px, -165px) rotate(-18deg); }
+@keyframes logo-outer-draw {
+  0%   { stroke-dashoffset: 1; }
+  100% { stroke-dashoffset: 0; }
 }
 
-@keyframes logo-inner-mask-sweep {
-  0%   { transform: translate(410px, -165px) rotate(18deg); }
-  100% { transform: translate(-180px, -165px) rotate(18deg); }
+@keyframes logo-inner-draw {
+  0%   { stroke-dashoffset: 1; }
+  100% { stroke-dashoffset: 0; }
 }
 
 @keyframes logo-line-in {
@@ -73,19 +71,16 @@
   .animated-logo .logo-outer,
   .animated-logo .logo-inner,
   .animated-logo .logo-gold-line,
-  .animated-logo .logo-outer-mask,
-  .animated-logo .logo-inner-mask {
+  .animated-logo .logo-outer-draw-mask,
+  .animated-logo .logo-inner-draw-mask {
     animation: none;
     opacity: 1;
     transform: none;
   }
 
-  .animated-logo .logo-outer-mask {
-    transform: translate(40px, -165px) rotate(-18deg);
-  }
-
-  .animated-logo .logo-inner-mask {
-    transform: translate(-180px, -165px) rotate(18deg);
+  .animated-logo .logo-outer-draw-mask,
+  .animated-logo .logo-inner-draw-mask {
+    stroke-dashoffset: 0;
   }
 }
 
