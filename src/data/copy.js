@@ -6,7 +6,7 @@ export const navItems = [
 ];
 
 export const sectionIds = ['inicio', 'coleccion', 'reformas', 'vision', 'contacto'];
-export const chapterSteps = [3, 8, 0, 2, 1];
+export const chapterSteps = [3, 5, 0, 2, 1];
 export const chapterType = ['step', 'step', 'continuous', 'step', 'step'];
 export const TOTAL_CHAPTERS = sectionIds.length;
 export const DESKTOP_MIN_WIDTH = 1024;
