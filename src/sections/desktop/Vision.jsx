@@ -72,7 +72,7 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
               <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
                 <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-white px-8 py-3.5 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
               </div>
-              <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute top-3 right-3 z-10">
+              <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay relative isolate grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">
                 <span className="replay-orbit" aria-hidden="true" />
                 <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">

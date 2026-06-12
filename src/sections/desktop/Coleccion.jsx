@@ -6,6 +6,7 @@ export function Coleccion({ step, isActive, cardless }) {
   const tray = categories[1];
   const taps = categories[2];
   const accessories = categories[3];
+  const revealTail = s >= 5;
 
   if (cardless) {
     return (
@@ -30,17 +31,26 @@ export function Coleccion({ step, isActive, cardless }) {
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{tray.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/68">{tray.copy}</p>
               </div>
-              <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 5 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
+              <div
+                style={{ transitionDelay: revealTail ? '0ms' : '0ms' }}
+                className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${revealTail ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}
+              >
                 <p className="text-sm font-semibold text-clay">{taps.label}</p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{taps.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/68">{taps.copy}</p>
               </div>
-              <div className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${s >= 6 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
+              <div
+                style={{ transitionDelay: revealTail ? '150ms' : '0ms' }}
+                className={`border-l-2 border-clay/25 pl-4 transition-all duration-500 ease-out ${revealTail ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}
+              >
                 <p className="text-sm font-semibold text-clay">{accessories.label}</p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink">{accessories.title}</h3>
                 <p className="mt-3 text-base leading-7 text-ink/68">{accessories.copy}</p>
               </div>
-              <aside className={`border-l-2 border-clay/20 pl-4 transition-all duration-500 ease-out ${s >= 7 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}>
+              <aside
+                style={{ transitionDelay: revealTail ? '300ms' : '0ms' }}
+                className={`border-l-2 border-clay/20 pl-4 transition-all duration-500 ease-out ${revealTail ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}
+              >
                 <p className="text-base leading-7 text-ink/68">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen. Por eso el conjunto se decide antes que el objeto.</p>
               </aside>
             </div>
@@ -49,7 +59,6 @@ export function Coleccion({ step, isActive, cardless }) {
       </div>
     );
   }
-
   return (
     <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-10 md:pt-36">
       <div className="mx-auto w-full max-w-7xl">
@@ -83,7 +92,10 @@ export function Coleccion({ step, isActive, cardless }) {
             </article>
 
             <div className="grid gap-5 sm:grid-cols-[0.9fr_1.1fr]">
-              <article className={`overflow-hidden rounded-[2rem] border border-ink/6 bg-white/62 shadow-soft transition-all duration-500 ease-out ${s >= 5 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
+              <article
+                style={{ transitionDelay: revealTail ? '0ms' : '0ms' }}
+                className={`overflow-hidden rounded-[2rem] border border-ink/6 bg-white/62 shadow-soft transition-all duration-500 ease-out ${revealTail ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}
+              >
                 <img src={taps.image} alt={taps.imageAlt} className="h-32 w-full object-cover" loading="lazy" />
                 <div className="p-5">
                   <p className="text-sm font-semibold text-clay">{taps.label}</p>
@@ -91,14 +103,20 @@ export function Coleccion({ step, isActive, cardless }) {
                 </div>
               </article>
 
-              <article className={`rounded-[2rem] border border-ink/6 bg-ink p-6 text-white shadow-lift transition-all duration-500 ease-out ${s >= 6 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}>
+              <article
+                style={{ transitionDelay: revealTail ? '150ms' : '0ms' }}
+                className={`rounded-[2rem] border border-ink/6 bg-ink p-6 text-white shadow-lift transition-all duration-500 ease-out ${revealTail ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[1px]'}`}
+              >
                 <p className="text-sm font-semibold text-clay">{accessories.label}</p>
                 <h3 className="mt-3 font-display text-3xl leading-none tracking-[0.035em]">{accessories.title}</h3>
                 <p className="mt-4 text-sm leading-7 text-white/72">{accessories.copy}</p>
               </article>
             </div>
 
-            <aside className={`rounded-[2rem] border border-clay/20 bg-white/70 p-5 shadow-soft transition-all duration-500 ease-out ${s >= 7 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}>
+            <aside
+              style={{ transitionDelay: revealTail ? '300ms' : '0ms' }}
+              className={`rounded-[2rem] border border-clay/20 bg-white/70 p-5 shadow-soft transition-all duration-500 ease-out ${revealTail ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}
+            >
               <p className="max-w-2xl text-base leading-7 text-ink/76">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen. Por eso el conjunto se decide antes que el objeto.</p>
             </aside>
           </div>

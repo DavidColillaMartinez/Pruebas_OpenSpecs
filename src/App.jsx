@@ -14,8 +14,42 @@ import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
 
-function ChapterDots({ active, labels }) {
-  return <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">{sectionIds.map((_, index) => <span key={index} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === active ? 'scale-125 bg-ink' : 'bg-ink/20'}`} />)}<span className="mt-2 text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/50">{labels[active]}</span></div>;
+function ChapterDots({ active, labels, onNavigate }) {
+  const [hovered, setHovered] = useState(null);
+  const [focused, setFocused] = useState(null);
+  const previewIndex = hovered ?? focused;
+  const displayed = previewIndex != null ? labels[previewIndex] : labels[active];
+  const transitionKey = previewIndex != null ? `hover-${previewIndex}` : `active-${active}`;
+  return (
+    <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">
+      {sectionIds.map((id, index) => {
+        const isActive = index === active;
+        const isPreview = previewIndex === index;
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onNavigate?.(index)}
+            onMouseEnter={() => setHovered(index)}
+            onMouseLeave={() => setHovered((h) => (h === index ? null : h))}
+            onFocus={() => setFocused(index)}
+            onBlur={() => setFocused((f) => (f === index ? null : f))}
+            aria-label={`Ir a ${labels[index]}`}
+            aria-current={isActive ? 'step' : undefined}
+            className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-porcelain ${
+              isActive || isPreview ? 'scale-125 bg-ink' : 'bg-ink/20'
+            }`}
+          />
+        );
+      })}
+      <span
+        key={transitionKey}
+        className="mt-2 inline-block text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/50 transition-all duration-300 ease-out animate-side-label"
+      >
+        {displayed}
+      </span>
+    </div>
+  );
 }
 
 function MobileSections({ cardless, reducedMotion }) {
@@ -81,7 +115,7 @@ export default function App() {
       <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} isDesktop={isDesktop} isInicio={isInicio} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
-          <ChapterDots active={activeChapter} labels={chapterLabels} />
+          <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index, 0)} />
           <div className={`absolute inset-0 ease-out ${reducedMotion ? 'transition-none' : 'transition-transform duration-500'}`} style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
             {chapters.map((chapter, index) => <div key={index} className="w-full" style={{ height: '100svh' }}>{chapter}</div>)}
           </div>
