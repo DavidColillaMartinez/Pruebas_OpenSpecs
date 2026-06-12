@@ -31,98 +31,145 @@
   overflow: visible;
   transform-origin: center;
   transform-box: fill-box;
-}
-
-/* Flash on Instagram: a sibling rect we toggle via opacity. Lives outside the icon
-   so it never covers the camera glyph. */
-.contact-icon--instagram::after {
-  content: "";
-  position: absolute;
-  inset: -8%;
-  border-radius: 9999px;
-  background: currentColor;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.4);
-}
-
-/* Default gentle transform so the link hover always registers something. */
-.contact-icon svg {
   transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.group:hover .contact-icon svg,
-.group:focus-visible .contact-icon svg {
-  transform: scale(1.08) rotate(6deg);
+/* Shared bursts behind the icon. */
+.contact-icon--whatsapp::after,
+.contact-icon--instagram::after,
+.contact-icon--map::after,
+.contact-icon--phone::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.4);
+  inset: -10%;
 }
 
-/* WhatsApp: pop / message bounce. */
+/* WhatsApp: message-bubble pop. */
 .group:hover .contact-icon--whatsapp svg,
 .group:focus-visible .contact-icon--whatsapp svg {
-  animation: whatsapp-pop 620ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+  animation: whatsapp-bump 620ms cubic-bezier(0.22, 1, 0.36, 1) 1;
 }
 
-@keyframes whatsapp-pop {
-  0%   { transform: scale(1) rotate(0deg); }
-  30%  { transform: scale(1.18) rotate(-12deg); }
-  55%  { transform: scale(0.94) rotate(8deg); }
-  100% { transform: scale(1.1) rotate(0deg); }
+@keyframes whatsapp-bump {
+  0%   { transform: translateY(0) scale(1) rotate(0deg); }
+  20%  { transform: translateY(-2px) scale(0.94) rotate(-6deg); }
+  55%  { transform: translateY(-3px) scale(1.14) rotate(8deg); }
+  100% { transform: translateY(0) scale(1.06) rotate(0deg); }
 }
 
-/* Phone: vibration. */
+.contact-icon--whatsapp::after {
+  background: radial-gradient(circle, rgba(37, 211, 102, 0.55) 0%, rgba(37, 211, 102, 0) 65%);
+}
+
+.group:hover .contact-icon--whatsapp::after,
+.group:focus-visible .contact-icon--whatsapp::after {
+  animation: whatsapp-bubble 620ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+}
+
+@keyframes whatsapp-bubble {
+  0%   { opacity: 0;    transform: scale(0.4); }
+  35%  { opacity: 0.7;  transform: scale(1.1); }
+  100% { opacity: 0;    transform: scale(1.6); }
+}
+
+/* Phone: hard vibrate with twin rings. */
 .group:hover .contact-icon--phone svg,
 .group:focus-visible .contact-icon--phone svg {
-  animation: phone-vibrate 480ms cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
+  animation: phone-vibrate 520ms cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
 }
 
 @keyframes phone-vibrate {
   0%   { transform: translate(0, 0) rotate(0deg); }
-  20%  { transform: translate(-1.6px, 0) rotate(-12deg); }
-  40%  { transform: translate(1.6px, 0) rotate(12deg); }
-  60%  { transform: translate(-1.2px, 0) rotate(-8deg); }
-  80%  { transform: translate(1.2px, 0) rotate(8deg); }
+  15%  { transform: translate(-2px, 0) rotate(-14deg); }
+  30%  { transform: translate(2px, 0) rotate(14deg); }
+  45%  { transform: translate(-2px, 0) rotate(-12deg); }
+  60%  { transform: translate(2px, 0) rotate(12deg); }
+  75%  { transform: translate(-1.5px, 0) rotate(-8deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-/* Instagram: shutter + flash. */
+.contact-icon--phone::after {
+  background: radial-gradient(circle, rgba(46, 49, 52, 0.18) 0%, rgba(46, 49, 52, 0) 60%);
+  inset: -22%;
+}
+
+.group:hover .contact-icon--phone::after,
+.group:focus-visible .contact-icon--phone::after {
+  animation: phone-rings 520ms ease-out 1;
+}
+
+@keyframes phone-rings {
+  0%   { opacity: 0;    transform: scale(0.55); }
+  20%  { opacity: 0.5;  transform: scale(0.9); }
+  100% { opacity: 0;    transform: scale(1.45); }
+}
+
+/* Instagram: shutter + brand-coloured flash. */
 .group:hover .contact-icon--instagram svg,
 .group:focus-visible .contact-icon--instagram svg {
-  animation: instagram-shoot 520ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+  animation: instagram-shoot 540ms cubic-bezier(0.22, 1, 0.36, 1) 1;
 }
 
 @keyframes instagram-shoot {
   0%   { transform: scale(1) rotate(0deg); }
-  18%  { transform: scale(1.1) rotate(-6deg); }
-  55%  { transform: scale(0.96) rotate(4deg); }
-  100% { transform: scale(1.06) rotate(0deg); }
+  12%  { transform: scale(0.86) rotate(-4deg); }
+  28%  { transform: scale(1.12) rotate(4deg); }
+  55%  { transform: scale(0.98) rotate(-2deg); }
+  100% { transform: scale(1.04) rotate(0deg); }
+}
+
+.contact-icon--instagram::after {
+  background: radial-gradient(circle, #feda75 0 14%, #fa7e1e 28%, #d62976 48%, #962fbf 70%, #4f5bd5 100%);
+  filter: blur(2px);
 }
 
 .group:hover .contact-icon--instagram::after,
 .group:focus-visible .contact-icon--instagram::after {
-  animation: instagram-flash 520ms ease-out 1;
+  animation: instagram-flash 540ms ease-out 1;
 }
 
 @keyframes instagram-flash {
-  0%   { opacity: 0;    transform: scale(0.4); }
-  10%  { opacity: 0.45; transform: scale(1.05); }
-  35%  { opacity: 0;    transform: scale(1.5); }
-  100% { opacity: 0;    transform: scale(1.5); }
+  0%   { opacity: 0;    transform: scale(0.35); }
+  10%  { opacity: 0.85; transform: scale(0.95); }
+  30%  { opacity: 0.6;  transform: scale(1.2); }
+  100% { opacity: 0;    transform: scale(1.55); }
 }
 
-/* Map: pin lift. */
-.contact-icon--map svg {
-  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
+/* Map: pin drop with radar pulse. */
 .group:hover .contact-icon--map svg,
 .group:focus-visible .contact-icon--map svg {
-  animation: map-lift 520ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+  animation: map-drop 560ms cubic-bezier(0.22, 1, 0.36, 1) 1;
 }
 
-@keyframes map-lift {
-  0%   { transform: translateY(0) scale(1); }
-  45%  { transform: translateY(-2.5px) scale(1.08); }
-  100% { transform: translateY(0) scale(1.04); }
+@keyframes map-drop {
+  0%   { transform: translateY(-4px) scale(1); }
+  40%  { transform: translateY(0)    scale(1.12); }
+  60%  { transform: translateY(-1.5px) scale(1.06); }
+  100% { transform: translateY(0)    scale(1.04); }
+}
+
+.contact-icon--map::after {
+  background: radial-gradient(circle, rgba(21, 21, 21, 0.32) 0%, rgba(21, 21, 21, 0) 60%);
+  inset: 0% -25% -45% -25%;
+  border-radius: 0;
+  height: 30%;
+  top: auto;
+  bottom: -8%;
+}
+
+.group:hover .contact-icon--map::after,
+.group:focus-visible .contact-icon--map::after {
+  animation: map-radar 700ms ease-out 1;
+}
+
+@keyframes map-radar {
+  0%   { opacity: 0;    transform: scaleX(0.4); }
+  35%  { opacity: 0.55; transform: scaleX(1); }
+  100% { opacity: 0;    transform: scaleX(1.4); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -132,7 +179,10 @@
   .group:hover .contact-icon--phone svg,
   .group:hover .contact-icon--instagram svg,
   .group:hover .contact-icon--map svg,
-  .group:hover .contact-icon--instagram::after {
+  .group:hover .contact-icon--whatsapp::after,
+  .group:hover .contact-icon--phone::after,
+  .group:hover .contact-icon--instagram::after,
+  .group:hover .contact-icon--map::after {
     animation: none;
     transform: none;
     opacity: 0;
@@ -170,7 +220,7 @@
 
 @keyframes replay-spin {
   0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  100% { transform: rotate(-360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
