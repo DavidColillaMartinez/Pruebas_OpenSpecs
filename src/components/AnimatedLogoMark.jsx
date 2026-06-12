@@ -1,54 +1,40 @@
 export function AnimatedLogoMark({ className = '' }) {
   return (
-    <span
-      className={`animated-logo inline-grid place-items-center overflow-hidden rounded-full border border-clay/25 bg-white shadow-lift ${className}`}
-      aria-hidden="true"
-    >
+    <span className={`animated-logo inline-block ${className}`} aria-hidden="true">
       <svg
-        viewBox="0 0 200 220"
+        viewBox="0 0 500 299"
         xmlns="http://www.w3.org/2000/svg"
-        className="animated-logo-svg h-full w-full"
+        className="animated-logo-svg h-full w-full overflow-visible"
         role="img"
       >
-        {/* Outer A: descends from the top vertex.
-            The clip-path animation opens the top of the artwork downward. */}
+        <g className="logo-gold-line">
+          <rect x="98" y="232" width="304" height="8" rx="1.5" fill="#c1aa67" />
+        </g>
+
         <g className="logo-outer">
           <path
-            d="M100 28
-               L42 188
-               L62 188
-               L72 162
-               L128 162
-               L138 188
-               L158 188
-               Z"
-            fill="#151515"
+            d="M250 53 L350 252 L329 252 L250 95 L171 252 L150 252 Z"
+            fill="#050505"
           />
         </g>
 
-        {/* Inner A: rises from the bottom vertex.
-            The clip-path animation opens the bottom of the artwork upward. */}
+        <g className="logo-middle">
+          <path
+            d="M250 143 L318 291 L296 291 L250 184 L204 291 L182 291 Z"
+            fill="#050505"
+          />
+        </g>
+
         <g className="logo-inner">
           <path
-            d="M100 70
-               L70 148
-               L84 148
-               L100 108
-               L116 148
-               L130 148
-               Z"
-            fill="#151515"
+            d="M250 184 L302 291 L282 291 L250 222 L218 291 L198 291 Z"
+            fill="#050505"
           />
         </g>
 
-        {/* Gold horizontal line: sweeps in from the centre outward. */}
-        <g className="logo-gold-line">
-          <rect x="40" y="158" width="120" height="3" fill="#b98364" />
-        </g>
-
-        {/* Lower feet: appear at the very end. */}
         <g className="logo-feet">
-          <rect x="32" y="188" width="136" height="6" fill="#151515" />
+          <path d="M140 253 H198 L184 291 H132 Z" fill="#050505" />
+          <path d="M302 253 H360 L368 291 H316 Z" fill="#050505" />
         </g>
       </svg>
     </span>
