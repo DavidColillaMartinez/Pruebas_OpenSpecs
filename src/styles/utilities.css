@@ -25,14 +25,16 @@
   overflow: visible;
 }
 
-.animated-logo .logo-outer {
-  clip-path: polygon(-22% -8%, -22% -8%, -2% 108%, -2% 108%);
-  animation: logo-outer-sweep 3200ms cubic-bezier(0.42, 0, 0.16, 1) 0ms 1 forwards;
+.animated-logo .logo-outer-mask {
+  transform: translate(-660px, -165px) rotate(-18deg);
+  transform-origin: 0 0;
+  animation: logo-outer-mask-sweep 3200ms cubic-bezier(0.42, 0, 0.16, 1) 0ms 1 forwards;
 }
 
-.animated-logo .logo-inner {
-  clip-path: polygon(102% 108%, 122% 108%, 102% -8%, 122% -8%);
-  animation: logo-inner-counter-sweep 3000ms cubic-bezier(0.42, 0, 0.16, 1) 420ms 1 forwards;
+.animated-logo .logo-inner-mask {
+  transform: translate(410px, -165px) rotate(18deg);
+  transform-origin: 0 0;
+  animation: logo-inner-mask-sweep 3000ms cubic-bezier(0.42, 0, 0.16, 1) 420ms 1 forwards;
 }
 
 .animated-logo .logo-gold-line {
@@ -44,24 +46,20 @@
 
 .animated-logo .logo-outer,
 .animated-logo .logo-inner,
-.animated-logo .logo-gold-line {
+.animated-logo .logo-gold-line,
+.animated-logo .logo-outer-mask,
+.animated-logo .logo-inner-mask {
   transform-box: fill-box;
 }
 
-@keyframes logo-outer-sweep {
-  0%   { clip-path: polygon(-22% -8%, -22% -8%, -2% 108%, -2% 108%); }
-  18%  { clip-path: polygon(-22% -8%, 4% -8%, 24% 108%, -2% 108%); }
-  46%  { clip-path: polygon(-22% -8%, 46% -8%, 66% 108%, -2% 108%); }
-  74%  { clip-path: polygon(-22% -8%, 92% -8%, 112% 108%, -2% 108%); }
-  100% { clip-path: polygon(-22% -8%, 122% -8%, 122% 108%, -2% 108%); }
+@keyframes logo-outer-mask-sweep {
+  0%   { transform: translate(-660px, -165px) rotate(-18deg); }
+  100% { transform: translate(40px, -165px) rotate(-18deg); }
 }
 
-@keyframes logo-inner-counter-sweep {
-  0%   { clip-path: polygon(102% 108%, 122% 108%, 102% -8%, 122% -8%); }
-  18%  { clip-path: polygon(88% 108%, 122% 108%, 102% -8%, 68% -8%); }
-  48%  { clip-path: polygon(42% 108%, 122% 108%, 102% -8%, 22% -8%); }
-  76%  { clip-path: polygon(2% 108%, 122% 108%, 122% -8%, -18% -8%); }
-  100% { clip-path: polygon(-22% 108%, 122% 108%, 122% -8%, -22% -8%); }
+@keyframes logo-inner-mask-sweep {
+  0%   { transform: translate(410px, -165px) rotate(18deg); }
+  100% { transform: translate(-180px, -165px) rotate(18deg); }
 }
 
 @keyframes logo-line-in {
@@ -74,11 +72,20 @@
 @media (prefers-reduced-motion: reduce) {
   .animated-logo .logo-outer,
   .animated-logo .logo-inner,
-  .animated-logo .logo-gold-line {
+  .animated-logo .logo-gold-line,
+  .animated-logo .logo-outer-mask,
+  .animated-logo .logo-inner-mask {
     animation: none;
-    clip-path: none;
     opacity: 1;
     transform: none;
+  }
+
+  .animated-logo .logo-outer-mask {
+    transform: translate(40px, -165px) rotate(-18deg);
+  }
+
+  .animated-logo .logo-inner-mask {
+    transform: translate(-180px, -165px) rotate(18deg);
   }
 }
 
