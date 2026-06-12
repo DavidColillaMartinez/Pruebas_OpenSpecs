@@ -20,7 +20,7 @@ export function AnimatedLogoMark({ className = '' }) {
 
         <g className="logo-inner">
           <path
-            d="M132 291 L197 291 L250 144 L303 291 L368 291 L360 273 L316 273 L250 95 L184 273 L140 273 Z"
+            d="M145 291 L198 291 L250 132 L302 291 L355 291 L346 273 L315 273 L250 174 L185 273 L154 273 Z"
             fill="#050505"
           />
         </g>
