@@ -35,7 +35,7 @@ export function AnimatedLogoMark({ className = '', mode = 'cards' }) {
             <rect width="500" height="306" fill="black" />
             <path
               className="logo-inner-draw"
-              d="M368 291 C 360 240 305 165 250 143 C 195 165 140 240 132 291 C 200 285 300 285 368 291 Z"
+              d="M132 291 L368 291 C 360 240 305 165 250 143 C 195 165 140 240 132 291 Z"
               fill="none"
               stroke="white"
               strokeWidth="80"
