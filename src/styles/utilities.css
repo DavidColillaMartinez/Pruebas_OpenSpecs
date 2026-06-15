@@ -25,65 +25,6 @@
   overflow: visible;
 }
 
-.animated-logo .logo-outer-draw-mask {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: logo-outer-draw 3200ms cubic-bezier(0.42, 0, 0.16, 1) 0ms 1 forwards;
-}
-
-.animated-logo .logo-inner-draw-mask {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: logo-inner-draw 3000ms cubic-bezier(0.42, 0, 0.16, 1) 420ms 1 forwards;
-}
-
-.animated-logo .logo-gold-line {
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: 50% 50%;
-  animation: logo-line-in 1800ms cubic-bezier(0.42, 0, 0.16, 1) 2300ms 1 forwards;
-}
-
-.animated-logo .logo-outer,
-.animated-logo .logo-inner,
-.animated-logo .logo-gold-line {
-  transform-box: fill-box;
-}
-
-@keyframes logo-outer-draw {
-  0%   { stroke-dashoffset: 1; }
-  100% { stroke-dashoffset: 0; }
-}
-
-@keyframes logo-inner-draw {
-  0%   { stroke-dashoffset: 1; }
-  100% { stroke-dashoffset: 0; }
-}
-
-@keyframes logo-line-in {
-  0%   { opacity: 0; transform: scaleX(0); }
-  14%  { opacity: 1; transform: scaleX(0.08); }
-  72%  { opacity: 1; transform: scaleX(0.84); }
-  100% { opacity: 1; transform: scaleX(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animated-logo .logo-outer,
-  .animated-logo .logo-inner,
-  .animated-logo .logo-gold-line,
-  .animated-logo .logo-outer-draw-mask,
-  .animated-logo .logo-inner-draw-mask {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-
-  .animated-logo .logo-outer-draw-mask,
-  .animated-logo .logo-inner-draw-mask {
-    stroke-dashoffset: 0;
-  }
-}
-
 /* ---- Contact icons ---- */
 
 .contact-icon {
