@@ -45,7 +45,7 @@
 
 .animated-logo .logo-exact-finish {
   opacity: 0;
-  animation: logo-exact-fade-in 600ms 2500ms 1 forwards;
+  animation: logo-exact-fade-in 1100ms 2000ms 1 forwards;
 }
 
 /* Option A — minimal: pure linear speed, no settle. */

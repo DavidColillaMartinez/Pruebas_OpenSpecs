@@ -22,12 +22,12 @@ export function AnimatedLogoMark({ className = '', mode = 'cards' }) {
             <rect width="500" height="306" fill="black" />
             <path
               className="logo-outer-draw"
-              d="M150 252 L250 53 L350 252"
+              d="M150 252 C 180 200 220 130 250 53 C 280 130 320 200 350 252"
               fill="none"
               stroke="white"
               strokeWidth="120"
-              strokeLinecap="butt"
-              strokeLinejoin="miter"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               pathLength="1"
             />
           </mask>
@@ -35,12 +35,12 @@ export function AnimatedLogoMark({ className = '', mode = 'cards' }) {
             <rect width="500" height="306" fill="black" />
             <path
               className="logo-inner-draw"
-              d="M368 291 L304 291 L250 143 L196 291 L132 291"
+              d="M368 291 C 360 240 305 165 250 143 C 195 165 140 240 132 291 C 200 285 300 285 368 291 Z"
               fill="none"
               stroke="white"
-              strokeWidth="60"
-              strokeLinecap="butt"
-              strokeLinejoin="miter"
+              strokeWidth="80"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               pathLength="1"
             />
           </mask>
@@ -61,7 +61,7 @@ export function AnimatedLogoMark({ className = '', mode = 'cards' }) {
 
         <image
           className="logo-exact-finish"
-          href="/logopng.png"
+          href="/logopng.svg"
           width="500"
           height="306"
           preserveAspectRatio="none"
