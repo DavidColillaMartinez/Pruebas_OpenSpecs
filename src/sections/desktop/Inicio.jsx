@@ -12,7 +12,7 @@ export function Inicio({ step, isActive, cardless }) {
        {cardless ? (
          <LogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" minimal />
        ) : (
-         <AnimatedLogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" />
+          <AnimatedLogoMark mode="cards" className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" />
        )}
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>

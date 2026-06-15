@@ -1,12 +1,16 @@
 import { useId } from 'react';
 
-export function AnimatedLogoMark({ className = '' }) {
+export function AnimatedLogoMark({ className = '', mode = 'cards' }) {
   const uid = useId().replace(/:/g, '');
   const outerMaskId = `${uid}-logo-outer-mask`;
   const innerMaskId = `${uid}-logo-inner-mask`;
+  const isMinimal = mode === 'minimal';
 
   return (
-    <span className={`animated-logo inline-block ${className}`} aria-hidden="true">
+    <span
+      className={`animated-logo animated-logo--${isMinimal ? 'minimal' : 'cards'} inline-block ${className}`}
+      aria-hidden="true"
+    >
       <svg
         viewBox="0 0 500 306"
         xmlns="http://www.w3.org/2000/svg"
@@ -54,6 +58,14 @@ export function AnimatedLogoMark({ className = '' }) {
           <path d="M250 143 L250 180 L246 190 L236 210 L226 230 L216 250 L206 270 L196 291 H132 L141 273 H186 L197 250 L207 230 L217 210 L227 190 Z" fill="#050505" />
           <path d="M250 143 L273 190 L283 210 L293 230 L303 250 L313 270 L324 291 H368 L359 273 H304 L294 270 L284 250 L274 230 L264 210 L254 190 L250 180 Z" fill="#050505" />
         </g>
+
+        <image
+          className="logo-exact-finish"
+          href="/logopng.png"
+          width="500"
+          height="306"
+          preserveAspectRatio="none"
+        />
       </svg>
     </span>
   );
