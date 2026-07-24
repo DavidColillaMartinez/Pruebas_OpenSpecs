@@ -1,7 +1,6 @@
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
 import { Link } from 'react-router-dom';
-import { ThemeToggle } from './ThemeToggle';
 
 export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
   const drawerNavItems = [
@@ -27,10 +26,6 @@ export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
           })}
         </nav>
         <div className="mt-5 flex flex-col gap-3 border-t border-ink/8 pt-5">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-graphite/70">Apariencia</span>
-            <ThemeToggle />
-          </div>
           <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={onClose}>Pedir asesoría</a>
         </div>
       </div>

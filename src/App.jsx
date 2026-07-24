@@ -17,7 +17,6 @@ import { BusinessJsonLd } from './components/BusinessJsonLd';
 import { CatalogPage } from './features/catalog/pages/CatalogPage';
 import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
 import { NotFoundPage } from './routes/NotFoundPage';
-import { ThemeProvider } from './theme/ThemeContext';
 
 function ChapterDots({ active, labels, onNavigate }) {
   const [hovered, setHovered] = useState(null);
@@ -122,15 +121,13 @@ export function LandingPage() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/productos" element={<CatalogPage />} />
-          <Route path="/productos/:slug" element={<ProductDetailPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/productos" element={<CatalogPage />} />
+        <Route path="/productos/:slug" element={<ProductDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
