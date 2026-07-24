@@ -99,6 +99,8 @@ Tasks requiring workflow definitions, import logs or a mutually exclusive public
 
 No POST quote request was executed.
 
+The deployment generated for commit `e26c792` was reported as successful by GitHub/Vercel, but unauthenticated GET probes to its preview URL returned `401 Protected deployment`, including `/`, `/productos`, `/api/catalog/config`, the public list, both verified slugs and a not-found slug. An authenticated owner review is required for the final hosted-page and cloud-proxy check.
+
 ## Owner Gate
 
 Neon, n8n, views, publication rules and deployment configuration remain unchanged. The owner must provide or approve the read-only definitions and the reconciliation before tasks 3.9, 3.10, 4.1, 4.4 and 4.6 can be marked complete. No credentials, PII, webhook URLs or server variables belong in this document.

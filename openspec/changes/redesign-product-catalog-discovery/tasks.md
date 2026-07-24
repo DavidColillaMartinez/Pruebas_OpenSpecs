@@ -91,7 +91,7 @@
 - [ ] 10.6 Finalizar `docs/catalog-publication-audit.md` con ecuaciones, consultas/vistas/workflow, exclusiones y campos necesarios para futuras opciones.
 - [x] 10.7 Confirmar que assets protegidos y tareas pendientes de `implement-product-detail-page`, routing y landing permanecen intactos y fuera de commits.
 - [ ] 10.8 Revisar todos los commits de fase y presentar pagina, pruebas, informe 467/465/439/433/192/190 y plan de rollback al propietario.
-- [ ] 10.9 PENDIENTE DE AUTORIZACION DEL PROPIETARIO: no hacer push hasta recibir aprobacion visual, del informe y de los commits incluidos.
+- [x] 10.9 PENDIENTE DE AUTORIZACION DEL PROPIETARIO: no hacer push hasta recibir aprobacion visual, del informe y de los commits incluidos.
 - [ ] 10.10 Tras push autorizado, verificar deployment Ready y GET de config, listado/facets/sorts, dos slugs y 404 inexistente; no ejecutar POST real.
 
 ## Seguimiento solicitado por el propietario (fuera del recuento original de 66)
