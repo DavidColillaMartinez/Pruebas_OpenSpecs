@@ -2,7 +2,7 @@ import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
 import { Link } from 'react-router-dom';
 
-export function MobileDrawer({ activeSectionId, cardless, onToggleCardless, onNavigate, onClose }) {
+export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
   const drawerNavItems = [
     { label: 'Inicio', href: '#inicio' },
     ...navItems,
@@ -26,7 +26,6 @@ export function MobileDrawer({ activeSectionId, cardless, onToggleCardless, onNa
           })}
         </nav>
         <div className="mt-5 flex flex-col gap-3 border-t border-ink/8 pt-5">
-          <button type="button" onClick={() => { onToggleCardless(); onClose(); }} className="min-h-[44px] rounded-full border border-ink/15 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-graphite/65 transition hover:border-ink/25 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
           <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={onClose}>Pedir asesoría</a>
         </div>
       </div>

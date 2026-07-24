@@ -5,7 +5,7 @@ import { MobileDrawer } from './MobileDrawer';
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
 
-export function Header({ activeSectionId, onNavigate, cardless, onToggleCardless, isInicio, isDesktop }) {
+export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
@@ -25,7 +25,7 @@ export function Header({ activeSectionId, onNavigate, cardless, onToggleCardless
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
           </button>
         </div>
-        {mobileOpen && <MobileDrawer activeSectionId={activeSectionId} cardless={cardless} onToggleCardless={onToggleCardless} onNavigate={onNavigate} onClose={() => setMobileOpen(false)} />}
+        {mobileOpen && <MobileDrawer activeSectionId={activeSectionId} onNavigate={onNavigate} onClose={() => setMobileOpen(false)} />}
       </header>
     );
   }
@@ -41,21 +41,17 @@ export function Header({ activeSectionId, onNavigate, cardless, onToggleCardless
         </div>
         <nav className={`rounded-full border border-white/70 bg-pearl/82 shadow-lift transition-all duration-500 ease-out ${isInicio ? 'px-6 py-3' : 'px-4 py-3'}`}>
           <div className="flex items-center gap-7 text-sm font-medium">
-            <Link to="/productos" className={cardless ? 'relative pb-1 text-ink/88 transition hover:text-ink' : 'transition text-ink/88 hover:text-clay'}>Catálogo</Link>
+            <Link to="/productos" className="relative pb-1 text-ink/88 transition hover:text-ink">Catálogo</Link>
             {navItems.map((item) => {
               const id = item.href.slice(1);
               const isActive = activeSectionId === id;
-              if (cardless) {
-                const muted = isInicio ? 'text-ink/88 hover:text-ink' : 'text-graphite/45 hover:text-ink/80';
-                const active = 'text-ink after:w-full';
-                return <a key={item.href} className={`relative pb-1 transition after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-clay after:transition-all ${isActive ? active : `${muted} after:w-0 hover:after:w-full`}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
-              }
-              return <a key={item.href} className={`transition ${isActive ? 'text-clay' : 'text-ink/88 hover:text-clay'}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
+              const muted = isInicio ? 'text-ink/88 hover:text-ink' : 'text-graphite/45 hover:text-ink/80';
+              const active = 'text-ink after:w-full';
+              return <a key={item.href} className={`relative pb-1 transition after:absolute after:-bottom-0.5 after:left-0 after:h-px after:bg-clay after:transition-all ${isActive ? active : `${muted} after:w-0 hover:after:w-full`}`} href={item.href} onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate(id); } }}>{item.label}</a>;
             })}
           </div>
         </nav>
         <div className="flex items-center justify-self-end gap-3">
-          <button type="button" onClick={onToggleCardless} className={`min-h-[44px] rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'border border-white/50 text-white/70 hover:border-white/80 hover:text-white hover:bg-white/8' : 'border border-ink/15 text-graphite/65 hover:border-ink/25 hover:text-ink'}`} aria-label={cardless ? 'Activar tarjetas' : 'Modo sin tarjetas'}>{cardless ? 'Tarjetas' : 'Minimal'}</button>
           <a className={`min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-white/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-white/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </div>

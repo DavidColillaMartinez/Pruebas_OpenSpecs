@@ -5,7 +5,7 @@ import { PHONE_INTL } from '../../data/business';
 
 const facts = ['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'];
 
-export function MobileReformas({ cardless, reducedMotion }) {
+export function MobileReformas({ reducedMotion }) {
   const videoRef = useRef(null);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
@@ -21,24 +21,6 @@ export function MobileReformas({ cardless, reducedMotion }) {
     return () => { v.removeEventListener('timeupdate', onTime); v.removeEventListener('ended', onEnded); };
   }, []);
 
-  if (!cardless) {
-    return (
-      <section id="reformas" aria-labelledby="mobile-reformas-title" className="bg-transparent px-5 py-16 sm:px-6">
-        <div className="mx-auto max-w-lg">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
-          <h2 id="mobile-reformas-title" className="mt-3 font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Reforma en 21 días.</h2>
-          <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-white/44 p-3 shadow-lift">
-            <video src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="w-full rounded-[1.5rem]" aria-label="Video stopmotion de reforma de baño completo" />
-          </div>
-          <div className="mt-6 space-y-3 text-base leading-relaxed text-ink/72">
-            {facts.map((text, index) => (
-              <p key={text} className="flex items-start gap-3"><span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span><span>{text}</span></p>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
   return (
     <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas" className="py-16 sm:py-20">
       <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>

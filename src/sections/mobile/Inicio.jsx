@@ -1,20 +1,7 @@
 import { LogoMark } from '../../components/LogoMark';
 import { PHONE_INTL } from '../../data/business';
 
-export function MobileInicio({ cardless }) {
-  if (!cardless) {
-    return (
-      <section id="inicio" aria-label="Inicio" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=1200&q=80" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/40 to-ink/78" />
-        <div className="relative z-10 mx-auto max-w-lg px-6 pt-20 pb-28 text-center">
-          <LogoMark className="mx-auto mb-6 h-20 w-20 opacity-90" />
-          <h1 className="font-display text-4xl leading-[0.9] tracking-[0.045em] text-white sm:text-5xl text-wrap-balance">AREA LRMQ</h1>
-          <p className="mt-3 text-xl font-semibold tracking-[0.14em] text-clay uppercase">DESIGN S.L.</p>
-        </div>
-      </section>
-    );
-  }
+export function MobileInicio() {
   return (
     <section id="inicio" aria-labelledby="mobile-inicio-title" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-white px-6 pt-24 pb-16 sm:pt-32">
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center">

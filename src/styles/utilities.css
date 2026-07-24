@@ -19,7 +19,7 @@
   animation: side-label-in 280ms cubic-bezier(0.22, 1, 0.36, 1) 1;
 }
 
-/* ---- Animated minimal logo (Inicio, cardless=false only) ---- */
+/* ---- Animated minimal logo ---- */
 
 .animated-logo-svg {
   overflow: visible;

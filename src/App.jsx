@@ -56,31 +56,21 @@ function ChapterDots({ active, labels, onNavigate }) {
   );
 }
 
-function MobileSections({ cardless, reducedMotion }) {
+function MobileSections({ reducedMotion }) {
   return (
     <div className="bg-transparent text-ink">
-      <MobileInicio cardless={cardless} />
-      <MobileColeccion cardless={cardless} />
-      <MobileReformas cardless={cardless} reducedMotion={reducedMotion} />
-      <MobileVision cardless={cardless} reducedMotion={reducedMotion} />
-      <MobileContacto cardless={cardless} />
+      <MobileInicio />
+      <MobileColeccion />
+      <MobileReformas reducedMotion={reducedMotion} />
+      <MobileVision reducedMotion={reducedMotion} />
+      <MobileContacto />
     </div>
   );
 }
 
 export function LandingPage() {
   const { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
-  const [cardless, setCardless] = useState(true);
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
-
-  useEffect(() => {
-    if (cardless) {
-      document.body.style.background = '#ffffff';
-    } else {
-      document.body.style.background = '';
-    }
-    return () => { document.body.style.background = ''; };
-  }, [cardless]);
 
   useEffect(() => {
     if (isDesktop) return;
@@ -105,18 +95,18 @@ export function LandingPage() {
   const isInicio = currentSectionId === 'inicio';
 
   const chapters = [
-    <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} cardless={cardless} />,
-    <Coleccion key="coleccion" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} cardless={cardless} />,
-    <Reformas key="reformas" smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} cardless={cardless} />,
-    <Vision key="vision" step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} cardless={cardless} />,
-    <Contacto key="contacto" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} cardless={cardless} />,
+    <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} />,
+    <Coleccion key="coleccion" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
+    <Reformas key="reformas" smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} />,
+    <Vision key="vision" step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} />,
+    <Contacto key="contacto" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} />,
   ];
 
   return (
     <main className="font-body text-ink" id="contenido">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
       <BusinessJsonLd />
-      <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} cardless={cardless} onToggleCardless={() => setCardless((v) => !v)} isDesktop={isDesktop} isInicio={isInicio} />
+      <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} isDesktop={isDesktop} isInicio={isInicio} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
           <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index, 0)} />
@@ -124,7 +114,7 @@ export function LandingPage() {
             {chapters.map((chapter, index) => <div key={index} className="w-full" style={{ height: '100svh' }}>{chapter}</div>)}
           </div>
         </div>
-      ) : <MobileSections cardless={cardless} reducedMotion={reducedMotion} />}
+      ) : <MobileSections reducedMotion={reducedMotion} />}
     </main>
   );
 }

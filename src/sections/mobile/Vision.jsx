@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { MobileSectionShell } from '../../components/MobileSectionShell';
 
-export function MobileVision({ cardless, reducedMotion }) {
+export function MobileVision({ reducedMotion }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
@@ -40,21 +40,6 @@ export function MobileVision({ cardless, reducedMotion }) {
     return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); };
   }, []);
 
-  if (!cardless) {
-    return (
-      <section id="vision" aria-labelledby="mobile-vision-title" className="bg-transparent px-5 py-16 sm:px-6">
-        <div className="mx-auto max-w-lg">
-          <h2 id="mobile-vision-title" className="font-display text-3xl leading-[1.05] tracking-[0.035em] text-ink sm:text-4xl text-wrap-balance">Del boceto al baño.</h2>
-          <p className="mt-4 text-base leading-7 text-ink/72">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
-          <div className="mt-6 overflow-hidden rounded-[2rem] border border-white/70 bg-ink/4 p-2 shadow-soft">
-            <div className="relative overflow-hidden rounded-[1.5rem]">
-              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="aspect-[4/3] w-full object-contain bg-white" loading="lazy" />
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
   return (
     <MobileSectionShell id="vision" titleId="mobile-vision-title" ariaLabel="Visión" className="py-14 sm:py-16">
       <h2 id="mobile-vision-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Del boceto al baño.</h2>

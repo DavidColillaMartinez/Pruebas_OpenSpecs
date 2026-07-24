@@ -4,7 +4,7 @@ import { CompareSlider } from '../../components/CompareSlider';
 
 const visionSeenRef = { current: false };
 
-export function Vision({ step, isActive, setBlocked, cardless }) {
+export function Vision({ step, isActive, setBlocked }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
@@ -53,7 +53,7 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
 
   return (
     <div className="flex h-full items-center bg-transparent px-6">
-      <div className={`mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] ${cardless ? 'lg:items-stretch' : ''}`}>
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
         <CompareSlider
           videoRef={videoRef}
           sliderRef={sliderRef}
@@ -61,7 +61,6 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
           onPointerDown={onPointerDown}
           onKeyDown={(e) => { if (!videoDone) return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
           isCompare={videoDone}
-          cardless={cardless}
           videoSrc="/boceto-video.mp4"
           poster="/boceto-poster.webp"
           finalImage="/boceto-final.png"
@@ -83,23 +82,13 @@ export function Vision({ step, isActive, setBlocked, cardless }) {
             </>
           )}
         </CompareSlider>
-        {cardless ? (
-          <div className="relative self-stretch border-l-2 border-clay/30 pl-6">
-            <div className={`absolute top-0 left-6 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>
-              <LogoMark className="h-[7.5rem] w-[7.5rem]" minimal />
-            </div>
-            <h2 className={`absolute left-6 right-0 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance transition-all duration-700 ease-out ${s >= 1 ? 'top-0 translate-y-0' : 'top-1/2 -translate-y-1/2'}`}>Del boceto al baño.</h2>
-            <p className={`absolute left-6 right-0 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'top-1/2 -translate-y-1/2 opacity-100' : 'top-1/2 -translate-y-1/2 translate-y-8 opacity-0'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
+        <div className="relative self-stretch border-l-2 border-clay/30 pl-6">
+          <div className={`absolute top-0 left-6 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>
+            <LogoMark className="h-[7.5rem] w-[7.5rem]" minimal />
           </div>
-        ) : (
-          <div className="rounded-[2.4rem] border border-ink/6 bg-pearl/78 p-8 shadow-soft backdrop-blur-sm">
-            <div className="border-l-2 border-clay/25 pl-5">
-              <LogoMark className="mb-7 h-16 w-16 opacity-35" />
-              <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Del boceto al baño.</h2>
-              <p className={`mt-6 text-lg leading-8 text-ink/76 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
-            </div>
-          </div>
-        )}
+          <h2 className={`absolute left-6 right-0 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance transition-all duration-700 ease-out ${s >= 1 ? 'top-0 translate-y-0' : 'top-1/2 -translate-y-1/2'}`}>Del boceto al baño.</h2>
+          <p className={`absolute left-6 right-0 text-lg leading-8 text-ink/72 transition-all duration-500 ease-out ${s >= 1 ? 'top-1/2 -translate-y-1/2 opacity-100' : 'top-1/2 -translate-y-1/2 translate-y-8 opacity-0'}`}>Antes de elegir una pieza, vemos proporción, paso de luz y continuidad. El resultado no empieza en catálogo, empieza en una imagen que ya encaja.</p>
+        </div>
       </div>
     </div>
   );

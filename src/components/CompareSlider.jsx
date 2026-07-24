@@ -1,4 +1,4 @@
-export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onKeyDown, isCompare, cardless, videoSrc, poster, finalImage, finalImageAlt, children }) {
+export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onKeyDown, isCompare, videoSrc, poster, finalImage, finalImageAlt, children }) {
   return (
     <div
       ref={sliderRef}
@@ -10,13 +10,13 @@ export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onK
       aria-valuemax={isCompare ? 100 : undefined}
       onKeyDown={isCompare ? onKeyDown : undefined}
       onPointerDown={onPointerDown}
-      className={`relative aspect-[4/3] select-none overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40 ${cardless ? 'rounded-[1.2rem]' : 'rounded-[2.4rem] border border-white/70 bg-ink/8 p-3 shadow-lift'}`}
+      className="relative aspect-[4/3] select-none overflow-hidden rounded-[1.2rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
       style={{ touchAction: isCompare ? 'none' : 'auto' }}
     >
-      <video ref={videoRef} src={videoSrc} muted playsInline preload="metadata" poster={poster} className={`absolute inset-0 h-full w-full object-cover bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} aria-label="Video de boceto dibujándose" />
+      <video ref={videoRef} src={videoSrc} muted playsInline preload="metadata" poster={poster} className="absolute inset-0 h-full w-full rounded-[1.2rem] bg-white object-cover" aria-label="Video de boceto dibujándose" />
       {isCompare && (
         <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
-          <img src={finalImage} alt={finalImageAlt} className={`absolute inset-0 h-full w-full object-contain bg-white ${cardless ? 'rounded-[1.2rem]' : 'rounded-[1.8rem]'}`} draggable={false} loading="lazy" />
+          <img src={finalImage} alt={finalImageAlt} className="absolute inset-0 h-full w-full rounded-[1.2rem] bg-white object-contain" draggable={false} loading="lazy" />
         </div>
       )}
       {isCompare && (
