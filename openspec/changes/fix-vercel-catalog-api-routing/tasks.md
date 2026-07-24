@@ -35,7 +35,7 @@
 - [x] 5.1 Ejecutar `corepack pnpm install --frozen-lockfile`, `npm test`, `npm run lint`, `npm run typecheck`, `npm run build` y `openspec validate --all`.
 - [x] 5.2 Ejecutar el build/inspeccion de rutas de Vercel disponible y comprobar que descubre exactamente config, listado, detalle dinamico y quote-requests bajo sus URLs publicas.
 - [x] 5.3 Revisar `git status`, `git diff`, archivos staged e historial; confirmar que no hay UI, media, workflows n8n ni tareas de otros cambios OpenSpec en el diff.
-- [ ] 5.4 Crear un commit local focalizado del routing solo despues de que las pruebas y el build pasen.
+- [x] 5.4 Crear un commit local focalizado del routing solo despues de que las pruebas y el build pasen.
 - [ ] 5.5 PENDIENTE DE AUTORIZACION DEL PROPIETARIO: no hacer push hasta recibir orden explicita.
 
 ## 6. Redeploy y verificacion de produccion
