@@ -34,7 +34,7 @@
 - [x] 4.3 Preferir ampliar `GET /api/catalog/products` con `facets` y `sort`; si se requiere `/facets`, detenerse y proponer un cambio backend separado antes de tocar proxy o la regla de cuatro rutas.
 - [ ] 4.4 Implementar en n8n/vista solo el contrato aprobado para counts sobre universo filtrado, `name_asc`, `name_desc` y relevance si existe soporte real; no cambiar reglas de publicacion.
 - [x] 4.5 Mantener recientes, novedades y mas vendidos sin implementar si faltan fecha/is_new/ventas, y no crear `featured_order` ni migracion editorial.
-- [ ] 4.6 Verificar solo mediante GET: facets sin filtros, search, filtros combinados, multivalor, zero results, pages, sort asc/desc, tie-breaker y total; no ejecutar quote POST.
+- [x] 4.6 Verificar solo mediante GET: facets sin filtros, search, filtros combinados, multivalor, zero results, pages, sort asc/desc, tie-breaker y total; no ejecutar quote POST.
 - [x] 4.7 Confirmar que el proxy, las cuatro variables y las cuatro rutas actuales no cambian, y que bundle/respuestas no exponen n8n, webhook, webhookId ni secretos.
 - [ ] 4.8 Actualizar evidencia/contrato, ejecutar validaciones y crear el commit local de seguridad `backend-contract` sin push.
 
@@ -97,6 +97,7 @@
 ## Seguimiento solicitado por el propietario (fuera del recuento original de 66)
 
 - Filtros iniciales derivados del universo público completo y recalculados por firma de búsqueda/filtros mientras el API no entregue `facets` server-side.
+- Categorías de filtros convertidas en acordeones clicables y compartidos entre desktop y drawer mobile para reducir carga visual sin perder accesibilidad.
 - Selector de variantes conectado a imágenes específicas solo cuando el API proporciona el mapping; fallback conservador a imágenes del producto.
 - Zoom accesible desde la imagen principal y vuelta a resultados con query/scroll preservados.
 - Asset explícito de Vision actualizado en `public/boceto-final.png`.

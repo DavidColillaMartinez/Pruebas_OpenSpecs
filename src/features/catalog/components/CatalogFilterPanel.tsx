@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CatalogFacetKey, CatalogFacets } from '../model/types';
 import type { CatalogFilters } from '../model/catalogQuery';
 
@@ -20,39 +20,60 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   measure: 'Medida',
 };
 
-function FilterGroups({ facets, filters, onToggle }: Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'>) {
+type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'> & {
+  openGroups: Set<CatalogFacetKey>;
+  onToggleGroup: (key: CatalogFacetKey) => void;
+  idPrefix: string;
+};
+
+function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, idPrefix }: FilterGroupsProps) {
   const groups = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
     .filter(([, options]) => options.length > 0);
 
   if (groups.length === 0) return <p className="text-sm leading-relaxed text-graphite">Las opciones aparecerán cuando el catálogo las devuelva.</p>;
 
   return (
-    <div className="space-y-7">
-      {groups.map(([key, options]) => (
-        <fieldset key={key}>
-          <legend className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{facetLabels[key]}</legend>
-          <div className="mt-3 space-y-1">
-            {options.slice(0, 8).map((option) => {
-              const checked = filters[key]?.includes(option.value) || false;
-              return (
-                <label key={option.value} className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2 py-1 text-sm text-graphite transition-colors duration-200 ease-out hover:bg-stonewash hover:text-ink">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(event) => onToggle(key, option.value, event.target.checked)}
-                    className="h-4 w-4 rounded border-ink/20 accent-clay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
-                  />
-                  <span className="min-w-0 flex-1">{option.label}</span>
-                  <span aria-hidden="true" className="text-xs tabular-nums text-graphite/70 transition-colors duration-200 ease-out group-hover:text-ink">{option.count}</span>
-                </label>
-              );
-            })}
-            {options.length > 8 && (
-              <p className="px-2 pt-1 text-xs text-graphite/70">+{options.length - 8} opciones más</p>
-            )}
-          </div>
-        </fieldset>
-      ))}
+    <div className="space-y-2">
+      {groups.map(([key, options]) => {
+        const open = openGroups.has(key);
+        const contentId = `catalog-filter-${idPrefix}-${key}`;
+        return (
+          <fieldset key={key} className="rounded-lg border border-ink/10 bg-white/35 px-2">
+            <legend className="w-full">
+              <button
+                type="button"
+                className="flex min-h-12 w-full items-center gap-3 rounded-md px-2 text-left text-xs font-semibold uppercase tracking-[0.16em] text-graphite transition-colors duration-200 ease-out hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+                aria-expanded={open}
+                aria-controls={contentId}
+                onClick={() => onToggleGroup(key)}
+              >
+                <span className="min-w-0 flex-1">{facetLabels[key]}</span>
+                <span aria-hidden="true" className="text-lg font-normal leading-none text-graphite/70">{open ? '−' : '+'}</span>
+              </button>
+            </legend>
+            <div id={contentId} hidden={!open} className="space-y-1 pb-2 pt-1">
+              {options.slice(0, 8).map((option) => {
+                const checked = filters[key]?.includes(option.value) || false;
+                return (
+                  <label key={option.value} className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2 py-1 text-sm text-graphite transition-colors duration-200 ease-out hover:bg-stonewash hover:text-ink">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(event) => onToggle(key, option.value, event.target.checked)}
+                      className="h-4 w-4 rounded border-ink/20 accent-clay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+                    />
+                    <span className="min-w-0 flex-1">{option.label}</span>
+                    <span aria-hidden="true" className="text-xs tabular-nums text-graphite/70 transition-colors duration-200 ease-out group-hover:text-ink">{option.count}</span>
+                  </label>
+                );
+              })}
+              {options.length > 8 && (
+                <p className="px-2 pt-1 text-xs text-graphite/70">+{options.length - 8} opciones más</p>
+              )}
+            </div>
+          </fieldset>
+        );
+      })}
     </div>
   );
 }
@@ -61,6 +82,16 @@ export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose,
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const [openGroups, setOpenGroups] = useState<Set<CatalogFacetKey>>(() => new Set());
+
+  const onToggleGroup = (key: CatalogFacetKey) => {
+    setOpenGroups((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!mobileOpen) return undefined;
@@ -105,7 +136,7 @@ export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose,
           <h2 className="font-display text-2xl">Filtrar</h2>
           <p className="mt-1 text-xs text-graphite">Marca una o varias opciones por categoría. Las cantidades se calculan sobre el conjunto público completo.</p>
           <div className="mt-6">
-            <FilterGroups facets={facets} filters={filters} onToggle={onToggle} />
+            <FilterGroups facets={facets} filters={filters} onToggle={onToggle} openGroups={openGroups} onToggleGroup={onToggleGroup} idPrefix="desktop" />
           </div>
         </div>
       </aside>
@@ -118,7 +149,7 @@ export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose,
               <button ref={closeButtonRef} type="button" onClick={onMobileClose} className="min-h-11 rounded-full px-3 text-sm font-semibold text-graphite underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>
             </div>
             <div className="mt-7">
-              <FilterGroups facets={facets} filters={filters} onToggle={onToggle} />
+              <FilterGroups facets={facets} filters={filters} onToggle={onToggle} openGroups={openGroups} onToggleGroup={onToggleGroup} idPrefix="mobile" />
             </div>
           </div>
         </div>

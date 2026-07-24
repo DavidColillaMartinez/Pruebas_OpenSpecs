@@ -21,6 +21,10 @@ describe('CatalogFilterPanel', () => {
     expect(screen.getByRole('dialog', { name: 'Filtrar' })).toBeInTheDocument();
     const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
     expect(within(dialog).getByRole('group', { name: 'Categoría' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Categoría' })).toHaveAttribute('aria-expanded', 'false');
+    expect(within(dialog).queryByRole('checkbox', { name: 'Espejos' })).not.toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Categoría' }));
+    expect(within(dialog).getByRole('button', { name: 'Categoría' })).toHaveAttribute('aria-expanded', 'true');
     expect(within(dialog).getByRole('checkbox', { name: 'Espejos' })).toBeInTheDocument();
     expect(within(dialog).getByText('4')).toBeInTheDocument();
   });
@@ -66,6 +70,7 @@ describe('CatalogFilterPanel', () => {
     );
 
     const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Categoría' }));
     fireEvent.click(within(dialog).getByRole('checkbox', { name: 'Espejos' }));
     fireEvent.keyDown(document, { key: 'Escape' });
 

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { CatalogPage } from './CatalogPage';
 
@@ -27,7 +27,8 @@ describe('CatalogPage', () => {
     render(<MemoryRouter initialEntries={['/productos?search=alba&category=mirrors']}><CatalogPage /></MemoryRouter>);
 
     expect(await screen.findByText('No hay coincidencias')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Espejos' })).toBeChecked());
+    fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
+    expect(screen.getByRole('checkbox', { name: 'Espejos' })).toBeChecked();
     expect(screen.getByRole('option', { name: /Nombre A-Z/ })).toBeDisabled();
     expect(screen.getByRole('option', { name: /Más recientes/ })).toBeDisabled();
   });
@@ -53,6 +54,7 @@ describe('CatalogPage', () => {
 
     render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
 
-    expect(await screen.findByRole('checkbox', { name: 'Espejos' })).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
+    expect(screen.getByRole('checkbox', { name: 'Espejos' })).toBeInTheDocument();
   });
 });

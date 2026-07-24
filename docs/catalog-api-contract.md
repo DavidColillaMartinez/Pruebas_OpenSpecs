@@ -16,7 +16,7 @@ The browser stays on the relative route and may send:
 
 Within a dimension, repeated values are intended to use OR semantics. Different dimensions are intended to use AND semantics. This remains a contract gate until verified against the live GET workflow.
 
-The current live workflow does not yet satisfy that proposal: repeated `category_id` values were observed to use the last value, and the response did not include `facets` or `sort` metadata. The UI therefore does not claim server-side multi-select or sorting until an approved backend contract exists.
+The current live workflow does not yet satisfy that proposal: repeated `category_id` values currently use the first value, and the response does not include `facets` or `sort` metadata. The UI therefore does not claim server-side multi-select or sorting until an approved backend contract exists.
 
 ### Response Extension
 
