@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": "22.x"
+    "node": ">=20.19.0"
   },
-  "packageManager": "npm@10.9.7",
   "scripts": {
     "dev": "vite",
     "lint": "eslint src/features src/routes api vite.config.js",
