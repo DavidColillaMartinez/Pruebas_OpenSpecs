@@ -5,7 +5,7 @@ Inicio desktop SHALL requerir un unico avance de rueda o teclado para iniciar la
 
 #### Scenario: Primer avance de Inicio
 - **WHEN** Inicio pasa de step 0 a su step de contenido
-- **THEN** el articulo 1 inicia su entrada inmediatamente, el articulo 2 aproximadamente un segundo despues y el articulo 3 aproximadamente dos segundos despues
+- **THEN** el articulo 1 inicia su entrada inmediatamente, el articulo 2 aproximadamente 800 ms despues y el articulo 3 aproximadamente 1600 ms despues
 
 ### Requirement: Stagger sin estado tardio
 La secuencia SHALL usar delays declarativos ligados al step visible y MUST NOT dejar timers que actualicen estado despues de abandonar Inicio.

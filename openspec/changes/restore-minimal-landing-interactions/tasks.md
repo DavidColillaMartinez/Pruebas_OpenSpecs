@@ -24,14 +24,14 @@
 - [x] 3.5 Corregir `vercel.json` para resolver `/productos` y `/productos/:slug` sin interceptar `/api/*` ni archivos estaticos.
 - [x] 3.6 Mantener y ampliar pruebas de proxy para GET permitido, metodo no permitido, configuracion ausente, timeout/error upstream y normalizacion `200 PRODUCT_NOT_FOUND` a `404` publico; no ejecutar POST real.
 - [x] 3.7 Ejecutar en local tests de cliente, normalizacion, rutas de listado/detalle y build; registrar como esperada cualquier dependencia de variables no disponible localmente.
-- [ ] 3.8 Revisar el diff de catalogo y crear un commit local separado solo si las correcciones estan demostradas; no marcar ninguna de las cinco tareas pendientes de `implement-product-detail-page`.
+- [x] 3.8 Revisar el diff de catalogo y crear un commit local separado solo si las correcciones estan demostradas; no marcar ninguna de las cinco tareas pendientes de `implement-product-detail-page`.
 
 ## 4. Secuencia simplificada de Inicio
 
-- [ ] 4.1 Reducir `chapterSteps[0]` a un unico step interno sin cambiar los pasos ni tipos de los otros capitulos.
-- [ ] 4.2 Hacer que los tres articulos de `src/sections/desktop/Inicio.jsx` se activen desde ese mismo step con delays declarativos de 0 ms, 1000 ms y 2000 ms.
-- [ ] 4.3 Verificar que reduced motion elimina esperas perceptibles y que salir antes de completar el stagger no deja timers ni actualizaciones tardias.
-- [ ] 4.4 Añadir pruebas para rueda/step, teclado, delays de los tres articulos y transicion al siguiente capitulo sin tres scrolls adicionales.
+- [x] 4.1 Reducir `chapterSteps[0]` a un unico step interno sin cambiar los pasos ni tipos de los otros capitulos.
+- [x] 4.2 Hacer que los tres articulos de `src/sections/desktop/Inicio.jsx` se activen desde ese mismo step con delays declarativos de 0 ms, 800 ms y 1600 ms.
+- [x] 4.3 Verificar que reduced motion elimina esperas perceptibles y que salir antes de completar el stagger no deja timers ni actualizaciones tardias.
+- [x] 4.4 Añadir pruebas para rueda/step, teclado, delays de los tres articulos y transicion al siguiente capitulo sin tres scrolls adicionales.
 - [ ] 4.5 Validar visualmente la secuencia en desktop y crear un commit local focalizado tras revisar status y diff.
 
 ## 5. Vision directa a compare con replay

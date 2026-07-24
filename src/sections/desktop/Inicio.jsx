@@ -21,7 +21,11 @@ export function Inicio({ step, isActive }) {
       <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-32 sm:px-6">
         <div className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-3">
           {methodSteps.map((item, index) => (
-            <article key={item.title} className={`border-l-2 border-clay/40 pl-5 text-left transition-all duration-500 ease-out ${s > index ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}>
+            <article
+              key={item.title}
+              style={{ transitionDelay: s >= 1 ? `${index * 800}ms` : '0ms' }}
+              className={`border-l-2 border-clay/40 pl-5 text-left transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}
+            >
               <span className="font-display text-3xl text-clay">{index + 1}</span>
               <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>

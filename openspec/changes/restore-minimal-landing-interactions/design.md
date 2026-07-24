@@ -43,7 +43,7 @@ El rewrite SPA no podra interceptar `/api/*` ni estaticos. Las pruebas de red se
 
 ### 3. Inicio usa un unico step y stagger de presentacion
 
-`chapterSteps[0]` pasara de tres pasos de contenido a uno. Cuando `step >= 1`, los tres articulos adoptaran su estado visible; el primero no tendra espera, el segundo tendra 1000 ms y el tercero 2000 ms de delay. Se usaran delays declarativos de presentacion en el componente en vez de timers con estado, evitando callbacks pendientes al cambiar de capitulo.
+`chapterSteps[0]` pasara de tres pasos de contenido a uno. Cuando `step >= 1`, los tres articulos adoptaran su estado visible; el primero no tendra espera, el segundo tendra 800 ms y el tercero 1600 ms de delay, un 20% mas rapido que la propuesta inicial. Se usaran delays declarativos de presentacion en el componente en vez de timers con estado, evitando callbacks pendientes al cambiar de capitulo.
 
 Con `prefers-reduced-motion`, la regla global existente reducira animacion y delays, de modo que los tres articulos apareceran practicamente juntos. No se bloqueara al usuario durante dos segundos: el siguiente gesto podra avanzar a Coleccion conforme a la navegacion existente.
 
