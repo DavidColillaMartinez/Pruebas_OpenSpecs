@@ -89,7 +89,7 @@ export function useCatalogDiscovery() {
     const currentQuery = parseCatalogQuery(queryString);
     if (searchInput.trim() === currentQuery.search) return undefined;
     const timeout = window.setTimeout(() => {
-      setSearchParams(serializeCatalogQuery(withCatalogQueryChange(currentQuery, { search: searchInput.trim() })), { replace: true });
+      setSearchParams(serializeCatalogQuery(withCatalogQueryChange(currentQuery, { search: searchInput.trim() })), { replace: false });
     }, 300);
     return () => window.clearTimeout(timeout);
   }, [queryString, searchInput, setSearchParams]);
@@ -153,7 +153,7 @@ export function useCatalogDiscovery() {
   }, [queryString, retry]);
 
   const updateQuery = (next: CatalogQueryState) => {
-    setSearchParams(serializeCatalogQuery(next), { replace: true });
+    setSearchParams(serializeCatalogQuery(next), { replace: false });
   };
 
   const setFilter = (key: CatalogFacetKey, value: string, checked: boolean) => {
