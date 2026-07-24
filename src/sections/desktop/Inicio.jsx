@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { AnimatedLogoMark } from '../../components/AnimatedLogoMark';
 import { methodSteps } from '../../data/methodSteps';
 
@@ -9,7 +10,7 @@ export function Inicio({ step, isActive }) {
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
        <AnimatedLogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
-        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><span className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm">Tienda</span></p>
+        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
         <p className="mt-4 text-3xl font-semibold tracking-[0.16em] text-clay uppercase">DESIGN S.L.</p>
       </div>
