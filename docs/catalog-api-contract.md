@@ -37,7 +37,7 @@ The preferred extension preserves the existing four route handlers and adds opti
 }
 ```
 
-Each facet count must be calculated over the filtered public universe, with a documented rule for whether the dimension's own selection is excluded from its count. The browser may derive a facet only after it has loaded the complete filtered universe as a documented temporary fallback; it must never derive counts from one page.
+Each facet count must be calculated over the filtered public universe, with a documented rule for whether the dimension's own selection is excluded from its count. The browser may derive a facet only after it has loaded the complete filtered universe as a documented temporary fallback; it must never derive counts from one page. The current client keeps a facet cache per query signature, requests the public pages with `limit=60`, and exposes no options until that complete request succeeds. This fallback is intentionally replaceable by response `facets`.
 
 `recent`, `new` and `best_selling` stay disabled until reliable date, editorial or sales fields are proven. `featured_order` is not part of this change.
 
@@ -58,7 +58,7 @@ Mapped public fields:
 - Classification: `category_id`, `category_name`, `subcategory`, `collection`, `product_kind`.
 - Content: `description`, `specs`, `show_price`.
 - Media: `images[].alt`, `images[].url`, `images[].role`, `images[].width`, `images[].height`, `images[].sort_order`.
-- Variants: `variants[].id`, `reference`, `dimension`, `finish`, `finish_code`, `attributes`, `sort_order`.
+- Variants: `variants[].id`, `reference`, `dimension`, `finish`, `finish_code`, `attributes`, `sort_order`, and optional variant images when the API provides `images`, `image`, `image_url` or `image_path`.
 - Commercial offers: `commercial_offers[].id`, `offer_type`, `sort_order`, and their public variant references/finish fields.
 - Availability: `available_finishes`, `available_measures`, `configuration_fields`, `publication_status`.
 
@@ -70,7 +70,7 @@ The selector uses real product variants or commercial offer variants. It does no
 
 ## Images
 
-Absolute image URLs are preserved. Relative paths are resolved only with the public `asset_base_url` from config. List cards use the verified `main_image_url` fallback when the list response does not include an `images` array.
+Absolute image URLs are preserved. Relative paths are resolved only with the public `asset_base_url` from config. List cards use the verified `main_image_url` fallback when the list response does not include an `images` array. A selected unit uses its normalized variant images only when they exist; otherwise the gallery keeps the product-level images. The current verified detail fixtures do not provide variant-specific images, so no image is inferred from a finish code.
 
 ## Quote Payload
 

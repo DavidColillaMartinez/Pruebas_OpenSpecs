@@ -76,10 +76,21 @@ function normalizeImage(value: unknown, productName: string, assetBaseUrl?: stri
   };
 }
 
-function normalizeVariant(value: unknown): ProductVariant | null {
+function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: string | null): ProductVariant | null {
   const record = asRecord(value);
   const id = asString(record.id);
   if (!id) return null;
+
+  const rawImages = Array.isArray(record.images)
+    ? record.images
+    : record.image
+      ? [typeof record.image === 'string' ? { alt: productName, url: record.image, role: 'variant' } : record.image]
+      : (record.image_url || record.image_path)
+        ? [{ alt: productName, url: record.image_url ?? record.image_path, role: 'variant' }]
+        : [];
+  const images = rawImages
+    .map((item) => normalizeImage(item, productName, assetBaseUrl))
+    .filter((item): item is ProductImage => item !== null);
 
   return {
     id,
@@ -88,6 +99,7 @@ function normalizeVariant(value: unknown): ProductVariant | null {
     finish: asString(record.finish),
     finishCode: asString(record.finish_code),
     attributes: publicAttributes(record.attributes),
+    images: images.length > 0 ? [...new Map(images.map((item) => [item.url, item])).values()] : undefined,
     sortOrder: asNumber(record.sort_order),
   };
 }
@@ -151,7 +163,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     showPrice: record.show_price === true,
     images: uniqueImages,
     variants: Array.isArray(record.variants)
-      ? record.variants.map(normalizeVariant).filter((item): item is ProductVariant => item !== null)
+      ? record.variants.map((item) => normalizeVariant(item, name, config?.asset_base_url)).filter((item): item is ProductVariant => item !== null)
       : [],
     commercialOffers: Array.isArray(record.commercial_offers)
       ? record.commercial_offers.map(normalizeCommercialOffer).filter((item): item is CommercialOffer => item !== null)

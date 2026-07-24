@@ -5,10 +5,9 @@ type ProductGalleryProps = {
   images: ProductImage[];
   productName: string;
   variantLabel?: string;
-  onActiveChange?: (image: ProductImage | null) => void;
 };
 
-export function ProductGallery({ images, productName, variantLabel, onActiveChange }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, variantLabel }: ProductGalleryProps) {
   const [activeUrl, setActiveUrl] = useState<string | undefined>(images[0]?.url);
   const [failedUrl, setFailedUrl] = useState<string | undefined>(undefined);
   const [zoomedImage, setZoomedImage] = useState<ProductImage | null>(null);
@@ -39,10 +38,6 @@ export function ProductGallery({ images, productName, variantLabel, onActiveChan
     () => images.find((image) => image.url === activeUrl && image.url !== failedUrl) ?? null,
     [images, activeUrl, failedUrl]
   );
-
-  useEffect(() => {
-    onActiveChange?.(activeImage);
-  }, [activeImage, onActiveChange]);
 
   const altPrefix = variantLabel ? `${productName}, ${variantLabel}` : productName;
 

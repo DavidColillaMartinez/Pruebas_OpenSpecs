@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getProductBySlug } from '../api/client';
-import type { ProductDetail, ProductImage } from '../model/types';
+import type { ProductDetail } from '../model/types';
 import type { SelectableUnit } from '../model/selection';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector } from '../components/ProductVariantSelector';
@@ -23,15 +23,16 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   );
 }
 
-function ProductContent({ product, onActiveImage }: { product: ProductDetail; onActiveImage: (image: ProductImage | null) => void }) {
+function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
   const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([, value]) => value).map(([, value]) => String(value)).join(' · ');
+  const galleryImages = selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const specs = Object.entries(product.specs);
 
   return (
     <>
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <ProductGallery images={product.images} productName={product.name} variantLabel={variantLabel} onActiveChange={onActiveImage} />
+        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>
@@ -77,9 +78,6 @@ export function ProductDetailPage() {
   const { slug = '' } = useParams();
   const [state, setState] = useState<DetailState>({ status: 'loading' });
   const [retry, setRetry] = useState(0);
-  const [activeImage, setActiveImage] = useState<ProductImage | null>(null);
-  const handleActiveImage = useCallback((image: ProductImage | null) => setActiveImage(image), []);
-
   useEffect(() => {
     const controller = new AbortController();
     setState({ status: 'loading' });
@@ -141,23 +139,11 @@ export function ProductDetailPage() {
               <span aria-hidden="true">←</span> Volver al catálogo
             </Link>
           )}
-          {activeImage && (
-            <button
-              type="button"
-              onClick={() => {
-                const event = new CustomEvent('lrmq:zoom-image', { detail: { url: activeImage.url } });
-                document.dispatchEvent(event);
-              }}
-              className="self-start text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
-            >
-              Ver imagen ampliada
-            </button>
-          )}
         </div>
         {state.status === 'loading' && <p role="status" aria-live="polite" className="mt-12">Cargando producto…</p>}
         {state.status === 'not-found' && <div role="status" className="mt-12"><h1 className="font-display text-4xl">Producto no encontrado</h1><p className="mt-3 text-graphite">No hemos encontrado una ficha pública para este slug.</p><Link to="/productos" className="mt-5 inline-block font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Volver al catálogo completo</Link></div>}
         {state.status === 'error' && <div className="mt-12"><ErrorState message={state.message} onRetry={() => setRetry((value) => value + 1)} /></div>}
-        {state.status === 'success' && <div className="mt-8"><ProductContent product={state.product} onActiveImage={handleActiveImage} /></div>}
+        {state.status === 'success' && <div className="mt-8"><ProductContent product={state.product} /></div>}
       </div>
     </main>
   );

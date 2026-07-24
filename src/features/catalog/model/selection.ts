@@ -1,7 +1,8 @@
-import type { ProductDetail, ProductVariant, SelectedProductUnit, VariantSnapshot } from './types';
+import type { ProductDetail, ProductImage, ProductVariant, SelectedProductUnit, VariantSnapshot } from './types';
 
 type SelectableUnit = SelectedProductUnit & {
   attributes: Record<string, string>;
+  images?: ProductImage[];
   sourceOrder: number;
 };
 
@@ -30,6 +31,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
       ...variant.attributes,
     } satisfies VariantSnapshot,
     attributes: variantAttributes(variant),
+    images: variant.images,
     sourceOrder: variant.sortOrder ?? index,
   }));
 
@@ -52,6 +54,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
         finishCode: offerVariant.finishCode || '',
         offer: offer.offerType || '',
       },
+      images: matchedVariant?.images,
       sourceOrder: (offer.sortOrder ?? 0) * 1000 + (index + 1),
     };
   }));

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CatalogApiError, getProducts } from '../api/client';
 import { deriveCatalogFacets } from './normalize';
-import type { CatalogFacetKey, CatalogFacets, CatalogSortMetadata, ProductCard, ProductListResponse } from './types';
+import type { CatalogFacetKey, CatalogFacets, CatalogSortMetadata, ProductCard } from './types';
 import {
   catalogQueryKey,
   catalogQueryToRequest,
@@ -27,9 +27,19 @@ type DiscoveryData = {
   loadingMore: boolean;
 };
 
-type PageCache = {
+type ItemCache = {
   key: string;
-  pages: Map<number, ProductListResponse>;
+  items: Map<string, ProductCard>;
+  pages: Set<number>;
+  total: number;
+  sort: CatalogSortMetadata;
+  serverFacets: CatalogFacets;
+};
+
+type FacetCache = {
+  items: Map<string, ProductCard>;
+  facets: CatalogFacets;
+  status: 'idle' | 'loading' | 'success' | 'error';
 };
 
 const emptyData: DiscoveryData = {
@@ -42,33 +52,48 @@ const emptyData: DiscoveryData = {
   loadingMore: false,
 };
 
-function mergePages(pages: Map<number, ProductListResponse>): { items: ProductCard[]; first?: ProductListResponse; loadedPage: number } {
-  const sortedPages = [...pages.entries()].sort(([a], [b]) => a - b);
-  const first = sortedPages[0]?.[1];
-  const seen = new Set<string>();
-  const items: ProductCard[] = [];
-  let loadedPage = 0;
-
-  sortedPages.forEach(([page, response]) => {
-    if (page !== loadedPage + 1) return;
-    loadedPage = page;
-    response.items.forEach((item) => {
-      if (seen.has(item.id)) return;
-      seen.add(item.id);
-      items.push(item);
-    });
-  });
-
-  return { items, first, loadedPage };
+function sortItems(items: ProductCard[], sort: CatalogSortMetadata): ProductCard[] {
+  if (sort.applied === 'name_asc' || sort.applied === 'name_desc') {
+    const direction = sort.applied === 'name_asc' ? 1 : -1;
+    return [...items].sort((a, b) => a.name.localeCompare(b.name, 'es') * direction);
+  }
+  return items;
 }
 
 function errorMessage(error: unknown): string {
   return error instanceof CatalogApiError ? error.message : 'No se pudo cargar el catálogo.';
 }
 
-function getFacets(first: ProductListResponse | undefined, items: ProductCard[], total: number): CatalogFacets {
-  if (first && Object.keys(first.facets).length > 0) return first.facets;
-  return items.length >= total ? deriveCatalogFacets(items) : {};
+function hasFacets(facets: CatalogFacets): boolean {
+  return Object.keys(facets).length > 0;
+}
+
+function createItemCache(key: string): ItemCache {
+  return { key, items: new Map(), pages: new Set(), total: 0, sort: { supported: [] }, serverFacets: {} };
+}
+
+function getLoadedPage(cache: ItemCache): number {
+  return Math.max(0, ...cache.pages);
+}
+
+function getFacets(cache: ItemCache, facetCache: FacetCache): CatalogFacets {
+  if (hasFacets(cache.serverFacets)) return cache.serverFacets;
+  if (hasFacets(facetCache.facets) || facetCache.status === 'success') return facetCache.facets;
+  return {};
+}
+
+function toDiscoveryData(cache: ItemCache, facetCache: FacetCache): DiscoveryData {
+  const items = sortItems([...cache.items.values()], cache.sort);
+  return {
+    status: 'success',
+    items,
+    total: cache.total,
+    facets: getFacets(cache, facetCache),
+    sort: cache.sort,
+    loadedPage: getLoadedPage(cache),
+    loadingMore: false,
+    additionalError: undefined,
+  };
 }
 
 export function useCatalogDiscovery() {
@@ -79,7 +104,9 @@ export function useCatalogDiscovery() {
   const [searchInput, setSearchInput] = useState(query.search);
   const [retry, setRetry] = useState(0);
   const [data, setData] = useState<DiscoveryData>(emptyData);
-  const cacheRef = useRef<PageCache>({ key: queryKey, pages: new Map() });
+  const cacheRef = useRef<ItemCache>(createItemCache(queryKey));
+  const facetCachesRef = useRef(new Map<string, FacetCache>());
+  const facetKey = catalogQueryKey({ ...query, sort: 'relevance', page: 1 });
 
   useEffect(() => {
     setSearchInput(query.search);
@@ -95,44 +122,106 @@ export function useCatalogDiscovery() {
   }, [queryString, searchInput, setSearchParams]);
 
   useEffect(() => {
+    if (cacheRef.current.key === queryKey) return;
+    cacheRef.current = createItemCache(queryKey);
+    setData({ ...emptyData, facets: facetCachesRef.current.get(facetKey)?.facets || {} });
+  }, [facetKey, queryKey]);
+
+  useEffect(() => {
     let cancelled = false;
-    const currentQuery = parseCatalogQuery(queryString);
-    const currentQueryKey = catalogQueryKey(currentQuery);
-    if (cacheRef.current.key !== currentQueryKey) cacheRef.current = { key: currentQueryKey, pages: new Map() };
+    const controller = new AbortController();
+    const facetCache = facetCachesRef.current.get(facetKey) || { items: new Map(), facets: {}, status: 'idle' as const };
+    facetCachesRef.current.set(facetKey, facetCache);
+    const facetQuery = { ...parseCatalogQuery(facetKey), sort: 'relevance' as const, page: 1 };
 
-    const load = async () => {
-      const targetPage = currentQuery.page;
-      const pages = cacheRef.current.pages;
-      const missingPages = Array.from({ length: targetPage }, (_, index) => index + 1).filter((page) => !pages.has(page));
-      if (missingPages.length === 0) {
-        const snapshot = mergePages(pages);
-        const total = snapshot.first?.pagination.total ?? 0;
-        setData((current) => ({ ...current, ...snapshot, status: 'success', loadingMore: false, error: undefined, additionalError: undefined, total, facets: getFacets(snapshot.first, snapshot.items, total), sort: snapshot.first?.sort ?? current.sort }));
-        return;
+    if (facetCache.status === 'success' || facetCache.status === 'loading') return undefined;
+    facetCache.status = 'loading';
+
+    const loadFacets = async () => {
+      try {
+        let offset = 0;
+        let total = Number.POSITIVE_INFINITY;
+        const requestedLimit = 60;
+
+        while (offset < total) {
+          const response = await getProducts({ ...catalogQueryToRequest(facetQuery, true), limit: requestedLimit, offset }, null, { signal: controller.signal });
+          if (cancelled) return;
+
+          if (hasFacets(response.facets)) {
+            facetCache.facets = response.facets;
+            facetCache.status = 'success';
+            setData((current) => ({ ...current, facets: hasFacets(cacheRef.current.serverFacets) ? current.facets : response.facets }));
+            return;
+          }
+
+          response.items.forEach((item) => facetCache.items.set(item.id, item));
+          total = response.pagination.total;
+          const step = response.pagination.limit || response.items.length;
+          if (step <= 0 || response.items.length === 0) break;
+          offset += step;
+        }
+
+        facetCache.facets = deriveCatalogFacets([...facetCache.items.values()]);
+        facetCache.status = 'success';
+        setData((current) => ({ ...current, facets: hasFacets(cacheRef.current.serverFacets) ? current.facets : facetCache.facets }));
+      } catch {
+        if (cancelled || controller.signal.aborted) return;
+        facetCache.status = 'error';
+        setData((current) => ({ ...current, facets: getFacets(cacheRef.current, facetCache) }));
       }
+    };
 
-      const loadingInitial = !pages.has(1);
-      setData((current) => ({ ...current, status: loadingInitial ? 'loading' : current.status, loadingMore: !loadingInitial, error: loadingInitial ? undefined : current.error, additionalError: undefined }));
+    void loadFacets();
+    return () => {
+      cancelled = true;
+      controller.abort();
+      if (facetCache.status === 'loading') facetCache.status = 'idle';
+    };
+  }, [facetKey, retry]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const cache = cacheRef.current;
+    const facetCache = facetCachesRef.current.get(facetKey) || { items: new Map(), facets: {}, status: 'idle' as const };
+    const currentQuery = parseCatalogQuery(queryString);
+    const targetPage = currentQuery.page;
+    const missingPages = Array.from({ length: targetPage }, (_, index) => index + 1).filter((page) => !cache.pages.has(page));
+    const isInitial = cache.items.size === 0;
+
+    if (missingPages.length === 0) {
+      setData(toDiscoveryData(cache, facetCache));
+      return;
+    }
+
+    setData((current) => ({ ...current, status: isInitial ? 'loading' : current.status, loadingMore: !isInitial, error: isInitial ? undefined : current.error, additionalError: undefined }));
+    const load = async () => {
       try {
         for (const page of missingPages) {
           const pageQuery: CatalogQueryState = { ...currentQuery, page };
           const response = await getProducts(catalogQueryToRequest(pageQuery, page === 1), null, { signal: controller.signal });
           if (cancelled) return;
-          pages.set(page, response);
-          const snapshot = mergePages(pages);
+          response.items.forEach((item) => cache.items.set(item.id, item));
+          cache.pages.add(page);
+          cache.total = response.pagination.total;
+          if (response.sort.supported.length > 0 || response.sort.applied) cache.sort = response.sort;
+          if (hasFacets(response.facets)) cache.serverFacets = response.facets;
+          const items = sortItems([...cache.items.values()], cache.sort);
+          const facets = getFacets(cache, facetCache);
           setData({
             status: 'success',
-            items: snapshot.items,
-            total: response.pagination.total,
-            facets: getFacets(snapshot.first, snapshot.items, response.pagination.total),
-            sort: snapshot.first?.sort ?? { supported: [] },
-            loadedPage: snapshot.loadedPage,
+            items,
+            total: cache.total,
+            facets,
+            sort: cache.sort,
+            loadedPage: getLoadedPage(cache),
             loadingMore: page < targetPage,
+            additionalError: undefined,
           });
         }
       } catch (error) {
         if (cancelled || controller.signal.aborted) return;
-        const loadingInitialError = !pages.has(1);
+        const loadingInitialError = cache.items.size === 0;
         setData((current) => ({
           ...current,
           status: loadingInitialError ? 'error' : 'success',
@@ -141,16 +230,13 @@ export function useCatalogDiscovery() {
           additionalError: loadingInitialError ? undefined : errorMessage(error),
         }));
       }
-
     };
-
-    const controller = new AbortController();
     void load();
     return () => {
       cancelled = true;
       controller.abort();
     };
-  }, [queryString, retry]);
+  }, [facetKey, queryKey, queryString, retry]);
 
   const updateQuery = (next: CatalogQueryState) => {
     setSearchParams(serializeCatalogQuery(next), { replace: false });

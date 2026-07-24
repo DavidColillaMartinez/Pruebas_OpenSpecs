@@ -23,6 +23,18 @@ describe('product normalization', () => {
     expect(product.variants[0]).not.toHaveProperty('source_page');
   });
 
+  it('normalizes optional images attached to a variant', () => {
+    const product = normalizeProductDetail({
+      id: 'variant-product',
+      name: 'Producto con acabado',
+      slug: 'variant-product',
+      images: [],
+      variants: [{ id: 'variant-1', finish: 'Roble', image: 'images/variant.webp', attributes: {} }],
+    }, { asset_base_url: 'https://assets.example/catalog', catalog_version: null, api_contract_version: null, source_catalog_base_url: null, database_ready_for_public_api: true });
+
+    expect(product.variants[0].images?.[0].url).toBe('https://assets.example/catalog/images/variant.webp');
+  });
+
   it('handles missing optional arrays and resolves relative assets from public config', () => {
     const product = normalizeProductDetail({ id: 'p', name: 'Producto', slug: 'p', images: null, variants: null, commercial_offers: null });
 

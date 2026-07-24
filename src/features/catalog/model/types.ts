@@ -16,6 +16,7 @@ export type ProductVariant = {
   finish?: string;
   finishCode?: string;
   attributes: PublicAttributes;
+  images?: ProductImage[];
   sortOrder?: number;
 };
 
