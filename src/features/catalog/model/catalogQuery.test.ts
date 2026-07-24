@@ -43,7 +43,7 @@ describe('catalog query state', () => {
       offset: 48,
       include_facets: '0',
       search: 'alba',
-      category: ['cat-a', 'cat-b'],
+      category_id: ['cat-a', 'cat-b'],
       sort: 'name_asc',
     });
   });

@@ -17,6 +17,11 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'measure',
 ];
 
+const requestFilterKeys: Partial<Record<CatalogFacetKey, string>> = {
+  category: 'category_id',
+  supplier: 'supplier_id',
+};
+
 export type CatalogFilters = Partial<Record<CatalogFacetKey, string[]>>;
 
 export type CatalogQueryState = {
@@ -104,7 +109,7 @@ export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: b
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.sort = query.sort;
   CATALOG_FILTER_KEYS.forEach((key) => {
     const values = uniqueValues(query.filters[key] || []);
-    if (values.length > 0) params[key] = values;
+    if (values.length > 0) params[requestFilterKeys[key] || key] = values;
   });
   return params;
 }

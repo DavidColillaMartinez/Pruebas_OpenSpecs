@@ -81,6 +81,12 @@ The difference between local rows and public rows cannot yet be assigned mutuall
 
 ## Public GET Gate
 
+The read-only probe on 2026-07-24 confirmed `limit=60` as the effective maximum. The unfiltered request returned four pages (`offset=0,60,120,180`) with `60,60,60,10` items and `pagination.total=190`; all 190 IDs and slugs were unique and all 190 passed the required `id/name/slug` normalization identity check. The response contained only `items` and `pagination`, including when `include_facets=1` was requested; no server facets or sort metadata are currently exposed. `search=alba` and `search=ALBA` each returned one item. `category_id=espejos` and `supplier_id=manillons-torrent` each returned 44 items. The label-style `category=Espejos` returned zero, so the client must use stable IDs rather than visible labels.
+
+The live probes also showed `subcategory=Circular` returned 12 items while lowercase `circular` returned zero, `collection=Alba` returned one, `product_kind=simple_product` returned 182, `finish=Arena Mate` returned 47, and `limit=0` fell back to an effective page size of 24. Repeated `category_id` values are not OR semantics in the current workflow: the last value wins. Combined `category_id=espejos&supplier_id=manillons-torrent` returned 44. The client can preserve repeated URL values, but multi-select must remain a backend contract gate until OR semantics are implemented and verified.
+
+The live probes for `sort=name_asc`, `sort=name_desc` and `order=name_asc` returned the same first item (`mt-espejos-alba`) as the default response and did not establish server-side sorting. Those options remain disabled unless a future response declares and applies them. The public item fields expose `name`, `publication_status` and `show_price`, but no confirmed public date, `is_new`, sales aggregate or editorial order field; recent, new, best-selling and featured sorting therefore have no reliable source yet.
+
 Tasks requiring a live public GET remain pending until a non-secret read-only environment is available. The required evidence is:
 
 - every page with requested/effective `limit`, `offset`, `items.length` and `pagination.total`;

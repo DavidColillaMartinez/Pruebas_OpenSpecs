@@ -9,12 +9,14 @@ This is the client-side contract proposal for the existing public `GET /api/cata
 The browser stays on the relative route and may send:
 
 - `search` once;
-- repeated `category`, `supplier`, `subcategory`, `collection`, `product_kind`, `finish` and `measure` values;
+- repeated URL values for `category`, `supplier`, `subcategory`, `collection`, `product_kind`, `finish` and `measure`; the current upstream mapping sends the stable category/supplier values as repeated `category_id`/`supplier_id` parameters;
 - `sort` only when declared by the response;
 - `include_facets=1` on the first request for a query signature and `include_facets=0` for later chunks;
 - `limit=24` and an `offset` derived from the URL page.
 
 Within a dimension, repeated values are intended to use OR semantics. Different dimensions are intended to use AND semantics. This remains a contract gate until verified against the live GET workflow.
+
+The current live workflow does not yet satisfy that proposal: repeated `category_id` values were observed to use the last value, and the response did not include `facets` or `sort` metadata. The UI therefore does not claim server-side multi-select or sorting until an approved backend contract exists.
 
 ### Response Extension
 
