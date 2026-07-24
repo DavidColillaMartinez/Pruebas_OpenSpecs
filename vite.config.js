@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import { normalizeCatalogResponseStatus } from './api/catalog/response.js';
+import { normalizeCatalogResponseStatus } from './server/catalog/response.js';
 
 async function readRequestBody(request) {
   const chunks = [];

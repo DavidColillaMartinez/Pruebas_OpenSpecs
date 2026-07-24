@@ -22,11 +22,11 @@ Do not use a `VITE_*` variable for this value. Variables prefixed with `VITE_` a
 
 ## Local Development
 
-Use npm with Node `>=20.19.0`. Set the resource-specific upstream variables from `.env.example` in the local environment before starting Vite. `vite.config.js` proxies `/api/catalog` to the corresponding upstream without changing frontend request code.
+Use Node `24.x` with pnpm `10.34.5`. Set the resource-specific upstream variables from `.env.example` in the local environment before starting Vite. `vite.config.js` proxies `/api/catalog` to the corresponding upstream without changing frontend request code.
 
 ## Production
 
-The project includes `api/catalog/[...path].js`, a Vercel-compatible server function. Configure the resource-specific variables in the deployment environment. The function forwards only the approved catalog resources and never returns the upstream URL to the browser.
+The project includes four Vercel-compatible server functions: `api/catalog/config.js`, `api/catalog/products.js`, `api/catalog/products/[slug].js` and `api/catalog/quote-requests.js`. Their shared forwarding logic lives in `server/catalog/proxy.js`, outside the public function directory. Configure the resource-specific variables in the deployment environment. The functions forward only the approved catalog resources and never return the upstream URL to the browser.
 
 `vercel.json` rewrites only `/productos` and `/productos/:slug` to the SPA entry point. API routes and static files are not matched by these rewrites, so `/api/catalog/*` remains enabled by the hosting provider.
 

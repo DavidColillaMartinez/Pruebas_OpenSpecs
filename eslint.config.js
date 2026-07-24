@@ -9,7 +9,7 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/features/**/*.{js,jsx,ts,tsx}', 'src/routes/**/*.{js,jsx,ts,tsx}', 'api/**/*.js', 'vite.config.js'],
+    files: ['src/features/**/*.{js,jsx,ts,tsx}', 'src/routes/**/*.{js,jsx,ts,tsx}', 'api/**/*.js', 'server/**/*.js', 'vite.config.js'],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parser: tseslint.parser,
