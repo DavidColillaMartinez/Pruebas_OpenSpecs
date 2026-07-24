@@ -73,6 +73,11 @@ export function LandingPage() {
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
 
   useEffect(() => {
+    document.body.style.background = '#ffffff';
+    return () => { document.body.style.background = ''; };
+  }, []);
+
+  useEffect(() => {
     if (isDesktop) return;
     const observer = new IntersectionObserver(
       (entries) => {
