@@ -1,6 +1,5 @@
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
-import { Link } from 'react-router-dom';
 
 export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
   const drawerNavItems = [
@@ -18,7 +17,6 @@ export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
           </button>
         </div>
         <nav className="mt-5 flex flex-col gap-2" aria-label="Navegación principal">
-          <Link to="/productos" className="min-h-[44px] rounded-2xl px-4 py-3 text-lg font-medium text-graphite/75 transition hover:text-ink" onClick={onClose}>Catálogo</Link>
           {drawerNavItems.map((item) => {
             const id = item.href.slice(1);
             const isActive = activeSectionId === id;
