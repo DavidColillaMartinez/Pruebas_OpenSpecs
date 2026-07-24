@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
+import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { ProductDetailPage } from './ProductDetailPage';
 
 function renderDetail(slug = 'mt-espejos-alba') {
@@ -50,5 +51,23 @@ describe('ProductDetailPage', () => {
 
     renderDetail();
     expect(await screen.findByRole('alert')).toHaveTextContent('La respuesta del producto no tiene una estructura válida.');
+  });
+
+  it('switches to an image supplied by the selected variant', async () => {
+    const variantImage = 'https://assets.example/alfa-azul.webp';
+    const response = {
+      ...royo,
+      commercial_offers: [],
+      variants: royo.variants.map((variant) => variant.finish === 'Azul Ocean'
+        ? { ...variant, images: [{ alt: royo.name, url: variantImage, role: 'variant' }] }
+        : variant),
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail(royo.slug);
+    expect(await screen.findByRole('heading', { name: royo.name })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Azul Ocean' }));
+
+    await waitFor(() => expect(screen.getByRole('img', { name: /Azul Ocean.*imagen principal/ })).toHaveAttribute('src', variantImage));
   });
 });

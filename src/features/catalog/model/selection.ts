@@ -68,9 +68,11 @@ export function selectInitialUnit(units: SelectableUnit[]): SelectableUnit | nul
 
 export function getAttributeOptions(units: SelectableUnit[], current: Record<string, string>): Record<string, string[]> {
   const keys = [...new Set(units.flatMap((unit) => Object.keys(unit.attributes)))];
-  return Object.fromEntries(keys.map((key) => {
+  const visibleKeys = keys.filter((key) => key !== 'finishCode' || !keys.includes('finish'));
+  const selectionKeys = Object.keys(current).filter((key) => key !== 'finishCode' || !keys.includes('finish'));
+  return Object.fromEntries(visibleKeys.map((key) => {
     const options = [...new Set(units
-      .filter((unit) => Object.entries(current).every(([selectedKey, value]) => selectedKey === key || unit.attributes[selectedKey] === value))
+      .filter((unit) => selectionKeys.every((selectedKey) => selectedKey === key || unit.attributes[selectedKey] === current[selectedKey]))
       .map((unit) => unit.attributes[key])
       .filter(Boolean))];
     return [key, options];

@@ -50,6 +50,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                     aria-pressed={isSelected}
                     onClick={() => {
                       const nextSelection = { ...selection, [key]: value };
+                      if (key === 'finish') delete nextSelection.finishCode;
                       const nextUnit = findMatchingUnit(units, nextSelection);
                       setSelection(nextUnit?.attributes || nextSelection);
                     }}
