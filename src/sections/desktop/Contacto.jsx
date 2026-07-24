@@ -14,7 +14,7 @@ export function Contacto({ step, isActive }) {
         <div>
           <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
           <p className="mt-4 text-lg leading-8 text-ink/72">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
-          <ContactForm form={form} setForm={setForm} minimal />
+            <ContactForm form={form} setForm={setForm} />
         </div>
         <div className={`space-y-10 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
           <div>
@@ -22,7 +22,7 @@ export function Contacto({ step, isActive }) {
             <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
             <p className="mt-3 text-ink/65">{ADDRESS}</p>
           </div>
-          <ContactLinks minimal />
+          <ContactLinks />
         </div>
       </div>
     </div>

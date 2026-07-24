@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react';
-import { ProgressBar } from '../../components/ProgressBar';
 import { ProjectFacts } from '../../components/ProjectFacts';
 import { projectFacts } from '../../data/projectFacts';
 
