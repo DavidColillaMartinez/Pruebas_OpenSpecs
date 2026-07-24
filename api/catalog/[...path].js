@@ -8,16 +8,16 @@ const ALLOWED_METHODS = {
 
 function getUpstreamBase(resource, hasIdentifier) {
   if (resource === 'products' && hasIdentifier) {
-    return process.env.N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL || process.env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    return process.env.N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL;
   }
   if (resource === 'products') {
-    return process.env.N8N_CATALOG_PRODUCTS_LIST_UPSTREAM_BASE_URL || process.env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    return process.env.N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL;
   }
   if (resource === 'config') {
-    return process.env.N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL || process.env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    return process.env.N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL;
   }
   if (resource === 'quote-requests') {
-    return process.env.N8N_CATALOG_QUOTE_UPSTREAM_BASE_URL || process.env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    return process.env.N8N_CATALOG_QUOTE_REQUESTS_UPSTREAM_BASE_URL;
   }
   return null;
 }

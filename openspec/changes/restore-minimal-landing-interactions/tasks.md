@@ -13,17 +13,17 @@
 - [x] 2.4 Ejecutar `npm test`, `npm run lint`, `npm run typecheck` y `npm run build` tras la recuperacion.
 - [x] 2.5 Revisar en navegador los cinco capitulos desktop, todas las secciones mobile, la navegacion `Tienda -> /productos`, proporciones de media y swipe de Vision; informar cualquier diferencia adicional antes de editarla.
 - [x] 2.6 PENDIENTE DE CONFIRMACION DEL PROPIETARIO: presentar la recuperacion minimalista y detener la implementacion hasta recibir aprobacion visual explicita.
-- [ ] 2.7 Tras la aprobacion, inspeccionar `git status`, `git diff` y el historial, stagear solo los archivos aprobados de recuperacion y crear un commit local focalizado sin push.
+- [x] 2.7 Tras la aprobacion, inspeccionar `git status`, `git diff` y el historial, stagear solo los archivos aprobados de recuperacion y crear un commit local focalizado sin push.
 
 ## 3. Auditoria y preparacion del catalogo
 
-- [ ] 3.1 Confirmar que `src/features/catalog/api/client.ts` usa exclusivamente `/api/catalog` y comprobar que el bundle no contiene `webhook`, `webhookId`, URLs n8n ni variables server-side.
-- [ ] 3.2 Comparar `.env.example`, `api/catalog/[...path].js` y `vite.config.js` con las tres variables confirmadas en Vercel: `N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL`, `N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL` y `N8N_CATALOG_QUOTE_REQUESTS_UPSTREAM_BASE_URL`.
-- [ ] 3.3 Verificar mediante GET si listado y detalle comparten realmente la base de productos; si no la comparten, informar y justificar `N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL` como cuarta variable antes de editar configuracion.
-- [ ] 3.4 Unificar solo los nombres server-side demostrados entre `.env.example`, Vite y la funcion Vercel, sin crear `VITE_*`, aliases especulativos ni fallbacks publicos.
-- [ ] 3.5 Corregir `vercel.json` para resolver `/productos` y `/productos/:slug` sin interceptar `/api/*` ni archivos estaticos.
-- [ ] 3.6 Mantener y ampliar pruebas de proxy para GET permitido, metodo no permitido, configuracion ausente, timeout/error upstream y normalizacion `200 PRODUCT_NOT_FOUND` a `404` publico; no ejecutar POST real.
-- [ ] 3.7 Ejecutar en local tests de cliente, normalizacion, rutas de listado/detalle y build; registrar como esperada cualquier dependencia de variables no disponible localmente.
+- [x] 3.1 Confirmar que `src/features/catalog/api/client.ts` usa exclusivamente `/api/catalog` y comprobar que el bundle no contiene `webhook`, `webhookId`, URLs n8n ni variables server-side.
+- [x] 3.2 Comparar `.env.example`, `api/catalog/[...path].js` y `vite.config.js` con las tres variables confirmadas en Vercel: `N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL`, `N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL` y `N8N_CATALOG_QUOTE_REQUESTS_UPSTREAM_BASE_URL`.
+- [x] 3.3 Verificar mediante GET si listado y detalle comparten realmente la base de productos; si no la comparten, informar y justificar `N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL` como cuarta variable antes de editar configuracion.
+- [x] 3.4 Unificar solo los nombres server-side demostrados entre `.env.example`, Vite y la funcion Vercel, sin crear `VITE_*`, aliases especulativos ni fallbacks publicos.
+- [x] 3.5 Corregir `vercel.json` para resolver `/productos` y `/productos/:slug` sin interceptar `/api/*` ni archivos estaticos.
+- [x] 3.6 Mantener y ampliar pruebas de proxy para GET permitido, metodo no permitido, configuracion ausente, timeout/error upstream y normalizacion `200 PRODUCT_NOT_FOUND` a `404` publico; no ejecutar POST real.
+- [x] 3.7 Ejecutar en local tests de cliente, normalizacion, rutas de listado/detalle y build; registrar como esperada cualquier dependencia de variables no disponible localmente.
 - [ ] 3.8 Revisar el diff de catalogo y crear un commit local separado solo si las correcciones estan demostradas; no marcar ninguna de las cinco tareas pendientes de `implement-product-detail-page`.
 
 ## 4. Secuencia simplificada de Inicio
