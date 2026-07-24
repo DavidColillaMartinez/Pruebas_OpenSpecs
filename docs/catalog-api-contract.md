@@ -1,5 +1,46 @@
 # Catalog Contract Notes
 
+## Discovery Contract Proposal
+
+This is the client-side contract proposal for the existing public `GET /api/catalog/products` route. It is not an assertion that the current n8n workflow already supports every field. Backend tasks remain gated by the publication audit and owner approval.
+
+### Request
+
+The browser stays on the relative route and may send:
+
+- `search` once;
+- repeated `category`, `supplier`, `subcategory`, `collection`, `product_kind`, `finish` and `measure` values;
+- `sort` only when declared by the response;
+- `include_facets=1` on the first request for a query signature and `include_facets=0` for later chunks;
+- `limit=24` and an `offset` derived from the URL page.
+
+Within a dimension, repeated values are intended to use OR semantics. Different dimensions are intended to use AND semantics. This remains a contract gate until verified against the live GET workflow.
+
+### Response Extension
+
+The preferred extension preserves the existing four route handlers and adds optional metadata to the list response:
+
+```json
+{
+  "items": [],
+  "pagination": { "limit": 24, "offset": 0, "total": 190 },
+  "facets": {
+    "category": [{ "value": "espejos", "label": "Espejos", "count": 44 }],
+    "supplier": [{ "value": "royo", "label": "Royo", "count": 84 }]
+  },
+  "sort": {
+    "applied": "name_asc",
+    "supported": ["relevance", "name_asc", "name_desc"]
+  }
+}
+```
+
+Each facet count must be calculated over the filtered public universe, with a documented rule for whether the dimension's own selection is excluded from its count. The browser may derive a facet only after it has loaded the complete filtered universe as a documented temporary fallback; it must never derive counts from one page.
+
+`recent`, `new` and `best_selling` stay disabled until reliable date, editorial or sales fields are proven. `featured_order` is not part of this change.
+
+The client implementation normalizes unknown facet dimensions and sort values away, keeps technical fields out of presentation models, repeats array query parameters, and preserves `/api/catalog/products` as the only list route.
+
 These notes are based on the verified public responses for:
 
 - `mt-espejos-alba`

@@ -31,10 +31,12 @@ Method: revision basada en codigo, CSS, tokens y `.md` del proyecto. La comproba
 
 ### Catalogo y contratos
 
-- `src/features/catalog/pages/CatalogPage.tsx`: hoy `limit=24&offset=0`, cards inline, ignora `pagination.total`.
+- `src/features/catalog/pages/CatalogPage.tsx`: shell de descubrimiento con total, búsqueda, filtros, sort condicionado, estados y carga incremental.
+- `src/features/catalog/components/CatalogProductCard.tsx` y `CatalogFilterPanel.tsx`: tiles route-local, fallback de imagen y drawer modal con cleanup de foco/overflow.
+- `src/features/catalog/model/{catalogQuery,useCatalogDiscovery}.ts`: URL compartible, debounce, cancelación, chunks y deduplicación.
 - `src/features/catalog/pages/ProductDetailPage.tsx` + `ProductGallery` + `ProductVariantSelector` + `QuoteRequestForm`: protegidos.
 - `src/features/catalog/api/client.ts`: solo `/api/catalog/*`.
-- `src/features/catalog/model/{types,normalize}.ts`: modelos y normalizacion actuales.
+- `src/features/catalog/model/{types,normalize}.ts`: modelos, facets, sort, normalización y fallback transitorio de facets solo sobre universo completo cargado.
 - `docs/catalog-api-contract.md`, `docs/catalog-api-proxy.md`: contrato publico y cuatro handlers Vercel con helper compartido fuera de `api/`.
 - `server/catalog/{proxy,response}.js`: forwarding, timeout, normalizacion `PRODUCT_NOT_FOUND`.
 
@@ -77,7 +79,8 @@ Localizacion por familia (local -> publico): Accesorios 206->0, Espejos 44->44, 
 - Desktop: rail lateral de filtros; mobile/tablet: busqueda y sort visibles + drawer modal route-local con foco y cleanup de overflow.
 - Movimiento: 150-250 ms opacity/transform; estatico con reduced motion.
 - Scroll: la landing es propietaria del lock via clase de body; catalogo/ficha conservan scroll nativo.
+- Discovery: el navegador solo usa `/api/catalog/products`; el contrato de facets/sort sigue siendo provisional hasta evidencia read-only del backend.
 
 ## Limites de fase
 
-Cada fase <= 5 archivos y termina en commit local: revision, scroll, auditoria/contrato, cliente/modelo, query-state, shell/tiles, filtros/sort, cargar-mas, regresion/entrega. Cualquier necesidad de tocar landing, detalle, proxy, n8n, Neon o media protegida detiene la fase y exige aprobacion.
+Cada fase <= 5 archivos y termina en commit local: revision, scroll, auditoria/contrato, cliente/modelo, query-state, shell/tiles, filtros/sort, cargar-mas, regresion/entrega. Cualquier necesidad de tocar landing, detalle, proxy, n8n, Neon o media protegida detiene la fase y exige aprobacion. La revisión visual de landing/catalogo/ficha permanece pendiente del propietario.
