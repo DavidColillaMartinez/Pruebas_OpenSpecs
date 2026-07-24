@@ -33,7 +33,7 @@ export function CatalogPage() {
         {state.status === 'success' && (
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {state.data?.items.map((product) => (
-              <article key={product.id} className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
+              <article key={product.id} className="overflow-hidden rounded-2xl border border-ink/10 bg-surface-strong">
                 <Link to={`/productos/${encodeURIComponent(product.slug)}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay">
                   {product.images[0] ? <img src={product.images[0].url} alt={product.images[0].alt} className="aspect-[4/3] w-full object-cover" /> : <div className="aspect-[4/3] bg-stonewash" aria-hidden="true" />}
                   <div className="p-5">

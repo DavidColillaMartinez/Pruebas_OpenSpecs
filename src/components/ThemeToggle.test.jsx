@@ -1,0 +1,26 @@
+import { afterEach, describe, expect, it } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { ThemeProvider } from '../theme/ThemeContext';
+import { ThemeToggle } from './ThemeToggle';
+
+afterEach(() => {
+  window.localStorage.clear();
+  delete document.documentElement.dataset.theme;
+  document.documentElement.style.colorScheme = '';
+});
+
+describe('ThemeToggle', () => {
+  it('starts light and persists an explicit dark selection', () => {
+    render(<ThemeProvider><ThemeToggle /></ThemeProvider>);
+
+    const toggle = screen.getByRole('button', { name: 'Cambiar a modo oscuro' });
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(toggle);
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(screen.getByRole('button', { name: 'Cambiar a modo claro' })).toHaveAttribute('aria-pressed', 'true');
+    expect(window.localStorage.getItem('area-lrmq-theme')).toBe('dark');
+  });
+});

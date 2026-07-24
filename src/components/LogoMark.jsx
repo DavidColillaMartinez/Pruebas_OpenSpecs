@@ -7,7 +7,7 @@ export function LogoMark({ className = '', minimal = false }) {
     );
   }
   return (
-    <span className={`inline-grid place-items-center overflow-hidden rounded-full border border-clay/25 bg-white shadow-lift ${className}`} aria-hidden="true">
+    <span className={`inline-grid place-items-center overflow-hidden rounded-full border border-clay/25 bg-surface-strong shadow-lift ${className}`} aria-hidden="true">
       <img src="/logo-area-lrmq.webp" alt="" className="h-full w-full scale-[1.35] object-contain" loading="eager" />
     </span>
   );

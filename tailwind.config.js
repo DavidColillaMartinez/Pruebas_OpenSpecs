@@ -4,12 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#151515',
-        stonewash: '#f4f1ec',
-        pearl: '#f7f3eb',
-        porcelain: '#fbfaf7',
+        ink: 'rgb(var(--theme-ink) / <alpha-value>)',
+        graphite: 'rgb(var(--theme-graphite) / <alpha-value>)',
+        stonewash: 'rgb(var(--theme-stonewash) / <alpha-value>)',
+        pearl: 'rgb(var(--theme-pearl) / <alpha-value>)',
+        porcelain: 'rgb(var(--theme-porcelain) / <alpha-value>)',
+        page: 'rgb(var(--theme-page) / <alpha-value>)',
+        surface: 'rgb(var(--theme-surface) / <alpha-value>)',
+        'surface-strong': 'rgb(var(--theme-surface-strong) / <alpha-value>)',
+        action: 'rgb(var(--theme-action) / <alpha-value>)',
+        'action-foreground': 'rgb(var(--theme-action-foreground) / <alpha-value>)',
         clay: '#c1aa67',
-        graphite: '#2e3134',
         mist: '#d9e4e2',
       },
       boxShadow: {

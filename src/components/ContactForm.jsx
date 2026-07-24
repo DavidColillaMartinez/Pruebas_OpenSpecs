@@ -21,7 +21,7 @@ export function ContactForm({ form, setForm }) {
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Mensaje</span>
         <textarea id="contact-msg" required aria-label="Mensaje" aria-required="true" placeholder="Medidas, estilo y plazo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none border-b border-ink/15 bg-transparent py-3 text-base text-ink placeholder:text-graphite/45 focus:border-ink/40 focus:outline-none" />
       </label>
-      <button type="submit" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Enviar por WhatsApp</button>
+      <button type="submit" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-action px-7 py-3 text-sm font-semibold text-action-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Enviar por WhatsApp</button>
     </form>
   );
 }

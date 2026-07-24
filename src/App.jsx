@@ -17,6 +17,7 @@ import { BusinessJsonLd } from './components/BusinessJsonLd';
 import { CatalogPage } from './features/catalog/pages/CatalogPage';
 import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
 import { NotFoundPage } from './routes/NotFoundPage';
+import { ThemeProvider } from './theme/ThemeContext';
 
 function ChapterDots({ active, labels, onNavigate }) {
   const [hovered, setHovered] = useState(null);
@@ -41,7 +42,7 @@ function ChapterDots({ active, labels, onNavigate }) {
             aria-label={`Ir a ${labels[index]}`}
             aria-current={isActive ? 'step' : undefined}
             className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-porcelain ${
-              isActive || isPreview ? 'scale-125 bg-ink' : 'bg-ink/20'
+              isActive || isPreview ? 'scale-125 bg-action' : 'bg-ink/20'
             }`}
           />
         );
@@ -71,11 +72,6 @@ function MobileSections({ reducedMotion }) {
 export function LandingPage() {
   const { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
-
-  useEffect(() => {
-    document.body.style.background = '#ffffff';
-    return () => { document.body.style.background = ''; };
-  }, []);
 
   useEffect(() => {
     if (isDesktop) return;
@@ -109,7 +105,7 @@ export function LandingPage() {
 
   return (
     <main className="font-body text-ink" id="contenido">
-      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
+      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-action focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-action-foreground focus:shadow-lift">Saltar al contenido</a>
       <BusinessJsonLd />
       <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} isDesktop={isDesktop} isInicio={isInicio} />
       {isDesktop ? (
@@ -126,13 +122,15 @@ export function LandingPage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/productos" element={<CatalogPage />} />
-        <Route path="/productos/:slug" element={<ProductDetailPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/productos" element={<CatalogPage />} />
+          <Route path="/productos/:slug" element={<ProductDetailPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

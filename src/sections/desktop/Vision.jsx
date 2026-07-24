@@ -69,9 +69,9 @@ export function Vision({ step, isActive, setBlocked }) {
           {showReveal && !videoDone && (
             <>
               <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
-                <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-white px-8 py-3.5 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
+                <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-surface-strong px-8 py-3.5 text-sm font-semibold text-action-foreground shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
               </div>
-              <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">
+              <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-surface-strong p-0 text-action-foreground shadow-lift hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">
                 <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

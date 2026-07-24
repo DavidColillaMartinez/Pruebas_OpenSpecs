@@ -54,16 +54,16 @@ export function MobileVision({ reducedMotion }) {
         aria-valuemax={state === 'compare' ? 100 : undefined}
         onKeyDown={(e) => { if (state !== 'compare') return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
         onPointerDown={onPointerDown}
-        className="relative mt-8 aspect-[4/3] w-full select-none overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
+        className="relative mt-8 aspect-[4/3] w-full select-none overflow-hidden rounded-[1.4rem] border border-ink/8 bg-surface-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
         style={{ touchAction: state === 'compare' ? 'none' : 'auto' }}>
         <video ref={videoRef} src="/boceto-video.mp4" muted playsInline preload="metadata" poster="/boceto-poster.webp" className="absolute inset-0 h-full w-full object-cover" aria-label="Video de boceto dibujándose" />
         {state === 'compare' && (
           <>
             <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
-              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-white" draggable={false} loading="lazy" />
+              <img src="/boceto-final.png" alt="Imagen final del proyecto" className="absolute inset-0 h-full w-full object-contain bg-surface-strong" draggable={false} loading="lazy" />
             </div>
             <div className="absolute inset-y-0 w-0.5 bg-clay shadow-lg pointer-events-none" style={{ left: `${sliderX * 100}%` }}>
-              <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-white text-ink shadow-lift" aria-hidden="true">
+              <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-clay/30 bg-surface-strong text-action-foreground shadow-lift" aria-hidden="true">
                 <span className="text-[10px] font-bold tracking-[0.16em]">DRAG</span>
               </div>
             </div>
@@ -71,12 +71,12 @@ export function MobileVision({ reducedMotion }) {
         )}
         {state === 'reveal' && (
           <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
-            <button type="button" onClick={handleReveal} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Revelar</button>
+            <button type="button" onClick={handleReveal} className="min-h-[44px] rounded-full border border-clay/40 bg-surface-strong px-7 py-3 text-sm font-semibold text-action-foreground shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Revelar</button>
           </div>
         )}
         {state === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-ink/15">
-            <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
+            <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-surface-strong px-7 py-3 text-sm font-semibold text-action-foreground shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
           </div>
         )}
       </div>

@@ -4,8 +4,18 @@
 
 :root {
   --brand-map-gradient: linear-gradient(135deg, #d8d0c2, #f8f6f1 45%, #c1aa67 160%);
-  color: #151515;
-  background: #f7f3eb;
+  --theme-page: 255 255 255;
+  --theme-ink: 21 21 21;
+  --theme-graphite: 46 49 52;
+  --theme-stonewash: 244 241 236;
+  --theme-pearl: 247 243 235;
+  --theme-porcelain: 251 250 247;
+  --theme-surface: 247 243 235;
+  --theme-surface-strong: 255 255 255;
+  --theme-action: 21 21 21;
+  --theme-action-foreground: 255 255 255;
+  color: rgb(var(--theme-ink));
+  background: rgb(var(--theme-page));
   background-image:
     linear-gradient(115deg, rgba(255,255,255,0.82) 0%, rgba(247,243,235,0.72) 34%, rgba(224,215,201,0.5) 100%),
     radial-gradient(ellipse at 18% 34%, rgba(185,131,100,0.13) 0%, transparent 46%),
@@ -18,6 +28,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --theme-page: 20 19 18;
+  --theme-ink: 244 239 231;
+  --theme-graphite: 207 199 187;
+  --theme-stonewash: 42 38 34;
+  --theme-pearl: 36 33 30;
+  --theme-porcelain: 23 22 21;
+  --theme-surface: 36 33 30;
+  --theme-surface-strong: 244 239 231;
+  --theme-action: 244 239 231;
+  --theme-action-foreground: 21 21 21;
+  color: rgb(var(--theme-ink));
+  background: rgb(var(--theme-page));
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
@@ -28,7 +54,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;
-  background: transparent;
+  background: rgb(var(--theme-page));
 }
 
 body::before {

@@ -154,7 +154,7 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
         </label>
         {fieldErrors.consentPrivacy && <p id="quote-consent-error" className="text-sm text-red-700">{fieldErrors.consentPrivacy}</p>}
         <input value={form.website} onChange={(event) => updateField('website', event.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-px w-px" />
-        <button type="submit" disabled={status === 'submitting'} className="rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">
+        <button type="submit" disabled={status === 'submitting'} className="rounded-full bg-action px-5 py-3 text-sm font-semibold text-action-foreground disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">
           {status === 'submitting' ? 'Enviando…' : 'Solicitar presupuesto'}
         </button>
         <div ref={resultRef} tabIndex={-1} aria-live="polite" className="text-sm">
