@@ -18,6 +18,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+  color: #f4efe7;
+  background: #141312;
+  background-image:
+    linear-gradient(115deg, rgba(25,23,21,0.96) 0%, rgba(20,19,18,0.94) 34%, rgba(33,29,25,0.92) 100%),
+    radial-gradient(ellipse at 18% 34%, rgba(193,170,103,0.1) 0%, transparent 46%),
+    radial-gradient(ellipse at 84% 18%, rgba(255,255,255,0.08) 0%, transparent 42%),
+    radial-gradient(ellipse at 62% 86%, rgba(193,170,103,0.12) 0%, transparent 48%);
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
@@ -43,6 +54,62 @@ body::before {
   background-size: 88px 88px;
   -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.52), transparent 76%);
   mask-image: linear-gradient(to bottom, rgba(0,0,0,0.52), transparent 76%);
+}
+
+html[data-theme='dark'] body::before {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+}
+
+html[data-theme='dark'] [class~='text-ink'] {
+  color: #f4efe7 !important;
+}
+
+html[data-theme='dark'] [class*='text-ink/'] {
+  color: rgba(244,239,231,0.72) !important;
+}
+
+html[data-theme='dark'] [class~='text-graphite'] {
+  color: #cfc7bb !important;
+}
+
+html[data-theme='dark'] [class*='text-graphite/'] {
+  color: rgba(207,199,187,0.72) !important;
+}
+
+html[data-theme='dark'] [class*='bg-white'] {
+  background-color: #24211f !important;
+}
+
+html[data-theme='dark'] [class*='bg-pearl'] {
+  background-color: rgba(37,33,30,0.9) !important;
+}
+
+html[data-theme='dark'] [class*='bg-porcelain'] {
+  background-color: #171615 !important;
+}
+
+html[data-theme='dark'] [class*='bg-stonewash'] {
+  background-color: #292521 !important;
+}
+
+html[data-theme='dark'] [class*='border-ink'] {
+  border-color: rgba(244,239,231,0.18) !important;
+}
+
+html[data-theme='dark'] [class*='border-white'] {
+  border-color: rgba(244,239,231,0.25) !important;
+}
+
+html[data-theme='dark'] .theme-toggle {
+  border-color: rgba(244,239,231,0.2);
+  color: rgba(244,239,231,0.82);
+}
+
+html[data-theme='dark'] .theme-toggle:hover {
+  border-color: rgba(244,239,231,0.45);
+  color: #f4efe7;
 }
 
 @media (min-width: 1024px) and (min-height: 720px) {

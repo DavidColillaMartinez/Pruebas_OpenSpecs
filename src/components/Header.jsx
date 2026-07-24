@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoMark } from './LogoMark';
 import { MobileDrawer } from './MobileDrawer';
+import { ThemeToggle } from './ThemeToggle';
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
 
@@ -52,6 +53,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
           </div>
         </nav>
         <div className="flex items-center justify-self-end gap-3">
+          <ThemeToggle isInicio={isInicio} />
           <a className={`min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-white/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-white/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </div>
