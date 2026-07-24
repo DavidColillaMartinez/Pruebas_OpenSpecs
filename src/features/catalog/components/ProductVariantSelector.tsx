@@ -46,7 +46,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                   <button
                     key={value}
                     type="button"
-                    className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected ? 'border-action bg-action text-action-foreground' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
+                    className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
                     aria-pressed={isSelected}
                     onClick={() => {
                       const nextSelection = { ...selection, [key]: value };

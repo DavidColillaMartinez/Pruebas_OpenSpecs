@@ -24,7 +24,7 @@ export function MobileReformas({ reducedMotion }) {
     <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas" className="py-16 sm:py-20">
       <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
-      <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-surface-strong">
+      <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white">
         <video ref={videoRef} src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
       </div>
       <div className="mt-3 h-1.5 w-full rounded-full bg-ink/8" role="progressbar" aria-label="Avance de obra" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
@@ -39,7 +39,7 @@ export function MobileReformas({ reducedMotion }) {
           </li>
         ))}
       </ol>
-      <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero información sobre una reforma.')}`} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-action px-7 py-3 text-sm font-semibold text-action-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Pedir asesoría</a>
+      <a href={`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent('Hola AREA LRMQ, quiero información sobre una reforma.')}`} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Pedir asesoría</a>
       {reducedMotion && <span className="sr-only">El video se reproduce bajo demanda porque el usuario ha pedido reducir movimiento.</span>}
     </MobileSectionShell>
   );

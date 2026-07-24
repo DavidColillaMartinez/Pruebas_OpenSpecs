@@ -60,7 +60,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
           <h2 id="commercial-offers-heading" className="font-display text-3xl">Opciones comerciales</h2>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {product.commercialOffers.map((offer) => (
-              <li key={offer.id} className="rounded-xl border border-ink/10 bg-surface-strong p-4">
+              <li key={offer.id} className="rounded-xl border border-ink/10 bg-white p-4">
                 <p className="font-semibold">{offer.offerType || 'Conjunto'}</p>
                 <p className="mt-1 text-sm text-graphite">{offer.variants.length} acabados disponibles</p>
               </li>

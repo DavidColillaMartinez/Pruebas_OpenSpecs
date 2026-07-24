@@ -6,24 +6,6 @@
   text-wrap: balance;
 }
 
-.theme-toggle {
-  transition: color 220ms ease, border-color 220ms ease, transform 220ms ease;
-}
-
-.theme-toggle:hover,
-.theme-toggle:focus-visible {
-  transform: translateY(-1px);
-}
-
-.theme-toggle-icon {
-  animation: theme-icon-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes theme-icon-in {
-  from { opacity: 0; transform: rotate(-35deg) scale(0.72); }
-  to { opacity: 1; transform: rotate(0deg) scale(1); }
-}
-
 .bg-brand-map {
   background: var(--brand-map-gradient);
 }
@@ -67,17 +49,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .theme-toggle,
-  .theme-toggle-icon {
-    transition: none;
-    animation: none;
-  }
-
-  .theme-toggle:hover,
-  .theme-toggle:focus-visible {
-    transform: none;
-  }
-
   .animated-logo .logo-outer-draw,
   .animated-logo .logo-inner-draw {
     stroke-dashoffset: 0;
