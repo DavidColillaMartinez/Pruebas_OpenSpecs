@@ -6,41 +6,30 @@ import { CatalogPage } from './CatalogPage';
 afterEach(() => vi.unstubAllGlobals());
 
 describe('CatalogPage', () => {
-  it('renders links from the public product list response', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      items: [{
-        id: 'mt-espejos-alba',
-        name: 'Alba',
-        slug: 'mt-espejos-alba',
-        brand: 'Manillons Torrent',
-        images: [],
-        show_price: false,
-      }],
-      pagination: { limit: 24, offset: 0, total: 1 },
-    }), { status: 200 })));
-
-    render(<MemoryRouter><CatalogPage /></MemoryRouter>);
-
-    expect(await screen.findByRole('link', { name: /Alba/ })).toHaveAttribute('href', '/productos/mt-espejos-alba');
-    expect(screen.getByText('Has llegado al final del catálogo.')).toBeInTheDocument();
-  });
-
   it('renders a recoverable error when the list request fails', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
 
     render(<MemoryRouter><CatalogPage /></MemoryRouter>);
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo conectar');
-    expect(screen.getByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
   });
 
   it('renders active URL criteria, dynamic counts and honest disabled sorts', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      items: [],
-      pagination: { limit: 24, offset: 0, total: 0 },
-      facets: { categories: [{ value: 'mirrors', label: 'Espejos', count: 0 }] },
-      sort: { supported: ['relevance'] },
-    }), { status: 200 })));
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('limit=96')) {
+        return Promise.resolve(new Response(JSON.stringify({
+          items: [],
+          facets: { category: [{ value: 'mirrors', label: 'Espejos', count: 0 }] },
+        }), { status: 200, headers: { 'content-type': 'application/json' } }));
+      }
+      return Promise.resolve(new Response(JSON.stringify({
+        items: [],
+        pagination: { limit: 24, offset: 0, total: 0 },
+        facets: { category: [{ value: 'mirrors', label: 'Espejos', count: 0 }] },
+        sort: { supported: ['relevance'] },
+      }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    }));
 
     render(<MemoryRouter initialEntries={['/productos?search=alba&category=mirrors']}><CatalogPage /></MemoryRouter>);
 

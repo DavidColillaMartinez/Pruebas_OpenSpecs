@@ -193,31 +193,58 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
   }
 }
 
-export function deriveCatalogFacets(items: ProductCard[]): CatalogFacets {
-  const buckets = new Map<CatalogFacetKey, Map<string, CatalogFacetOption>>();
-  const add = (key: CatalogFacetKey, value: string | undefined, label = value) => {
-    if (!value?.trim()) return;
-    if (!buckets.has(key)) buckets.set(key, new Map());
-    const values = buckets.get(key)!;
-    const existing = values.get(value);
-    values.set(value, { value, label: label?.trim() || value, count: (existing?.count || 0) + 1 });
-  };
-
-  items.forEach((item) => {
-    add('category', item.categoryId || item.categoryName, item.categoryName || item.categoryId);
-    add('supplier', item.supplierId || item.supplierName, item.supplierName || item.supplierId);
-    add('subcategory', item.subcategory);
-    add('collection', item.collection);
-    add('product_kind', item.productKind);
-    item.finishes?.forEach((value) => add('finish', value));
-    item.measures?.forEach((value) => add('measure', value));
-  });
-
-  return Object.fromEntries([...buckets.entries()].map(([key, values]) => [
-    key,
-    [...values.values()].sort((a, b) => a.label.localeCompare(b.label, 'es')),
-  ])) as CatalogFacets;
-}
+export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
+  const facets: CatalogFacets = {};
+  for (const key of ['category', 'supplier', 'subcategory', 'collection', 'product_kind'] as CatalogFacetKey[]) {
+    const bucket = new Map<string, CatalogFacetOption>();
+    for (const card of items) {
+      const result: { value: string; label: string } | null = ((): { value: string; label: string } | null => {
+        switch (key) {
+          case 'category': {
+            const id = card.categoryId || card.categoryName;
+            return id ? { value: id, label: card.categoryName || card.categoryId || id } : null;
+          }
+          case 'supplier': {
+            const id = card.supplierId || card.supplierName;
+            return id ? { value: id, label: card.supplierName || card.supplierId || id } : null;
+          }
+          case 'subcategory': return card.subcategory ? { value: card.subcategory, label: card.subcategory } : null;
+          case 'collection': return card.collection ? { value: card.collection, label: card.collection } : null;
+          case 'product_kind': return card.productKind ? { value: card.productKind, label: card.productKind } : null;
+          default: return null;
+        }
+      })();
+      if (!result) continue;
+      const { value, label } = result;
+      if (!value?.trim()) continue;
+      const existing = bucket.get(value);
+      bucket.set(value, { value, label: label || value, count: (existing?.count || 0) + 1 });
+    }
+    if (bucket.size > 0) {
+      const options = [...bucket.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
+      facets[key] = options;
+    }
+  }
+  const finishes = new Map<string, CatalogFacetOption>();
+  const measures = new Map<string, CatalogFacetOption>();
+  for (const card of items) {
+    for (const finish of card.finishes || []) {
+      const trimmed = finish?.trim();
+      if (!trimmed) continue;
+      const existing = finishes.get(trimmed);
+      finishes.set(trimmed, { value: trimmed, label: trimmed, count: (existing?.count || 0) + 1 });
+    }
+    for (const measure of card.measures || []) {
+      const trimmed = measure?.trim();
+      if (!trimmed) continue;
+      const existing = measures.get(trimmed);
+      measures.set(trimmed, { value: trimmed, label: trimmed, count: (existing?.count || 0) + 1 });
+    }
+  }
+  if (finishes.size > 0) facets.finish = [...finishes.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
+  if (measures.size > 0) facets.measure = [...measures.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
+  return facets;
+};
 
 const facetAliases: Record<string, CatalogFacetKey> = {
   categories: 'category',

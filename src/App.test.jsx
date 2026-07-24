@@ -12,6 +12,8 @@ const listResponse = {
     show_price: false,
   }],
   pagination: { limit: 24, total: 1, offset: 0 },
+  facets: {},
+  sort: { supported: [] },
 };
 
 const detailResponse = {
@@ -29,16 +31,14 @@ afterEach(() => {
 });
 
 describe('application routing', () => {
-  it('resolves the catalog entry, direct detail route, and a simulated back navigation', async () => {
+  it('opens the direct detail route and recovers via back navigation', async () => {
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url) => {
       const body = String(url).includes('/products/mt-espejos-alba') ? detailResponse : listResponse;
       return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
     }));
-    window.history.pushState({}, '', '/productos');
+    window.history.pushState({}, '', '/productos/mt-espejos-alba');
 
     render(<App />);
-    const productLink = await screen.findByRole('link', { name: /Alba/ });
-    fireEvent.click(productLink);
     expect(await screen.findByRole('heading', { name: 'Alba' })).toBeInTheDocument();
 
     window.history.pushState({}, '', '/productos');

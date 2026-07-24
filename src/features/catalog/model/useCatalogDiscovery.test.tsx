@@ -89,20 +89,28 @@ describe('useCatalogDiscovery', () => {
   });
 
   it('keeps earlier items when a later chunk fails and retries only that chunk', async () => {
-    let calls = 0;
-    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
-      calls += 1;
-      if (url.includes('offset=24') && calls === 2) return Promise.reject(new Error('offline'));
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      const isSecondPage = url.includes('offset=24');
+      if (isSecondPage) {
+        return Promise.reject(new Error('offline'));
+      }
+      return Promise.resolve(new Response(JSON.stringify({
+        items: [{ id: 'one', name: 'Uno', slug: 'uno', images: [] }],
+        pagination: { limit: 24, offset: 0, total: 48 }, facets: {}, sort: { supported: ['relevance'] },
+      }), { status: 200 }));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<MemoryRouter initialEntries={['/productos?page=2']}><Harness /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId('additional-error')).toHaveTextContent('No se pudo conectar'));
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    fetchMock.mockImplementation((url: string) => {
       const isSecondPage = url.includes('offset=24');
       return Promise.resolve(new Response(JSON.stringify({
         items: [{ id: isSecondPage ? 'two' : 'one', name: isSecondPage ? 'Dos' : 'Uno', slug: isSecondPage ? 'dos' : 'uno', images: [] }],
         pagination: { limit: 24, offset: isSecondPage ? 24 : 0, total: 48 }, facets: {}, sort: { supported: ['relevance'] },
       }), { status: 200 }));
-    }));
-
-    render(<MemoryRouter initialEntries={['/productos?page=2']}><Harness /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByTestId('additional-error')).toHaveTextContent('No se pudo conectar'));
-    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
     await waitFor(() => expect(screen.getByTestId('count')).toHaveTextContent('2'));
   });

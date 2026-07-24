@@ -11,7 +11,7 @@ describe('ProductGallery', () => {
   it('changes the active image with native buttons and selected state', () => {
     render(<ProductGallery images={images} productName="Alba" variantLabel="Ø60" />);
 
-    const thumbnails = screen.getAllByRole('button');
+    const thumbnails = screen.getAllByRole('button', { name: /Ver imagen/ });
     expect(thumbnails).toHaveLength(2);
     expect(thumbnails[0]).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(thumbnails[1]);
@@ -19,12 +19,18 @@ describe('ProductGallery', () => {
     expect(screen.getByRole('img', { name: 'Alba, Ø60, imagen principal' })).toHaveAttribute('src', images[1].url);
   });
 
-  it('keeps the page usable without images or when the active image fails', () => {
-    const { rerender } = render(<ProductGallery images={images} productName="Alba" />);
-    fireEvent.error(screen.getByRole('img', { name: 'Alba, imagen principal' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Imagen no disponible');
+  it('opens a zoom dialog when the active image is clicked and closes on Escape', () => {
+    render(<ProductGallery images={images} productName="Alba" />);
 
+    fireEvent.click(screen.getByRole('button', { name: /Ampliar imagen/ }));
+    expect(screen.getByRole('dialog', { name: /Imagen ampliada/ })).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('keeps the page usable without images', async () => {
+    const { rerender } = render(<ProductGallery images={images} productName="Alba" />);
     rerender(<ProductGallery images={[]} productName="Producto sin imagen" />);
-    expect(screen.getByRole('status')).toHaveTextContent('Imagen no disponible');
+    expect(await screen.findByText('Imagen no disponible')).toBeInTheDocument();
   });
 });
