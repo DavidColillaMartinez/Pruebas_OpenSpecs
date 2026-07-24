@@ -34,9 +34,9 @@ Method: revision basada en codigo, CSS, tokens y `.md` del proyecto. La comproba
 - `src/features/catalog/pages/CatalogPage.tsx`: shell de descubrimiento con total, búsqueda, filtros, sort condicionado, estados y carga incremental.
 - `src/features/catalog/components/CatalogProductCard.tsx` y `CatalogFilterPanel.tsx`: tiles route-local, fallback de imagen y drawer modal con cleanup de foco/overflow.
 - `src/features/catalog/model/{catalogQuery,useCatalogDiscovery}.ts`: URL compartible, debounce, cancelación, chunks y deduplicación.
-- `src/features/catalog/pages/ProductDetailPage.tsx` + `ProductGallery` + `ProductVariantSelector` + `QuoteRequestForm`: protegidos.
+- `src/features/catalog/pages/ProductDetailPage.tsx` + `ProductGallery` + `ProductVariantSelector` + `QuoteRequestForm`: protegidos durante la fase visual; el follow-up aprobado añade solo mapping opcional de imágenes por variante y conserva quote.
 - `src/features/catalog/api/client.ts`: solo `/api/catalog/*`.
-- `src/features/catalog/model/{types,normalize}.ts`: modelos, facets, sort, normalización y fallback transitorio de facets solo sobre universo completo cargado.
+- `src/features/catalog/model/{types,normalize}.ts`: modelos, facets, sort, normalización, fallback transitorio de facets por firma completa y mapping opcional de imágenes por variante.
 - `docs/catalog-api-contract.md`, `docs/catalog-api-proxy.md`: contrato publico y cuatro handlers Vercel con helper compartido fuera de `api/`.
 - `server/catalog/{proxy,response}.js`: forwarding, timeout, normalizacion `PRODUCT_NOT_FOUND`.
 

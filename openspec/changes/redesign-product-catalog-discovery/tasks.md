@@ -86,10 +86,18 @@
 - [x] 10.1 Ejecutar `corepack pnpm install --frozen-lockfile`, tests, lint, typecheck, build, `openspec validate --all` y escaneo del bundle para secretos/upstreams.
 - [ ] 10.2 Validar por codigo landing desktop/mobile: layout, header, Tienda, narrativa, Vision swipe/replay, media y reduced motion sin regresiones (revision visual del propietario).
 - [ ] 10.3 Validar por codigo `/productos`: search, facets, sort, drawer, URL, cargar mas, estados, teclado, foco, contraste y overflow horizontal (revision visual del propietario).
-- [ ] 10.4 Validar dos slugs, direct reload, not-found, galeria, variantes, quote mockeado y scroll de ficha sin cambiar su diseño ni enviar POST real.
+- [x] 10.4 Validar dos slugs, direct reload, not-found, galeria, variantes, quote mockeado y scroll de ficha sin cambiar su diseño ni enviar POST real.
 - [ ] 10.5 Documentar por codigo los cambios aplicados solo en `/productos` y el scroll compartido aprobado; el propietario confirma visualmente.
 - [ ] 10.6 Finalizar `docs/catalog-publication-audit.md` con ecuaciones, consultas/vistas/workflow, exclusiones y campos necesarios para futuras opciones.
 - [x] 10.7 Confirmar que assets protegidos y tareas pendientes de `implement-product-detail-page`, routing y landing permanecen intactos y fuera de commits.
 - [ ] 10.8 Revisar todos los commits de fase y presentar pagina, pruebas, informe 467/465/439/433/192/190 y plan de rollback al propietario.
 - [ ] 10.9 PENDIENTE DE AUTORIZACION DEL PROPIETARIO: no hacer push hasta recibir aprobacion visual, del informe y de los commits incluidos.
 - [ ] 10.10 Tras push autorizado, verificar deployment Ready y GET de config, listado/facets/sorts, dos slugs y 404 inexistente; no ejecutar POST real.
+
+## Seguimiento solicitado por el propietario (fuera del recuento original de 66)
+
+- Filtros iniciales derivados del universo público completo y recalculados por firma de búsqueda/filtros mientras el API no entregue `facets` server-side.
+- Selector de variantes conectado a imágenes específicas solo cuando el API proporciona el mapping; fallback conservador a imágenes del producto.
+- Zoom accesible desde la imagen principal y vuelta a resultados con query/scroll preservados.
+- Asset explícito de Vision actualizado en `public/boceto-final.png`.
+- Revisión visual desktop/mobile y publicación permanecen pendientes porque el entorno actual no dispone de navegador y el propietario debe validar la apariencia antes del push.
