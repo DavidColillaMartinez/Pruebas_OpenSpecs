@@ -48,9 +48,9 @@
 
 ## 6. Verificacion final y entrega controlada
 
-- [ ] 6.1 Ejecutar la suite completa: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build` y `openspec validate --all`.
+- [x] 6.1 Ejecutar la suite completa: `npm test`, `npm run lint`, `npm run typecheck`, `npm run build` y `openspec validate --all`.
 - [ ] 6.2 Comparar capturas antes/despues y confirmar que fuera de Coleccion, fondo, secuencia de Inicio y flujo de Vision no existen regresiones visuales en la landing clara.
-- [ ] 6.3 Confirmar que los cambios del usuario en `assets/Catalogo/**`, `assets/Boceto/**` y `public/boceto-final.png` siguen intactos y fuera de todos los commits.
+- [x] 6.3 Confirmar que los cambios del usuario en `assets/Catalogo/**`, `assets/Boceto/**` y `public/boceto-final.png` siguen intactos y fuera de todos los commits.
 - [ ] 6.4 PENDIENTE DE AUTORIZACION DEL PROPIETARIO: no hacer push hasta recibir orden explicita.
 - [ ] 6.5 Tras un push autorizado y nuevo deployment, verificar por GET en Vercel configuracion, listado, ambos slugs validos, slug inexistente con `404` y navegacion `Tienda -> /productos`, sin POST de presupuesto.
-- [ ] 6.6 Mantener pendientes privacidad, consentimiento, hosting/dominio definitivo, rewrite del hosting final, confirmacion de `sourcePage` y cierre de `implement-product-detail-page` hasta evidencia del propietario.
+- [x] 6.6 Mantener pendientes privacidad, consentimiento, hosting/dominio definitivo, rewrite del hosting final, confirmacion de `sourcePage` y cierre de `implement-product-detail-page` hasta evidencia del propietario.
