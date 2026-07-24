@@ -1,8 +1,8 @@
 # Catalog Publication Audit
 
-Status: provisional local evidence. No Neon, n8n, import log, SQL view or public GET was modified or queried from this workspace.
+Status: provisional local evidence. No Neon, n8n, import log or SQL view was modified or queried from this workspace; public GETs were queried read-only.
 
-Audit date: 2026-07-24
+Audit date: 2026-07-25
 Package: `assets/Catalogo/catalogo_final_productos_pre_db/`
 Package version: `final-pre-db-001`
 
@@ -103,4 +103,4 @@ The deployment generated for commit `e26c792` was reported as successful by GitH
 
 ## Owner Gate
 
-Neon, n8n, views, publication rules and deployment configuration remain unchanged. The owner must provide or approve the read-only definitions and the reconciliation before tasks 3.9, 3.10, 4.1, 4.4 and 4.6 can be marked complete. No credentials, PII, webhook URLs or server variables belong in this document.
+Neon, n8n, views, publication rules and deployment configuration remain unchanged. The owner must provide or approve the read-only definitions and the reconciliation before tasks 3.9, 3.10, 4.1 and 4.4 can be marked complete. No credentials, PII, webhook URLs or server variables belong in this document.
