@@ -11,7 +11,7 @@ export function MobileVision({ reducedMotion }) {
   useEffect(() => {
     const v = videoRef.current;
     if (!v || state !== 'playing') return;
-    const onEnded = () => { v.pause(); setState('reveal'); };
+    const onEnded = () => { v.pause(); setState('compare'); };
     v.addEventListener('ended', onEnded);
     return () => v.removeEventListener('ended', onEnded);
   }, [state]);
@@ -20,10 +20,17 @@ export function MobileVision({ reducedMotion }) {
     const v = videoRef.current;
     if (!v) return;
     setState('playing');
-    v.play().catch(() => setState('idle'));
+    v.play().catch(() => setState('compare'));
   };
 
-  const handleReveal = () => setState('compare');
+  const handleReplay = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    setState('playing');
+    setSliderX(0.5);
+    v.currentTime = 0;
+    v.play().catch(() => setState('compare'));
+  };
 
   const setFromClientX = (clientX) => {
     if (!sliderRef.current) return;
@@ -69,18 +76,23 @@ export function MobileVision({ reducedMotion }) {
             </div>
           </>
         )}
-        {state === 'reveal' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
-            <button type="button" onClick={handleReveal} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Revelar</button>
-          </div>
-        )}
         {state === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-ink/15">
             <button type="button" onClick={handlePlay} className="min-h-[44px] rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Reproducir boceto</button>
           </div>
         )}
+        {state !== 'idle' && (
+          <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay absolute bottom-3 right-3 z-10 grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+            <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </span>
+          </button>
+        )}
       </div>
-      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{state === 'compare' ? 'Arrastra para comparar' : state === 'reveal' ? 'Revela el resultado final' : 'Toca reproducir'}</p>
+      <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{state === 'compare' ? 'Arrastra para comparar' : state === 'playing' ? 'Boceto en proceso' : 'Toca reproducir'}</p>
     </MobileSectionShell>
   );
 }

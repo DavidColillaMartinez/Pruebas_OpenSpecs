@@ -8,33 +8,64 @@ export function Vision({ step, isActive, setBlocked }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
+  const activeRef = useRef(false);
   const [videoDone, setVideoDone] = useState(false);
-  const [showReveal, setShowReveal] = useState(false);
   const [sliderX, setSliderX] = useState(0.5);
   const s = isActive ? step : 0;
 
-  useEffect(() => {
-    if (!isActive) { if (videoRef.current) videoRef.current.pause(); setVideoDone(false); setShowReveal(false); return; }
-    if (!videoRef.current) return;
-    if (visionSeenRef.current) { videoRef.current.pause(); setShowReveal(true); return; }
-    if (videoDone) { videoRef.current.pause(); return; }
-    setBlocked(true);
-    videoRef.current.currentTime = 0;
-    setShowReveal(false);
-    videoRef.current.play().catch(() => { setVideoDone(true); setBlocked(false); });
-    const done = () => { videoRef.current?.pause(); setShowReveal(true); setBlocked(false); visionSeenRef.current = true; };
-    videoRef.current.addEventListener('ended', done);
-    return () => { videoRef.current?.removeEventListener('ended', done); setBlocked(false); };
-  }, [isActive, setBlocked, videoDone]);
+  const finishPlayback = () => {
+    if (!activeRef.current) return;
+    videoRef.current?.pause();
+    setVideoDone(true);
+    setBlocked(false);
+    visionSeenRef.current = true;
+  };
 
-  const handleReveal = () => { setVideoDone(true); };
+  useEffect(() => {
+    activeRef.current = isActive;
+    if (!isActive) {
+      videoRef.current?.pause();
+      setBlocked(false);
+      return () => { activeRef.current = false; videoRef.current?.pause(); setBlocked(false); };
+    }
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const done = () => finishPlayback();
+    video.addEventListener('ended', done);
+    video.addEventListener('error', done);
+    if (visionSeenRef.current) {
+      video.pause();
+      setVideoDone(true);
+      setBlocked(false);
+      return () => {
+        video.removeEventListener('ended', done);
+        video.removeEventListener('error', done);
+        activeRef.current = false;
+        video.pause();
+        setBlocked(false);
+      };
+    }
+    setBlocked(true);
+    setVideoDone(false);
+    video.currentTime = 0;
+    video.play().catch(done);
+    return () => {
+      video.removeEventListener('ended', done);
+      video.removeEventListener('error', done);
+      activeRef.current = false;
+      video.pause();
+      setBlocked(false);
+    };
+  }, [isActive, setBlocked]);
 
   const handleReplay = () => {
     if (!videoRef.current) return;
-    videoRef.current.currentTime = 0;
-    setShowReveal(false);
+    visionSeenRef.current = true;
+    setBlocked(true);
     setVideoDone(false);
-    videoRef.current.play().catch(() => {});
+    setSliderX(0.5);
+    videoRef.current.currentTime = 0;
+    videoRef.current.play().catch(finishPlayback);
   };
 
   const setFromClientX = (clientX) => {
@@ -66,21 +97,14 @@ export function Vision({ step, isActive, setBlocked }) {
           finalImage="/boceto-final.png"
           finalImageAlt="Imagen final del proyecto"
         >
-          {showReveal && !videoDone && (
-            <>
-              <div className="absolute inset-0 flex items-center justify-center bg-ink/20">
-                <button type="button" onClick={handleReveal} className="rounded-full border border-clay/40 bg-white px-8 py-3.5 text-sm font-semibold text-ink shadow-lift transition hover:-translate-y-0.5 hover:shadow-lg">Revelar</button>
-              </div>
-              <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">
-                <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">
-                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                    <path d="M3 3v5h5" />
-                  </svg>
-                </span>
-              </button>
-            </>
-          )}
+          <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">
+            <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </span>
+          </button>
         </CompareSlider>
         <div className="relative self-stretch border-l-2 border-clay/30 pl-6">
           <div className={`absolute top-0 left-6 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-0 -translate-y-4' : 'opacity-100 translate-y-0'}`}>

@@ -51,7 +51,7 @@ Con `prefers-reduced-motion`, la regla global existente reducira animacion y del
 
 Vision desktop mantendra dos estados visibles: video y comparador. La primera entrada de la sesion reproduce automaticamente el video y bloquea el avance como ahora. Al terminar o fallar la reproduccion, el estado cambia directamente a comparador y se marca la experiencia como vista. Las entradas posteriores muestran el comparador sin volver a reproducir.
 
-El boton replay existente permanecera siempre en la esquina inferior derecha, tanto durante video como durante compare. Al activarlo reiniciara el video por accion explicita y, al terminar, volvera directamente al comparador. Se eliminan `showReveal`, `handleReveal` y el overlay Revelar; no se cambia el layout ni `CompareSlider` salvo que una prueba demuestre una necesidad funcional y el propietario la apruebe.
+El boton replay existente permanecera siempre en la esquina inferior derecha, tanto durante video como durante compare. Al activarlo reiniciara el video por accion explicita, centrara de nuevo el divisor en 50% y, al terminar, volvera directamente al comparador. Se eliminan `showReveal`, `handleReveal` y el overlay Revelar; no se cambia el layout ni `CompareSlider` salvo que una prueba demuestre una necesidad funcional y el propietario la apruebe.
 
 En mobile se conserva la reproduccion inicial bajo demanda para respetar el comportamiento existente y las restricciones de autoplay. Al terminar se pasa directamente a compare, se elimina Revelar y se muestra replay permanente. El comparador mantiene teclado, puntero y touch.
 

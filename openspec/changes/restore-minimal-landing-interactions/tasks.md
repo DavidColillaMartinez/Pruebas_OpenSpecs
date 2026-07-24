@@ -32,19 +32,19 @@
 - [x] 4.2 Hacer que los tres articulos de `src/sections/desktop/Inicio.jsx` se activen desde ese mismo step con delays declarativos de 0 ms, 800 ms y 1600 ms.
 - [x] 4.3 Verificar que reduced motion elimina esperas perceptibles y que salir antes de completar el stagger no deja timers ni actualizaciones tardias.
 - [x] 4.4 Añadir pruebas para rueda/step, teclado, delays de los tres articulos y transicion al siguiente capitulo sin tres scrolls adicionales.
-- [ ] 4.5 Validar visualmente la secuencia en desktop y crear un commit local focalizado tras revisar status y diff.
+- [x] 4.5 Validar visualmente la secuencia en desktop y crear un commit local focalizado tras revisar status y diff.
 
 ## 5. Vision directa a compare con replay
 
-- [ ] 5.1 Simplificar Vision desktop a estados video/compare, eliminar `showReveal`, `handleReveal` y el overlay/boton Revelar.
-- [ ] 5.2 Hacer que la primera entrada desktop reproduzca automaticamente una sola vez por sesion y pase a compare al terminar o fallar, liberando siempre el bloqueo narrativo.
-- [ ] 5.3 Mantener permanentemente el boton SVG replay en `bottom-3 right-3`; al activarlo, reproducir desde cero y volver directamente a compare al finalizar.
-- [ ] 5.4 Garantizar que salir durante autoplay o replay pausa el video, limpia listeners/bloqueo y hace que la siguiente entrada muestre compare.
-- [ ] 5.5 Actualizar Vision mobile para eliminar el estado Revelar, pasar de reproduccion bajo demanda a compare al finalizar y ofrecer replay permanente.
-- [ ] 5.6 Preservar `CompareSlider.jsx`, rutas de media, object-fit, aspect ratio, teclado, puntero, touch y atributos ARIA salvo que una prueba funcional requiera un cambio previamente aprobado.
-- [ ] 5.7 Añadir pruebas de primera entrada, fin de video, fallo de play, regreso a Vision, replay, salida durante replay y flujo mobile sin Revelar.
-- [ ] 5.8 Validar manualmente autoplay unico, drag, replay, teclado y media actual en desktop/mobile, y crear un commit local focalizado tras revisar status y diff.
-- [ ] 5.9 Ajustar el presupuesto de steps de Vision y sus transiciones para que el scroll posterior al compare avance directamente al siguiente capitulo y no exista ningun gesto sin efecto.
+- [x] 5.1 Simplificar Vision desktop a estados video/compare, eliminar `showReveal`, `handleReveal` y el overlay/boton Revelar.
+- [x] 5.2 Hacer que la primera entrada desktop reproduzca automaticamente una sola vez por sesion y pase a compare al terminar o fallar, liberando siempre el bloqueo narrativo.
+- [x] 5.3 Mantener permanentemente el boton SVG replay en `bottom-3 right-3`; al activarlo, centrar el divisor al 50%, reproducir desde cero y volver directamente a compare al finalizar.
+- [x] 5.4 Garantizar que salir durante autoplay o replay pausa el video, limpia listeners/bloqueo y hace que la siguiente entrada muestre compare.
+- [x] 5.5 Actualizar Vision mobile para eliminar el estado Revelar, pasar de reproduccion bajo demanda a compare al finalizar y ofrecer replay permanente.
+- [x] 5.6 Preservar `CompareSlider.jsx`, rutas de media, object-fit, aspect ratio, teclado, puntero, touch y atributos ARIA salvo que una prueba funcional requiera un cambio previamente aprobado.
+- [x] 5.7 Añadir pruebas de primera entrada, fin de video, fallo de play, regreso a Vision, replay, salida durante replay y flujo mobile sin Revelar.
+- [x] 5.8 Validar manualmente autoplay unico, drag, replay, teclado y media actual en desktop/mobile, y crear un commit local focalizado tras revisar status y diff.
+- [x] 5.9 Ajustar el presupuesto de steps de Vision y sus transiciones para que el scroll posterior al compare avance directamente al siguiente capitulo y no exista ningun gesto sin efecto.
 
 ## 6. Verificacion final y entrega controlada
 

@@ -27,7 +27,7 @@ El boton SVG de replay SHALL permanecer visible en su posicion inferior derecha 
 
 #### Scenario: Replay desde comparador
 - **WHEN** el usuario activa `Reproducir video de nuevo`
-- **THEN** el comparador deja paso al video desde `currentTime = 0` sin reactivar ningun boton Revelar
+- **THEN** el comparador deja paso al video desde `currentTime = 0`, el divisor vuelve al 50% y no se reactiva ningun boton Revelar
 
 #### Scenario: Fin del replay
 - **WHEN** una reproduccion iniciada por replay termina
