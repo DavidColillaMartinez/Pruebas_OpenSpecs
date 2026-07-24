@@ -22,6 +22,7 @@ describe('CatalogPage', () => {
     render(<MemoryRouter><CatalogPage /></MemoryRouter>);
 
     expect(await screen.findByRole('link', { name: /Alba/ })).toHaveAttribute('href', '/productos/mt-espejos-alba');
+    expect(screen.getByText('Has llegado al final del catálogo.')).toBeInTheDocument();
   });
 
   it('renders a recoverable error when the list request fails', async () => {
