@@ -11,11 +11,11 @@ async function readRequestBody(request) {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const upstreamForPath = (path) => {
-    if (/^\/api\/catalog\/products\/[^/]+/.test(path)) return env.N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL;
-    if (path.startsWith('/api/catalog/products')) return env.N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL;
-    if (path.startsWith('/api/catalog/config')) return env.N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL;
-    if (path.startsWith('/api/catalog/quote-requests')) return env.N8N_CATALOG_QUOTE_REQUESTS_UPSTREAM_BASE_URL;
-    return null;
+    if (/^\/api\/catalog\/products\/[^/]+/.test(path)) return env.N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL || env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    if (path.startsWith('/api/catalog/products')) return env.N8N_CATALOG_PRODUCTS_LIST_UPSTREAM_BASE_URL || env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    if (path.startsWith('/api/catalog/config')) return env.N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL || env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    if (path.startsWith('/api/catalog/quote-requests')) return env.N8N_CATALOG_QUOTE_UPSTREAM_BASE_URL || env.N8N_CATALOG_UPSTREAM_BASE_URL;
+    return env.N8N_CATALOG_UPSTREAM_BASE_URL;
   };
 
   const catalogDevProxy = {
