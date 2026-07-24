@@ -1,5 +1,10 @@
 import type {
   CatalogPublicConfig,
+  CatalogFacetKey,
+  CatalogFacetOption,
+  CatalogFacets,
+  CatalogSortMetadata,
+  CatalogSortValue,
   CommercialOffer,
   CommercialOfferVariant,
   ProductCard,
@@ -26,6 +31,11 @@ function asStringArray(value: unknown): string[] {
 
 function asNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function asNonNegativeNumber(value: unknown): number | undefined {
+  const number = asNumber(value);
+  return number !== undefined && number >= 0 ? number : undefined;
 }
 
 function publicAttributes(value: unknown): PublicAttributes {
@@ -168,7 +178,14 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       brand: product.brand,
       images: product.images.slice(0, 1),
       showPrice: product.showPrice,
+      categoryId: product.categoryId,
       categoryName: product.categoryName,
+      collection: product.collection,
+      finishes: product.availableFinishes,
+      measures: product.availableMeasures,
+      productKind: product.productKind,
+      subcategory: product.subcategory,
+      supplierId: product.supplierId,
       supplierName: product.supplierName,
     };
   } catch {
@@ -176,19 +193,112 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
   }
 }
 
+export function deriveCatalogFacets(items: ProductCard[]): CatalogFacets {
+  const buckets = new Map<CatalogFacetKey, Map<string, CatalogFacetOption>>();
+  const add = (key: CatalogFacetKey, value: string | undefined, label = value) => {
+    if (!value?.trim()) return;
+    if (!buckets.has(key)) buckets.set(key, new Map());
+    const values = buckets.get(key)!;
+    const existing = values.get(value);
+    values.set(value, { value, label: label?.trim() || value, count: (existing?.count || 0) + 1 });
+  };
+
+  items.forEach((item) => {
+    add('category', item.categoryId || item.categoryName, item.categoryName || item.categoryId);
+    add('supplier', item.supplierId || item.supplierName, item.supplierName || item.supplierId);
+    add('subcategory', item.subcategory);
+    add('collection', item.collection);
+    add('product_kind', item.productKind);
+    item.finishes?.forEach((value) => add('finish', value));
+    item.measures?.forEach((value) => add('measure', value));
+  });
+
+  return Object.fromEntries([...buckets.entries()].map(([key, values]) => [
+    key,
+    [...values.values()].sort((a, b) => a.label.localeCompare(b.label, 'es')),
+  ])) as CatalogFacets;
+}
+
+const facetAliases: Record<string, CatalogFacetKey> = {
+  categories: 'category',
+  category: 'category',
+  suppliers: 'supplier',
+  supplier: 'supplier',
+  subcategories: 'subcategory',
+  subcategory: 'subcategory',
+  collections: 'collection',
+  collection: 'collection',
+  product_kinds: 'product_kind',
+  productKinds: 'product_kind',
+  product_kind: 'product_kind',
+  finishes: 'finish',
+  finish: 'finish',
+  measures: 'measure',
+  measure: 'measure',
+};
+
+function normalizeFacetOption(value: unknown): CatalogFacetOption | null {
+  const record = asRecord(value);
+  const optionValue = asString(record.value ?? record.id ?? record.key);
+  if (!optionValue) return null;
+
+  return {
+    value: optionValue,
+    label: asString(record.label ?? record.name) || optionValue,
+    count: asNonNegativeNumber(record.count) ?? 0,
+  };
+}
+
+function normalizeFacets(value: unknown): CatalogFacets {
+  const record = asRecord(value);
+  const facets: CatalogFacets = {};
+
+  Object.entries(record).forEach(([key, options]) => {
+    const facetKey = facetAliases[key];
+    if (!facetKey || !Array.isArray(options)) return;
+    const normalized = options
+      .map(normalizeFacetOption)
+      .filter((option): option is CatalogFacetOption => option !== null);
+    if (normalized.length > 0) facets[facetKey] = normalized;
+  });
+
+  return facets;
+}
+
+const supportedSorts = new Set<CatalogSortValue>(['relevance', 'name_asc', 'name_desc', 'recent', 'new', 'best_selling']);
+
+function normalizeSort(value: unknown): CatalogSortMetadata {
+  const record = asRecord(value);
+  const supported = Array.isArray(record.supported)
+    ? record.supported.filter((item): item is CatalogSortValue => typeof item === 'string' && supportedSorts.has(item as CatalogSortValue))
+    : [];
+  const applied = typeof record.applied === 'string' && supportedSorts.has(record.applied as CatalogSortValue)
+    ? record.applied as CatalogSortValue
+    : undefined;
+
+  return { applied, supported: [...new Set(supported)] };
+}
+
 export function normalizeProductList(value: unknown, config?: CatalogPublicConfig | null): ProductListResponse {
   const record = asRecord(value);
+  if (!Array.isArray(record.items)) throw new Error('PRODUCT_LIST_CONTRACT_INVALID');
   const pagination = asRecord(record.pagination);
   const items = Array.isArray(record.items)
     ? record.items.map((item) => normalizeProductCard(item, config)).filter((item): item is ProductCard => item !== null)
     : [];
+  const limit = asNonNegativeNumber(pagination.limit);
+  const offset = asNonNegativeNumber(pagination.offset);
+  const total = asNonNegativeNumber(pagination.total);
 
   return {
     items,
     pagination: {
-      limit: asNumber(pagination.limit) ?? items.length,
-      offset: asNumber(pagination.offset) ?? 0,
-      total: asNumber(pagination.total) ?? items.length,
+      limit: limit ?? items.length,
+      offset: offset ?? 0,
+      total: total ?? items.length,
     },
+    facets: normalizeFacets(record.facets),
+    sort: normalizeSort(record.sort),
+    discardedItemCount: record.items.length - items.length || undefined,
   };
 }

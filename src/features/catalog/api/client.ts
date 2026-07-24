@@ -1,5 +1,5 @@
 import { normalizeProductDetail, normalizeProductList } from '../model/normalize';
-import type { CatalogPublicConfig, ProductDetail, ProductListResponse } from '../model/types';
+import type { CatalogPublicConfig, CatalogRequestParams, ProductDetail, ProductListResponse } from '../model/types';
 import type { QuoteRequestCreated, QuoteRequestPayload } from '../../quote/model/types';
 
 export const PUBLIC_CATALOG_BASE_PATH = '/api/catalog';
@@ -71,6 +71,7 @@ async function request(path: string, { signal, method = 'GET', body, timeoutMs =
     return data;
   } catch (error) {
     if (error instanceof CatalogApiError) throw error;
+    if (signal?.aborted) throw new DOMException('Request aborted', 'AbortError');
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new CatalogApiError('TIMEOUT', 'La consulta del catálogo ha tardado demasiado.');
     }
@@ -99,13 +100,22 @@ export async function getProductBySlug(slug: string, config?: CatalogPublicConfi
   }
 }
 
-export async function getProducts(params: Record<string, string | number | undefined> = {}, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductListResponse> {
+export async function getProducts(params: CatalogRequestParams = {}, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductListResponse> {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) search.set(key, String(value));
+    if (value === undefined) return;
+    if (Array.isArray(value)) {
+      value.forEach((item) => search.append(key, item));
+      return;
+    }
+    search.set(key, String(value));
   });
   const data = await request(`/products${search.size ? `?${search}` : ''}`, options);
-  return normalizeProductList(data, config);
+  try {
+    return normalizeProductList(data, config);
+  } catch {
+    throw new CatalogApiError('CONTRACT_ERROR', 'La respuesta del listado no tiene una estructura válida.');
+  }
 }
 
 export async function createQuoteRequest(payload: QuoteRequestPayload, options?: RequestOptions): Promise<QuoteRequestCreated> {

@@ -57,13 +57,54 @@ export type ProductDetail = {
 };
 
 export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' | 'images' | 'showPrice'> & {
+  categoryId?: string;
   categoryName?: string;
+  collection?: string;
+  finishes?: string[];
+  measures?: string[];
+  productKind?: string;
+  subcategory?: string;
+  supplierId?: string;
   supplierName?: string;
 };
+
+export const CATALOG_FACET_KEYS = [
+  'category',
+  'supplier',
+  'subcategory',
+  'collection',
+  'product_kind',
+  'finish',
+  'measure',
+] as const;
+
+export type CatalogFacetKey = typeof CATALOG_FACET_KEYS[number];
+
+export type CatalogFacetOption = {
+  value: string;
+  label: string;
+  count: number;
+};
+
+export type CatalogFacets = Partial<Record<CatalogFacetKey, CatalogFacetOption[]>>;
+
+export type CatalogSortValue = 'relevance' | 'name_asc' | 'name_desc' | 'recent' | 'new' | 'best_selling';
+
+export type CatalogSortMetadata = {
+  applied?: CatalogSortValue;
+  supported: CatalogSortValue[];
+};
+
+export type CatalogQueryValue = string | number | boolean | string[] | undefined;
+
+export type CatalogRequestParams = Record<string, CatalogQueryValue>;
 
 export type ProductListResponse = {
   items: ProductCard[];
   pagination: { limit: number; offset: number; total: number };
+  facets: CatalogFacets;
+  sort: CatalogSortMetadata;
+  discardedItemCount?: number;
 };
 
 export type CatalogPublicConfig = {

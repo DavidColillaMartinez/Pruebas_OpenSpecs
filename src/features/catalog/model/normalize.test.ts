@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
-import { normalizeProductDetail, resolveAssetUrl } from './normalize';
+import { normalizeProductDetail, normalizeProductList, resolveAssetUrl } from './normalize';
 
 describe('product normalization', () => {
   it('keeps public identity, variants and absolute assets', () => {
@@ -31,5 +31,30 @@ describe('product normalization', () => {
     expect(product.commercialOffers).toEqual([]);
     expect(resolveAssetUrl('images/p.webp', 'https://assets.example/catalog')).toBe('https://assets.example/catalog/images/p.webp');
     expect(resolveAssetUrl('images/p.webp')).toBeUndefined();
+  });
+
+  it('normalizes dynamic facets and supported sorts without exposing technical fields', () => {
+    const response = normalizeProductList({
+      items: [{
+        id: 'p', name: 'Producto', slug: 'p', images: [], category_id: 'cat', category_name: 'Espejos',
+        supplier_id: 'supplier-1', supplier_name: 'Proveedor', search_text: 'internal',
+      }, { id: 'invalid' }],
+      pagination: { limit: 24, offset: 0, total: 1 },
+      facets: { categories: [{ value: 'cat', label: 'Espejos', count: 1 }], suppliers: [{ id: 'supplier-1', name: 'Proveedor', count: 1 }] },
+      sort: { applied: 'name_asc', supported: ['name_asc', 'name_desc', 'unknown'] },
+    });
+
+    expect(response.items[0]).toMatchObject({ categoryId: 'cat', supplierId: 'supplier-1' });
+    expect(response.items[0]).not.toHaveProperty('search_text');
+    expect(response.facets).toEqual({
+      category: [{ value: 'cat', label: 'Espejos', count: 1 }],
+      supplier: [{ value: 'supplier-1', label: 'Proveedor', count: 1 }],
+    });
+    expect(response.sort).toEqual({ applied: 'name_asc', supported: ['name_asc', 'name_desc'] });
+    expect(response.discardedItemCount).toBe(1);
+  });
+
+  it('rejects an unusable list payload instead of treating it as an empty catalog', () => {
+    expect(() => normalizeProductList({ pagination: { total: 0 } })).toThrow('PRODUCT_LIST_CONTRACT_INVALID');
   });
 });

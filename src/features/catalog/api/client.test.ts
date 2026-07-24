@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import alba from './fixtures/product-detail.mt-espejos-alba.json';
-import { getProductBySlug } from './client';
+import { getProductBySlug, getProducts } from './client';
 
 describe('catalog API client', () => {
   it('requests the public relative route and normalizes a real product response', async () => {
@@ -81,5 +81,29 @@ describe('catalog API client', () => {
     vi.advanceTimersByTime(10);
     await expect(request).rejects.toMatchObject({ code: 'TIMEOUT' });
     vi.useRealTimers();
+  });
+
+  it('serializes repeated catalog filters and facets without leaving the public route', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [], pagination: { limit: 24, offset: 0, total: 0 },
+      facets: { categories: [] }, sort: { supported: ['name_asc'] },
+    }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await getProducts({ category: ['cat-a', 'cat-b'], supplier: ['supplier-1'], include_facets: true, limit: 24, offset: 0 });
+
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/catalog/products?category=cat-a&category=cat-b&supplier=supplier-1&include_facets=true&limit=24&offset=0');
+  });
+
+  it('propagates an external abort so route cleanup does not become an error state', async () => {
+    const controller = new AbortController();
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((_url, options) => new Promise((_, reject) => {
+      options.signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true });
+    })));
+
+    const request = getProducts({}, null, { signal: controller.signal });
+    controller.abort();
+
+    await expect(request).rejects.toMatchObject({ name: 'AbortError' });
   });
 });
