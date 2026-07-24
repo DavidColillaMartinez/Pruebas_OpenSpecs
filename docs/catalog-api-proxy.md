@@ -10,11 +10,13 @@ The browser uses only relative application routes:
 The n8n upstreams are server-only and are configured with:
 
 ```text
-N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL
-N8N_CATALOG_PRODUCTS_LIST_UPSTREAM_BASE_URL
 N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL
-N8N_CATALOG_QUOTE_UPSTREAM_BASE_URL
+N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL
+N8N_CATALOG_QUOTE_REQUESTS_UPSTREAM_BASE_URL
+N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL
 ```
+
+The first three names are the confirmed resource variables. Product detail is the required fourth server-side variable because its verified n8n workflow uses a distinct UUID route from the products list workflow.
 
 Do not use a `VITE_*` variable for this value. Variables prefixed with `VITE_` are exposed to the browser bundle.
 
@@ -26,7 +28,7 @@ Use npm with Node `>=20.19.0`. Set the resource-specific upstream variables from
 
 The project includes `api/catalog/[...path].js`, a Vercel-compatible server function. Configure the resource-specific variables in the deployment environment. The function forwards only the approved catalog resources and never returns the upstream URL to the browser.
 
-`vercel.json` rewrites application routes to the SPA entry point. The `/api/catalog/*` function route must remain enabled by the hosting provider.
+`vercel.json` rewrites only `/productos` and `/productos/:slug` to the SPA entry point. API routes and static files are not matched by these rewrites, so `/api/catalog/*` remains enabled by the hosting provider.
 
 ## Verification
 
