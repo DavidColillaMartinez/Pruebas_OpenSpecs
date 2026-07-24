@@ -73,8 +73,12 @@ export function LandingPage() {
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
 
   useEffect(() => {
+    document.body.classList.add('landing-narrative');
     document.body.style.background = '#ffffff';
-    return () => { document.body.style.background = ''; };
+    return () => {
+      document.body.classList.remove('landing-narrative');
+      document.body.style.background = '';
+    };
   }, []);
 
   useEffect(() => {

@@ -46,7 +46,7 @@ body::before {
 }
 
 @media (min-width: 1024px) and (min-height: 720px) {
-  body {
+  body.landing-narrative {
     overflow: hidden;
     height: 100svh;
   }

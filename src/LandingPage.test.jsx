@@ -17,15 +17,20 @@ vi.mock('./hooks/useNarrativeScroll', () => ({
 }));
 
 afterEach(() => {
+  document.body.className = '';
   document.body.style.background = '';
 });
 
-describe('LandingPage background lifecycle', () => {
-  it('uses white while mounted and cleans up on unmount', () => {
+describe('LandingPage narrative lifecycle', () => {
+  it('owns the scroll lock class while mounted and cleans up on unmount', () => {
     const { unmount } = render(<MemoryRouter><LandingPage /></MemoryRouter>);
 
+    expect(document.body.classList.contains('landing-narrative')).toBe(true);
     expect(document.body.style.background).toBe('rgb(255, 255, 255)');
+
     unmount();
+
+    expect(document.body.classList.contains('landing-narrative')).toBe(false);
     expect(document.body.style.background).toBe('');
   });
 });
