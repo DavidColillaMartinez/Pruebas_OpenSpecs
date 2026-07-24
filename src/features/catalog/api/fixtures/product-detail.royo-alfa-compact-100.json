@@ -1,0 +1,67 @@
+{
+  "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17",
+  "name": "Alfa Compact fondo 46 100 2C - Mueble + Lavabo",
+  "slug": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17",
+  "brand": "Royo",
+  "specs": { "depth_cm": 46, "width_cm": 100, "configuration": "2C" },
+  "images": [
+    {
+      "alt": "Alfa Compact fondo 46 100 2C - Mueble + Lavabo",
+      "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/royo/promo_p017_alfa-compact_left.webp",
+      "path": "images/royo/promo_p017_alfa-compact_left.webp",
+      "role": "main",
+      "width": 740,
+      "height": 598,
+      "sort_order": 1
+    }
+  ],
+  "variants": [
+    { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--v0001", "finish": "Roble Nórdico", "reference": "C0073384", "attributes": {}, "sort_order": 1, "finish_code": "RO5" },
+    { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--v0002", "finish": "Fresno Samara", "reference": "C0073385", "attributes": {}, "sort_order": 2, "finish_code": "FR2" },
+    { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--v0003", "finish": "Azul Ocean", "reference": "C0077861", "attributes": {}, "sort_order": 3, "finish_code": "AZ9M" },
+    { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--v0004", "finish": "Arena Mate", "reference": "C0074195", "attributes": {}, "sort_order": 4, "finish_code": "MA15M" },
+    { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--v0005", "finish": "Blanco Brillo", "reference": "C0073386", "attributes": {}, "sort_order": 5, "finish_code": "BL18B" },
+    { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--v0006", "finish": "Blanco Mate", "reference": "C0074194", "attributes": {}, "sort_order": 6, "finish_code": "BL20M" }
+  ],
+  "collection": "Alfa Compact",
+  "show_price": false,
+  "category_id": "muebles-y-lavabos",
+  "description": null,
+  "subcategory": "Mueble + Lavabo",
+  "supplier_id": "royo",
+  "supplier_name": "Royo",
+  "product_kind": "simple_product",
+  "category_name": "Muebles y lavabos",
+  "commercial_offers": [
+    {
+      "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001",
+      "offer_type": "Conjunto completo",
+      "sort_order": 1,
+      "variants": [
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001--v0001", "reference": "C0074189", "finish_code": "RO5", "finish_name": "Roble Nórdico" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001--v0002", "reference": "C0074190", "finish_code": "FR2", "finish_name": "Fresno Samara" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001--v0003", "reference": "C0077862", "finish_code": "AZ9M", "finish_name": "Azul Ocean" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001--v0004", "reference": "C0074193", "finish_code": "MA15M", "finish_name": "Arena Mate" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001--v0005", "reference": "C0074191", "finish_code": "BL18B", "finish_name": "Blanco Brillo" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer001--v0006", "reference": "C0074192", "finish_code": "BL20M", "finish_name": "Blanco Mate" }
+      ]
+    },
+    {
+      "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002",
+      "offer_type": "Conjunto premium",
+      "sort_order": 2,
+      "variants": [
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002--v0001", "reference": "C0076786", "finish_code": "RO5", "finish_name": "Roble Nórdico" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002--v0002", "reference": "C0076787", "finish_code": "FR2", "finish_name": "Fresno Samara" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002--v0003", "reference": "C0077863", "finish_code": "AZ9M", "finish_name": "Azul Ocean" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002--v0004", "reference": "C0076790", "finish_code": "MA15M", "finish_name": "Arena Mate" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002--v0005", "reference": "C0076788", "finish_code": "BL18B", "finish_name": "Blanco Brillo" },
+        { "id": "royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17--offer002--v0006", "reference": "C0076789", "finish_code": "BL20M", "finish_name": "Blanco Mate" }
+      ]
+    }
+  ],
+  "available_finishes": ["Arena Mate", "Azul Ocean", "Blanco Brillo", "Blanco Mate", "Fresno Samara", "Roble Nórdico"],
+  "available_measures": [],
+  "publication_status": "publishable",
+  "configuration_fields": []
+}

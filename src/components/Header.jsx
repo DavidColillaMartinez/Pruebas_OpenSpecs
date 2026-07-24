@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { LogoMark } from './LogoMark';
 import { MobileDrawer } from './MobileDrawer';
 import { navItems } from '../data/copy';
@@ -40,6 +41,7 @@ export function Header({ activeSectionId, onNavigate, cardless, onToggleCardless
         </div>
         <nav className={`rounded-full border border-white/70 bg-pearl/82 shadow-lift transition-all duration-500 ease-out ${isInicio ? 'px-6 py-3' : 'px-4 py-3'}`}>
           <div className="flex items-center gap-7 text-sm font-medium">
+            <Link to="/productos" className={cardless ? 'relative pb-1 text-ink/88 transition hover:text-ink' : 'transition text-ink/88 hover:text-clay'}>Catálogo</Link>
             {navItems.map((item) => {
               const id = item.href.slice(1);
               const isActive = activeSectionId === id;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useNarrativeScroll } from './hooks/useNarrativeScroll';
 import { Header } from './components/Header';
 import { Inicio } from './sections/desktop/Inicio';
@@ -13,6 +14,9 @@ import { MobileVision } from './sections/mobile/Vision';
 import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
+import { CatalogPage } from './features/catalog/pages/CatalogPage';
+import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
+import { NotFoundPage } from './routes/NotFoundPage';
 
 function ChapterDots({ active, labels, onNavigate }) {
   const [hovered, setHovered] = useState(null);
@@ -64,7 +68,7 @@ function MobileSections({ cardless, reducedMotion }) {
   );
 }
 
-export default function App() {
+export function LandingPage() {
   const { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [cardless, setCardless] = useState(true);
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
@@ -122,5 +126,18 @@ export default function App() {
         </div>
       ) : <MobileSections cardless={cardless} reducedMotion={reducedMotion} />}
     </main>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/productos" element={<CatalogPage />} />
+        <Route path="/productos/:slug" element={<ProductDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -1,0 +1,38 @@
+{
+  "id": "mt-espejos-alba",
+  "name": "Alba",
+  "slug": "mt-espejos-alba",
+  "brand": "Manillons Torrent",
+  "specs": {},
+  "images": [
+    {
+      "alt": "Alba",
+      "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/manillons_espejos/alba.webp",
+      "path": "images/manillons_espejos/alba.webp",
+      "role": "main",
+      "width": 834,
+      "height": 1179,
+      "sort_order": 1
+    }
+  ],
+  "variants": [
+    { "id": "mt-espejos-alba--v0001", "dimension": "Ø60", "reference": "7195", "attributes": {}, "sort_order": 1 },
+    { "id": "mt-espejos-alba--v0002", "dimension": "Ø70", "reference": "7196", "attributes": {}, "sort_order": 2 },
+    { "id": "mt-espejos-alba--v0003", "dimension": "Ø80", "reference": "7197", "attributes": {}, "sort_order": 3 },
+    { "id": "mt-espejos-alba--v0004", "dimension": "Ø100", "reference": "7199", "attributes": {}, "sort_order": 4 }
+  ],
+  "collection": "Alba",
+  "show_price": false,
+  "category_id": "espejos",
+  "description": null,
+  "subcategory": "Circular",
+  "supplier_id": "manillons-torrent",
+  "supplier_name": "Manillons Torrent",
+  "product_kind": "simple_product",
+  "category_name": "Espejos",
+  "commercial_offers": [],
+  "available_finishes": [],
+  "available_measures": [],
+  "publication_status": "publishable",
+  "configuration_fields": []
+}

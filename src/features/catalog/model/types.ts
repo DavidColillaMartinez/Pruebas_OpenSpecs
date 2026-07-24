@@ -1,0 +1,86 @@
+export type PublicAttributes = Record<string, string | number | boolean>;
+
+export type ProductImage = {
+  alt: string;
+  url: string;
+  role?: string;
+  width?: number;
+  height?: number;
+  sortOrder?: number;
+};
+
+export type ProductVariant = {
+  id: string;
+  reference?: string;
+  dimension?: string;
+  finish?: string;
+  finishCode?: string;
+  attributes: PublicAttributes;
+  sortOrder?: number;
+};
+
+export type CommercialOfferVariant = {
+  id: string;
+  reference?: string;
+  finishCode?: string;
+  finishName?: string;
+};
+
+export type CommercialOffer = {
+  id: string;
+  offerType?: string;
+  variants: CommercialOfferVariant[];
+  sortOrder?: number;
+};
+
+export type ProductDetail = {
+  id: string;
+  name: string;
+  slug: string;
+  brand?: string;
+  supplierName?: string;
+  supplierId?: string;
+  categoryId?: string;
+  categoryName?: string;
+  subcategory?: string;
+  collection?: string;
+  description?: string;
+  specs: Record<string, string | number | boolean>;
+  productKind?: string;
+  showPrice: boolean;
+  images: ProductImage[];
+  variants: ProductVariant[];
+  commercialOffers: CommercialOffer[];
+  availableFinishes: string[];
+  availableMeasures: string[];
+  configurationFields: string[];
+};
+
+export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' | 'images' | 'showPrice'> & {
+  categoryName?: string;
+  supplierName?: string;
+};
+
+export type ProductListResponse = {
+  items: ProductCard[];
+  pagination: { limit: number; offset: number; total: number };
+};
+
+export type CatalogPublicConfig = {
+  catalog_version: string | null;
+  api_contract_version: string | null;
+  asset_base_url: string | null;
+  source_catalog_base_url: string | null;
+  database_ready_for_public_api: boolean;
+};
+
+export type VariantSnapshot = Record<string, string | number | boolean | undefined>;
+
+export type SelectedProductUnit = {
+  productId: string;
+  variantId?: string;
+  commercialOfferVariantId?: string;
+  quantity: number;
+  productName: string;
+  variantSnapshot?: VariantSnapshot;
+};
