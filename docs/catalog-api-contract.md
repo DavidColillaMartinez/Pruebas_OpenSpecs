@@ -72,6 +72,14 @@ The selector uses real product variants or commercial offer variants. It does no
 
 Absolute image URLs are preserved. Relative paths are resolved only with the public `asset_base_url` from config. List cards use the verified `main_image_url` fallback when the list response does not include an `images` array. A selected unit uses its normalized variant images only when they exist; otherwise the gallery keeps the product-level images. The current verified detail fixtures do not provide variant-specific images, so no image is inferred from a finish code.
 
+## Commercial Modes Gap
+
+The current public list exposes `product_kind`, `variant_count` and product-level availability, but it does not expose a stable distinction between an individual product and a commercial set. The verified public total is 190 items: 182 `simple_product`, 8 `configurable_product` and 0 `bundle_product`. A `simple_product` may still contain `commercial_offers`, so `product_kind` cannot be used as the filter by itself.
+
+The detail response can expose offer labels such as `Conjunto completo` and `Conjunto premium`, but the current verified data does not provide offer-specific images or component relations. The client now renders the real offer type, available finishes, references and an explicit fallback message instead of implying a visual difference that the API does not publish.
+
+To support reliable filtering and complete individual/set coverage, the server contract needs a stable `commercial_modes` array such as `individual` and `conjunto`, repeated `commercial_mode` request parameters, counts in `facets`, and published individual rows in the public view. Offer or variant images require an explicit `images` mapping owned by the offer/variant. These changes belong in the SQL/view and n8n GET workflow, not in the browser.
+
 ## Quote Payload
 
 The application sends one item for the current product selection through `/api/catalog/quote-requests`:

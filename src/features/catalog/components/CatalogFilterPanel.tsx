@@ -38,11 +38,11 @@ function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, id
         const open = openGroups.has(key);
         const contentId = `catalog-filter-${idPrefix}-${key}`;
         return (
-          <fieldset key={key} className="rounded-lg border border-ink/10 bg-white/35 px-2">
+          <fieldset key={key}>
             <legend className="w-full">
               <button
                 type="button"
-                className="flex min-h-12 w-full items-center gap-3 rounded-md px-2 text-left text-xs font-semibold uppercase tracking-[0.16em] text-graphite transition-colors duration-200 ease-out hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+                className="flex min-h-12 w-full items-center gap-3 rounded-lg border border-ink/10 bg-white/35 px-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-graphite transition-colors duration-200 ease-out hover:border-ink/20 hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
                 aria-expanded={open}
                 aria-controls={contentId}
                 onClick={() => onToggleGroup(key)}
@@ -51,7 +51,7 @@ function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, id
                 <span aria-hidden="true" className="text-lg font-normal leading-none text-graphite/70">{open ? '−' : '+'}</span>
               </button>
             </legend>
-            <div id={contentId} hidden={!open} className="space-y-1 pb-2 pt-1">
+            <div id={contentId} hidden={!open} className="space-y-1 px-1 pb-2 pt-1">
               {options.slice(0, 8).map((option) => {
                 const checked = filters[key]?.includes(option.value) || false;
                 return (
@@ -134,7 +134,7 @@ export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose,
       <aside aria-label="Filtros del catálogo" className="hidden lg:block">
         <div className="sticky top-24 rounded-2xl bg-white/72 p-5 shadow-soft ring-1 ring-ink/5">
           <h2 className="font-display text-2xl">Filtrar</h2>
-          <p className="mt-1 text-xs text-graphite">Marca una o varias opciones por categoría. Las cantidades se calculan sobre el conjunto público completo.</p>
+           <p className="mt-1 text-xs text-graphite">Abre una categoría para explorar sus opciones. Las cantidades siguen la consulta activa cuando hay datos suficientes.</p>
           <div className="mt-6">
             <FilterGroups facets={facets} filters={filters} onToggle={onToggle} openGroups={openGroups} onToggleGroup={onToggleGroup} idPrefix="desktop" />
           </div>

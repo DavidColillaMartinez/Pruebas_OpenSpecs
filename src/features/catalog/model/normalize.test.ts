@@ -35,6 +35,23 @@ describe('product normalization', () => {
     expect(product.variants[0].images?.[0].url).toBe('https://assets.example/catalog/images/variant.webp');
   });
 
+  it('normalizes optional images attached to commercial offers', () => {
+    const product = normalizeProductDetail({
+      id: 'offer-product',
+      name: 'Producto con conjunto',
+      slug: 'offer-product',
+      images: [],
+      commercial_offers: [{
+        id: 'offer-1',
+        offer_type: 'Conjunto premium',
+        image: 'images/offer.webp',
+        variants: [{ id: 'offer-variant-1', reference: 'REF-1', finish_name: 'Roble' }],
+      }],
+    }, { asset_base_url: 'https://assets.example/catalog', catalog_version: null, api_contract_version: null, source_catalog_base_url: null, database_ready_for_public_api: true });
+
+    expect(product.commercialOffers[0].images?.[0].url).toBe('https://assets.example/catalog/images/offer.webp');
+  });
+
   it('handles missing optional arrays and resolves relative assets from public config', () => {
     const product = normalizeProductDetail({ id: 'p', name: 'Producto', slug: 'p', images: null, variants: null, commercial_offers: null });
 

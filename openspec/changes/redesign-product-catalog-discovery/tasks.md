@@ -97,8 +97,11 @@
 ## Seguimiento solicitado por el propietario (fuera del recuento original de 66)
 
 - Filtros iniciales derivados del universo público completo y recalculados por firma de búsqueda/filtros mientras el API no entregue `facets` server-side.
+- Taxonomía global de filtros conservada al aplicar una query, con counts activos mezclados sin eliminar grupos no presentes en la respuesta filtrada.
 - Categorías de filtros convertidas en acordeones clicables y compartidos entre desktop y drawer mobile para reducir carga visual sin perder accesibilidad.
+- Drawer móvil alineado con la superficie blanca de la landing y enlace `Tienda` route-local hacia `/productos`.
 - Selector de variantes conectado a imágenes específicas solo cuando el API proporciona el mapping; fallback conservador a imágenes del producto.
+- Ofertas comerciales con tipo, referencias, acabados y aviso explícito cuando no existe imagen propia publicada.
 - Zoom accesible desde la imagen principal y vuelta a resultados con query/scroll preservados.
 - Asset explícito de Vision actualizado en `public/boceto-final.png`.
 - Revisión visual desktop/mobile y publicación permanecen pendientes porque el entorno actual no dispone de navegador y el propietario debe validar la apariencia antes del push.

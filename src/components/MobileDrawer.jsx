@@ -1,5 +1,6 @@
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
+import { Link } from 'react-router-dom';
 
 export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
   const drawerNavItems = [
@@ -9,7 +10,7 @@ export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-ink/20" onClick={onClose} aria-hidden="true" />
-      <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-white/70 bg-pearl p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+      <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-ink/8 bg-white p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
         <div className="flex items-center justify-between">
           <span className="font-display text-lg tracking-[0.08em] text-ink">AREA LRMQ</span>
           <button type="button" onClick={onClose} className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-ink/8 text-ink/70 transition hover:bg-ink/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label="Cerrar menú">
@@ -24,6 +25,7 @@ export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
           })}
         </nav>
         <div className="mt-5 flex flex-col gap-3 border-t border-ink/8 pt-5">
+          <Link to="/productos" className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-ink/15 bg-white px-5 py-3 text-sm font-semibold text-ink shadow-soft transition hover:-translate-y-0.5 hover:border-ink/35 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={onClose}>Tienda</Link>
           <a href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={onClose}>Pedir asesoría</a>
         </div>
       </div>

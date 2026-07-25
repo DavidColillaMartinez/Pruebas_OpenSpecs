@@ -61,12 +61,25 @@ function ProductContent({ product }: { product: ProductDetail }) {
         <section className="mt-10 border-t border-ink/10 pt-8" aria-labelledby="commercial-offers-heading">
           <h2 id="commercial-offers-heading" className="font-display text-3xl">Opciones comerciales</h2>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-            {product.commercialOffers.map((offer) => (
-              <li key={offer.id} className="rounded-xl border border-ink/10 bg-white p-4">
-                <p className="font-semibold">{offer.offerType || 'Conjunto'}</p>
-                <p className="mt-1 text-sm text-graphite">{offer.variants.length} acabados disponibles</p>
-              </li>
-            ))}
+            {product.commercialOffers.map((offer) => {
+              const offerHasImages = Boolean(offer.images?.length || offer.variants.some((variant) => variant.images?.length));
+              const references = [...new Set(offer.variants.map((variant) => variant.reference).filter((reference): reference is string => Boolean(reference)))];
+              return (
+                <li key={offer.id} className="rounded-xl border border-ink/10 bg-white p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <p className="font-semibold">{offer.offerType || 'Conjunto'}</p>
+                    <span className="rounded-full bg-stonewash px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-graphite">Oferta</span>
+                  </div>
+                  <p className="mt-2 text-sm text-graphite">{offer.variants.length} acabados disponibles</p>
+                  {references.length > 0 && (
+                    <p className="mt-2 text-xs leading-relaxed text-graphite/80">Referencias: {references.slice(0, 3).join(', ')}{references.length > 3 ? '…' : ''}</p>
+                  )}
+                  <p className="mt-3 text-xs leading-relaxed text-graphite/70">
+                    {offerHasImages ? 'Esta oferta tiene imágenes propias.' : 'La ficha usa la imagen general: no hay una imagen específica publicada para esta oferta.'}
+                  </p>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

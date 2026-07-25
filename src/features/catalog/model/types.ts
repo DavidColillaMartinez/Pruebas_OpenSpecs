@@ -25,12 +25,14 @@ export type CommercialOfferVariant = {
   reference?: string;
   finishCode?: string;
   finishName?: string;
+  images?: ProductImage[];
 };
 
 export type CommercialOffer = {
   id: string;
   offerType?: string;
   variants: CommercialOfferVariant[];
+  images?: ProductImage[];
   sortOrder?: number;
 };
 

@@ -104,30 +104,54 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
   };
 }
 
-function normalizeCommercialOfferVariant(value: unknown): CommercialOfferVariant | null {
+function normalizeCommercialOfferVariant(value: unknown, productName: string, assetBaseUrl?: string | null): CommercialOfferVariant | null {
   const record = asRecord(value);
   const id = asString(record.id);
   if (!id) return null;
+
+  const rawImages = Array.isArray(record.images)
+    ? record.images
+    : record.image
+      ? [typeof record.image === 'string' ? { alt: productName, url: record.image, role: 'offer-variant' } : record.image]
+      : (record.image_url || record.image_path)
+        ? [{ alt: productName, url: record.image_url ?? record.image_path, role: 'offer-variant' }]
+        : [];
+  const images = rawImages
+    .map((item) => normalizeImage(item, productName, assetBaseUrl))
+    .filter((item): item is ProductImage => item !== null);
 
   return {
     id,
     reference: asString(record.reference),
     finishCode: asString(record.finish_code),
     finishName: asString(record.finish_name),
+    images: images.length > 0 ? [...new Map(images.map((item) => [item.url, item])).values()] : undefined,
   };
 }
 
-function normalizeCommercialOffer(value: unknown): CommercialOffer | null {
+function normalizeCommercialOffer(value: unknown, productName: string, assetBaseUrl?: string | null): CommercialOffer | null {
   const record = asRecord(value);
   const id = asString(record.id);
   if (!id) return null;
+
+  const rawImages = Array.isArray(record.images)
+    ? record.images
+    : record.image
+      ? [typeof record.image === 'string' ? { alt: productName, url: record.image, role: 'offer' } : record.image]
+      : (record.image_url || record.image_path)
+        ? [{ alt: productName, url: record.image_url ?? record.image_path, role: 'offer' }]
+        : [];
+  const images = rawImages
+    .map((item) => normalizeImage(item, productName, assetBaseUrl))
+    .filter((item): item is ProductImage => item !== null);
 
   return {
     id,
     offerType: asString(record.offer_type),
     variants: Array.isArray(record.variants)
-      ? record.variants.map(normalizeCommercialOfferVariant).filter((item): item is CommercialOfferVariant => item !== null)
+      ? record.variants.map((item) => normalizeCommercialOfferVariant(item, productName, assetBaseUrl)).filter((item): item is CommercialOfferVariant => item !== null)
       : [],
+    images: images.length > 0 ? [...new Map(images.map((item) => [item.url, item])).values()] : undefined,
     sortOrder: asNumber(record.sort_order),
   };
 }
@@ -166,7 +190,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
       ? record.variants.map((item) => normalizeVariant(item, name, config?.asset_base_url)).filter((item): item is ProductVariant => item !== null)
       : [],
     commercialOffers: Array.isArray(record.commercial_offers)
-      ? record.commercial_offers.map(normalizeCommercialOffer).filter((item): item is CommercialOffer => item !== null)
+      ? record.commercial_offers.map((item) => normalizeCommercialOffer(item, name, config?.asset_base_url)).filter((item): item is CommercialOffer => item !== null)
       : [],
     availableFinishes: asStringArray(record.available_finishes),
     availableMeasures: asStringArray(record.available_measures),

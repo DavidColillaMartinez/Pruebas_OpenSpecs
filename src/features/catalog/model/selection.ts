@@ -54,7 +54,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
         finishCode: offerVariant.finishCode || '',
         offer: offer.offerType || '',
       },
-      images: matchedVariant?.images,
+      images: offerVariant.images?.length ? offerVariant.images : offer.images?.length ? offer.images : matchedVariant?.images,
       sourceOrder: (offer.sortOrder ?? 0) * 1000 + (index + 1),
     };
   }));

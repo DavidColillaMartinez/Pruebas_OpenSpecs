@@ -89,6 +89,8 @@ The live probes for `sort=name_asc`, `sort=name_desc` and `order=name_asc` retur
 
 The follow-up read-only probe on 2026-07-25 confirmed the same public contract after the cloud data was available: unfiltered pages at offsets `0,60,120,180` returned `60,60,60,10` items with `pagination.total=190`, `190` unique IDs and `190` unique slugs; a no-match search returned total `0`; `sort=name_desc` returned the same first item and no sort metadata; and repeated categories used the first value (`muebles-y-lavabos` before `espejos` returned total `84`). No facet or sort object was returned in any response.
 
+The public list currently reports 182 `simple_product`, 8 `configurable_product` and 0 `bundle_product` records. The protected local package contains one bundle candidate, but the public view does not expose it. The verified Royo detail includes `Conjunto completo` and `Conjunto premium` offers, while neither offer nor its variants exposes a published image/component mapping. This is insufficient to determine individual/set membership or to switch images by offer in the frontend.
+
 Tasks requiring workflow definitions, import logs or a mutually exclusive publication waterfall remain pending. The required evidence is:
 
 - every page with requested/effective `limit`, `offset`, `items.length` and `pagination.total`;
