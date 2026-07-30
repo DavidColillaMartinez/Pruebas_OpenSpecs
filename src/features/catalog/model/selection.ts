@@ -11,6 +11,7 @@ function variantAttributes(variant: ProductVariant): Record<string, string> {
     Object.entries({
       dimension: variant.dimension,
       finish: variant.finish,
+      distribution: variant.distribution,
       finishCode: variant.finishCode,
       ...variant.attributes,
     }).filter(([, value]) => typeof value === 'string' && value.length > 0)
@@ -27,6 +28,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
       reference: variant.reference,
       dimension: variant.dimension,
       finish: variant.finish,
+      distribution: variant.distribution,
       finishCode: variant.finishCode,
       ...variant.attributes,
     } satisfies VariantSnapshot,
@@ -59,11 +61,15 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
     };
   }));
 
-  return offerUnits.length > 0 ? offerUnits : units;
+  return isGmeEnclosureProduct(product) ? units : offerUnits.length > 0 ? offerUnits : units;
 }
 
 export function selectInitialUnit(units: SelectableUnit[]): SelectableUnit | null {
   return [...units].sort((a, b) => a.sourceOrder - b.sourceOrder)[0] ?? null;
+}
+
+export function selectInitialEnclosureUnit(units: SelectableUnit[]): SelectableUnit | null {
+  return selectInitialUnit(units.filter((unit) => unit.attributes.finish?.toLocaleLowerCase() !== 'aluminio'));
 }
 
 export function getAttributeOptions(units: SelectableUnit[], current: Record<string, string>): Record<string, string[]> {
@@ -77,6 +83,47 @@ export function getAttributeOptions(units: SelectableUnit[], current: Record<str
       .filter(Boolean))];
     return [key, options];
   }));
+}
+
+export function isGmeEnclosureProduct(product: ProductDetail): boolean {
+  const supplier = `${product.supplierId || ''} ${product.supplierName || ''}`.toLocaleLowerCase();
+  const category = `${product.categoryId || ''} ${product.categoryName || ''}`.toLocaleLowerCase();
+  return supplier.includes('gme') && category.includes('mamparas');
+}
+
+export function getEnclosureAttributeOptions(units: SelectableUnit[], current: Record<string, string>): Record<string, string[]> {
+  const finishes = [...new Set(units
+    .map((unit) => unit.attributes.finish)
+    .filter((finish): finish is string => Boolean(finish) && finish.toLocaleLowerCase() !== 'aluminio'))];
+  const activeFinish = current.finish || units[0]?.attributes.finish;
+  const distributions = [...new Set(units
+    .filter((unit) => unit.attributes.finish === activeFinish)
+    .map((unit) => unit.attributes.distribution)
+    .filter((distribution): distribution is string => Boolean(distribution)))];
+
+  return {
+    finish: finishes,
+    distribution: distributions,
+  };
+}
+
+export function selectEnclosureFinish(units: SelectableUnit[], current: Record<string, string>, finish: string): SelectableUnit | null {
+  if (finish.toLocaleLowerCase() === 'aluminio') return null;
+  const compatible = current.distribution
+    ? [...units]
+      .filter((unit) => unit.attributes.finish === finish && unit.attributes.distribution === current.distribution)
+      .sort((a, b) => a.sourceOrder - b.sourceOrder)[0]
+    : null;
+  return compatible || [...units]
+    .filter((unit) => unit.attributes.finish === finish)
+    .sort((a, b) => a.sourceOrder - b.sourceOrder)[0] || null;
+}
+
+export function findEnclosureUnit(units: SelectableUnit[], finish?: string, distribution?: string): SelectableUnit | null {
+  if (!finish || !distribution) return null;
+  return [...units]
+    .filter((unit) => unit.attributes.finish === finish && unit.attributes.distribution === distribution)
+    .sort((a, b) => a.sourceOrder - b.sourceOrder)[0] || null;
 }
 
 export function findMatchingUnit(units: SelectableUnit[], selection: Record<string, string>): SelectableUnit | null {

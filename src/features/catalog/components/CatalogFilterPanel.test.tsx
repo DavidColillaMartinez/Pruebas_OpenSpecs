@@ -77,4 +77,56 @@ describe('CatalogFilterPanel', () => {
     expect(onToggle).toHaveBeenCalledWith('category', 'mirrors', true);
     expect(onMobileClose).toHaveBeenCalled();
   });
+
+  it('orders Mamparas facets and exposes every API option', () => {
+    const facets = {
+      finish: [{ value: 'Cromo', label: 'Cromo', count: 21 }],
+      distribution: Array.from({ length: 10 }, (_, index) => ({ value: `distribution-${index + 1}`, label: `Distribución ${index + 1}`, count: index + 1 })),
+      collection: [{ value: 'Open', label: 'Open', count: 1 }],
+      subcategory: [{ value: 'Mamparas de ducha', label: 'Mamparas de ducha', count: 17 }],
+    };
+    render(
+      <CatalogFilterPanel
+        facets={facets}
+        filters={{}}
+        categoryContext="mamparas"
+        mobileOpen
+        onMobileClose={() => undefined}
+        onToggle={() => undefined}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    expect([...dialog.querySelectorAll('fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
+      'Tipo+',
+      'Modelo+',
+      'Distribución+',
+      'Acabado+',
+    ]);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Distribución' }));
+    expect(within(dialog).queryByRole('checkbox', { name: 'Distribución 9' })).not.toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Ver todas' }));
+    expect(within(dialog).getByRole('checkbox', { name: 'Distribución 9' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Ver menos' })).toBeInTheDocument();
+  });
+
+  it('keeps a selected option visible when a long facet is collapsed', () => {
+    const facets = {
+      distribution: Array.from({ length: 10 }, (_, index) => ({ value: `distribution-${index + 1}`, label: `Distribución ${index + 1}`, count: 1 })),
+    };
+    render(
+      <CatalogFilterPanel
+        facets={facets}
+        filters={{ distribution: ['distribution-10'] }}
+        categoryContext="mamparas"
+        mobileOpen
+        onMobileClose={() => undefined}
+        onToggle={() => undefined}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Distribución' }));
+    expect(within(dialog).getByRole('checkbox', { name: 'Distribución 10' })).toBeChecked();
+  });
 });

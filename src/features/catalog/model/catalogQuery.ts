@@ -12,6 +12,7 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'supplier',
   'subcategory',
   'collection',
+  'distribution',
   'product_kind',
   'finish',
   'measure',

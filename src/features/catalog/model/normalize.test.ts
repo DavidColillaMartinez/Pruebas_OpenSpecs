@@ -35,6 +35,31 @@ describe('product normalization', () => {
     expect(product.variants[0].images?.[0].url).toBe('https://assets.example/catalog/images/variant.webp');
   });
 
+  it('preserves API distribution values, Cromo display names, and variant image URLs', () => {
+    const product = normalizeProductDetail({
+      id: 'gme-mamparas-ducha-open',
+      name: 'Open',
+      slug: 'gme-mamparas-ducha-open',
+      supplier_id: 'gme',
+      category_id: 'mamparas',
+      available_distributions: ['2 abatibles'],
+      variants: [{
+        id: 'open-cromo-2-abatibles',
+        finish: 'Cromo',
+        finish_code: 'cr',
+        distribution: '2 abatibles',
+        image: 'https://assets.example/open-cromo.webp',
+        reference: 'OPEN-CR-2A',
+        attributes: { technical_width: '1200' },
+      }],
+    });
+
+    expect(product.availableDistributions).toEqual(['2 abatibles']);
+    expect(product.variants[0]).toMatchObject({ finish: 'Cromo', distribution: '2 abatibles', finishCode: 'cr' });
+    expect(product.variants[0].images?.[0].url).toBe('https://assets.example/open-cromo.webp');
+    expect(product.variants[0].attributes).toEqual({ technical_width: '1200' });
+  });
+
   it('normalizes optional images attached to commercial offers', () => {
     const product = normalizeProductDetail({
       id: 'offer-product',
@@ -81,6 +106,26 @@ describe('product normalization', () => {
     });
     expect(response.sort).toEqual({ applied: 'name_asc', supported: ['name_asc', 'name_desc'] });
     expect(response.discardedItemCount).toBe(1);
+  });
+
+  it('normalizes distribution facets and card distributions from API fields', () => {
+    const response = normalizeProductList({
+      items: [{
+        id: 'gme-model',
+        name: 'Open',
+        slug: 'gme-mamparas-ducha-open',
+        images: [],
+        category_id: 'mamparas',
+        category_name: 'Mamparas',
+        available_distributions: ['2 abatibles'],
+      }],
+      pagination: { limit: 24, offset: 0, total: 1 },
+      facets: { distributions: [{ value: '2 abatibles', label: '2 abatibles', count: 1 }] },
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.items[0].distributions).toEqual(['2 abatibles']);
+    expect(response.facets.distribution).toEqual([{ value: '2 abatibles', label: '2 abatibles', count: 1 }]);
   });
 
   it('rejects an unusable list payload instead of treating it as an empty catalog', () => {

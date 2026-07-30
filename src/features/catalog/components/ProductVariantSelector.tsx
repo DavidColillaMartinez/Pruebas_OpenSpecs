@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ProductDetail } from '../model/types';
-import { findMatchingUnit, getAttributeOptions, getSelectableUnits, selectInitialUnit } from '../model/selection';
+import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, isGmeEnclosureProduct, selectEnclosureFinish, selectInitialEnclosureUnit, selectInitialUnit } from '../model/selection';
 import type { SelectableUnit } from '../model/selection';
 
 type ProductVariantSelectorProps = {
@@ -11,16 +11,20 @@ type ProductVariantSelectorProps = {
 const labels: Record<string, string> = {
   dimension: 'Medida',
   finish: 'Acabado',
+  distribution: 'Distribución',
   finishCode: 'Código de acabado',
   offer: 'Oferta',
 };
 
 export function ProductVariantSelector({ product, onSelectionChange }: ProductVariantSelectorProps) {
   const units = useMemo(() => getSelectableUnits(product), [product]);
-  const initialUnit = useMemo(() => selectInitialUnit(units), [units]);
+  const isGmeEnclosure = isGmeEnclosureProduct(product);
+  const initialUnit = useMemo(() => isGmeEnclosure ? selectInitialEnclosureUnit(units) : selectInitialUnit(units), [isGmeEnclosure, units]);
   const [selection, setSelection] = useState<Record<string, string>>(initialUnit?.attributes || {});
-  const currentUnit = findMatchingUnit(units, selection) || initialUnit;
-  const options = getAttributeOptions(units, selection);
+  const currentUnit = isGmeEnclosure
+    ? findEnclosureUnit(units, selection.finish, selection.distribution) || initialUnit
+    : findMatchingUnit(units, selection) || initialUnit;
+  const options = isGmeEnclosure ? getEnclosureAttributeOptions(units, currentUnit?.attributes || selection) : getAttributeOptions(units, selection);
 
   useEffect(() => {
     setSelection(initialUnit?.attributes || {});
@@ -41,7 +45,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
             <legend className="text-sm font-semibold text-graphite">{labels[key] || key}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {values.map((value) => {
-                const isSelected = selection[key] === value;
+                const isSelected = currentUnit?.attributes[key] === value;
                 return (
                   <button
                     key={value}
@@ -49,6 +53,13 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                     className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
                     aria-pressed={isSelected}
                     onClick={() => {
+                      if (isGmeEnclosure) {
+                        const nextUnit = key === 'finish'
+                          ? selectEnclosureFinish(units, currentUnit?.attributes || selection, value)
+                          : findEnclosureUnit(units, currentUnit?.attributes.finish, value);
+                        if (nextUnit) setSelection(nextUnit.attributes);
+                        return;
+                      }
                       const nextSelection = { ...selection, [key]: value };
                       if (key === 'finish') delete nextSelection.finishCode;
                       const nextUnit = findMatchingUnit(units, nextSelection);

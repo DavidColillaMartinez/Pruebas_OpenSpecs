@@ -77,7 +77,7 @@ export function CatalogPage() {
         </header>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
-          <CatalogFilterPanel facets={data.facets} filters={query.filters} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
+          <CatalogFilterPanel facets={data.facets} filters={query.filters} categoryContext={query.filters.category?.find((value) => value.trim().toLocaleLowerCase() === 'mamparas')} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
           <section aria-labelledby="catalog-results-heading" className="min-w-0">
             <div className="flex flex-col gap-4 border-b border-ink/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0 flex-1">

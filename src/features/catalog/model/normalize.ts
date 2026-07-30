@@ -97,6 +97,7 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
     reference: asString(record.reference),
     dimension: asString(record.dimension),
     finish: asString(record.finish),
+    distribution: asString(record.distribution),
     finishCode: asString(record.finish_code),
     attributes: publicAttributes(record.attributes),
     images: images.length > 0 ? [...new Map(images.map((item) => [item.url, item])).values()] : undefined,
@@ -193,6 +194,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
       ? record.commercial_offers.map((item) => normalizeCommercialOffer(item, name, config?.asset_base_url)).filter((item): item is CommercialOffer => item !== null)
       : [],
     availableFinishes: asStringArray(record.available_finishes),
+    availableDistributions: asStringArray(record.available_distributions ?? record.distributions),
     availableMeasures: asStringArray(record.available_measures),
     configurationFields: asStringArray(record.configuration_fields),
   };
@@ -218,6 +220,7 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       categoryName: product.categoryName,
       collection: product.collection,
       finishes: product.availableFinishes,
+      distributions: product.availableDistributions,
       measures: product.availableMeasures,
       productKind: product.productKind,
       subcategory: product.subcategory,
@@ -262,6 +265,7 @@ export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
     }
   }
   const finishes = new Map<string, CatalogFacetOption>();
+  const distributions = new Map<string, CatalogFacetOption>();
   const measures = new Map<string, CatalogFacetOption>();
   for (const card of items) {
     for (const finish of card.finishes || []) {
@@ -276,8 +280,15 @@ export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
       const existing = measures.get(trimmed);
       measures.set(trimmed, { value: trimmed, label: trimmed, count: (existing?.count || 0) + 1 });
     }
+    for (const distribution of card.distributions || []) {
+      const trimmed = distribution?.trim();
+      if (!trimmed) continue;
+      const existing = distributions.get(trimmed);
+      distributions.set(trimmed, { value: trimmed, label: trimmed, count: (existing?.count || 0) + 1 });
+    }
   }
   if (finishes.size > 0) facets.finish = [...finishes.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
+  if (distributions.size > 0) facets.distribution = [...distributions.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
   if (measures.size > 0) facets.measure = [...measures.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
   return facets;
 };
@@ -291,6 +302,8 @@ const facetAliases: Record<string, CatalogFacetKey> = {
   subcategory: 'subcategory',
   collections: 'collection',
   collection: 'collection',
+  distributions: 'distribution',
+  distribution: 'distribution',
   product_kinds: 'product_kind',
   productKinds: 'product_kind',
   product_kind: 'product_kind',

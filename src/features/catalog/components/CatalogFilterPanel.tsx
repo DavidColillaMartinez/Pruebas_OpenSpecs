@@ -5,6 +5,7 @@ import type { CatalogFilters } from '../model/catalogQuery';
 type CatalogFilterPanelProps = {
   facets: CatalogFacets;
   filters: CatalogFilters;
+  categoryContext?: string;
   mobileOpen: boolean;
   onMobileClose: () => void;
   onToggle: (key: CatalogFacetKey, value: string, checked: boolean) => void;
@@ -15,20 +16,34 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   supplier: 'Proveedor',
   subcategory: 'Subcategoría',
   collection: 'Colección',
+  distribution: 'Distribución',
   product_kind: 'Tipo de producto',
   finish: 'Acabado',
   measure: 'Medida',
 };
 
+const mamparasFacetLabels: Partial<Record<CatalogFacetKey, string>> = {
+  subcategory: 'Tipo',
+  collection: 'Modelo',
+};
+
 type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'> & {
   openGroups: Set<CatalogFacetKey>;
+  expandedGroups: Set<CatalogFacetKey>;
   onToggleGroup: (key: CatalogFacetKey) => void;
+  onToggleExpanded: (key: CatalogFacetKey) => void;
   idPrefix: string;
 };
 
-function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, idPrefix }: FilterGroupsProps) {
-  const groups = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
+function FilterGroups({ facets, filters, categoryContext, onToggle, openGroups, expandedGroups, onToggleGroup, onToggleExpanded, idPrefix }: FilterGroupsProps) {
+  const isMamparas = categoryContext?.trim().toLocaleLowerCase() === 'mamparas';
+  const groupEntries = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
     .filter(([, options]) => options.length > 0);
+  const groups = isMamparas
+    ? (['subcategory', 'collection', 'distribution', 'finish'] as CatalogFacetKey[])
+      .map((key) => groupEntries.find(([groupKey]) => groupKey === key))
+      .filter((entry): entry is [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>] => Boolean(entry))
+    : groupEntries;
 
   if (groups.length === 0) return <p className="text-sm leading-relaxed text-graphite">Las opciones aparecerán cuando el catálogo las devuelva.</p>;
 
@@ -36,7 +51,12 @@ function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, id
     <div className="space-y-2">
       {groups.map(([key, options]) => {
         const open = openGroups.has(key);
+        const expanded = expandedGroups.has(key);
         const contentId = `catalog-filter-${idPrefix}-${key}`;
+        const selectedOptions = options.filter((option) => filters[key]?.includes(option.value));
+        const visibleOptions = expanded
+          ? options
+          : [...new Map([...options.slice(0, 8), ...selectedOptions].map((option) => [option.value, option])).values()];
         return (
           <fieldset key={key}>
             <legend className="w-full">
@@ -47,12 +67,12 @@ function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, id
                 aria-controls={contentId}
                 onClick={() => onToggleGroup(key)}
               >
-                <span className="min-w-0 flex-1">{facetLabels[key]}</span>
+                <span className="min-w-0 flex-1">{isMamparas ? mamparasFacetLabels[key] || facetLabels[key] : facetLabels[key]}</span>
                 <span aria-hidden="true" className="text-lg font-normal leading-none text-graphite/70">{open ? '−' : '+'}</span>
               </button>
             </legend>
             <div id={contentId} hidden={!open} className="space-y-1 px-1 pb-2 pt-1">
-              {options.slice(0, 8).map((option) => {
+              {visibleOptions.map((option) => {
                 const checked = filters[key]?.includes(option.value) || false;
                 return (
                   <label key={option.value} className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2 py-1 text-sm text-graphite transition-colors duration-200 ease-out hover:bg-stonewash hover:text-ink">
@@ -68,7 +88,15 @@ function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, id
                 );
               })}
               {options.length > 8 && (
-                <p className="px-2 pt-1 text-xs text-graphite/70">+{options.length - 8} opciones más</p>
+                <button
+                  type="button"
+                  className="px-2 pt-2 text-xs font-semibold text-graphite underline-offset-4 hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+                  aria-expanded={expanded}
+                  aria-controls={contentId}
+                  onClick={() => onToggleExpanded(key)}
+                >
+                  {expanded ? 'Ver menos' : 'Ver todas'}
+                </button>
               )}
             </div>
           </fieldset>
@@ -78,14 +106,24 @@ function FilterGroups({ facets, filters, onToggle, openGroups, onToggleGroup, id
   );
 }
 
-export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose, onToggle }: CatalogFilterPanelProps) {
+export function CatalogFilterPanel({ facets, filters, categoryContext, mobileOpen, onMobileClose, onToggle }: CatalogFilterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const [openGroups, setOpenGroups] = useState<Set<CatalogFacetKey>>(() => new Set());
+  const [expandedGroups, setExpandedGroups] = useState<Set<CatalogFacetKey>>(() => new Set());
 
   const onToggleGroup = (key: CatalogFacetKey) => {
     setOpenGroups((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const onToggleExpanded = (key: CatalogFacetKey) => {
+    setExpandedGroups((current) => {
       const next = new Set(current);
       if (next.has(key)) next.delete(key);
       else next.add(key);
@@ -136,7 +174,7 @@ export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose,
           <h2 className="font-display text-2xl">Filtrar</h2>
            <p className="mt-1 text-xs text-graphite">Abre una categoría para explorar sus opciones. Las cantidades siguen la consulta activa cuando hay datos suficientes.</p>
           <div className="mt-6">
-            <FilterGroups facets={facets} filters={filters} onToggle={onToggle} openGroups={openGroups} onToggleGroup={onToggleGroup} idPrefix="desktop" />
+            <FilterGroups facets={facets} filters={filters} categoryContext={categoryContext} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="desktop" />
           </div>
         </div>
       </aside>
@@ -149,7 +187,7 @@ export function CatalogFilterPanel({ facets, filters, mobileOpen, onMobileClose,
               <button ref={closeButtonRef} type="button" onClick={onMobileClose} className="min-h-11 rounded-full px-3 text-sm font-semibold text-graphite underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>
             </div>
             <div className="mt-7">
-              <FilterGroups facets={facets} filters={filters} onToggle={onToggle} openGroups={openGroups} onToggleGroup={onToggleGroup} idPrefix="mobile" />
+              <FilterGroups facets={facets} filters={filters} categoryContext={categoryContext} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="mobile" />
             </div>
           </div>
         </div>

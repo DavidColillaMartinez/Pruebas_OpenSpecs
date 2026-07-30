@@ -25,7 +25,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
-  const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([, value]) => value).map(([, value]) => String(value)).join(' · ');
+  const variantLabel = selectedUnit?.variantSnapshot && ['finish', 'distribution', 'dimension'].map((key) => selectedUnit.variantSnapshot?.[key]).filter(Boolean).map(String).join(' · ');
   const galleryImages = selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const specs = Object.entries(product.specs);
 

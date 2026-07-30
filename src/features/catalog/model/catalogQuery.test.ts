@@ -30,6 +30,14 @@ describe('catalog query state', () => {
     expect(params.toString()).toBe('search=alba&category=cat-a&supplier=supplier-1&sort=name_desc&page=2');
   });
 
+  it('round-trips repeated distribution filters and sends them to the API', () => {
+    const query = parseCatalogQuery('distribution=2+abatibles&distribution=Fijo+%2B+abatible');
+
+    expect(query.filters.distribution).toEqual(['2 abatibles', 'Fijo + abatible']);
+    expect(serializeCatalogQuery(query).toString()).toBe('distribution=2+abatibles&distribution=Fijo+%2B+abatible');
+    expect(catalogQueryToRequest(query, true).distribution).toEqual(['2 abatibles', 'Fijo + abatible']);
+  });
+
   it('builds server-side params with only the requested page', () => {
     const request = catalogQueryToRequest({
       search: 'alba',

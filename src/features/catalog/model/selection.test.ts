@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { normalizeProductDetail } from './normalize';
-import { findMatchingUnit, getAttributeOptions, getSelectableUnits, selectInitialUnit } from './selection';
+import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, selectEnclosureFinish, selectInitialUnit } from './selection';
 
 describe('catalog variant selection', () => {
   it('uses the first real Alba variant without generating combinations', () => {
@@ -38,5 +38,41 @@ describe('catalog variant selection', () => {
 
     expect(getAttributeOptions(units, { finish: 'Rojo' }).dimension).toEqual(['A']);
     expect(findMatchingUnit(units, { finish: 'Rojo', dimension: 'B' })).toBeNull();
+  });
+
+  it('keeps GME finish and distribution combinations tied to real units', () => {
+    const product = normalizeProductDetail({
+      id: 'gme-mamparas-ducha-open',
+      name: 'Open',
+      slug: 'gme-mamparas-ducha-open',
+      supplier_id: 'gme',
+      category_id: 'mamparas',
+      variants: [
+        { id: 'open-cromo-2', finish: 'Cromo', finish_code: 'cr', distribution: '2 abatibles', reference: 'OPEN-CR-2', sort_order: 1 },
+        { id: 'open-cromo-free', finish: 'Cromo', finish_code: 'cr', distribution: 'Free', reference: 'OPEN-CR-FREE', sort_order: 2 },
+        { id: 'open-negro-2', finish: 'Negro', finish_code: 'ng', distribution: '2 abatibles', reference: 'OPEN-NG-2', sort_order: 3 },
+        { id: 'open-negro-free', finish: 'Negro', finish_code: 'ng', distribution: 'Free', reference: 'OPEN-NG-FREE', sort_order: 4 },
+        { id: 'open-negro-lateral', finish: 'Negro', finish_code: 'ng', distribution: 'Lateral fijo', reference: 'OPEN-NG-LATERAL', sort_order: 5 },
+        { id: 'open-aluminio', finish: 'Aluminio', finish_code: 'al', distribution: 'Free', reference: 'OPEN-AL-FREE', sort_order: 6 },
+      ],
+    });
+    const units = getSelectableUnits(product);
+    const initial = selectInitialUnit(units);
+
+    expect(initial?.variantId).toBe('open-cromo-2');
+    expect(getEnclosureAttributeOptions(units, initial?.attributes || {})).toEqual({
+      finish: ['Cromo', 'Negro'],
+      distribution: ['2 abatibles', 'Free'],
+    });
+    expect(selectEnclosureFinish(units, { finish: 'Cromo', distribution: 'Free' }, 'Negro')).toMatchObject({
+      variantId: 'open-negro-free',
+      variantSnapshot: { reference: 'OPEN-NG-FREE' },
+    });
+    expect(selectEnclosureFinish(units, { finish: 'Negro', distribution: 'Lateral fijo' }, 'Cromo')).toMatchObject({
+      variantId: 'open-cromo-2',
+      variantSnapshot: { reference: 'OPEN-CR-2' },
+    });
+    expect(findEnclosureUnit(units, 'Negro', 'Lateral fijo')?.variantId).toBe('open-negro-lateral');
+    expect(findEnclosureUnit(units, 'Cromo', 'Lateral fijo')).toBeNull();
   });
 });

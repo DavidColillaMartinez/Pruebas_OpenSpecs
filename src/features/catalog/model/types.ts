@@ -14,6 +14,7 @@ export type ProductVariant = {
   reference?: string;
   dimension?: string;
   finish?: string;
+  distribution?: string;
   finishCode?: string;
   attributes: PublicAttributes;
   images?: ProductImage[];
@@ -55,6 +56,7 @@ export type ProductDetail = {
   variants: ProductVariant[];
   commercialOffers: CommercialOffer[];
   availableFinishes: string[];
+  availableDistributions: string[];
   availableMeasures: string[];
   configurationFields: string[];
 };
@@ -64,6 +66,7 @@ export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' |
   categoryName?: string;
   collection?: string;
   finishes?: string[];
+  distributions?: string[];
   measures?: string[];
   productKind?: string;
   subcategory?: string;
@@ -76,6 +79,7 @@ export const CATALOG_FACET_KEYS = [
   'supplier',
   'subcategory',
   'collection',
+  'distribution',
   'product_kind',
   'finish',
   'measure',
