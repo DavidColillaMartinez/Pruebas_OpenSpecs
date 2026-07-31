@@ -72,18 +72,18 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
   return (
     <section aria-labelledby="product-gallery-heading">
       <h2 id="product-gallery-heading" className="sr-only">Imágenes del producto</h2>
-      <div className="group relative flex min-h-72 items-center justify-center overflow-hidden rounded-2xl bg-stonewash p-4 shadow-soft ring-1 ring-ink/5">
+      <div className="group relative flex aspect-[1489/2105] max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10">
         {activeImage ? (
           <button
             type="button"
             onClick={() => setZoomOpen(true)}
-            className="flex h-full min-h-64 w-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain"
+             className="flex h-full w-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain"
             aria-label={`Ampliar imagen de ${altPrefix}`}
           >
             <img
               src={activeImage.url}
               alt={`${altPrefix}, imagen principal`}
-              className="max-h-[34rem] w-full object-contain"
+               className="h-full w-full object-contain"
               onError={() => markImageFailed(activeImage.url)}
             />
           </button>

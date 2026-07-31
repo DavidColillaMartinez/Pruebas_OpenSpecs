@@ -33,7 +33,7 @@
 
 - [x] 5.1 Generalizar `QuoteRequestItem` y `buildQuoteRequestItem` para enviar `productId`, `variantId` cuando exista, referencia y `selectedAttributes` con todos los atributos públicos no vacíos de la variante completa.
 - [x] 5.2 Confirmar el nombre de campos aceptado por el endpoint/workflow y, si requiere compatibilidad con `variantSnapshot`, definir una serialización explícita que no pierda `reference` ni `selectedAttributes`; el proxy local es transparente y conserva ambos campos.
-- [x] 5.3 Mantener `items[]` multi-item y la validación de cantidades/identificadores sin implementar todavía cesta, Añadir selección ni Mis selecciones.
+- [x] 5.3 Mantener `items[]` multi-item y la validación de cantidades/identificadores sin reducir el contrato a una sola variante.
 - [x] 5.4 Actualizar `QuoteRequestForm` y sus textos para impedir el envío si no existe una variante completa, mostrar el resumen seleccionado sin precios y preservar la solicitud individual.
 - [x] 5.5 Añadir pruebas de snapshot completo para Espejos y otras familias, validación de payload multi-item y ausencia de POST reales en toda la suite.
 
@@ -44,3 +44,25 @@
 - [x] 6.3 Ejecutar `openspec validate --strict` y revisar que cada requisito tenga escenarios verificables.
 - [ ] 6.4 Revisar desktop y móvil con el endpoint API disponible, incluyendo navegación, filtros combinados, galería Swing, selectores y ausencia de precios; si el proxy no está configurado, dejar la revisión visual explícitamente bloqueada.
 - [x] 6.5 Revisar `git status` y `git diff` para mantener fuera del cambio assets protegidos, SQL no solicitado y modificaciones preexistentes no relacionadas.
+
+## 7. Cesta de presupuesto
+
+- [x] 7.1 Crear provider/store persistente en `localStorage` para líneas completas, con hidratación segura y clave `productId + variantId`.
+- [x] 7.2 Añadir `Añadir al presupuesto` en ficha, sumar duplicados y conservar variantes distintas del mismo modelo.
+- [x] 7.3 Añadir `QuoteSelectionPage` en `/presupuesto` con listado, cantidades, eliminación, estados vacío/error y formulario conjunto sin precios.
+- [x] 7.4 Añadir acceso `Presupuesto (N)` o `Mis selecciones (N)` en landing y header del catálogo.
+- [x] 7.5 Añadir pruebas de persistencia, deduplicación, dos variantes independientes y payload conjunto `items[]`.
+
+## 8. Datos de ficha y API
+
+- [x] 8.1 Normalizar `has_led`, `lighting_type`, `lighting_technology`, `light_temp` y sus valores de variante sin derivarlos del slug.
+- [x] 8.2 Mostrar datos de iluminación y selección exacta en Alba, Retro/Nova y el snapshot enviado.
+- [x] 8.3 Añadir pruebas de versión Básica/Plus, LED, tecnología, temperatura y ausencia honesta cuando el GET no entrega un campo.
+
+## 9. Rediseño visual y validación
+
+- [x] 9.1 Retirar fondos, sombras, paneles y overlays superpuestos a imágenes de tarjetas y galería; conservar proporción A4 y `object-contain`.
+- [ ] 9.2 Revisar filtros, tarjetas, masthead y cesta en responsive desktop/móvil sin regresiones GME.
+- [x] 9.3 Ejecutar `npm test`, `npm run lint`, `npm run typecheck` y `npm run build` tras la ampliación.
+- [x] 9.4 Comprobar por GET configuración, listado y detalle; documentar exactamente los campos/webhooks ausentes.
+- [ ] 9.5 Verificar visualmente filtros Espejos, ficha Alba, ficha Retro/Nova, dos variantes en cesta, envío conjunto y tarjetas sin overlays.

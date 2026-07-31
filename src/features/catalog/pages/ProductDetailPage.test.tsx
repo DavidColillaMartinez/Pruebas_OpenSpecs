@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { ProductDetailPage } from './ProductDetailPage';
+import { QuoteSelectionProvider, QUOTE_SELECTION_STORAGE_KEY } from '../../quote/model/selectionStore';
 
 function renderDetail(slug = 'mt-espejos-alba') {
   return render(
@@ -57,7 +58,10 @@ function gmeProduct(slug: string) {
   };
 }
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  window.localStorage.removeItem(QUOTE_SELECTION_STORAGE_KEY);
+});
 
 describe('ProductDetailPage', () => {
   it('announces loading and then renders the real product content', async () => {
@@ -136,6 +140,24 @@ describe('ProductDetailPage', () => {
 
     await waitFor(() => expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', response.images[0].url));
     expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(2);
+  });
+
+  it('adds the exact changed Alba variant to the persistent budget selection', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(alba), { status: 200 })));
+
+    render(
+      <QuoteSelectionProvider>
+        <MemoryRouter initialEntries={['/productos/mt-espejos-alba']}>
+          <Routes><Route path="/productos/:slug" element={<ProductDetailPage />} /></Routes>
+        </MemoryRouter>
+      </QuoteSelectionProvider>,
+    );
+    expect(await screen.findByRole('heading', { name: 'Alba' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Azul atlántico' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir al presupuesto' }));
+
+    const stored = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '[]');
+    expect(stored[0]).toMatchObject({ variantId: 'mt-espejos-alba--v0002', reference: '7195', selectedAttributes: { finish: 'Azul atlántico', dimension: 'Ø 60' } });
   });
 
   it.each([

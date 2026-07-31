@@ -15,6 +15,10 @@ export type ProductVariant = {
   dimension?: string;
   finish?: string;
   version?: string;
+  hasLed?: boolean;
+  lightingType?: string;
+  lightingTechnology?: string;
+  lightTemp?: string;
   distribution?: string;
   finishCode?: string;
   attributes: PublicAttributes;
@@ -54,6 +58,10 @@ export type ProductDetail = {
   productKind?: string;
   showPrice: boolean;
   galleryRule?: string;
+  hasLed?: boolean;
+  lightingType?: string;
+  lightingTechnology?: string;
+  lightTemp?: string;
   images: ProductImage[];
   variants: ProductVariant[];
   commercialOffers: CommercialOffer[];
@@ -73,6 +81,10 @@ export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' |
   productKind?: string;
   subcategory?: string;
   galleryRule?: string;
+  hasLed?: boolean;
+  lightingType?: string;
+  lightingTechnology?: string;
+  lightTemp?: string;
   supplierId?: string;
   supplierName?: string;
 };

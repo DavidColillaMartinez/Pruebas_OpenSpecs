@@ -11,6 +11,7 @@ describe('product normalization', () => {
     expect(product.images[0].url).toMatch(/^https:\/\//);
     expect(product.variants).toHaveLength(16);
     expect(product.variants[0]).toMatchObject({ dimension: 'Ø 60', finish: 'Terracota', reference: '7195' });
+    expect(product).toMatchObject({ hasLed: false, lightingType: 'Sin luz', lightingTechnology: 'Sin LED' });
     expect(product).not.toHaveProperty('source_page');
     expect(product).not.toHaveProperty('quality_status');
   });
@@ -162,6 +163,27 @@ describe('product normalization', () => {
 
     expect(product.specs).toEqual({ LED: 'Sí' });
     expect(product.variants[0].attributes).toEqual({ version: 'Básica' });
+  });
+
+  it('normalizes variant-specific lighting data without inventing missing values', () => {
+    const product = normalizeProductDetail({
+      id: 'mt-espejos-retro',
+      name: 'Retro',
+      slug: 'mt-espejos-retro',
+      supplier_id: 'manillons-torrent',
+      category_id: 'espejos',
+      specs: { LED: 'Sí', 'Tipo de iluminación': 'Retroiluminada' },
+      variants: [
+        { id: 'retro-basic', version: 'Básica', has_led: true, lighting_type: 'Retroiluminada', lighting_technology: 'LED estándar', light_temp: '3000 K' },
+        { id: 'retro-plus', version: 'Plus', has_led: true, lighting_type: 'Retroiluminada', lighting_technology: 'TRILED', light_temp: '3000/4200/6400 K' },
+      ],
+    });
+
+    expect(product.variants).toMatchObject([
+      { version: 'Básica', lightingTechnology: 'LED estándar', lightTemp: '3000 K' },
+      { version: 'Plus', lightingTechnology: 'TRILED', lightTemp: '3000/4200/6400 K' },
+    ]);
+    expect(normalizeProductDetail({ id: 'missing-light', name: 'Missing', slug: 'missing', variants: [{ id: 'v1' }] }).lightingTechnology).toBeUndefined();
   });
 
   it('rejects an unusable list payload instead of treating it as an empty catalog', () => {

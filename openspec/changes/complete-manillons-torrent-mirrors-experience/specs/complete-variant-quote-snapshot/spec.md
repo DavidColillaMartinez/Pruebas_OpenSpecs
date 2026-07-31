@@ -16,7 +16,7 @@ The individual quote request SHALL send the exact selected real variant, includi
 - **THEN** its item can include public attributes such as finish, distribution or other API-provided fields without changing the item contract
 
 ### Requirement: Multi-item-ready quote contract
-The quote payload SHALL retain `items[]` as the collection boundary and SHALL accept multiple complete lines without reducing validation or serialization to a single product. This change SHALL NOT add the future selection basket UI.
+The quote payload SHALL retain `items[]` as the collection boundary and SHALL accept multiple complete lines without reducing validation or serialization to a single product. The joint selection UI SHALL use the same complete item contract.
 
 #### Scenario: Existing individual request
 - **WHEN** the current individual quote form is submitted

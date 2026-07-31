@@ -3,6 +3,7 @@ import { LogoMark } from './LogoMark';
 import { MobileDrawer } from './MobileDrawer';
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
+import { QuoteSelectionLink } from '../features/quote/components/QuoteSelectionLink';
 
 export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,10 +20,10 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
           <a href="#inicio" className="flex items-center gap-3" aria-label="AREA LRMQ DESIGN S.L. inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); setMobileOpen(false); } }}>
             <LogoMark className="h-10 w-10 shrink-0" minimal />
           </a>
-          <button className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-full bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú" aria-expanded={mobileOpen}>
+          <div className="flex items-center gap-2"><QuoteSelectionLink compact tone="dark" /><button className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-full bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú" aria-expanded={mobileOpen}>
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
             <span className={`block h-px w-4 bg-white transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
-          </button>
+          </button></div>
         </div>
         {mobileOpen && <MobileDrawer activeSectionId={activeSectionId} onNavigate={onNavigate} onClose={() => setMobileOpen(false)} />}
       </header>
@@ -50,6 +51,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
           </div>
         </nav>
         <div className="flex items-center justify-self-end gap-3">
+          <QuoteSelectionLink compact tone={isInicio ? 'dark' : 'light'} />
           <a className={`min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-white/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-white/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </div>

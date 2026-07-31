@@ -10,6 +10,9 @@ El catálogo necesita publicar la experiencia completa de Espejos Manillons Torr
 - Publicar tarjetas por modelo, galerías ordenadas por manifiesto y fichas sin precios para los 53 modelos del paquete.
 - Añadir selectores dependientes de medida, acabado y versión que solo puedan formar variantes reales completas y mantengan la galería del modelo inmutable.
 - Enviar a presupuesto la variante actualmente seleccionada con `productId`, `variantId`, referencia y snapshot completo de atributos públicos, manteniendo `items[]` preparado para múltiples líneas.
+- Implementar la selección persistente de presupuesto, con cantidades, deduplicación por `productId + variantId`, revisión de líneas y envío conjunto.
+- Mostrar en la ficha los datos reales de LED, iluminación, tecnología y temperatura de la variante seleccionada.
+- Simplificar visualmente catálogo, tarjetas y galería para que las páginas A4 lleguen limpias, sin fondos o capas superpuestas.
 - Validar el paquete SQL y su secuencia de migración como requisito previo operativo, sin ejecutar el SQL ni asumir que la base de datos ya está migrada.
 
 ## Capabilities
@@ -19,6 +22,8 @@ El catálogo necesita publicar la experiencia completa de Espejos Manillons Torr
 - `manillons-torrent-mirror-discovery`: Contexto de familia, facetas dependientes, opciones compatibles, tarjetas por modelo y conteos del catálogo de Espejos.
 - `manillons-torrent-mirror-detail`: Ficha de producto, variantes completas, selectores dependientes, galerías del manifiesto y ausencia de precios.
 - `complete-variant-quote-snapshot`: Snapshot público y completo de la variante seleccionada dentro del contrato de presupuesto multi-item.
+- `quote-selection-basket`: Selección persistente de variantes, cantidades, revisión y presupuesto conjunto.
+- `minimal-catalog-surface`: Tratamiento visual limpio y responsive para tarjetas, filtros y galerías del catálogo.
 
 ### Modified Capabilities
 

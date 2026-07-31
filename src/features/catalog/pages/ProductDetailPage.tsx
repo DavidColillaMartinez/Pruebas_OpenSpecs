@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getProductBySlug } from '../api/client';
 import type { ProductDetail } from '../model/types';
-import { isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
+import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector } from '../components/ProductVariantSelector';
 import { QuoteRequestForm } from '../../quote/components/QuoteRequestForm';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
+import { buildQuoteRequestItem } from '../../quote/model/payload';
+import { useQuoteSelection } from '../../quote/model/selectionStore';
 
 type DetailState =
   | { status: 'loading' }
@@ -25,9 +27,25 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
+  const [addedMessage, setAddedMessage] = useState('');
+  const { addLine } = useQuoteSelection();
   const variantLabel = selectedUnit?.variantSnapshot && ['dimension', 'finish', 'version', 'distribution'].map((key) => selectedUnit.variantSnapshot?.[key]).filter(Boolean).map(String).join(' · ');
   const galleryImages = isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
-  const specs = Object.entries(product.specs);
+  const selectedSnapshot = buildVariantSnapshot(selectedUnit);
+  const specs = Object.entries(product.specs).filter(([key]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key));
+  const productFacts = [
+    ['LED', selectedSnapshot?.has_led ?? product.hasLed],
+    ['Tipo de iluminación', selectedSnapshot?.lighting_type ?? product.lightingType],
+    ['Tecnología LED', selectedSnapshot?.lighting_technology ?? product.lightingTechnology],
+    ['Temperatura de luz', selectedSnapshot?.light_temp ?? product.lightTemp],
+  ].filter(([, value]) => value !== undefined && value !== '');
+  const selectionFacts = ['dimension', 'finish', 'version'].map((key) => [key, selectedSnapshot?.[key]] as const).filter(([, value]) => value !== undefined && value !== '');
+
+  const addCurrentSelection = () => {
+    if (!selectedUnit) return;
+    const added = addLine(buildQuoteRequestItem(product, selectedUnit, 1));
+    setAddedMessage(added ? 'Añadido al presupuesto.' : 'No se pudo guardar esta variante completa.');
+  };
 
   return (
     <>
@@ -42,16 +60,23 @@ function ProductContent({ product }: { product: ProductDetail }) {
           <div className="mt-8">
             <ProductVariantSelector product={product} onSelectionChange={setSelectedUnit} />
           </div>
-          <div className="mt-8">
+           <div className="mt-8 flex flex-wrap gap-3">
+            <button type="button" disabled={!selectedUnit} onClick={addCurrentSelection} className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 px-5 text-sm font-semibold transition-colors hover:border-ink/60 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Añadir al presupuesto</button>
+            <Link to="/presupuesto" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 px-5 text-sm font-semibold transition-colors hover:border-ink/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Ver presupuesto</Link>
+           </div>
+           {addedMessage && <p className="mt-3 text-sm text-green-800" role="status">{addedMessage}</p>}
+           <div className="mt-8">
             <QuoteRequestForm product={product} unit={selectedUnit} />
-          </div>
+           </div>
         </div>
       </div>
-      {(specs.length > 0 || product.availableFinishes.length > 0 || product.availableMeasures.length > 0) && (
+      {(productFacts.length > 0 || selectionFacts.length > 0 || specs.length > 0 || product.availableFinishes.length > 0 || product.availableMeasures.length > 0) && (
         <section className="mt-14 border-t border-ink/10 pt-8" aria-labelledby="product-details-heading">
           <h2 id="product-details-heading" className="font-display text-3xl">Detalles públicos</h2>
-          <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{String(value)}</dd></div>)}
+           <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+             {productFacts.map(([key, value]) => <div key={String(key)}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
+             {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' ? 'Medida' : key === 'finish' ? 'Acabado' : 'Versión'} seleccionada</dt><dd className="mt-1">{String(value)}</dd></div>)}
+             {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{String(value)}</dd></div>)}
             {product.availableFinishes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Acabados</dt><dd className="mt-1">{product.availableFinishes.join(', ')}</dd></div>}
             {product.availableMeasures.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Medidas</dt><dd className="mt-1">{product.availableMeasures.join(', ')}</dd></div>}
           </dl>

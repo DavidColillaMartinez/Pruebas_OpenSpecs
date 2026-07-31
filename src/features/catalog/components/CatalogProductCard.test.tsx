@@ -9,7 +9,7 @@ const product = {
   name: 'Alba',
   slug: 'mt-espejos-alba',
   brand: 'Manillons Torrent',
-  images: [{ url: 'https://assets.example/alba.webp', alt: 'Espejo Alba', width: 800, height: 600 }],
+  images: [{ url: 'https://assets.example/mt26-esp-alba-i01.webp', alt: 'Espejo Alba', width: 1489, height: 2105 }],
   showPrice: false,
   categoryName: 'Espejos',
 };
@@ -20,6 +20,8 @@ describe('CatalogProductCard', () => {
 
     expect(screen.getByRole('link', { name: /Espejo Alba/ })).toHaveAttribute('href', '/productos/mt-espejos-alba');
     expect(screen.getByRole('img', { name: 'Espejo Alba' })).toHaveAttribute('loading', 'lazy');
+    expect(screen.getByRole('img', { name: 'Espejo Alba' })).toHaveClass('object-contain');
+    expect(screen.getByRole('img', { name: 'Espejo Alba' }).parentElement).not.toHaveClass('bg-stonewash');
     expect(screen.queryByText(/€/)).not.toBeInTheDocument();
   });
 

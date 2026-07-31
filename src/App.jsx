@@ -16,6 +16,8 @@ import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
 import { CatalogPage } from './features/catalog/pages/CatalogPage';
 import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
+import { QuoteSelectionPage } from './features/quote/pages/QuoteSelectionPage';
+import { QuoteSelectionProvider } from './features/quote/model/selectionStore';
 import { NotFoundPage } from './routes/NotFoundPage';
 
 function ChapterDots({ active, labels, onNavigate }) {
@@ -131,12 +133,15 @@ export function LandingPage() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/productos" element={<CatalogPage />} />
-        <Route path="/productos/:slug" element={<ProductDetailPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <QuoteSelectionProvider>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/productos" element={<CatalogPage />} />
+          <Route path="/productos/:slug" element={<ProductDetailPage />} />
+          <Route path="/presupuesto" element={<QuoteSelectionPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </QuoteSelectionProvider>
     </BrowserRouter>
   );
 }

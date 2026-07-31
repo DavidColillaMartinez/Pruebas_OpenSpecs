@@ -12,6 +12,7 @@ describe('catalog variant selection', () => {
     expect(units).toHaveLength(16);
     expect(selectInitialUnit(units)?.variantId).toBe('mt-espejos-alba--v0001');
     expect(getAttributeOptions(units, units[0].attributes).dimension).toEqual(['Ø 60', 'Ø 70', 'Ø 80', 'Ø 100']);
+    expect(units[0].variantSnapshot).toMatchObject({ has_led: false, lighting_type: 'Sin luz', lighting_technology: 'Sin LED' });
   });
 
   it('keeps commercial offer variant IDs persistent', () => {

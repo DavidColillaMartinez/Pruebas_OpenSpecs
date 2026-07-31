@@ -60,7 +60,7 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
             <legend className="w-full">
               <button
                 type="button"
-                className="flex min-h-12 w-full items-center gap-3 rounded-lg border border-ink/10 bg-white/35 px-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-graphite transition-colors duration-200 ease-out hover:border-ink/20 hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+                 className="flex min-h-12 w-full items-center gap-3 border-b border-ink/10 px-1 text-left text-xs font-semibold uppercase tracking-[0.16em] text-graphite transition-colors duration-200 ease-out hover:border-ink/35 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
                 aria-expanded={open}
                 aria-controls={contentId}
                 onClick={() => onToggleGroup(key)}
@@ -170,7 +170,7 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
   return (
     <>
       <aside aria-label="Filtros del catálogo" className="hidden lg:block">
-        <div className="sticky top-6 max-h-[calc(100svh-3rem)] overflow-y-auto overscroll-contain rounded-2xl bg-white/72 p-5 shadow-soft ring-1 ring-ink/5">
+           <div className="sticky top-6 max-h-[calc(100svh-3rem)] overflow-y-auto overscroll-contain border-y border-ink/10 py-5">
           <h2 className="font-display text-2xl">Filtrar</h2>
            <p className="mt-1 text-xs text-graphite">Abre una categoría para explorar sus opciones. Las cantidades siguen la consulta activa cuando hay datos suficientes.</p>
           <div className="mt-6">
@@ -181,7 +181,7 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" role="presentation">
           <button type="button" aria-label="Cerrar filtros" className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onMobileClose} />
-          <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="mobile-filters-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto overscroll-contain bg-porcelain p-6 shadow-lift">
+           <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="mobile-filters-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto overscroll-contain border-l border-ink/10 bg-porcelain p-6">
             <div className="flex items-center justify-between gap-4">
               <h2 id="mobile-filters-heading" className="font-display text-2xl">Filtrar</h2>
               <button ref={closeButtonRef} type="button" onClick={onMobileClose} className="min-h-11 rounded-full px-3 text-sm font-semibold text-graphite underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>

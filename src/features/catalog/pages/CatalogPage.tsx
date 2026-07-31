@@ -141,7 +141,7 @@ export function CatalogPage() {
               </div>
             )}
             {showing > 0 && (
-              <div id="catalog-items" className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+               <div id="catalog-items" className="mt-6 grid gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
                 {data.items.map((product) => <CatalogProductCard key={product.id} product={product} />)}
               </div>
             )}

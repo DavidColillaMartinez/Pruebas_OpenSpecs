@@ -16,12 +16,15 @@ La fuente exige consumir URLs de imagen proporcionadas por la API, conservar el 
 - Representar 53 tarjetas por modelo y fichas con galerías del modelo ordenadas por `sort_order`, sin cambiar la galería al cambiar una variante de Espejos.
 - Seleccionar únicamente variantes reales completas en el orden `dimension`, `finish`, `version`, respetando `sort_order` para los fallbacks.
 - Enviar la línea individual con identidad de producto/variante, referencia y todos los atributos públicos seleccionados, sin cerrar `items[]` a un único elemento.
+- Persistir selecciones completas en `localStorage`, deduplicar por `productId + variantId` y enviar varias líneas desde una página de revisión.
+- Exponer en ficha los datos de iluminación directos de la variante seleccionada, sin reemplazarlos por etiquetas genéricas.
+- Reducir la envolvente visual del catálogo a tipografía, espacio y líneas sutiles, manteniendo la proporción A4 real de las imágenes.
 - Cubrir los casos obligatorios del manifiesto y validar sin POST reales.
 
 **Non-Goals:**
 
 - No ejecutar `mt-espejos-migration.sql`, no migrar la base de datos y no modificar n8n, SQL, proxy o rutas por iniciativa de este cambio.
-- No implementar la cesta futura, `Añadir selección`, `Mis selecciones (N)` ni el presupuesto conjunto.
+- La cesta de presupuesto forma parte de este alcance: no se implementarán pagos, checkout ni precios.
 - No inventar modelos, opciones, combinaciones, rutas de imagen, precios o facetas locales.
 - No modificar la landing, Vision, navegación existente fuera de lo necesario para el catálogo, ni los assets protegidos del repositorio.
 
@@ -67,6 +70,20 @@ Se generalizará la línea de presupuesto para identificar `productId` y `varian
 
 Alternativa considerada: enviar solo un `variantSnapshot` con campos conocidos por Espejos o solo el producto genérico. Se descarta porque pierde identidad y atributos de otras familias y puede construir presupuestos ambiguos.
 
+### Selección persistente y presupuesto conjunto
+
+La selección se gestionará con un provider de React montado por encima de las rutas y un almacenamiento `localStorage` validado al hidratar. Cada línea se construirá con el mismo `buildQuoteRequestItem` que usa el presupuesto individual. El provider sumará cantidades cuando coincida `productId + variantId` y conservará líneas distintas para variantes distintas del mismo producto. La página `/presupuesto` permitirá editar cantidades, eliminar líneas y enviar todas las líneas en `items[]`.
+
+Alternativa considerada: guardar solo IDs y reconstruir el resto al abrir la cesta. Se descarta porque perdería el snapshot exacto si cambia la respuesta de la API o no está disponible al recargar.
+
+### Datos de iluminación de ficha
+
+La normalización aceptará `has_led`, `lighting_type`, `lighting_technology` y `light_temp` tanto a nivel de producto como de variante. La ficha mostrará primero el valor de la unidad seleccionada y solo usará valores de producto o especificaciones API cuando la variante no los publique. Si el GET real no entrega un campo, se omitirá el dato y se dejará constancia del bloqueo, sin derivarlo del slug.
+
+### Superficie visual del catálogo
+
+Las tarjetas y la galería usarán wrappers transparentes, proporción A4 `1489 / 2105`, `object-contain`, separadores finos y espacio tipográfico. Se retirarán fondos, sombras, esquinas y capas decorativas que compitan con las páginas del catálogo. Los paneles de interacción conservarán contraste y foco, pero no se presentarán como una cuadrícula de tarjetas anidadas.
+
 ### Migración operativa separada del frontend
 
 La implementación usará los IDs y campos publicados por la API, pero no ejecutará SQL. La secuencia revisada queda documentada para operación posterior: ejecutar primero el dry-run, verificar IDs/permisos y resultados, ejecutar la migración transaccional, ejecutar `verify.sql`, y hacer rollback no destructivo si las comprobaciones no coinciden. El frontend no incluirá imágenes locales ni asumirá que el SQL ya fue aplicado.
@@ -81,6 +98,8 @@ Alternativa considerada: copiar datos del manifiesto a fixtures de producción o
 - [Riesgo] El contrato de presupuesto existente usa `variantSnapshot` y consumidores externos podrían esperar esa forma. → Mitigación: revisar el contrato del endpoint antes de cambiar nombres; si el backend aún lo requiere, mantener una serialización explícita compatible sin perder `reference` y `selectedAttributes`.
 - [Riesgo] Las imágenes de página completa son pesadas. → Mitigación: conservar WebP y dimensiones del manifiesto, cargar la galería progresivamente y no duplicar imágenes en variantes.
 - [Riesgo] El proxy/API local no está configurado para revisión visual. → Mitigación: validar con fixtures y pruebas unitarias, ejecutar build y dejar la revisión visual real como criterio pendiente si el endpoint no está disponible.
+- [Riesgo] El detalle público devuelve 404 y no permite validar fichas reales en producción. → Mitigación: usar fixtures contractuales para pruebas y no declarar verificada la integración real hasta que se registre el webhook.
+- [Riesgo] `localStorage` contiene líneas antiguas o incompletas. → Mitigación: validar cada línea al hidratar y descartar entradas sin identidad, referencia o atributos seleccionados.
 
 ## Migration Plan
 
@@ -95,3 +114,10 @@ Alternativa considerada: copiar datos del manifiesto a fixtures de producción o
 - ¿El endpoint de presupuesto aceptará `reference` y `selectedAttributes` como campos públicos de cada item, o requiere conservar también `variantSnapshot` por compatibilidad con el workflow actual?
 - ¿La API pública ya está preparada para filtrar y facetar `shape`, `has_led`, `lighting_type` y `finish`, o la habilitación de vistas/workflows debe aprobarse en un cambio operativo independiente?
 - ¿Quién confirma los IDs vigentes, permisos de ejecución y aprobación del `COMMIT` de la migración en el entorno real?
+
+## GET Verification Record
+
+- `GET /webhook/lrmq/catalog/config`: HTTP `200`; devuelve `catalog-api-v1`, `asset_base_url` y `database_ready_for_public_api=true`.
+- `GET /webhook/lrmq/catalog/products?limit=1&offset=0&include_facets=1&category_id=espejos`: HTTP `200`; devuelve Alba y las facetas actuales `brand`, `category`, `collection`, `commercial_mode`, `distribution`, `finish`, `measure`, `product_kind`, `subcategory` y `supplier`. No devuelve las facetas `shape`, `has_led` ni `lighting_type` requeridas por este cambio.
+- `GET /webhook/lrmq/catalog/products/mt-espejos-alba`: HTTP `404`; n8n responde que el webhook de detalle no está registrado/activo.
+- La interfaz implementa el contrato esperado y omite valores ausentes; no deriva esos campos del slug ni inventa opciones en React. La verificación visual y la validación contra detalle real quedan pendientes hasta registrar el workflow y publicar las facetas.

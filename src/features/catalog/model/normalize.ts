@@ -25,6 +25,15 @@ function asString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
+function asBoolean(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') return value;
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLocaleLowerCase();
+  if (['true', 'yes', 'sí', 'si'].includes(normalized)) return true;
+  if (['false', 'no'].includes(normalized)) return false;
+  return undefined;
+}
+
 function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
 }
@@ -87,6 +96,8 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
   const record = asRecord(value);
   const id = asString(record.id);
   if (!id) return null;
+  const attributes = publicAttributes(record.attributes);
+  const rawData = asRecord(record.raw_data);
 
   const rawImages = Array.isArray(record.images)
     ? record.images
@@ -105,9 +116,13 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
     dimension: asString(record.dimension),
     finish: asString(record.finish),
     version: asString(record.version) || asString(asRecord(record.attributes).version) || asString(asRecord(record.attributes).fixed_version) || asString(asRecord(record.raw_data).fixed_version),
+    hasLed: asBoolean(record.has_led ?? record.hasLed ?? attributes.has_led),
+    lightingType: asString(record.lighting_type ?? record.lightingType ?? attributes.lighting_type),
+    lightingTechnology: asString(record.lighting_technology ?? record.lightingTechnology ?? attributes.lighting_technology),
+    lightTemp: asString(record.light_temp ?? record.lightTemp ?? record.light_temperature ?? attributes.light_temp ?? rawData.light_temp),
     distribution: asString(record.distribution),
     finishCode: asString(record.finish_code),
-    attributes: publicAttributes(record.attributes),
+    attributes,
     images: images.length > 0 ? [...new Map(images.map((item) => [item.url, item])).values()] : undefined,
     sortOrder: asNumber(record.sort_order),
   };
@@ -178,6 +193,11 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     ? record.images.map((item) => normalizeImage(item, name, config?.asset_base_url)).filter((item): item is ProductImage => item !== null)
     : [];
   const uniqueImages = orderImages([...new Map(images.map((item) => [item.url, item])).values()]);
+  const specs = publicAttributes(record.specs);
+  const hasLed = asBoolean(record.has_led ?? record.hasLed) ?? asBoolean(specs.LED);
+  const lightingType = asString(record.lighting_type ?? record.lightingType) || asString(specs['Tipo de iluminación']);
+  const lightingTechnology = asString(record.lighting_technology ?? record.lightingTechnology) || asString(specs['Tecnología de iluminación']);
+  const lightTemp = asString(record.light_temp ?? record.lightTemp ?? record.light_temperature) || asString(specs['Temperatura de luz']);
 
   return {
     id,
@@ -191,10 +211,14 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     subcategory: asString(record.subcategory),
     collection: asString(record.collection),
     description: asString(record.description),
-    specs: publicAttributes(record.specs),
+    specs,
     productKind: asString(record.product_kind),
     showPrice: record.show_price === true,
     galleryRule: asString(record.gallery_rule) || asString(asRecord(record.raw_data).gallery_rule) || asString(asRecord(record.specs)['Regla de galería']),
+    hasLed,
+    lightingType,
+    lightingTechnology,
+    lightTemp,
     images: uniqueImages,
     variants: Array.isArray(record.variants)
       ? record.variants.map((item) => normalizeVariant(item, name, config?.asset_base_url)).filter((item): item is ProductVariant => item !== null)
@@ -236,6 +260,10 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       supplierId: product.supplierId,
       supplierName: product.supplierName,
       galleryRule: product.galleryRule,
+      hasLed: product.hasLed,
+      lightingType: product.lightingType,
+      lightingTechnology: product.lightingTechnology,
+      lightTemp: product.lightTemp,
     };
   } catch {
     return null;

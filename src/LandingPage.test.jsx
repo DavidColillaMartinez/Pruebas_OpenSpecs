@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { LandingPage } from './App';
 
@@ -27,6 +27,7 @@ describe('LandingPage narrative lifecycle', () => {
 
     expect(document.body.classList.contains('landing-narrative')).toBe(true);
     expect(document.body.style.background).toBe('rgb(255, 255, 255)');
+    expect(screen.getByRole('link', { name: /Presupuesto, 0 selecciones/ })).toHaveAttribute('href', '/presupuesto');
 
     unmount();
 
