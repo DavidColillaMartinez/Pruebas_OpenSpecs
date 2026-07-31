@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
 import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
-import { CATALOG_RETURN_STORAGE_KEY, getCatalogFilterProfile, ROOT_CATALOG_FILTER_KEYS, MAMPARAS_CATALOG_FILTER_KEYS, type CatalogQueryState } from '../model/catalogQuery';
+import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterKeys, getCatalogFilterProfile, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
 
@@ -41,12 +41,13 @@ export function CatalogPage() {
   const location = useLocation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const filterProfile = getCatalogFilterProfile(query);
-  const visibleFilterKeys = filterProfile === 'mamparas'
-    ? [...ROOT_CATALOG_FILTER_KEYS, ...MAMPARAS_CATALOG_FILTER_KEYS]
-    : ROOT_CATALOG_FILTER_KEYS;
+  const visibleFilterKeys = getCatalogFilterKeys(filterProfile);
   const hasActiveCriteria = Boolean(query.search || Object.values(query.filters).some((values) => values && values.length > 0));
   const sortSupported = new Set(data.sort.supported);
-  const facetLabels = Object.fromEntries(Object.entries(data.facets).flatMap(([key, options]) => options.map((option) => [`${key}:${option.value}`, option.label])));
+  const facetLabels = Object.fromEntries([
+    ...visibleFilterKeys.map((key) => [key, getCatalogFacetLabel(key, filterProfile) || key]),
+    ...Object.entries(data.facets).flatMap(([key, options]) => options.map((option) => [`${key}:${option.value}`, option.label])),
+  ]);
   const showing = data.items.length;
   const isLoadingInitial = data.status === 'loading' && showing === 0;
   const totalLabel = data.total > 0
@@ -103,7 +104,7 @@ export function CatalogPage() {
               </div>
             </div>
 
-            <ActiveFilters query={query} labels={facetLabels} visibleKeys={visibleFilterKeys} onRemove={(key, value) => key === 'search' ? setSearchInput('') : removeFilter(key, value)} />
+             <ActiveFilters query={query} labels={facetLabels} visibleKeys={visibleFilterKeys} onRemove={(key, value) => key === 'search' ? setSearchInput('') : removeFilter(key, value)} />
             {(hasActiveCriteria || query.sort !== 'relevance') && <button type="button" onClick={clearFilters} className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Limpiar filtros</button>}
 
             <div className="mt-10 flex items-end justify-between gap-4">

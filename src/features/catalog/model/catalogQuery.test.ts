@@ -13,6 +13,8 @@ describe('catalog query state', () => {
     expect(getCatalogFilterProfile({ filters: {} })).toBe('root');
     expect(getCatalogFilterProfile({ filters: { category: ['mamparas'] } })).toBe('mamparas');
     expect(getCatalogFilterProfile({ filters: { supplier: ['gme'] } })).toBe('mamparas');
+    expect(getCatalogFilterProfile({ filters: { category: ['espejos'] } })).toBe('espejos');
+    expect(getCatalogFilterProfile({ filters: { supplier: ['manillons-torrent'] } })).toBe('espejos');
   });
 
   it('parses repeated filters and rejects unsupported sort values', () => {
@@ -38,10 +40,10 @@ describe('catalog query state', () => {
   });
 
   it('round-trips repeated distribution filters and sends them to the API', () => {
-    const query = parseCatalogQuery('distribution=2+abatibles&distribution=Fijo+%2B+abatible');
+    const query = parseCatalogQuery('category=mamparas&distribution=2+abatibles&distribution=Fijo+%2B+abatible');
 
     expect(query.filters.distribution).toEqual(['2 abatibles', 'Fijo + abatible']);
-    expect(serializeCatalogQuery(query).toString()).toBe('distribution=2+abatibles&distribution=Fijo+%2B+abatible');
+    expect(serializeCatalogQuery(query).toString()).toBe('category=mamparas&distribution=2+abatibles&distribution=Fijo+%2B+abatible');
     expect(catalogQueryToRequest(query, true).distribution).toEqual(['2 abatibles', 'Fijo + abatible']);
   });
 
@@ -61,6 +63,27 @@ describe('catalog query state', () => {
        category_id: ['cat-a'],
       sort: 'name_asc',
     });
+  });
+
+  it('serializes the Espejos facet contract and removes dependent URL state without context', () => {
+    const query = parseCatalogQuery('shape=Semicircular&has_led=true&lighting_type=Integrada&finish=Negro+mate');
+    expect(query.filters).toEqual({});
+
+    const active = parseCatalogQuery('category=espejos&shape=Semicircular&has_led=true&lighting_type=Integrada&finish=Negro+mate');
+    expect(catalogQueryToRequest(active, true)).toMatchObject({
+      category_id: ['espejos'],
+      shape: ['Semicircular'],
+      has_led: ['true'],
+      lighting_type: ['Integrada'],
+      finish: ['Negro mate'],
+    });
+  });
+
+  it('unions family profiles and keeps a shared dependent filter while one owner remains', () => {
+    expect(getCatalogFilterProfile({ filters: { supplier: ['gme', 'manillons-torrent'] } })).toBe('mixed');
+    const query = parseCatalogQuery('supplier=gme&supplier=manillons-torrent&finish=Negro+mate&shape=Semicircular');
+    expect(query.filters.finish).toEqual(['Negro mate']);
+    expect(query.filters.shape).toEqual(['Semicircular']);
   });
 
   it('resets page when a discovery criterion changes and keys criteria without page', () => {

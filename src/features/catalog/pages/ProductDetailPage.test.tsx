@@ -67,6 +67,8 @@ describe('ProductDetailPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Cargando producto');
     expect(await screen.findByRole('heading', { name: 'Alba' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Medida' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Acabado' })).toBeInTheDocument();
+    expect(screen.queryByText(/\d+[,.]?\d*\s*€/)).not.toBeInTheDocument();
   });
 
   it('renders a product-specific not-found state for the API 200 error object', async () => {
@@ -113,6 +115,27 @@ describe('ProductDetailPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Azul Ocean' }));
 
     await waitFor(() => expect(screen.getByRole('img', { name: /Azul Ocean.*imagen principal/ })).toHaveAttribute('src', variantImage));
+  });
+
+  it('keeps the Manillons Torrent model gallery when the selected finish changes', async () => {
+    const response = {
+      ...alba,
+      images: [
+        { alt: 'Alba', url: 'https://assets.example/mt26-esp-alba-i01.webp', role: 'main', sort_order: 1 },
+        { alt: 'Alba', url: 'https://assets.example/mt26-esp-alba-i02.webp', role: 'gallery', sort_order: 2 },
+      ],
+      variants: alba.variants.map((variant, index) => ({ ...variant, finish: index === 0 ? 'Terracota' : 'Azul atlántico' })),
+      available_finishes: ['Terracota', 'Azul atlántico'],
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail();
+    expect(await screen.findByRole('heading', { name: 'Alba' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', response.images[0].url);
+    fireEvent.click(screen.getByRole('button', { name: 'Azul atlántico' }));
+
+    await waitFor(() => expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', response.images[0].url));
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(2);
   });
 
   it.each([

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getProductBySlug } from '../api/client';
 import type { ProductDetail } from '../model/types';
-import type { SelectableUnit } from '../model/selection';
+import { isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector } from '../components/ProductVariantSelector';
 import { QuoteRequestForm } from '../../quote/components/QuoteRequestForm';
@@ -25,8 +25,8 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
-  const variantLabel = selectedUnit?.variantSnapshot && ['finish', 'distribution', 'dimension'].map((key) => selectedUnit.variantSnapshot?.[key]).filter(Boolean).map(String).join(' · ');
-  const galleryImages = selectedUnit?.images?.length ? selectedUnit.images : product.images;
+  const variantLabel = selectedUnit?.variantSnapshot && ['dimension', 'finish', 'version', 'distribution'].map((key) => selectedUnit.variantSnapshot?.[key]).filter(Boolean).map(String).join(' · ');
+  const galleryImages = isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const specs = Object.entries(product.specs);
 
   return (

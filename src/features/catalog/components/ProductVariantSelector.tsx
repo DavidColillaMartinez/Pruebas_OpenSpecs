@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ProductDetail } from '../model/types';
-import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, isGmeEnclosureProduct, selectEnclosureFinish, selectInitialEnclosureUnit, selectInitialUnit } from '../model/selection';
+import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, isGmeEnclosureProduct, selectCompatibleUnit, selectEnclosureFinish, selectInitialEnclosureUnit, selectInitialUnit } from '../model/selection';
 import type { SelectableUnit } from '../model/selection';
 
 type ProductVariantSelectorProps = {
@@ -11,6 +11,7 @@ type ProductVariantSelectorProps = {
 const labels: Record<string, string> = {
   dimension: 'Medida',
   finish: 'Acabado',
+  version: 'Versión',
   distribution: 'Distribución',
   finishCode: 'Código de acabado',
   offer: 'Oferta',
@@ -24,7 +25,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
   const currentUnit = isGmeEnclosure
     ? findEnclosureUnit(units, selection.finish, selection.distribution) || initialUnit
     : findMatchingUnit(units, selection) || initialUnit;
-  const options = isGmeEnclosure ? getEnclosureAttributeOptions(units, currentUnit?.attributes || selection) : getAttributeOptions(units, selection);
+  const options = isGmeEnclosure ? getEnclosureAttributeOptions(units, currentUnit?.attributes || selection) : getAttributeOptions(units, selection, product.configurationFields);
 
   useEffect(() => {
     setSelection(initialUnit?.attributes || {});
@@ -60,10 +61,10 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                         if (nextUnit) setSelection(nextUnit.attributes);
                         return;
                       }
-                      const nextSelection = { ...selection, [key]: value };
-                      if (key === 'finish') delete nextSelection.finishCode;
-                      const nextUnit = findMatchingUnit(units, nextSelection);
-                      setSelection(nextUnit?.attributes || nextSelection);
+                       const nextSelection = { ...selection, [key]: value };
+                       if (key === 'finish') delete nextSelection.finishCode;
+                       const nextUnit = selectCompatibleUnit(units, nextSelection, key);
+                       setSelection(nextUnit?.attributes || nextSelection);
                     }}
                   >
                     {value}

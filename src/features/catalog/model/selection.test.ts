@@ -2,16 +2,16 @@ import { describe, expect, it } from 'vitest';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { normalizeProductDetail } from './normalize';
-import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, selectEnclosureFinish, selectInitialUnit } from './selection';
+import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, selectCompatibleUnit, selectEnclosureFinish, selectInitialUnit } from './selection';
 
 describe('catalog variant selection', () => {
   it('uses the first real Alba variant without generating combinations', () => {
     const product = normalizeProductDetail(alba);
     const units = getSelectableUnits(product);
 
-    expect(units).toHaveLength(4);
+    expect(units).toHaveLength(16);
     expect(selectInitialUnit(units)?.variantId).toBe('mt-espejos-alba--v0001');
-    expect(getAttributeOptions(units, units[0].attributes).dimension).toEqual(['Ø60', 'Ø70', 'Ø80', 'Ø100']);
+    expect(getAttributeOptions(units, units[0].attributes).dimension).toEqual(['Ø 60', 'Ø 70', 'Ø 80', 'Ø 100']);
   });
 
   it('keeps commercial offer variant IDs persistent', () => {
@@ -38,6 +38,25 @@ describe('catalog variant selection', () => {
 
     expect(getAttributeOptions(units, { finish: 'Rojo' }).dimension).toEqual(['A']);
     expect(findMatchingUnit(units, { finish: 'Rojo', dimension: 'B' })).toBeNull();
+  });
+
+  it('keeps real dimension, finish and version combinations with sort-order fallback', () => {
+    const product = normalizeProductDetail({
+      id: 'mt-espejos-retro',
+      name: 'Retro',
+      slug: 'mt-espejos-retro',
+      supplier_id: 'manillons-torrent',
+      category_id: 'espejos',
+      variants: [
+        { id: 'retro-basic-small', dimension: 'Ø 60', finish: 'Único', version: 'Básica', reference: 'RETRO-1', sort_order: 1 },
+        { id: 'retro-plus-small', dimension: 'Ø 60', finish: 'Único', version: 'Plus', reference: 'RETRO-2', sort_order: 2 },
+        { id: 'retro-plus-large', dimension: 'Ø 80', finish: 'Único', version: 'Plus', reference: 'RETRO-3', sort_order: 3 },
+      ],
+    });
+    const units = getSelectableUnits(product);
+
+    expect(Object.keys(getAttributeOptions(units, units[0].attributes))).toEqual(['dimension', 'finish', 'version']);
+    expect(selectCompatibleUnit(units, { dimension: 'Ø 80', finish: 'Único', version: 'Básica' }, 'dimension')?.variantId).toBe('retro-plus-large');
   });
 
   it('keeps GME finish and distribution combinations tied to real units', () => {

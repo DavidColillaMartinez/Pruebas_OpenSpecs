@@ -11,6 +11,7 @@ function Harness() {
     <>
       <input aria-label="Buscar" value={discovery.searchInput} onChange={(event) => discovery.setSearchInput(event.target.value)} />
       <button type="button" onClick={() => discovery.setFilter('category', 'cat-a', true)}>Aplicar categoría</button>
+      <button type="button" onClick={() => discovery.setFilter('category', 'espejos', false)}>Quitar Espejos</button>
       <button type="button" onClick={() => navigate(-1)}>Atrás</button>
       <button type="button" onClick={() => navigate(1)}>Adelante</button>
       <button type="button" onClick={discovery.retry}>Reintentar</button>
@@ -113,5 +114,30 @@ describe('useCatalogDiscovery', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }));
     await waitFor(() => expect(screen.getByTestId('count')).toHaveTextContent('2'));
+  });
+
+  it('clears Espejos dependent URL criteria when its last activator is removed', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: {
+        category: [{ value: 'espejos', label: 'Espejos', count: 1 }],
+        supplier: [{ value: 'manillons-torrent', label: 'Manillons Torrent', count: 1 }],
+        subcategory: [{ value: 'Circular', label: 'Circular', count: 1 }],
+        collection: [{ value: 'Alba', label: 'Alba', count: 1 }],
+        shape: [{ value: 'Circular', label: 'Circular', count: 1 }],
+        has_led: [{ value: 'false', label: 'No', count: 1 }],
+        lighting_type: [{ value: 'Sin luz', label: 'Sin luz', count: 1 }],
+        finish: [{ value: 'Terracota', label: 'Terracota', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    }), { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos?category=espejos&shape=Circular']}><Harness /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByTestId('url')).toHaveTextContent('shape=Circular'));
+    fireEvent.click(screen.getByRole('button', { name: 'Quitar Espejos' }));
+
+    await waitFor(() => expect(screen.getByTestId('url')).not.toHaveTextContent('shape=Circular'));
+    expect(screen.getByTestId('url')).not.toHaveTextContent('category=espejos');
   });
 });

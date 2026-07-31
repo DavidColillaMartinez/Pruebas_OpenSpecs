@@ -6,9 +6,11 @@ import type { CatalogFacetKey, CatalogFacetOption, CatalogFacets, CatalogSortMet
 import {
   catalogQueryKey,
   catalogQueryToRequest,
-  DEPENDENT_CATALOG_FILTER_KEYS,
+  getCatalogFilterKeys,
+  getCatalogFilterProfile,
   ROOT_CATALOG_FILTER_KEYS,
   parseCatalogQuery,
+  pruneCatalogFilters,
   serializeCatalogQuery,
   withCatalogQueryChange,
   type CatalogFilters,
@@ -68,6 +70,13 @@ function errorMessage(error: unknown): string {
 
 function hasFacets(facets: CatalogFacets): boolean {
   return Object.keys(facets).length > 0;
+}
+
+function hasRequiredFacets(facets: CatalogFacets, query: CatalogQueryState): boolean {
+  const profile = getCatalogFilterProfile(query);
+  if (profile === 'root') return ROOT_CATALOG_FILTER_KEYS.some((key) => Array.isArray(facets[key]));
+  const requiredKeys = getCatalogFilterKeys(profile);
+  return requiredKeys.every((key) => Array.isArray(facets[key]));
 }
 
 function createItemCache(key: string): ItemCache {
@@ -130,7 +139,7 @@ function getFacets(cache: ItemCache, facetCache: FacetCache, globalFacetCache: F
   );
   return {
     ...rootFacets,
-    ...pickFacetKeys(activeFacets, DEPENDENT_CATALOG_FILTER_KEYS),
+    ...pickFacetKeys(activeFacets, getCatalogFilterKeys(getCatalogFilterProfile(query)).filter((key) => !ROOT_CATALOG_FILTER_KEYS.includes(key))),
   };
 }
 
@@ -157,7 +166,7 @@ async function loadFacetUniverse(cache: FacetCache, query: CatalogQueryState, si
     const response = await getProducts({ ...catalogQueryToRequest(query, true), limit: requestedLimit, offset }, null, { signal });
     if (isCancelled()) return;
 
-    if (hasFacets(response.facets)) {
+    if (hasRequiredFacets(response.facets, query)) {
       cache.facets = response.facets;
       cache.status = 'success';
       return;
@@ -170,7 +179,9 @@ async function loadFacetUniverse(cache: FacetCache, query: CatalogQueryState, si
     offset += step;
   }
 
-  cache.facets = deriveCatalogFacets([...cache.items.values()]);
+  cache.facets = getCatalogFilterProfile(query) === 'root'
+    ? deriveCatalogFacets([...cache.items.values()])
+    : pickFacetKeys(deriveCatalogFacets([...cache.items.values()]), ROOT_CATALOG_FILTER_KEYS);
   cache.status = 'success';
 }
 
@@ -305,7 +316,7 @@ export function useCatalogDiscovery() {
           cache.pages.add(page);
           cache.total = response.pagination.total;
           if (response.sort.supported.length > 0 || response.sort.applied) cache.sort = response.sort;
-          if (hasFacets(response.facets)) cache.serverFacets = response.facets;
+           if (hasRequiredFacets(response.facets, currentQuery)) cache.serverFacets = response.facets;
           const items = sortItems([...cache.items.values()], cache.sort);
           const facets = getFacets(cache, facetCache, globalFacetCacheRef.current, currentQuery);
           setData({
@@ -349,10 +360,8 @@ export function useCatalogDiscovery() {
       : checked ? [...current, value] : current.filter((item) => item !== value);
     const filters: CatalogFilters = { ...query.filters, [key]: [...new Set(values)] };
     if (filters[key]?.length === 0) delete filters[key];
-    if (key === 'category' || key === 'supplier') {
-      DEPENDENT_CATALOG_FILTER_KEYS.forEach((dependentKey) => delete filters[dependentKey]);
-    }
-    updateQuery(withCatalogQueryChange(query, { filters }));
+    const sanitizedFilters = pruneCatalogFilters(filters);
+    updateQuery(withCatalogQueryChange(query, { filters: sanitizedFilters }));
   };
 
   const removeFilter = (key: CatalogFacetKey, value: string) => setFilter(key, value, false);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
+import { MANILLONS_TORRENT_REQUIRED_MODELS } from '../api/fixtures/manillons-torrent-contract';
 import { normalizeProductDetail, normalizeProductList, resolveAssetUrl } from './normalize';
 
 describe('product normalization', () => {
@@ -8,8 +9,8 @@ describe('product normalization', () => {
     const product = normalizeProductDetail(alba);
 
     expect(product.images[0].url).toMatch(/^https:\/\//);
-    expect(product.variants).toHaveLength(4);
-    expect(product.variants[0]).toMatchObject({ dimension: 'Ø60', reference: '7195' });
+    expect(product.variants).toHaveLength(16);
+    expect(product.variants[0]).toMatchObject({ dimension: 'Ø 60', finish: 'Terracota', reference: '7195' });
     expect(product).not.toHaveProperty('source_page');
     expect(product).not.toHaveProperty('quality_status');
   });
@@ -128,7 +129,53 @@ describe('product normalization', () => {
     expect(response.facets.distribution).toEqual([{ value: '2 abatibles', label: '2 abatibles', count: 1 }]);
   });
 
+  it('normalizes Espejos shape, LED and lighting facets from API values', () => {
+    const response = normalizeProductList({
+      items: [{ id: 'mt-espejos-hula', name: 'Hula', slug: 'mt-espejos-hula', images: [], show_price: false }],
+      pagination: { limit: 24, offset: 0, total: 1 },
+      facets: {
+        shapes: [{ value: 'Semicircular', label: 'Semicircular', count: 1 }],
+        has_led: [{ value: true, label: 'Sí', count: 1 }, { value: false, label: 'No', count: 0 }],
+        lighting_types: [{ value: 'Integrada', label: 'Integrada', count: 1 }],
+        finishes: [{ value: 'Negro mate', label: 'Negro mate', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.facets.shape).toEqual([{ value: 'Semicircular', label: 'Semicircular', count: 1 }]);
+    expect(response.facets.has_led).toEqual([
+      { value: 'true', label: 'Sí', count: 1 },
+      { value: 'false', label: 'No', count: 0 },
+    ]);
+    expect(response.facets.lighting_type).toEqual([{ value: 'Integrada', label: 'Integrada', count: 1 }]);
+    expect(response.facets.finish).toEqual([{ value: 'Negro mate', label: 'Negro mate', count: 1 }]);
+  });
+
+  it('excludes prices and technical source fields from public specs', () => {
+    const product = normalizeProductDetail({
+      id: 'mt-espejos-nova',
+      name: 'Nova',
+      slug: 'mt-espejos-nova',
+      specs: { LED: 'Sí', Precio: '100 €', source_page: 57 },
+      variants: [{ id: 'nova-1', reference: 'NOVA-1', attributes: { source_page: 57, price_eur: 100, version: 'Básica' } }],
+    });
+
+    expect(product.specs).toEqual({ LED: 'Sí' });
+    expect(product.variants[0].attributes).toEqual({ version: 'Básica' });
+  });
+
   it('rejects an unusable list payload instead of treating it as an empty catalog', () => {
     expect(() => normalizeProductList({ pagination: { total: 0 } })).toThrow('PRODUCT_LIST_CONTRACT_INVALID');
+  });
+
+  it('keeps the required model contract from the Manillons Torrent manifest', () => {
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS).toHaveLength(7);
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'basic')).toMatchObject({ mirrorType: 'Canto recto', hasLed: false, finishCount: 1, measureCount: 5, imageCount: 2 });
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'alba')).toMatchObject({ mirrorType: 'Circular', hasLed: false, finishCount: 4, measureCount: 4, imageCount: 2 });
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'retro')).toMatchObject({ lighting: 'Retroiluminada', versions: ['Básica', 'Plus'] });
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'nova')).toMatchObject({ lighting: 'Frontal', finishCount: 3, measureCount: 4, imageCount: 4 });
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'tango')).toMatchObject({ lighting: 'Integrada', finishCount: 3, measureCount: 4, imageCount: 4 });
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'hula')).toMatchObject({ mirrorType: 'Circular', shape: 'Semicircular' });
+    expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'swing')).toMatchObject({ pages: [158, 159] });
   });
 });

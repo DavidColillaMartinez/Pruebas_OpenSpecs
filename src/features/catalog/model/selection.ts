@@ -11,10 +11,11 @@ function variantAttributes(variant: ProductVariant): Record<string, string> {
     Object.entries({
       dimension: variant.dimension,
       finish: variant.finish,
+      version: variant.version,
       distribution: variant.distribution,
       finishCode: variant.finishCode,
       ...variant.attributes,
-    }).filter(([, value]) => typeof value === 'string' && value.length > 0)
+    }).filter(([key, value]) => typeof value === 'string' && value.length > 0 && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))
   ) as Record<string, string>;
 }
 
@@ -28,6 +29,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
       reference: variant.reference,
       dimension: variant.dimension,
       finish: variant.finish,
+      version: variant.version,
       distribution: variant.distribution,
       finishCode: variant.finishCode,
       ...variant.attributes,
@@ -45,7 +47,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
       commercialOfferVariantId: offerVariant.id,
       quantity: 1,
       productName: product.name,
-      variantSnapshot: {
+       variantSnapshot: {
         reference: offerVariant.reference,
         finish: offerVariant.finishName,
         finishCode: offerVariant.finishCode,
@@ -72,9 +74,11 @@ export function selectInitialEnclosureUnit(units: SelectableUnit[]): SelectableU
   return selectInitialUnit(units.filter((unit) => unit.attributes.finish?.toLocaleLowerCase() !== 'aluminio'));
 }
 
-export function getAttributeOptions(units: SelectableUnit[], current: Record<string, string>): Record<string, string[]> {
-  const keys = [...new Set(units.flatMap((unit) => Object.keys(unit.attributes)))];
-  const visibleKeys = keys.filter((key) => key !== 'finishCode' || !keys.includes('finish'));
+export function getAttributeOptions(units: SelectableUnit[], current: Record<string, string>, configurationFields?: string[]): Record<string, string[]> {
+  const configuredKeys = configurationFields?.filter((key) => ['dimension', 'finish', 'version'].includes(key));
+  const keys = (configuredKeys?.length ? configuredKeys : ['dimension', 'finish', 'version'])
+    .filter((key) => units.some((unit) => unit.attributes[key]));
+  const visibleKeys = keys;
   const selectionKeys = Object.keys(current).filter((key) => key !== 'finishCode' || !keys.includes('finish'));
   return Object.fromEntries(visibleKeys.map((key) => {
     const options = [...new Set(units
@@ -83,6 +87,19 @@ export function getAttributeOptions(units: SelectableUnit[], current: Record<str
       .filter(Boolean))];
     return [key, options];
   }));
+}
+
+export function selectCompatibleUnit(units: SelectableUnit[], selection: Record<string, string>, changedKey?: string): SelectableUnit | null {
+  const exact = findMatchingUnit(units, selection);
+  if (exact) return exact;
+  const changedValue = changedKey ? selection[changedKey] : undefined;
+  const candidates = changedKey && changedValue
+    ? units.filter((unit) => unit.attributes[changedKey] === changedValue)
+    : units;
+  const preserved = candidates.filter((unit) => Object.entries(selection)
+    .filter(([key]) => key !== changedKey)
+    .every(([key, value]) => unit.attributes[key] === value));
+  return [...(preserved.length > 0 ? preserved : candidates)].sort((a, b) => a.sourceOrder - b.sourceOrder)[0] || null;
 }
 
 export function isGmeEnclosureProduct(product: ProductDetail): boolean {
@@ -132,7 +149,11 @@ export function findMatchingUnit(units: SelectableUnit[], selection: Record<stri
 
 export function buildVariantSnapshot(unit: SelectableUnit | null): VariantSnapshot | undefined {
   if (!unit) return undefined;
-  return Object.fromEntries(Object.entries(unit.variantSnapshot || {}).filter(([, value]) => value !== undefined && value !== ''));
+  return Object.fromEntries(Object.entries(unit.variantSnapshot || {}).filter(([key, value]) => value !== undefined && value !== '' && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key)));
+}
+
+export function isManillonsMirrorProduct(product: ProductDetail): boolean {
+  return product.supplierId?.toLocaleLowerCase() === 'manillons-torrent' && product.categoryId?.toLocaleLowerCase() === 'espejos';
 }
 
 export type { SelectableUnit };

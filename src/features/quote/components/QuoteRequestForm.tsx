@@ -62,6 +62,7 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
     if (form.message.length > 5000) errors.message = 'El mensaje no puede superar 5000 caracteres.';
     if (form.quantity < 1 || form.quantity > 999 || !Number.isInteger(form.quantity)) errors.quantity = 'La cantidad debe estar entre 1 y 999.';
     if (!form.consentPrivacy) errors.consentPrivacy = 'Debes aceptar la política de privacidad.';
+    if (!unit) errors.selection = 'Selecciona una variante completa antes de solicitar presupuesto.';
     return errors;
   }
 
@@ -148,6 +149,7 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
           <textarea id="quote-message" rows={4} value={form.message} onChange={(event) => updateField('message', event.target.value)} aria-invalid={Boolean(fieldErrors.message)} aria-describedby={fieldErrors.message ? 'quote-message-error' : undefined} className="mt-1 w-full rounded-lg border border-ink/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
           {fieldErrors.message && <p id="quote-message-error" className="mt-1 text-sm text-red-700">{fieldErrors.message}</p>}
         </div>
+        {fieldErrors.selection && <p className="text-sm text-red-700">{fieldErrors.selection}</p>}
         <label className="flex items-start gap-2 text-sm text-graphite">
           <input type="checkbox" checked={form.consentPrivacy} onChange={(event) => updateField('consentPrivacy', event.target.checked)} aria-invalid={Boolean(fieldErrors.consentPrivacy)} aria-describedby={fieldErrors.consentPrivacy ? 'quote-consent-error' : undefined} className="mt-1" />
           Acepto la política de privacidad.

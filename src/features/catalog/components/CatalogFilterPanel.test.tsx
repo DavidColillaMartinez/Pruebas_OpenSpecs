@@ -133,4 +133,36 @@ describe('CatalogFilterPanel', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Distribución' }));
     expect(within(dialog).getByRole('checkbox', { name: /Distribución 10/ })).toBeChecked();
   });
+
+  it('orders all Espejos facets and hides zero-result options', () => {
+    render(
+      <CatalogFilterPanel
+        facets={{
+          finish: [{ value: 'Negro', label: 'Negro', count: 4 }],
+          lighting_type: [{ value: 'Integrada', label: 'Integrada', count: 4 }],
+          has_led: [{ value: 'true', label: 'Sí', count: 4 }, { value: 'false', label: 'No', count: 0 }],
+          shape: [{ value: 'Semicircular', label: 'Semicircular', count: 4 }],
+          collection: [{ value: 'Hula', label: 'Hula', count: 1 }],
+          subcategory: [{ value: 'Circular', label: 'Circular', count: 4 }],
+        }}
+        filters={{}}
+        profile="espejos"
+        mobileOpen
+        onMobileClose={() => undefined}
+        onToggle={() => undefined}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    expect([...dialog.querySelectorAll('fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
+      'Tipo de espejo+',
+      'Modelo+',
+      'Forma+',
+      'LED+',
+      'Tipo de iluminación+',
+      'Acabado+',
+    ]);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'LED' }));
+    expect(within(dialog).queryByRole('checkbox', { name: 'No' })).not.toBeInTheDocument();
+  });
 });

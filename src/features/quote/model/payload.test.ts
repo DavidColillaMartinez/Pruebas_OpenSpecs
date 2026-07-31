@@ -17,7 +17,27 @@ describe('quote request payload', () => {
       productName: 'Alba',
       notes: 'Consultar plazo',
     });
-    expect(item.variantSnapshot).not.toHaveProperty('source_page');
+    expect(item.reference).toBe('7195');
+    expect(item.selectedAttributes).toMatchObject({ dimension: 'Ø 60', finish: 'Terracota' });
+    expect(item.variantSnapshot).toMatchObject({ reference: '7195', dimension: 'Ø 60' });
+    expect(item.selectedAttributes).not.toHaveProperty('source_page');
+  });
+
+  it('preserves multiple complete items without reducing the payload to one line', () => {
+    const product = normalizeProductDetail(alba);
+    const units = getSelectableUnits(product);
+    const first = buildQuoteRequestItem(product, units[0], 1);
+    const second = buildQuoteRequestItem(product, units[5], 2);
+    const errors = validateQuoteRequest({
+      customerName: 'Ana',
+      email: 'ana@example.com',
+      consentPrivacy: true,
+      items: [first, second],
+    });
+
+    expect(errors).toEqual({});
+    expect([first, second]).toHaveLength(2);
+    expect(second.selectedAttributes).toMatchObject({ dimension: 'Ø 70', finish: 'Azul atlántico' });
   });
 
   it('rejects missing contact, invalid quantity and oversized fields', () => {

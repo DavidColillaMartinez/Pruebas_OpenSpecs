@@ -13,6 +13,9 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'subcategory',
   'collection',
   'distribution',
+  'shape',
+  'has_led',
+  'lighting_type',
   'product_kind',
   'finish',
   'measure',
@@ -20,9 +23,43 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
 
 export const ROOT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['category', 'supplier'];
 export const MAMPARAS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'distribution', 'finish'];
-export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = CATALOG_FILTER_KEYS.filter((key) => !ROOT_CATALOG_FILTER_KEYS.includes(key));
+export const ESPEJOS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'shape', 'has_led', 'lighting_type', 'finish'];
+export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = [...new Set([...MAMPARAS_CATALOG_FILTER_KEYS, ...ESPEJOS_CATALOG_FILTER_KEYS])];
 
-export type CatalogFilterProfile = 'root' | 'mamparas';
+export type CatalogFamilyId = 'mamparas' | 'espejos';
+export type CatalogFilterProfile = 'root' | CatalogFamilyId | 'mixed';
+
+export type CatalogFamilyProfile = {
+  id: CatalogFamilyId;
+  categories: string[];
+  suppliers: string[];
+  facetKeys: CatalogFacetKey[];
+  labels: Partial<Record<CatalogFacetKey, string>>;
+};
+
+export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
+  {
+    id: 'mamparas',
+    categories: ['mamparas'],
+    suppliers: ['gme'],
+    facetKeys: MAMPARAS_CATALOG_FILTER_KEYS,
+    labels: { subcategory: 'Tipo', collection: 'Modelo' },
+  },
+  {
+    id: 'espejos',
+    categories: ['espejos'],
+    suppliers: ['manillons-torrent'],
+    facetKeys: ESPEJOS_CATALOG_FILTER_KEYS,
+    labels: {
+      subcategory: 'Tipo de espejo',
+      collection: 'Modelo',
+      shape: 'Forma',
+      has_led: 'LED',
+      lighting_type: 'Tipo de iluminación',
+      finish: 'Acabado',
+    },
+  },
+];
 
 const requestFilterKeys: Partial<Record<CatalogFacetKey, string>> = {
   category: 'category_id',
@@ -64,11 +101,49 @@ function valuesForFilter(key: CatalogFacetKey, values: string[]): string[] {
 }
 
 export function getCatalogFilterProfile(query: Pick<CatalogQueryState, 'filters'>): CatalogFilterProfile {
-  const categoryValues = query.filters.category || [];
-  const supplierValues = query.filters.supplier || [];
-  const hasMamparasCategory = categoryValues.some((value) => value.toLocaleLowerCase() === 'mamparas');
-  const hasGmeSupplier = supplierValues.some((value) => value.toLocaleLowerCase() === 'gme');
-  return hasMamparasCategory || hasGmeSupplier ? 'mamparas' : 'root';
+  const families = getActiveCatalogFamilies(query);
+  if (families.length === 0) return 'root';
+  return families.length === 1 ? families[0] : 'mixed';
+}
+
+export function getActiveCatalogFamilies(query: Pick<CatalogQueryState, 'filters'>): CatalogFamilyId[] {
+  const categoryValues = (query.filters.category || []).map((value) => value.toLocaleLowerCase());
+  const supplierValues = (query.filters.supplier || []).map((value) => value.toLocaleLowerCase());
+  return CATALOG_FAMILY_PROFILES
+    .filter((profile) => profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
+    .map((profile) => profile.id);
+}
+
+export function getCatalogFilterKeys(profile: CatalogFilterProfile): CatalogFacetKey[] {
+  if (profile === 'root') return ROOT_CATALOG_FILTER_KEYS;
+  const families = profile === 'mixed' ? CATALOG_FAMILY_PROFILES : CATALOG_FAMILY_PROFILES.filter((item) => item.id === profile);
+  return [...new Set([...
+    ROOT_CATALOG_FILTER_KEYS,
+    ...families.flatMap((family) => family.facetKeys),
+  ])];
+}
+
+export function getCatalogFacetLabel(key: CatalogFacetKey, profile: CatalogFilterProfile): string | undefined {
+  const genericLabels: Partial<Record<CatalogFacetKey, string>> = {
+    subcategory: 'Tipo',
+    collection: 'Modelo',
+    finish: 'Acabado',
+  };
+  const families = profile === 'mixed'
+    ? CATALOG_FAMILY_PROFILES
+    : CATALOG_FAMILY_PROFILES.filter((item) => item.id === profile);
+  if (profile === 'mixed' && genericLabels[key]) return genericLabels[key];
+  const labels = [...new Set(families.map((family) => family.labels[key]).filter((label): label is string => Boolean(label)))];
+  return labels.length === 1 ? labels[0] : genericLabels[key];
+}
+
+export function pruneCatalogFilters(filters: CatalogFilters): CatalogFilters {
+  const activeFamilies = getActiveCatalogFamilies({ filters });
+  const ownedKeys = new Set(activeFamilies.flatMap((familyId) => CATALOG_FAMILY_PROFILES.find((profile) => profile.id === familyId)?.facetKeys || []));
+  return Object.fromEntries(Object.entries(filters).filter(([key, values]) => {
+    if (!values?.length) return false;
+    return ROOT_CATALOG_FILTER_KEYS.includes(key as CatalogFacetKey) || ownedKeys.has(key as CatalogFacetKey);
+  })) as CatalogFilters;
 }
 
 function readParams(input: URLSearchParams | string): URLSearchParams {
@@ -88,12 +163,13 @@ export function parseCatalogQuery(input: URLSearchParams | string, sortMetadata?
     const values = valuesForFilter(key, params.getAll(key));
     if (values.length > 0) filters[key] = values;
   });
+  const sanitizedFilters = pruneCatalogFilters(filters);
 
   const pageValue = Number(params.get('page'));
 
   return {
     search: params.get('search')?.trim() || '',
-    filters,
+    filters: sanitizedFilters,
     sort,
     page: Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1,
   };
@@ -138,7 +214,7 @@ export function withCatalogQueryChange(query: CatalogQueryState, change: Partial
   return {
     ...query,
     ...change,
-    filters: change.filters ?? query.filters,
+    filters: pruneCatalogFilters(change.filters ?? query.filters),
     page: change.page ?? 1,
   };
 }

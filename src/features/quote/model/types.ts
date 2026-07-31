@@ -2,9 +2,11 @@ export type QuoteRequestItem = {
   productId: string;
   variantId?: string;
   commercialOfferVariantId?: string;
+  reference?: string;
   quantity: number;
   productName: string;
-  variantSnapshot?: Record<string, unknown>;
+  selectedAttributes?: Record<string, string | number | boolean>;
+  variantSnapshot?: Record<string, string | number | boolean | undefined>;
   notes?: string;
 };
 

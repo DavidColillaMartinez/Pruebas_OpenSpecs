@@ -135,6 +135,61 @@ describe('CatalogPage', () => {
     expect(screen.queryByRole('button', { name: 'Tipo de producto' })).not.toBeInTheDocument();
   });
 
+  it('activates the Espejos profile from category with its API facet order', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: {
+        category: [{ value: 'espejos', label: 'Espejos', count: 53 }],
+        supplier: [{ value: 'manillons-torrent', label: 'Manillons Torrent', count: 53 }],
+        subcategory: [{ value: 'Circular', label: 'Circular', count: 15 }],
+        collection: [{ value: 'Alba', label: 'Alba', count: 1 }],
+        shape: [{ value: 'Circular', label: 'Circular', count: 15 }],
+        has_led: [{ value: 'false', label: 'No', count: 21 }],
+        lighting_type: [{ value: 'Sin luz', label: 'Sin luz', count: 21 }],
+        finish: [{ value: 'Negro mate', label: 'Negro mate', count: 17 }],
+      },
+      sort: { supported: ['relevance'] },
+    }), { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos?category=espejos']}><CatalogPage /></MemoryRouter>);
+    const dialog = screen.getByRole('region', { name: 'Resultados' });
+    expect(await screen.findByRole('button', { name: 'Tipo de espejo' })).toBeInTheDocument();
+    expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
+      'Categoría+',
+      'Proveedor+',
+      'Tipo de espejo+',
+      'Modelo+',
+      'Forma+',
+      'LED+',
+      'Tipo de iluminación+',
+      'Acabado+',
+    ]);
+    expect(dialog).toBeInTheDocument();
+  });
+
+  it('activates the Espejos profile from supplier without requiring category', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: {
+        category: [{ value: 'espejos', label: 'Espejos', count: 53 }],
+        supplier: [{ value: 'manillons-torrent', label: 'Manillons Torrent', count: 53 }],
+        subcategory: [{ value: 'Circular', label: 'Circular', count: 15 }],
+        collection: [{ value: 'Alba', label: 'Alba', count: 1 }],
+        shape: [{ value: 'Circular', label: 'Circular', count: 15 }],
+        has_led: [{ value: 'false', label: 'No', count: 21 }],
+        lighting_type: [{ value: 'Sin luz', label: 'Sin luz', count: 21 }],
+        finish: [{ value: 'Negro mate', label: 'Negro mate', count: 17 }],
+      },
+      sort: { supported: ['relevance'] },
+    }), { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos?supplier=manillons-torrent']}><CatalogPage /></MemoryRouter>);
+    expect(await screen.findByRole('button', { name: 'Tipo de espejo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Acabado' })).toBeInTheDocument();
+  });
+
   it('exposes a distinct store masthead and skip-to-results landmark', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
       items: [],

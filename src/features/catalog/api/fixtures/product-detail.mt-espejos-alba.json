@@ -3,23 +3,51 @@
   "name": "Alba",
   "slug": "mt-espejos-alba",
   "brand": "Manillons Torrent",
-  "specs": {},
+  "specs": {
+    "LED": "No",
+    "Forma": "Circular",
+    "Tipo de espejo": "Circular",
+    "Tipo de iluminación": "Sin luz",
+    "Tecnología de iluminación": "Sin LED",
+    "Regla de galería": "Galería del modelo; no varía por acabado, medida o versión"
+  },
   "images": [
     {
       "alt": "Alba",
-      "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/manillons_espejos/alba.webp",
-      "path": "images/manillons_espejos/alba.webp",
+      "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/manillons_espejos/mt26-esp-alba-i01.webp",
+      "path": "images/manillons_espejos/mt26-esp-alba-i01.webp",
       "role": "main",
-      "width": 834,
-      "height": 1179,
+      "width": 1489,
+      "height": 2105,
       "sort_order": 1
+    },
+    {
+      "alt": "Alba",
+      "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/manillons_espejos/mt26-esp-alba-i02.webp",
+      "path": "images/manillons_espejos/mt26-esp-alba-i02.webp",
+      "role": "gallery",
+      "width": 1489,
+      "height": 2105,
+      "sort_order": 2
     }
   ],
   "variants": [
-    { "id": "mt-espejos-alba--v0001", "dimension": "Ø60", "reference": "7195", "attributes": {}, "sort_order": 1 },
-    { "id": "mt-espejos-alba--v0002", "dimension": "Ø70", "reference": "7196", "attributes": {}, "sort_order": 2 },
-    { "id": "mt-espejos-alba--v0003", "dimension": "Ø80", "reference": "7197", "attributes": {}, "sort_order": 3 },
-    { "id": "mt-espejos-alba--v0004", "dimension": "Ø100", "reference": "7199", "attributes": {}, "sort_order": 4 }
+    { "id": "mt-espejos-alba--v0001", "dimension": "Ø 60", "finish": "Terracota", "reference": "7195", "attributes": {}, "sort_order": 1 },
+    { "id": "mt-espejos-alba--v0002", "dimension": "Ø 60", "finish": "Azul atlántico", "reference": "7195", "attributes": {}, "sort_order": 2 },
+    { "id": "mt-espejos-alba--v0003", "dimension": "Ø 60", "finish": "Blanco mate", "reference": "7195", "attributes": {}, "sort_order": 3 },
+    { "id": "mt-espejos-alba--v0004", "dimension": "Ø 60", "finish": "Verde reseda", "reference": "7195", "attributes": {}, "sort_order": 4 },
+    { "id": "mt-espejos-alba--v0005", "dimension": "Ø 70", "finish": "Terracota", "reference": "7196", "attributes": {}, "sort_order": 5 },
+    { "id": "mt-espejos-alba--v0006", "dimension": "Ø 70", "finish": "Azul atlántico", "reference": "7196", "attributes": {}, "sort_order": 6 },
+    { "id": "mt-espejos-alba--v0007", "dimension": "Ø 70", "finish": "Blanco mate", "reference": "7196", "attributes": {}, "sort_order": 7 },
+    { "id": "mt-espejos-alba--v0008", "dimension": "Ø 70", "finish": "Verde reseda", "reference": "7196", "attributes": {}, "sort_order": 8 },
+    { "id": "mt-espejos-alba--v0009", "dimension": "Ø 80", "finish": "Terracota", "reference": "7197", "attributes": {}, "sort_order": 9 },
+    { "id": "mt-espejos-alba--v0010", "dimension": "Ø 80", "finish": "Azul atlántico", "reference": "7197", "attributes": {}, "sort_order": 10 },
+    { "id": "mt-espejos-alba--v0011", "dimension": "Ø 80", "finish": "Blanco mate", "reference": "7197", "attributes": {}, "sort_order": 11 },
+    { "id": "mt-espejos-alba--v0012", "dimension": "Ø 80", "finish": "Verde reseda", "reference": "7197", "attributes": {}, "sort_order": 12 },
+    { "id": "mt-espejos-alba--v0013", "dimension": "Ø 100", "finish": "Terracota", "reference": "7199", "attributes": {}, "sort_order": 13 },
+    { "id": "mt-espejos-alba--v0014", "dimension": "Ø 100", "finish": "Azul atlántico", "reference": "7199", "attributes": {}, "sort_order": 14 },
+    { "id": "mt-espejos-alba--v0015", "dimension": "Ø 100", "finish": "Blanco mate", "reference": "7199", "attributes": {}, "sort_order": 15 },
+    { "id": "mt-espejos-alba--v0016", "dimension": "Ø 100", "finish": "Verde reseda", "reference": "7199", "attributes": {}, "sort_order": 16 }
   ],
   "collection": "Alba",
   "show_price": false,
@@ -31,8 +59,8 @@
   "product_kind": "simple_product",
   "category_name": "Espejos",
   "commercial_offers": [],
-  "available_finishes": [],
-  "available_measures": [],
+  "available_finishes": ["Azul atlántico", "Blanco mate", "Terracota", "Verde reseda"],
+  "available_measures": ["Ø 100", "Ø 60", "Ø 70", "Ø 80"],
   "publication_status": "publishable",
-  "configuration_fields": []
+  "configuration_fields": ["dimension", "finish"]
 }

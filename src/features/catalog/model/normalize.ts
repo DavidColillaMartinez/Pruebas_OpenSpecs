@@ -41,7 +41,7 @@ function asNonNegativeNumber(value: unknown): number | undefined {
 function publicAttributes(value: unknown): PublicAttributes {
   const record = asRecord(value);
   return Object.fromEntries(
-    Object.entries(record).filter(([, item]) => ['string', 'number', 'boolean'].includes(typeof item))
+    Object.entries(record).filter(([key, item]) => ['string', 'number', 'boolean'].includes(typeof item) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))
   ) as PublicAttributes;
 }
 
@@ -76,6 +76,13 @@ function normalizeImage(value: unknown, productName: string, assetBaseUrl?: stri
   };
 }
 
+function orderImages(images: ProductImage[]): ProductImage[] {
+  return images
+    .map((image, index) => ({ image, index }))
+    .sort((a, b) => (a.image.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.image.sortOrder ?? Number.MAX_SAFE_INTEGER) || a.index - b.index)
+    .map(({ image }) => image);
+}
+
 function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: string | null): ProductVariant | null {
   const record = asRecord(value);
   const id = asString(record.id);
@@ -97,6 +104,7 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
     reference: asString(record.reference),
     dimension: asString(record.dimension),
     finish: asString(record.finish),
+    version: asString(record.version) || asString(asRecord(record.attributes).version) || asString(asRecord(record.attributes).fixed_version) || asString(asRecord(record.raw_data).fixed_version),
     distribution: asString(record.distribution),
     finishCode: asString(record.finish_code),
     attributes: publicAttributes(record.attributes),
@@ -169,7 +177,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
   const images = Array.isArray(record.images)
     ? record.images.map((item) => normalizeImage(item, name, config?.asset_base_url)).filter((item): item is ProductImage => item !== null)
     : [];
-  const uniqueImages = [...new Map(images.map((item) => [item.url, item])).values()];
+  const uniqueImages = orderImages([...new Map(images.map((item) => [item.url, item])).values()]);
 
   return {
     id,
@@ -186,6 +194,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     specs: publicAttributes(record.specs),
     productKind: asString(record.product_kind),
     showPrice: record.show_price === true,
+    galleryRule: asString(record.gallery_rule) || asString(asRecord(record.raw_data).gallery_rule) || asString(asRecord(record.specs)['Regla de galería']),
     images: uniqueImages,
     variants: Array.isArray(record.variants)
       ? record.variants.map((item) => normalizeVariant(item, name, config?.asset_base_url)).filter((item): item is ProductVariant => item !== null)
@@ -214,7 +223,7 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       name: product.name,
       slug: product.slug,
       brand: product.brand,
-      images: product.images.slice(0, 1),
+       images: product.images.slice(0, 1),
       showPrice: product.showPrice,
       categoryId: product.categoryId,
       categoryName: product.categoryName,
@@ -226,6 +235,7 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       subcategory: product.subcategory,
       supplierId: product.supplierId,
       supplierName: product.supplierName,
+      galleryRule: product.galleryRule,
     };
   } catch {
     return null;
@@ -311,16 +321,27 @@ const facetAliases: Record<string, CatalogFacetKey> = {
   finish: 'finish',
   measures: 'measure',
   measure: 'measure',
+  shapes: 'shape',
+  shape: 'shape',
+  has_led: 'has_led',
+  hasLed: 'has_led',
+  led: 'has_led',
+  lighting_types: 'lighting_type',
+  lightingType: 'lighting_type',
+  lighting_type: 'lighting_type',
 };
 
 function normalizeFacetOption(value: unknown): CatalogFacetOption | null {
   const record = asRecord(value);
-  const optionValue = asString(record.value ?? record.id ?? record.key);
+  const rawValue = record.value ?? record.id ?? record.key;
+  const optionValue = typeof rawValue === 'boolean' || typeof rawValue === 'number'
+    ? String(rawValue)
+    : asString(rawValue);
   if (!optionValue) return null;
 
   return {
     value: optionValue,
-    label: asString(record.label ?? record.name) || optionValue,
+    label: asString(record.label ?? record.name) || (typeof rawValue === 'boolean' ? rawValue ? 'Sí' : 'No' : optionValue),
     count: asNonNegativeNumber(record.count) ?? 0,
   };
 }

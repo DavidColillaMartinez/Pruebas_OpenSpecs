@@ -45,4 +45,26 @@ describe('ProductVariantSelector', () => {
       variantSnapshot: { reference: 'GLASS-NG-LATERAL' },
     });
   });
+
+  it('renders Espejos selectors in dimension, finish and version order', () => {
+    const product = normalizeProductDetail({
+      id: 'mt-espejos-nova',
+      name: 'Nova',
+      slug: 'mt-espejos-nova',
+      supplier_id: 'manillons-torrent',
+      category_id: 'espejos',
+      configuration_fields: ['dimension', 'finish', 'version'],
+      variants: [
+        { id: 'nova-basic', dimension: '60 x 80', finish: 'Negro mate', version: 'Básica', reference: 'NOVA-1', sort_order: 1 },
+        { id: 'nova-plus', dimension: '60 x 80', finish: 'Negro mate', version: 'Plus', reference: 'NOVA-2', sort_order: 2 },
+        { id: 'nova-other-finish', dimension: '60 x 80', finish: 'Oro cepillado', version: 'Básica', reference: 'NOVA-3', sort_order: 3 },
+        { id: 'nova-other-dimension', dimension: '80 x 100', finish: 'Negro mate', version: 'Básica', reference: 'NOVA-4', sort_order: 4 },
+      ],
+    });
+    render(<ProductVariantSelector product={product} onSelectionChange={() => undefined} />);
+
+    expect([...document.querySelectorAll('fieldset legend')].map((legend) => legend.textContent)).toEqual(['Medida', 'Acabado', 'Versión']);
+    expect(screen.getByRole('group', { name: 'Acabado' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Versión' })).toBeInTheDocument();
+  });
 });

@@ -53,4 +53,15 @@ describe('ProductGallery', () => {
     expect(screen.getByRole('dialog').querySelector('img')).toHaveAttribute('src', manyImages[2].url);
     expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(5);
   });
+
+  it('keeps Swing catalogue pages 158 and 159 in manifest order', () => {
+    const swingImages = [
+      { alt: 'Swing', url: 'https://assets.example/mt26-esp-swing-i02.webp', role: 'gallery', sortOrder: 2 },
+      { alt: 'Swing', url: 'https://assets.example/mt26-esp-swing-i01.webp', role: 'main', sortOrder: 1 },
+    ];
+    render(<ProductGallery images={swingImages} productName="Swing" />);
+
+    expect(screen.getByRole('img', { name: 'Swing, imagen principal' })).toHaveAttribute('src', swingImages[1].url);
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })[0]).toHaveAttribute('aria-pressed', 'true');
+  });
 });

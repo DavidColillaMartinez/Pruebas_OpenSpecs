@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogFacetKey, CatalogFacets } from '../model/types';
-import { MAMPARAS_CATALOG_FILTER_KEYS, ROOT_CATALOG_FILTER_KEYS, type CatalogFilterProfile, type CatalogFilters } from '../model/catalogQuery';
+import { getCatalogFacetLabel, getCatalogFilterKeys, type CatalogFilterProfile, type CatalogFilters } from '../model/catalogQuery';
 
 type CatalogFilterPanelProps = {
   facets: CatalogFacets;
@@ -17,14 +17,12 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   subcategory: 'Subcategoría',
   collection: 'Colección',
   distribution: 'Distribución',
+  shape: 'Forma',
+  has_led: 'LED',
+  lighting_type: 'Tipo de iluminación',
   product_kind: 'Tipo de producto',
   finish: 'Acabado',
   measure: 'Medida',
-};
-
-const mamparasFacetLabels: Partial<Record<CatalogFacetKey, string>> = {
-  subcategory: 'Tipo',
-  collection: 'Modelo',
 };
 
 type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'> & {
@@ -36,12 +34,10 @@ type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileC
 };
 
 function FilterGroups({ facets, filters, profile, onToggle, openGroups, expandedGroups, onToggleGroup, onToggleExpanded, idPrefix }: FilterGroupsProps) {
-  const isMamparas = profile === 'mamparas';
   const groupEntries = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
+    .map(([key, options]) => [key, options.filter((option) => option.count > 0 || filters[key]?.includes(option.value))] as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>])
     .filter(([, options]) => options.length > 0);
-  const visibleKeys = isMamparas
-    ? [...ROOT_CATALOG_FILTER_KEYS, ...MAMPARAS_CATALOG_FILTER_KEYS]
-    : ROOT_CATALOG_FILTER_KEYS;
+  const visibleKeys = getCatalogFilterKeys(profile);
   const groups = visibleKeys
     .map((key) => groupEntries.find(([groupKey]) => groupKey === key))
     .filter((entry): entry is [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>] => Boolean(entry));
@@ -69,7 +65,7 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
                 aria-controls={contentId}
                 onClick={() => onToggleGroup(key)}
               >
-                <span className="min-w-0 flex-1">{isMamparas ? mamparasFacetLabels[key] || facetLabels[key] : facetLabels[key]}</span>
+                 <span className="min-w-0 flex-1">{getCatalogFacetLabel(key, profile) || facetLabels[key]}</span>
                 <span aria-hidden="true" className="text-lg font-normal leading-none text-graphite/70">{open ? '−' : '+'}</span>
               </button>
             </legend>
