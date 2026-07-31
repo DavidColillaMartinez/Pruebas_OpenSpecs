@@ -7,6 +7,7 @@ function Harness() {
     <CatalogFilterPanel
       facets={{ category: [{ value: 'mirrors', label: 'Espejos', count: 4 }] }}
       filters={{}}
+      profile="root"
       mobileOpen
       onMobileClose={() => undefined}
       onToggle={() => undefined}
@@ -25,7 +26,7 @@ describe('CatalogFilterPanel', () => {
     expect(within(dialog).queryByRole('checkbox', { name: 'Espejos' })).not.toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Categoría' }));
     expect(within(dialog).getByRole('button', { name: 'Categoría' })).toHaveAttribute('aria-expanded', 'true');
-    expect(within(dialog).getByRole('checkbox', { name: 'Espejos' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('checkbox', { name: /Espejos/ })).toHaveAccessibleDescription('4 resultados');
     expect(within(dialog).getByText('4')).toBeInTheDocument();
   });
 
@@ -35,6 +36,7 @@ describe('CatalogFilterPanel', () => {
       <CatalogFilterPanel
         facets={{ category: [{ value: 'mirrors', label: 'Espejos', count: 4 }] }}
         filters={{}}
+        profile="root"
         mobileOpen
         onMobileClose={onMobileClose}
         onToggle={() => undefined}
@@ -48,6 +50,7 @@ describe('CatalogFilterPanel', () => {
       <CatalogFilterPanel
         facets={{ category: [{ value: 'mirrors', label: 'Espejos', count: 4 }] }}
         filters={{}}
+        profile="root"
         mobileOpen={false}
         onMobileClose={onMobileClose}
         onToggle={() => undefined}
@@ -63,6 +66,7 @@ describe('CatalogFilterPanel', () => {
       <CatalogFilterPanel
         facets={{ category: [{ value: 'mirrors', label: 'Espejos', count: 4 }] }}
         filters={{}}
+        profile="root"
         mobileOpen
         onMobileClose={onMobileClose}
         onToggle={onToggle}
@@ -71,7 +75,7 @@ describe('CatalogFilterPanel', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Categoría' }));
-    fireEvent.click(within(dialog).getByRole('checkbox', { name: 'Espejos' }));
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: /Espejos/ }));
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(onToggle).toHaveBeenCalledWith('category', 'mirrors', true);
@@ -89,7 +93,7 @@ describe('CatalogFilterPanel', () => {
       <CatalogFilterPanel
         facets={facets}
         filters={{}}
-        categoryContext="mamparas"
+        profile="mamparas"
         mobileOpen
         onMobileClose={() => undefined}
         onToggle={() => undefined}
@@ -106,7 +110,7 @@ describe('CatalogFilterPanel', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Distribución' }));
     expect(within(dialog).queryByRole('checkbox', { name: 'Distribución 9' })).not.toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Ver todas' }));
-    expect(within(dialog).getByRole('checkbox', { name: 'Distribución 9' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('checkbox', { name: /Distribución 9/ })).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Ver menos' })).toBeInTheDocument();
   });
 
@@ -118,7 +122,7 @@ describe('CatalogFilterPanel', () => {
       <CatalogFilterPanel
         facets={facets}
         filters={{ distribution: ['distribution-10'] }}
-        categoryContext="mamparas"
+        profile="mamparas"
         mobileOpen
         onMobileClose={() => undefined}
         onToggle={() => undefined}
@@ -127,6 +131,6 @@ describe('CatalogFilterPanel', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Distribución' }));
-    expect(within(dialog).getByRole('checkbox', { name: 'Distribución 10' })).toBeChecked();
+    expect(within(dialog).getByRole('checkbox', { name: /Distribución 10/ })).toBeChecked();
   });
 });

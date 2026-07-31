@@ -18,6 +18,12 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'measure',
 ];
 
+export const ROOT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['category', 'supplier'];
+export const MAMPARAS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'distribution', 'finish'];
+export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = CATALOG_FILTER_KEYS.filter((key) => !ROOT_CATALOG_FILTER_KEYS.includes(key));
+
+export type CatalogFilterProfile = 'root' | 'mamparas';
+
 const requestFilterKeys: Partial<Record<CatalogFacetKey, string>> = {
   category: 'category_id',
   supplier: 'supplier_id',
@@ -52,6 +58,19 @@ function uniqueValues(values: string[]): string[] {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
+function valuesForFilter(key: CatalogFacetKey, values: string[]): string[] {
+  const unique = uniqueValues(values);
+  return key === 'category' ? unique.slice(0, 1) : unique;
+}
+
+export function getCatalogFilterProfile(query: Pick<CatalogQueryState, 'filters'>): CatalogFilterProfile {
+  const categoryValues = query.filters.category || [];
+  const supplierValues = query.filters.supplier || [];
+  const hasMamparasCategory = categoryValues.some((value) => value.toLocaleLowerCase() === 'mamparas');
+  const hasGmeSupplier = supplierValues.some((value) => value.toLocaleLowerCase() === 'gme');
+  return hasMamparasCategory || hasGmeSupplier ? 'mamparas' : 'root';
+}
+
 function readParams(input: URLSearchParams | string): URLSearchParams {
   return input instanceof URLSearchParams ? input : new URLSearchParams(input);
 }
@@ -66,7 +85,7 @@ export function parseCatalogQuery(input: URLSearchParams | string, sortMetadata?
   const filters: CatalogFilters = {};
 
   CATALOG_FILTER_KEYS.forEach((key) => {
-    const values = uniqueValues(params.getAll(key));
+    const values = valuesForFilter(key, params.getAll(key));
     if (values.length > 0) filters[key] = values;
   });
 
@@ -86,7 +105,7 @@ export function serializeCatalogQuery(query: CatalogQueryState): URLSearchParams
   if (search) params.set('search', search);
 
   CATALOG_FILTER_KEYS.forEach((key) => {
-    uniqueValues(query.filters[key] || []).forEach((value) => params.append(key, value));
+    valuesForFilter(key, query.filters[key] || []).forEach((value) => params.append(key, value));
   });
 
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.set('sort', query.sort);
@@ -109,7 +128,7 @@ export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: b
   if (query.search) params.search = query.search;
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.sort = query.sort;
   CATALOG_FILTER_KEYS.forEach((key) => {
-    const values = uniqueValues(query.filters[key] || []);
+    const values = valuesForFilter(key, query.filters[key] || []);
     if (values.length > 0) params[requestFilterKeys[key] || key] = values;
   });
   return params;

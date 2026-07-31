@@ -2,18 +2,25 @@ import { describe, expect, it } from 'vitest';
 import {
   catalogQueryKey,
   catalogQueryToRequest,
+  getCatalogFilterProfile,
   parseCatalogQuery,
   serializeCatalogQuery,
   withCatalogQueryChange,
 } from './catalogQuery';
 
 describe('catalog query state', () => {
+  it('resolves root and developed dependent filter profiles', () => {
+    expect(getCatalogFilterProfile({ filters: {} })).toBe('root');
+    expect(getCatalogFilterProfile({ filters: { category: ['mamparas'] } })).toBe('mamparas');
+    expect(getCatalogFilterProfile({ filters: { supplier: ['gme'] } })).toBe('mamparas');
+  });
+
   it('parses repeated filters and rejects unsupported sort values', () => {
     const query = parseCatalogQuery('search=alba&category=cat-a&category=cat-b&supplier=supplier-1&sort=made-up&page=3');
 
     expect(query).toEqual({
       search: 'alba',
-      filters: { category: ['cat-a', 'cat-b'], supplier: ['supplier-1'] },
+      filters: { category: ['cat-a'], supplier: ['supplier-1'] },
       sort: 'relevance',
       page: 3,
     });
@@ -41,7 +48,7 @@ describe('catalog query state', () => {
   it('builds server-side params with only the requested page', () => {
     const request = catalogQueryToRequest({
       search: 'alba',
-      filters: { category: ['cat-a', 'cat-b'] },
+       filters: { category: ['cat-a', 'cat-b'] },
       sort: 'name_asc',
       page: 3,
     }, false);
@@ -51,7 +58,7 @@ describe('catalog query state', () => {
       offset: 48,
       include_facets: '0',
       search: 'alba',
-      category_id: ['cat-a', 'cat-b'],
+       category_id: ['cat-a'],
       sort: 'name_asc',
     });
   });

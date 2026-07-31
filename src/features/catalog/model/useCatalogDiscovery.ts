@@ -6,6 +6,8 @@ import type { CatalogFacetKey, CatalogFacetOption, CatalogFacets, CatalogSortMet
 import {
   catalogQueryKey,
   catalogQueryToRequest,
+  DEPENDENT_CATALOG_FILTER_KEYS,
+  ROOT_CATALOG_FILTER_KEYS,
   parseCatalogQuery,
   serializeCatalogQuery,
   withCatalogQueryChange,
@@ -107,16 +109,29 @@ function mergeFacetOptions(globalFacets: CatalogFacets, activeFacets: CatalogFac
   return merged;
 }
 
+function pickFacetKeys(facets: CatalogFacets, keys: CatalogFacetKey[]): CatalogFacets {
+  return Object.fromEntries(keys
+    .filter((key) => (facets[key] || []).length > 0)
+    .map((key) => [key, facets[key]])) as CatalogFacets;
+}
+
 function getFacets(cache: ItemCache, facetCache: FacetCache, globalFacetCache: FacetCache, query: CatalogQueryState): CatalogFacets {
   const activeFacets = hasFacets(cache.serverFacets) ? cache.serverFacets : facetCache.facets;
   const activeReady = hasFacets(cache.serverFacets) || facetCache.status === 'success';
   const globalFacets = globalFacetCache.facets;
-  const hasCriteria = Boolean(query.search || Object.values(query.filters).some((values) => values && values.length > 0));
+  const hasRootContext = Boolean(query.filters.category?.length || query.filters.supplier?.length);
 
-  if (!hasCriteria) return hasFacets(activeFacets) ? activeFacets : globalFacets;
-  if (!activeReady) return globalFacets;
-  if (!hasFacets(globalFacets)) return activeFacets;
-  return mergeFacetOptions(globalFacets, activeFacets);
+  if (!hasRootContext) return pickFacetKeys(hasFacets(globalFacets) ? globalFacets : activeFacets, ROOT_CATALOG_FILTER_KEYS);
+  if (!activeReady) return pickFacetKeys(globalFacets, ROOT_CATALOG_FILTER_KEYS);
+
+  const rootFacets = mergeFacetOptions(
+    pickFacetKeys(globalFacets, ROOT_CATALOG_FILTER_KEYS),
+    pickFacetKeys(activeFacets, ROOT_CATALOG_FILTER_KEYS),
+  );
+  return {
+    ...rootFacets,
+    ...pickFacetKeys(activeFacets, DEPENDENT_CATALOG_FILTER_KEYS),
+  };
 }
 
 function toDiscoveryData(cache: ItemCache, facetCache: FacetCache, globalFacetCache: FacetCache, query: CatalogQueryState): DiscoveryData {
@@ -329,9 +344,14 @@ export function useCatalogDiscovery() {
 
   const setFilter = (key: CatalogFacetKey, value: string, checked: boolean) => {
     const current = query.filters[key] || [];
-    const values = checked ? [...current, value] : current.filter((item) => item !== value);
+    const values = key === 'category'
+      ? checked ? [value] : []
+      : checked ? [...current, value] : current.filter((item) => item !== value);
     const filters: CatalogFilters = { ...query.filters, [key]: [...new Set(values)] };
     if (filters[key]?.length === 0) delete filters[key];
+    if (key === 'category' || key === 'supplier') {
+      DEPENDENT_CATALOG_FILTER_KEYS.forEach((dependentKey) => delete filters[dependentKey]);
+    }
     updateQuery(withCatalogQueryChange(query, { filters }));
   };
 

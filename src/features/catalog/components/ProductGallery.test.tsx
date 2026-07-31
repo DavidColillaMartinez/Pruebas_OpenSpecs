@@ -33,4 +33,24 @@ describe('ProductGallery', () => {
     rerender(<ProductGallery images={[]} productName="Producto sin imagen" />);
     expect(await screen.findByText('Imagen no disponible')).toBeInTheDocument();
   });
+
+  it('navigates a long ordered gallery through five visible thumbnails and the zoom view', () => {
+    const manyImages = Array.from({ length: 23 }, (_, index) => ({
+      alt: `Imagen ${index + 1}`,
+      url: `https://assets.example/gallery-${index + 1}.webp`,
+      role: 'detail',
+      sortOrder: index + 1,
+    }));
+    render(<ProductGallery images={manyImages} productName="Mampara" />);
+
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(5);
+    const nextButton = screen.getByRole('button', { name: 'Imagen siguiente' });
+    fireEvent.click(nextButton);
+    expect(screen.getByRole('img', { name: 'Mampara, imagen principal' })).toHaveAttribute('src', manyImages[1].url);
+    fireEvent.click(screen.getByRole('button', { name: /Ampliar imagen/ }));
+    expect(screen.getByRole('dialog', { name: /Imagen ampliada/ })).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'ArrowRight' });
+    expect(screen.getByRole('dialog').querySelector('img')).toHaveAttribute('src', manyImages[2].url);
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(5);
+  });
 });

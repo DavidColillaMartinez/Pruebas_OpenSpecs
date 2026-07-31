@@ -28,7 +28,7 @@ describe('CatalogPage', () => {
 
     expect(await screen.findByText('No hay coincidencias')).toBeInTheDocument();
     fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
-    expect(screen.getByRole('checkbox', { name: 'Espejos' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /Espejos/ })).toBeChecked();
     expect(screen.getByRole('option', { name: /Nombre A-Z/ })).toBeDisabled();
     expect(screen.getByRole('option', { name: /Más recientes/ })).toBeDisabled();
   });
@@ -55,7 +55,7 @@ describe('CatalogPage', () => {
     render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
-    expect(screen.getByRole('checkbox', { name: 'Espejos' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /Espejos/ })).toBeInTheDocument();
   });
 
   it('keeps the full filter taxonomy after applying a filter', async () => {
@@ -77,9 +77,76 @@ describe('CatalogPage', () => {
 
     render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
     fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Espejos' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Espejos/ }));
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Proveedor' })).toBeInTheDocument());
     expect(screen.getByRole('button', { name: 'Categoría' })).toBeInTheDocument();
+  });
+
+  it('shows only general filters before a context is selected', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: {
+        category: [{ value: 'mamparas', label: 'Mamparas', count: 21 }],
+        supplier: [{ value: 'gme', label: 'GME', count: 21 }],
+        subcategory: [{ value: 'Mamparas de ducha', label: 'Mamparas de ducha', count: 17 }],
+        collection: [{ value: 'Open', label: 'Open', count: 1 }],
+        distribution: [{ value: '2 abatibles', label: '2 abatibles', count: 1 }],
+        finish: [{ value: 'Cromo', label: 'Cromo', count: 1 }],
+        measure: [{ value: '1200', label: '1200', count: 1 }],
+        product_kind: [{ value: 'simple_product', label: 'Producto', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    }), { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
+    expect(await screen.findByRole('button', { name: 'Categoría' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Proveedor' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Acabado' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Medida' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Colección' })).not.toBeInTheDocument();
+  });
+
+  it('activates the Mamparas profile for category or GME supplier context', async () => {
+    const response = JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: {
+        category: [{ value: 'mamparas', label: 'Mamparas', count: 21 }],
+        supplier: [{ value: 'gme', label: 'GME', count: 21 }],
+        subcategory: [{ value: 'Mamparas de ducha', label: 'Mamparas de ducha', count: 17 }],
+        collection: [{ value: 'Open', label: 'Open', count: 1 }],
+        distribution: [{ value: '2 abatibles', label: '2 abatibles', count: 1 }],
+        finish: [{ value: 'Cromo', label: 'Cromo', count: 1 }],
+        measure: [{ value: '1200', label: '1200', count: 1 }],
+        product_kind: [{ value: 'simple_product', label: 'Producto', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(response, { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos?supplier=gme']}><CatalogPage /></MemoryRouter>);
+    expect(await screen.findByRole('button', { name: 'Tipo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Modelo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Distribución' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Acabado' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Medida' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Tipo de producto' })).not.toBeInTheDocument();
+  });
+
+  it('exposes a distinct store masthead and skip-to-results landmark', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: { category: [{ value: 'mamparas', label: 'Mamparas', count: 21 }] },
+      sort: { supported: ['relevance'] },
+    }), { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
+    expect(await screen.findByRole('banner', { name: 'Catálogo' })).toBeInTheDocument();
+    expect(screen.getAllByText('Tienda')).toHaveLength(2);
+    expect(screen.getByRole('link', { name: 'Saltar a resultados' })).toHaveAttribute('href', '#catalog-results');
+    expect(screen.getByRole('region', { name: 'Resultados' })).toHaveAttribute('tabindex', '-1');
   });
 });

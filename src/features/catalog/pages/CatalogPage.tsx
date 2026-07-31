@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
+import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
-import { CATALOG_RETURN_STORAGE_KEY, type CatalogQueryState } from '../model/catalogQuery';
+import { CATALOG_RETURN_STORAGE_KEY, getCatalogFilterProfile, ROOT_CATALOG_FILTER_KEYS, MAMPARAS_CATALOG_FILTER_KEYS, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
-import type { CatalogSortValue } from '../model/types';
+import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
 
 const sortLabels: Record<CatalogSortValue, string> = {
   relevance: 'Relevancia',
@@ -17,8 +18,10 @@ const sortLabels: Record<CatalogSortValue, string> = {
 
 type ActiveFilterKey = keyof CatalogQueryState['filters'] | 'search';
 
-function ActiveFilters({ query, labels, onRemove }: { query: CatalogQueryState; labels: Record<string, string>; onRemove: (key: ActiveFilterKey, value: string) => void }) {
-  const entries = Object.entries(query.filters).flatMap(([key, values]) => (values || []).map((value) => ({ key: key as keyof CatalogQueryState['filters'], value })));
+function ActiveFilters({ query, labels, visibleKeys, onRemove }: { query: CatalogQueryState; labels: Record<string, string>; visibleKeys: CatalogFacetKey[]; onRemove: (key: ActiveFilterKey, value: string) => void }) {
+  const entries = Object.entries(query.filters)
+    .filter(([key]) => visibleKeys.includes(key as CatalogFacetKey))
+    .flatMap(([key, values]) => (values || []).map((value) => ({ key: key as keyof CatalogQueryState['filters'], value })));
   if (!query.search && entries.length === 0) return null;
 
   return (
@@ -37,6 +40,10 @@ export function CatalogPage() {
   const { query, searchInput, setSearchInput, data, setFilter, removeFilter, clearFilters, setSort, loadMore, retry } = useCatalogDiscovery();
   const location = useLocation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const filterProfile = getCatalogFilterProfile(query);
+  const visibleFilterKeys = filterProfile === 'mamparas'
+    ? [...ROOT_CATALOG_FILTER_KEYS, ...MAMPARAS_CATALOG_FILTER_KEYS]
+    : ROOT_CATALOG_FILTER_KEYS;
   const hasActiveCriteria = Boolean(query.search || Object.values(query.filters).some((values) => values && values.length > 0));
   const sortSupported = new Set(data.sort.supported);
   const facetLabels = Object.fromEntries(Object.entries(data.facets).flatMap(([key, options]) => options.map((option) => [`${key}:${option.value}`, option.label])));
@@ -65,20 +72,15 @@ export function CatalogPage() {
   }, [data.loadedPage, data.status, location.search, query.page]);
 
   return (
-    <main className="min-h-screen bg-porcelain px-5 py-10 text-ink sm:px-8" id="catalog-content">
+    <main className="min-h-screen bg-porcelain px-5 py-6 text-ink sm:px-8 sm:py-10" id="catalog-content" aria-labelledby="catalog-heading">
       <div className="mx-auto max-w-7xl">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain">
-          <span aria-hidden="true">←</span> Volver a AREA LRMQ
-        </Link>
-        <header className="mt-8 max-w-3xl">
-          <h1 className="font-display text-5xl leading-none sm:text-6xl">Catálogo</h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-graphite">Explora piezas, acabados y soluciones para comparar con calma antes de configurar tu proyecto.</p>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite" aria-live="polite">{totalLabel}</p>
-        </header>
+        <a href="#catalog-results" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Saltar a resultados</a>
+        <CatalogMasthead />
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-graphite" aria-live="polite">{totalLabel}</p>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
-          <CatalogFilterPanel facets={data.facets} filters={query.filters} categoryContext={query.filters.category?.find((value) => value.trim().toLocaleLowerCase() === 'mamparas')} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
-          <section aria-labelledby="catalog-results-heading" className="min-w-0">
+          <CatalogFilterPanel facets={data.facets} filters={query.filters} profile={filterProfile} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
+          <section id="catalog-results" tabIndex={-1} aria-labelledby="catalog-results-heading" aria-busy={data.status === 'loading'} className="min-w-0 scroll-mt-6 focus-visible:outline-none">
             <div className="flex flex-col gap-4 border-b border-ink/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0 flex-1">
                 <label htmlFor="catalog-search" className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">Buscar en el catálogo</label>
@@ -98,7 +100,7 @@ export function CatalogPage() {
               </div>
             </div>
 
-            <ActiveFilters query={query} labels={facetLabels} onRemove={(key, value) => key === 'search' ? setSearchInput('') : removeFilter(key, value)} />
+            <ActiveFilters query={query} labels={facetLabels} visibleKeys={visibleFilterKeys} onRemove={(key, value) => key === 'search' ? setSearchInput('') : removeFilter(key, value)} />
             {(hasActiveCriteria || query.sort !== 'relevance') && <button type="button" onClick={clearFilters} className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Limpiar filtros</button>}
 
             <div className="mt-10 flex items-end justify-between gap-4">
@@ -135,7 +137,7 @@ export function CatalogPage() {
               </div>
             )}
             {showing > 0 && (
-              <div id="catalog-results" className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+              <div id="catalog-items" className="mt-6 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
                 {data.items.map((product) => <CatalogProductCard key={product.id} product={product} />)}
               </div>
             )}
@@ -147,7 +149,7 @@ export function CatalogPage() {
             )}
             {showing > 0 && showing < data.total && (
               <div className="mt-10 flex justify-center">
-                <button type="button" onClick={loadMore} disabled={data.loadingMore} aria-controls="catalog-results" className="min-h-12 rounded-full border border-ink/30 bg-white px-6 text-sm font-semibold shadow-soft transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-white hover:shadow-lift disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+                <button type="button" onClick={loadMore} disabled={data.loadingMore} aria-controls="catalog-items" className="min-h-12 rounded-full border border-ink/30 bg-white px-6 text-sm font-semibold shadow-soft transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-white hover:shadow-lift disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                   {data.loadingMore ? 'Cargando…' : `Cargar más (${Math.max(0, data.total - showing)})`}
                 </button>
               </div>

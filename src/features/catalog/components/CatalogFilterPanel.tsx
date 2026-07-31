@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogFacetKey, CatalogFacets } from '../model/types';
-import type { CatalogFilters } from '../model/catalogQuery';
+import { MAMPARAS_CATALOG_FILTER_KEYS, ROOT_CATALOG_FILTER_KEYS, type CatalogFilterProfile, type CatalogFilters } from '../model/catalogQuery';
 
 type CatalogFilterPanelProps = {
   facets: CatalogFacets;
   filters: CatalogFilters;
-  categoryContext?: string;
+  profile: CatalogFilterProfile;
   mobileOpen: boolean;
   onMobileClose: () => void;
   onToggle: (key: CatalogFacetKey, value: string, checked: boolean) => void;
@@ -35,15 +35,16 @@ type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileC
   idPrefix: string;
 };
 
-function FilterGroups({ facets, filters, categoryContext, onToggle, openGroups, expandedGroups, onToggleGroup, onToggleExpanded, idPrefix }: FilterGroupsProps) {
-  const isMamparas = categoryContext?.trim().toLocaleLowerCase() === 'mamparas';
+function FilterGroups({ facets, filters, profile, onToggle, openGroups, expandedGroups, onToggleGroup, onToggleExpanded, idPrefix }: FilterGroupsProps) {
+  const isMamparas = profile === 'mamparas';
   const groupEntries = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
     .filter(([, options]) => options.length > 0);
-  const groups = isMamparas
-    ? (['subcategory', 'collection', 'distribution', 'finish'] as CatalogFacetKey[])
-      .map((key) => groupEntries.find(([groupKey]) => groupKey === key))
-      .filter((entry): entry is [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>] => Boolean(entry))
-    : groupEntries;
+  const visibleKeys = isMamparas
+    ? [...ROOT_CATALOG_FILTER_KEYS, ...MAMPARAS_CATALOG_FILTER_KEYS]
+    : ROOT_CATALOG_FILTER_KEYS;
+  const groups = visibleKeys
+    .map((key) => groupEntries.find(([groupKey]) => groupKey === key))
+    .filter((entry): entry is [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>] => Boolean(entry));
 
   if (groups.length === 0) return <p className="text-sm leading-relaxed text-graphite">Las opciones aparecerán cuando el catálogo las devuelva.</p>;
 
@@ -53,6 +54,7 @@ function FilterGroups({ facets, filters, categoryContext, onToggle, openGroups, 
         const open = openGroups.has(key);
         const expanded = expandedGroups.has(key);
         const contentId = `catalog-filter-${idPrefix}-${key}`;
+        const countId = `catalog-filter-count-${idPrefix}-${key}`;
         const selectedOptions = options.filter((option) => filters[key]?.includes(option.value));
         const visibleOptions = expanded
           ? options
@@ -79,11 +81,13 @@ function FilterGroups({ facets, filters, categoryContext, onToggle, openGroups, 
                     <input
                       type="checkbox"
                       checked={checked}
+                      aria-describedby={countId}
                       onChange={(event) => onToggle(key, option.value, event.target.checked)}
                       className="h-4 w-4 rounded border-ink/20 accent-clay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
                     />
                     <span className="min-w-0 flex-1">{option.label}</span>
                     <span aria-hidden="true" className="text-xs tabular-nums text-graphite/70 transition-colors duration-200 ease-out group-hover:text-ink">{option.count}</span>
+                    <span id={countId} className="sr-only">{option.count} resultados</span>
                   </label>
                 );
               })}
@@ -106,7 +110,7 @@ function FilterGroups({ facets, filters, categoryContext, onToggle, openGroups, 
   );
 }
 
-export function CatalogFilterPanel({ facets, filters, categoryContext, mobileOpen, onMobileClose, onToggle }: CatalogFilterPanelProps) {
+export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMobileClose, onToggle }: CatalogFilterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -170,24 +174,24 @@ export function CatalogFilterPanel({ facets, filters, categoryContext, mobileOpe
   return (
     <>
       <aside aria-label="Filtros del catálogo" className="hidden lg:block">
-        <div className="sticky top-24 rounded-2xl bg-white/72 p-5 shadow-soft ring-1 ring-ink/5">
+        <div className="sticky top-6 max-h-[calc(100svh-3rem)] overflow-y-auto overscroll-contain rounded-2xl bg-white/72 p-5 shadow-soft ring-1 ring-ink/5">
           <h2 className="font-display text-2xl">Filtrar</h2>
            <p className="mt-1 text-xs text-graphite">Abre una categoría para explorar sus opciones. Las cantidades siguen la consulta activa cuando hay datos suficientes.</p>
           <div className="mt-6">
-            <FilterGroups facets={facets} filters={filters} categoryContext={categoryContext} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="desktop" />
+            <FilterGroups facets={facets} filters={filters} profile={profile} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="desktop" />
           </div>
         </div>
       </aside>
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" role="presentation">
           <button type="button" aria-label="Cerrar filtros" className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onMobileClose} />
-          <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="mobile-filters-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto bg-porcelain p-6 shadow-lift">
+          <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="mobile-filters-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto overscroll-contain bg-porcelain p-6 shadow-lift">
             <div className="flex items-center justify-between gap-4">
               <h2 id="mobile-filters-heading" className="font-display text-2xl">Filtrar</h2>
               <button ref={closeButtonRef} type="button" onClick={onMobileClose} className="min-h-11 rounded-full px-3 text-sm font-semibold text-graphite underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>
             </div>
             <div className="mt-7">
-              <FilterGroups facets={facets} filters={filters} categoryContext={categoryContext} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="mobile" />
+              <FilterGroups facets={facets} filters={filters} profile={profile} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="mobile" />
             </div>
           </div>
         </div>
