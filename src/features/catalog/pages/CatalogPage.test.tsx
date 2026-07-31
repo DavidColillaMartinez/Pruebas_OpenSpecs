@@ -146,6 +146,8 @@ describe('CatalogPage', () => {
     render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
     expect(await screen.findByRole('banner', { name: 'Catálogo' })).toBeInTheDocument();
     expect(screen.getAllByText('Tienda')).toHaveLength(2);
+    expect(screen.getByRole('link', { name: 'Volver a AREA LRMQ' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Volver a la página principal' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: 'Saltar a resultados' })).toHaveAttribute('href', '#catalog-results');
     expect(screen.getByRole('region', { name: 'Resultados' })).toHaveAttribute('tabindex', '-1');
   });

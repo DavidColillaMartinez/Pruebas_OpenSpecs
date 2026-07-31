@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
 import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
@@ -75,6 +75,9 @@ export function CatalogPage() {
     <main className="min-h-screen bg-porcelain px-5 py-6 text-ink sm:px-8 sm:py-10" id="catalog-content" aria-labelledby="catalog-heading">
       <div className="mx-auto max-w-7xl">
         <a href="#catalog-results" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Saltar a resultados</a>
+        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain">
+          <span aria-hidden="true">←</span> Volver a AREA LRMQ
+        </Link>
         <CatalogMasthead />
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-graphite" aria-live="polite">{totalLabel}</p>
 
