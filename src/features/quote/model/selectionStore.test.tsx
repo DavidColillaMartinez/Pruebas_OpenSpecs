@@ -8,6 +8,9 @@ const firstLine = {
   reference: '7195',
   quantity: 1,
   productName: 'Alba',
+  supplier: 'Manillons Torrent',
+  category: 'Espejos',
+  imageUrl: 'https://assets.example/alba.webp',
   selectedAttributes: { dimension: 'Ø 60', finish: 'Terracota', has_led: false },
 };
 
@@ -18,7 +21,10 @@ function Harness() {
   return <><button type="button" onClick={() => selection.addLine(firstLine)}>Añadir primera</button><button type="button" onClick={() => selection.addLine(secondLine)}>Añadir segunda</button><button type="button" onClick={() => selection.updateQuantity('mt-espejos-alba::mt-espejos-alba--v0001', 4)}>Cambiar cantidad</button><button type="button" onClick={() => selection.removeLine('mt-espejos-alba::mt-espejos-alba--v0001')}>Eliminar primera</button><output data-testid="count">{selection.count}</output><output data-testid="lines">{JSON.stringify(selection.lines)}</output></>;
 }
 
-afterEach(() => window.localStorage.removeItem(QUOTE_SELECTION_STORAGE_KEY));
+afterEach(() => {
+  window.localStorage.removeItem(QUOTE_SELECTION_STORAGE_KEY);
+  window.localStorage.removeItem('lrmq:quote-selection:v1');
+});
 
 describe('quote selection store', () => {
   it('deduplicates the same variant and keeps another variant independent', () => {
@@ -49,6 +55,14 @@ describe('quote selection store', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cambiar cantidad' }));
     expect(JSON.parse(screen.getByTestId('lines').textContent || '[]')[0].quantity).toBe(4);
     fireEvent.click(screen.getByRole('button', { name: 'Eliminar primera' }));
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+  });
+
+  it('drops legacy lines that cannot be safely migrated to the complete snapshot contract', () => {
+    window.localStorage.setItem('lrmq:quote-selection:v1', JSON.stringify([{ ...firstLine, supplier: undefined, category: undefined }]));
+
+    render(<QuoteSelectionProvider><Harness /></QuoteSelectionProvider>);
+
     expect(screen.getByTestId('count')).toHaveTextContent('0');
   });
 });

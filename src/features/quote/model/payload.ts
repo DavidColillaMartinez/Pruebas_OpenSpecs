@@ -8,8 +8,11 @@ export function buildQuoteRequestItem(product: ProductDetail, unit: SelectableUn
   const snapshot = buildVariantSnapshot(unit);
   const reference = typeof snapshot?.reference === 'string' ? snapshot.reference : undefined;
   const selectedAttributes = snapshot
-    ? Object.fromEntries(Object.entries(snapshot).filter(([key]) => key !== 'reference')) as Record<string, string | number | boolean>
-    : undefined;
+    ? Object.fromEntries([
+      ...(product.shape ? [['shape', product.shape] as const] : []),
+      ...Object.entries(snapshot).filter(([key]) => key !== 'reference'),
+    ]) as Record<string, string | number | boolean>
+    : product.shape ? { shape: product.shape } : undefined;
 
   return {
     productId: product.id,
@@ -18,6 +21,9 @@ export function buildQuoteRequestItem(product: ProductDetail, unit: SelectableUn
     ...(reference ? { reference } : {}),
     quantity,
     productName: product.name,
+    ...(product.supplierName ? { supplier: product.supplierName } : {}),
+    ...(product.categoryName ? { category: product.categoryName } : {}),
+    ...(product.images[0]?.url ? { imageUrl: product.images[0].url } : {}),
     ...(selectedAttributes && Object.keys(selectedAttributes).length > 0 ? { selectedAttributes } : {}),
     ...(snapshot && Object.keys(snapshot).length > 0 ? { variantSnapshot: snapshot } : {}),
     ...(notes?.trim() ? { notes: notes.trim() } : {}),
@@ -47,6 +53,8 @@ export function validateQuoteRequest(payload: QuoteRequestPayload): Record<strin
     if (!item.selectedAttributes || Object.keys(item.selectedAttributes).length === 0) errors[`${prefix}.selectedAttributes`] = 'La selección de atributos es obligatoria.';
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 999) errors[`${prefix}.quantity`] = 'La cantidad debe estar entre 1 y 999.';
     if (!item.productName.trim() || item.productName.length > 300) errors[`${prefix}.productName`] = 'El nombre del producto es obligatorio y no puede superar 300 caracteres.';
+    if (!item.supplier?.trim()) errors[`${prefix}.supplier`] = 'El proveedor de la línea es obligatorio.';
+    if (!item.category?.trim()) errors[`${prefix}.category`] = 'La categoría de la línea es obligatoria.';
     if (item.notes && item.notes.length > 2000) errors[`${prefix}.notes`] = 'Las notas no pueden superar 2000 caracteres.';
     if (item.selectedAttributes && Object.keys(item.selectedAttributes).some((key) => /(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))) errors[`${prefix}.selectedAttributes`] = 'La selección contiene campos no públicos.';
   });

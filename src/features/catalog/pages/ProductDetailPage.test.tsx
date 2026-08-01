@@ -83,6 +83,35 @@ describe('ProductDetailPage', () => {
     expect(screen.getByRole('link', { name: 'Volver al catálogo' })).toHaveAttribute('href', '/productos');
   });
 
+  it('renders direct variant lighting fields and version from the active API variant', async () => {
+    const response = {
+      ...alba,
+      shape: 'Oval',
+      has_led: true,
+      lighting_type: 'Retroiluminada',
+      lighting_technology: 'TRILED',
+      configuration_fields: ['dimension', 'version'],
+      variants: [{
+        ...alba.variants[0],
+        version: 'Plus',
+        has_led: true,
+        lighting_type: 'Retroiluminada',
+        lighting_technology: 'TRILED',
+        light_temp: '3000/4200/6400 K',
+      }],
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail();
+
+    expect(await screen.findByRole('heading', { name: 'Alba' })).toBeInTheDocument();
+    expect(screen.getByText('TRILED')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('3000/4200/6400 K')).toBeInTheDocument();
+      expect(screen.getByText('Plus')).toBeInTheDocument();
+    });
+  });
+
   it('allows retry after a recoverable error', async () => {
     const fetchMock = vi.fn()
       .mockRejectedValueOnce(new Error('offline'))
@@ -157,7 +186,7 @@ describe('ProductDetailPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Añadir al presupuesto' }));
 
     const stored = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '[]');
-    expect(stored[0]).toMatchObject({ variantId: 'mt-espejos-alba--v0002', reference: '7195', selectedAttributes: { finish: 'Azul atlántico', dimension: 'Ø 60' } });
+    expect(stored.lines[0]).toMatchObject({ variantId: 'mt-espejos-alba--v0002', reference: '7195', selectedAttributes: { finish: 'Azul atlántico', dimension: 'Ø 60' } });
   });
 
   it.each([

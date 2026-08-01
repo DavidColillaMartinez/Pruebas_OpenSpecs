@@ -5,8 +5,8 @@ import { QuoteSelectionPage } from './QuoteSelectionPage';
 import { QuoteSelectionProvider, QUOTE_SELECTION_STORAGE_KEY } from '../model/selectionStore';
 
 const lines = [
-  { productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0001', reference: '7195', quantity: 1, productName: 'Alba', selectedAttributes: { dimension: 'Ø 60', finish: 'Terracota', has_led: false } },
-  { productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0005', reference: '7196', quantity: 1, productName: 'Alba', selectedAttributes: { dimension: 'Ø 70', finish: 'Terracota', has_led: false } },
+  { productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0001', reference: '7195', quantity: 1, productName: 'Alba', supplier: 'Manillons Torrent', category: 'Espejos', imageUrl: 'https://assets.example/alba.webp', selectedAttributes: { dimension: 'Ø 60', finish: 'Terracota', has_led: false } },
+  { productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0005', reference: '7196', quantity: 1, productName: 'Alba', supplier: 'Manillons Torrent', category: 'Espejos', imageUrl: 'https://assets.example/alba.webp', selectedAttributes: { dimension: 'Ø 70', finish: 'Terracota', has_led: false } },
 ];
 
 afterEach(() => {

@@ -6,16 +6,32 @@ type SelectableUnit = SelectedProductUnit & {
   sourceOrder: number;
 };
 
+const DEFAULT_CONFIGURABLE_KEYS = ['dimension', 'measure', 'finish', 'version', 'distribution', 'glass', 'opening', 'orientation'];
+
+function attributeValue(value: unknown): string | undefined {
+  if (typeof value === 'string' && value.trim()) return value;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return undefined;
+}
+
 function variantAttributes(variant: ProductVariant): Record<string, string> {
-  return Object.fromEntries(
-    Object.entries({
+  const values = {
+      measure: variant.measure,
       dimension: variant.dimension,
       finish: variant.finish,
       version: variant.version,
+      has_led: variant.hasLed,
+      lighting_type: variant.lightingType,
+      lighting_technology: variant.lightingTechnology,
+      light_temp: variant.lightTemp,
       distribution: variant.distribution,
       finishCode: variant.finishCode,
       ...variant.attributes,
-    }).filter(([key, value]) => typeof value === 'string' && value.length > 0 && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))
+  };
+  return Object.fromEntries(
+    Object.entries(values)
+      .map(([key, value]): [string, string | undefined] => [key, attributeValue(value)])
+      .filter((entry): entry is [string, string] => Boolean(entry[1]) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(entry[0]))
   ) as Record<string, string>;
 }
 
@@ -27,6 +43,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
     productName: product.name,
     variantSnapshot: {
       reference: variant.reference,
+      measure: variant.measure,
       dimension: variant.dimension,
       finish: variant.finish,
       version: variant.version,
@@ -47,7 +64,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
     const matchedVariant = product.variants.find((variant) => variant.finishCode && variant.finishCode === offerVariant.finishCode);
     return {
       productId: product.id,
-      variantId: matchedVariant?.id,
+      variantId: offerVariant.id,
       commercialOfferVariantId: offerVariant.id,
       quantity: 1,
       productName: product.name,
@@ -79,21 +96,20 @@ export function selectInitialEnclosureUnit(units: SelectableUnit[]): SelectableU
 }
 
 export function getAttributeOptions(units: SelectableUnit[], current: Record<string, string>, configurationFields?: string[]): Record<string, string[]> {
-  const configuredKeys = configurationFields?.filter((key) => ['dimension', 'finish', 'version'].includes(key));
-  const keys = (configuredKeys?.length ? configuredKeys : ['dimension', 'finish', 'version'])
+  void current;
+  const configuredKeys = [...new Set(configurationFields?.filter((key) => key !== 'finishCode') || [])];
+  const keys = (configuredKeys.length ? configuredKeys : DEFAULT_CONFIGURABLE_KEYS)
     .filter((key) => units.some((unit) => unit.attributes[key]));
-  const visibleKeys = keys;
-  const selectionKeys = Object.keys(current).filter((key) => key !== 'finishCode' || !keys.includes('finish'));
-  return Object.fromEntries(visibleKeys.map((key) => {
+  return Object.fromEntries(keys.map((key) => {
     const options = [...new Set(units
-      .filter((unit) => selectionKeys.every((selectedKey) => selectedKey === key || unit.attributes[selectedKey] === current[selectedKey]))
       .map((unit) => unit.attributes[key])
       .filter(Boolean))];
-    return [key, options];
-  }));
+    return options.length > 1 ? [key, options] : null;
+  }).filter((entry): entry is [string, string[]] => entry !== null));
 }
 
-export function selectCompatibleUnit(units: SelectableUnit[], selection: Record<string, string>, changedKey?: string): SelectableUnit | null {
+export function selectCompatibleUnit(units: SelectableUnit[], selection: Record<string, string>, changedKey?: string, configurationFields?: string[]): SelectableUnit | null {
+  const configuredKeys = new Set(configurationFields?.length ? configurationFields : DEFAULT_CONFIGURABLE_KEYS);
   const exact = findMatchingUnit(units, selection);
   if (exact) return exact;
   const changedValue = changedKey ? selection[changedKey] : undefined;
@@ -101,7 +117,7 @@ export function selectCompatibleUnit(units: SelectableUnit[], selection: Record<
     ? units.filter((unit) => unit.attributes[changedKey] === changedValue)
     : units;
   const preserved = candidates.filter((unit) => Object.entries(selection)
-    .filter(([key]) => key !== changedKey)
+    .filter(([key]) => key !== changedKey && configuredKeys.has(key))
     .every(([key, value]) => unit.attributes[key] === value));
   return [...(preserved.length > 0 ? preserved : candidates)].sort((a, b) => a.sourceOrder - b.sourceOrder)[0] || null;
 }

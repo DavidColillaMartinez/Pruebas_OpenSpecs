@@ -3,7 +3,9 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { QuoteRequestItem } from './types';
 
-export const QUOTE_SELECTION_STORAGE_KEY = 'lrmq:quote-selection:v1';
+export const QUOTE_SELECTION_STORAGE_KEY = 'lrmq:quote-selection:v2';
+const LEGACY_QUOTE_SELECTION_STORAGE_KEY = 'lrmq:quote-selection:v1';
+const QUOTE_SELECTION_STORAGE_VERSION = 2;
 
 export type QuoteSelectionLine = QuoteRequestItem;
 
@@ -48,9 +50,12 @@ function normalizeLine(value: unknown): QuoteSelectionLine | null {
   const commercialOfferVariantId = typeof record.commercialOfferVariantId === 'string' ? record.commercialOfferVariantId : undefined;
   const reference = typeof record.reference === 'string' ? record.reference : '';
   const productName = typeof record.productName === 'string' ? record.productName : '';
+  const supplier = typeof record.supplier === 'string' ? record.supplier : '';
+  const category = typeof record.category === 'string' ? record.category : '';
+  const imageUrl = typeof record.imageUrl === 'string' ? record.imageUrl : undefined;
   const selectedAttributes = cleanAttributes(record.selectedAttributes);
   const quantity = Number(record.quantity);
-  if (!productId || (!variantId && !commercialOfferVariantId) || !reference || !productName || !selectedAttributes || !Number.isInteger(quantity) || quantity < 1) return null;
+  if (!productId || (!variantId && !commercialOfferVariantId) || !reference || !productName || !supplier || !category || !selectedAttributes || !Number.isInteger(quantity) || quantity < 1) return null;
 
   return {
     productId,
@@ -59,6 +64,9 @@ function normalizeLine(value: unknown): QuoteSelectionLine | null {
     reference,
     quantity: Math.min(999, quantity),
     productName,
+    supplier,
+    category,
+    ...(imageUrl ? { imageUrl } : {}),
     selectedAttributes,
     variantSnapshot: cleanAttributes(record.variantSnapshot),
     ...(typeof record.notes === 'string' && record.notes.trim() ? { notes: record.notes.trim() } : {}),
@@ -67,12 +75,21 @@ function normalizeLine(value: unknown): QuoteSelectionLine | null {
 
 function readStoredLines(): QuoteSelectionLine[] {
   if (typeof window === 'undefined') return [];
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '[]');
-    return Array.isArray(parsed) ? parsed.map(normalizeLine).filter((line): line is QuoteSelectionLine => line !== null) : [];
-  } catch {
-    return [];
+  for (const key of [QUOTE_SELECTION_STORAGE_KEY, LEGACY_QUOTE_SELECTION_STORAGE_KEY]) {
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(key) || 'null');
+      const values: unknown[] = Array.isArray(parsed)
+        ? parsed
+        : parsed && typeof parsed === 'object' && parsed.version === QUOTE_SELECTION_STORAGE_VERSION && Array.isArray(parsed.lines)
+          ? parsed.lines
+          : [];
+      const lines = values.map((value) => normalizeLine(value)).filter((line): line is QuoteSelectionLine => line !== null);
+      if (lines.length > 0 || parsed === null) return lines;
+    } catch {
+      continue;
+    }
   }
+  return [];
 }
 
 export function getQuoteSelectionKey(line: Pick<QuoteRequestItem, 'productId' | 'variantId' | 'commercialOfferVariantId'>): string {
@@ -83,7 +100,7 @@ export function QuoteSelectionProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<QuoteSelectionLine[]>(readStoredLines);
 
   useEffect(() => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify({ version: QUOTE_SELECTION_STORAGE_VERSION, lines }));
   }, [lines]);
 
   const addLine = (line: QuoteSelectionLine): boolean => {

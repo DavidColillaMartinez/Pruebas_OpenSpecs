@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
 import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
+import { CatalogSelectionSummary } from '../../quote/components/CatalogSelectionSummary';
 import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterKeys, getCatalogFilterProfile, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
@@ -73,7 +74,7 @@ export function CatalogPage() {
   }, [data.loadedPage, data.status, location.search, query.page]);
 
   return (
-    <main className="min-h-screen bg-porcelain px-5 py-6 text-ink sm:px-8 sm:py-10" id="catalog-content" aria-labelledby="catalog-heading">
+    <main className="min-h-screen bg-porcelain px-5 py-6 pb-24 text-ink sm:px-8 sm:py-10 xl:pb-10" id="catalog-content" aria-labelledby="catalog-heading">
       <div className="mx-auto max-w-7xl">
         <a href="#catalog-results" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Saltar a resultados</a>
         <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain">
@@ -82,7 +83,7 @@ export function CatalogPage() {
         <CatalogMasthead />
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-graphite" aria-live="polite">{totalLabel}</p>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
+        <div className="mt-12 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16 xl:grid-cols-[15rem_minmax(0,1fr)_18rem]">
           <CatalogFilterPanel facets={data.facets} filters={query.filters} profile={filterProfile} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
           <section id="catalog-results" tabIndex={-1} aria-labelledby="catalog-results-heading" aria-busy={data.status === 'loading'} className="min-w-0 scroll-mt-6 focus-visible:outline-none">
             <div className="flex flex-col gap-4 border-b border-ink/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
@@ -162,6 +163,7 @@ export function CatalogPage() {
             {data.status === 'loading' && showing > 0 && <p className="mt-8 text-center text-sm text-graphite" role="status">Cargando más productos…</p>}
             <p className="mt-12 text-xs text-graphite/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
           </section>
+          <CatalogSelectionSummary />
         </div>
       </div>
     </main>

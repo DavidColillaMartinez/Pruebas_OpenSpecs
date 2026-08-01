@@ -51,9 +51,9 @@ describe('useCatalogDiscovery', () => {
 
   it('debounces search and resets the page in the URL', async () => {
     vi.useFakeTimers();
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({
       items: [], pagination: { limit: 24, offset: 0, total: 0 }, facets: {}, sort: { supported: ['relevance'] },
-    }), { status: 200 })));
+    }), { status: 200 }))));
 
     render(<MemoryRouter initialEntries={['/productos?category=cat-a&page=3']}><Harness /></MemoryRouter>);
     fireEvent.change(screen.getByRole('textbox', { name: 'Buscar' }), { target: { value: 'alba' } });
@@ -140,4 +140,5 @@ describe('useCatalogDiscovery', () => {
     await waitFor(() => expect(screen.getByTestId('url')).not.toHaveTextContent('shape=Circular'));
     expect(screen.getByTestId('url')).not.toHaveTextContent('category=espejos');
   });
+
 });

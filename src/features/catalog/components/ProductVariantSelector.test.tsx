@@ -30,7 +30,7 @@ describe('ProductVariantSelector', () => {
     expect(screen.getByRole('group', { name: 'Distribución' })).toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'Código de acabado' })).not.toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'Medida' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Aluminio')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Aluminio' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Free' }));
     fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
@@ -66,5 +66,30 @@ describe('ProductVariantSelector', () => {
     expect([...document.querySelectorAll('fieldset legend')].map((legend) => legend.textContent)).toEqual(['Medida', 'Acabado', 'Versión']);
     expect(screen.getByRole('group', { name: 'Acabado' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Versión' })).toBeInTheDocument();
+  });
+
+  it('resolves a new real variant when measure, finish, and version change', () => {
+    const product = normalizeProductDetail({
+      id: 'mt-espejos-switch',
+      name: 'Switch',
+      slug: 'mt-espejos-switch',
+      supplier_id: 'manillons-torrent',
+      category_id: 'espejos',
+      configuration_fields: ['dimension', 'finish', 'version'],
+      variants: [
+        { id: 'switch-small-basic', dimension: '60 x 80', finish: 'Negro mate', version: 'Básica', reference: 'SW-1', sort_order: 1 },
+        { id: 'switch-large-basic', dimension: '80 x 100', finish: 'Negro mate', version: 'Básica', reference: 'SW-2', sort_order: 2 },
+        { id: 'switch-large-plus', dimension: '80 x 100', finish: 'Oro cepillado', version: 'Plus', reference: 'SW-3', sort_order: 3 },
+      ],
+    });
+    const onSelectionChange = vi.fn();
+    render(<ProductVariantSelector product={product} onSelectionChange={onSelectionChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: '80 x 100' }));
+    expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'switch-large-basic' });
+    fireEvent.click(screen.getByRole('button', { name: 'Oro cepillado' }));
+    expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'switch-large-plus' });
+    fireEvent.click(screen.getByRole('button', { name: 'Básica' }));
+    expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'switch-small-basic' });
   });
 });

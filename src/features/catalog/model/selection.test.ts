@@ -37,7 +37,7 @@ describe('catalog variant selection', () => {
     });
     const units = getSelectableUnits(product);
 
-    expect(getAttributeOptions(units, { finish: 'Rojo' }).dimension).toEqual(['A']);
+    expect(getAttributeOptions(units, { finish: 'Rojo' }).dimension).toEqual(['A', 'B']);
     expect(findMatchingUnit(units, { finish: 'Rojo', dimension: 'B' })).toBeNull();
   });
 
@@ -56,7 +56,7 @@ describe('catalog variant selection', () => {
     });
     const units = getSelectableUnits(product);
 
-    expect(Object.keys(getAttributeOptions(units, units[0].attributes))).toEqual(['dimension', 'finish', 'version']);
+    expect(Object.keys(getAttributeOptions(units, units[0].attributes))).toEqual(['dimension', 'version']);
     expect(selectCompatibleUnit(units, { dimension: 'Ø 80', finish: 'Único', version: 'Básica' }, 'dimension')?.variantId).toBe('retro-plus-large');
   });
 

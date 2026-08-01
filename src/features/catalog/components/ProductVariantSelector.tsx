@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ProductDetail } from '../model/types';
-import { findEnclosureUnit, findMatchingUnit, getAttributeOptions, getEnclosureAttributeOptions, getSelectableUnits, isGmeEnclosureProduct, selectCompatibleUnit, selectEnclosureFinish, selectInitialEnclosureUnit, selectInitialUnit } from '../model/selection';
+import { findMatchingUnit, getAttributeOptions, getSelectableUnits, selectCompatibleUnit, selectInitialUnit } from '../model/selection';
 import type { SelectableUnit } from '../model/selection';
 
 type ProductVariantSelectorProps = {
@@ -10,22 +10,27 @@ type ProductVariantSelectorProps = {
 
 const labels: Record<string, string> = {
   dimension: 'Medida',
+  measure: 'Medida',
   finish: 'Acabado',
   version: 'Versión',
   distribution: 'Distribución',
+  glass: 'Vidrio',
+  opening: 'Apertura',
+  orientation: 'Orientación',
+  has_led: 'LED',
+  lighting_type: 'Tipo de iluminación',
+  lighting_technology: 'Tecnología LED',
+  light_temp: 'Temperatura de luz',
   finishCode: 'Código de acabado',
   offer: 'Oferta',
 };
 
 export function ProductVariantSelector({ product, onSelectionChange }: ProductVariantSelectorProps) {
   const units = useMemo(() => getSelectableUnits(product), [product]);
-  const isGmeEnclosure = isGmeEnclosureProduct(product);
-  const initialUnit = useMemo(() => isGmeEnclosure ? selectInitialEnclosureUnit(units) : selectInitialUnit(units), [isGmeEnclosure, units]);
+  const initialUnit = useMemo(() => selectInitialUnit(units), [units]);
   const [selection, setSelection] = useState<Record<string, string>>(initialUnit?.attributes || {});
-  const currentUnit = isGmeEnclosure
-    ? findEnclosureUnit(units, selection.finish, selection.distribution) || initialUnit
-    : findMatchingUnit(units, selection) || initialUnit;
-  const options = isGmeEnclosure ? getEnclosureAttributeOptions(units, currentUnit?.attributes || selection) : getAttributeOptions(units, selection, product.configurationFields);
+  const currentUnit = findMatchingUnit(units, selection) || selectCompatibleUnit(units, selection, undefined, product.configurationFields) || initialUnit;
+  const options = getAttributeOptions(units, currentUnit?.attributes || selection, product.configurationFields);
 
   useEffect(() => {
     setSelection(initialUnit?.attributes || {});
@@ -35,7 +40,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
     onSelectionChange(currentUnit);
   }, [currentUnit, onSelectionChange]);
 
-  if (units.length <= 1) return null;
+  if (units.length <= 1 || Object.keys(options).length === 0) return null;
 
   return (
     <section aria-labelledby="variant-selector-heading">
@@ -49,22 +54,15 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                 const isSelected = currentUnit?.attributes[key] === value;
                 return (
                   <button
-                    key={value}
+                  key={value}
                     type="button"
                     className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
                     aria-pressed={isSelected}
                     onClick={() => {
-                      if (isGmeEnclosure) {
-                        const nextUnit = key === 'finish'
-                          ? selectEnclosureFinish(units, currentUnit?.attributes || selection, value)
-                          : findEnclosureUnit(units, currentUnit?.attributes.finish, value);
-                        if (nextUnit) setSelection(nextUnit.attributes);
-                        return;
-                      }
-                       const nextSelection = { ...selection, [key]: value };
-                       if (key === 'finish') delete nextSelection.finishCode;
-                       const nextUnit = selectCompatibleUnit(units, nextSelection, key);
-                       setSelection(nextUnit?.attributes || nextSelection);
+                      const nextSelection = { ...selection, [key]: value };
+                      if (key === 'finish') delete nextSelection.finishCode;
+                      const nextUnit = selectCompatibleUnit(units, nextSelection, key, product.configurationFields);
+                      setSelection(nextUnit?.attributes || nextSelection);
                     }}
                   >
                     {value}

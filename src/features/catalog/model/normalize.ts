@@ -113,7 +113,8 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
   return {
     id,
     reference: asString(record.reference),
-    dimension: asString(record.dimension),
+    measure: asString(record.measure),
+    dimension: asString(record.dimension ?? record.measure),
     finish: asString(record.finish),
     version: asString(record.version) || asString(asRecord(record.attributes).version) || asString(asRecord(record.attributes).fixed_version) || asString(asRecord(record.raw_data).fixed_version),
     hasLed: asBoolean(record.has_led ?? record.hasLed ?? attributes.has_led),
@@ -210,6 +211,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     categoryName: asString(record.category_name),
     subcategory: asString(record.subcategory),
     collection: asString(record.collection),
+    shape: asString(record.shape) || asString(specs.shape) || asString(specs.Forma),
     description: asString(record.description),
     specs,
     productKind: asString(record.product_kind),
@@ -252,6 +254,7 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       categoryId: product.categoryId,
       categoryName: product.categoryName,
       collection: product.collection,
+      shape: product.shape,
       finishes: product.availableFinishes,
       distributions: product.availableDistributions,
       measures: product.availableMeasures,
@@ -272,7 +275,7 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
 
 export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
   const facets: CatalogFacets = {};
-  for (const key of ['category', 'supplier', 'subcategory', 'collection', 'product_kind'] as CatalogFacetKey[]) {
+  for (const key of ['category', 'supplier', 'subcategory', 'collection', 'product_kind', 'shape', 'has_led', 'lighting_type'] as CatalogFacetKey[]) {
     const bucket = new Map<string, CatalogFacetOption>();
     for (const card of items) {
       const result: { value: string; label: string } | null = ((): { value: string; label: string } | null => {
@@ -288,6 +291,9 @@ export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
           case 'subcategory': return card.subcategory ? { value: card.subcategory, label: card.subcategory } : null;
           case 'collection': return card.collection ? { value: card.collection, label: card.collection } : null;
           case 'product_kind': return card.productKind ? { value: card.productKind, label: card.productKind } : null;
+          case 'shape': return card.shape ? { value: card.shape, label: card.shape } : null;
+          case 'has_led': return card.hasLed === undefined ? null : { value: String(card.hasLed), label: card.hasLed ? 'Sí' : 'No' };
+          case 'lighting_type': return card.lightingType ? { value: card.lightingType, label: card.lightingType } : null;
           default: return null;
         }
       })();

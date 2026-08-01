@@ -17,11 +17,13 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
   }, [images]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
+  const [loadedUrls, setLoadedUrls] = useState<Set<string>>(() => new Set());
   const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     setActiveIndex(0);
     setFailedUrls(new Set());
+    setLoadedUrls(new Set());
     setZoomOpen(false);
   }, [orderedImages]);
 
@@ -72,7 +74,7 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
   return (
     <section aria-labelledby="product-gallery-heading">
       <h2 id="product-gallery-heading" className="sr-only">Imágenes del producto</h2>
-      <div className="group relative flex aspect-[1489/2105] max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10">
+      <div className="group relative flex aspect-[1489/2105] max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy={Boolean(activeImage && !loadedUrls.has(activeImage.url))}>
         {activeImage ? (
           <button
             type="button"
@@ -83,7 +85,10 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
             <img
               src={activeImage.url}
               alt={`${altPrefix}, imagen principal`}
-               className="h-full w-full object-contain"
+              className={`h-full w-full object-contain ${loadedUrls.has(activeImage.url) ? 'opacity-100' : 'opacity-0'}`}
+              loading="eager"
+              decoding="async"
+              onLoad={() => setLoadedUrls((current) => new Set(current).add(activeImage.url))}
               onError={() => markImageFailed(activeImage.url)}
             />
           </button>
@@ -128,7 +133,7 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
               aria-pressed={activeIndex === imageIndex}
               onClick={() => goToImage(imageIndex)}
             >
-              <img src={image.url} alt="" className="h-full w-full object-cover" aria-hidden="true" />
+               <img src={image.url} alt="" className="h-full w-full object-contain" loading="lazy" decoding="async" aria-hidden="true" />
             </button>
                 );
               })}
@@ -160,7 +165,7 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
           <img
             src={activeImage.url}
             alt={`${altPrefix}, imagen ampliada`}
-            className="max-h-[90vh] max-w-[90vw] rounded-2xl bg-white object-contain shadow-lift"
+            className="max-h-[90vh] max-w-[90vw] object-contain"
             onClick={(event) => event.stopPropagation()}
             onError={() => markImageFailed(activeImage.url)}
           />

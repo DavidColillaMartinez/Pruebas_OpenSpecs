@@ -179,9 +179,7 @@ async function loadFacetUniverse(cache: FacetCache, query: CatalogQueryState, si
     offset += step;
   }
 
-  cache.facets = getCatalogFilterProfile(query) === 'root'
-    ? deriveCatalogFacets([...cache.items.values()])
-    : pickFacetKeys(deriveCatalogFacets([...cache.items.values()]), ROOT_CATALOG_FILTER_KEYS);
+  cache.facets = pickFacetKeys(deriveCatalogFacets([...cache.items.values()]), getCatalogFilterKeys(getCatalogFilterProfile(query)));
   cache.status = 'success';
 }
 

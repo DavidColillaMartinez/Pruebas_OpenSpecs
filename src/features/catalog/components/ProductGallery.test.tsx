@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ProductGallery } from './ProductGallery';
 
 const images = [
@@ -13,6 +13,8 @@ describe('ProductGallery', () => {
 
     const thumbnails = screen.getAllByRole('button', { name: /Ver imagen/ });
     expect(thumbnails).toHaveLength(2);
+    expect(screen.getByRole('img', { name: 'Alba, Ø60, imagen principal' })).toHaveAttribute('src', images[0].url);
+    expect(screen.getByRole('img', { name: 'Alba, Ø60, imagen principal' })).toHaveAttribute('loading', 'eager');
     expect(thumbnails[0]).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(thumbnails[1]);
     expect(thumbnails[1]).toHaveAttribute('aria-pressed', 'true');
@@ -32,6 +34,16 @@ describe('ProductGallery', () => {
     const { rerender } = render(<ProductGallery images={images} productName="Alba" />);
     rerender(<ProductGallery images={[]} productName="Producto sin imagen" />);
     expect(await screen.findByText('Imagen no disponible')).toBeInTheDocument();
+  });
+
+  it('keeps the frame stable and falls back when the active API image fails', async () => {
+    render(<ProductGallery images={images} productName="Alba" />);
+
+    fireEvent.error(screen.getByRole('img', { name: 'Alba, imagen principal' }));
+    fireEvent.error(screen.getByRole('img', { name: 'Alba, imagen principal' }));
+
+    expect(screen.getByText('Imagen no disponible')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('region', { name: 'Imágenes del producto' }).querySelector('div[aria-busy]')).toHaveAttribute('aria-busy', 'false'));
   });
 
   it('navigates a long ordered gallery through five visible thumbnails and the zoom view', () => {

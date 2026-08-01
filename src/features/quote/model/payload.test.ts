@@ -18,6 +18,7 @@ describe('quote request payload', () => {
       notes: 'Consultar plazo',
     });
     expect(item.reference).toBe('7195');
+    expect(item).toMatchObject({ supplier: 'Manillons Torrent', category: 'Espejos', imageUrl: expect.stringContaining('mt26-esp-alba-i01.webp') });
     expect(item.selectedAttributes).toMatchObject({ dimension: 'Ø 60', finish: 'Terracota' });
     expect(item.variantSnapshot).toMatchObject({ reference: '7195', dimension: 'Ø 60' });
     expect(item.selectedAttributes).not.toHaveProperty('source_page');

@@ -29,9 +29,9 @@ function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
   const [addedMessage, setAddedMessage] = useState('');
   const { addLine } = useQuoteSelection();
-  const variantLabel = selectedUnit?.variantSnapshot && ['dimension', 'finish', 'version', 'distribution'].map((key) => selectedUnit.variantSnapshot?.[key]).filter(Boolean).map(String).join(' · ');
-  const galleryImages = isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const selectedSnapshot = buildVariantSnapshot(selectedUnit);
+  const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
+  const galleryImages = isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const specs = Object.entries(product.specs).filter(([key]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key));
   const productFacts = [
     ['LED', selectedSnapshot?.has_led ?? product.hasLed],
@@ -39,7 +39,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
     ['Tecnología LED', selectedSnapshot?.lighting_technology ?? product.lightingTechnology],
     ['Temperatura de luz', selectedSnapshot?.light_temp ?? product.lightTemp],
   ].filter(([, value]) => value !== undefined && value !== '');
-  const selectionFacts = ['dimension', 'finish', 'version'].map((key) => [key, selectedSnapshot?.[key]] as const).filter(([, value]) => value !== undefined && value !== '');
+  const selectionFacts = Object.entries(selectedSnapshot || {}).filter(([key, value]) => key !== 'reference' && !['has_led', 'lighting_type', 'lighting_technology', 'light_temp'].includes(key) && !(key === 'dimension' && selectedSnapshot?.measure !== undefined) && value !== undefined && value !== '');
 
   const addCurrentSelection = () => {
     if (!selectedUnit) return;
@@ -57,9 +57,11 @@ function ProductContent({ product }: { product: ProductDetail }) {
           {product.supplierName && <p className="mt-3 text-graphite">Proveedor: {product.supplierName}</p>}
           {product.subcategory && <p className="mt-1 text-graphite">{product.subcategory}</p>}
           {product.description && <p className="mt-6 whitespace-pre-line leading-relaxed text-graphite">{product.description}</p>}
-          <div className="mt-8">
-            <ProductVariantSelector product={product} onSelectionChange={setSelectedUnit} />
-          </div>
+           <div className="mt-8">
+             <ProductVariantSelector product={product} onSelectionChange={setSelectedUnit} />
+           </div>
+           {selectedUnit && selectedSnapshot && <p className="mt-5 text-sm text-graphite" aria-live="polite">Selección: {variantLabel || selectedSnapshot.reference || 'Variante completa'} · Referencia {selectedSnapshot.reference || 'no publicada'}</p>}
+           {!selectedUnit && <p className="mt-5 text-sm text-graphite" role="status">Esta ficha no tiene una variante pública completa seleccionable.</p>}
            <div className="mt-8 flex flex-wrap gap-3">
             <button type="button" disabled={!selectedUnit} onClick={addCurrentSelection} className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 px-5 text-sm font-semibold transition-colors hover:border-ink/60 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Añadir al presupuesto</button>
             <Link to="/presupuesto" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 px-5 text-sm font-semibold transition-colors hover:border-ink/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Ver presupuesto</Link>
@@ -75,7 +77,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
           <h2 id="product-details-heading" className="font-display text-3xl">Detalles públicos</h2>
            <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
              {productFacts.map(([key, value]) => <div key={String(key)}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
-             {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' ? 'Medida' : key === 'finish' ? 'Acabado' : 'Versión'} seleccionada</dt><dd className="mt-1">{String(value)}</dd></div>)}
+              {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' || key === 'measure' ? 'Medida' : key === 'finish' ? 'Acabado' : key === 'version' ? 'Versión' : key === 'has_led' ? 'LED' : key.replaceAll('_', ' ')}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
              {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{String(value)}</dd></div>)}
             {product.availableFinishes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Acabados</dt><dd className="mt-1">{product.availableFinishes.join(', ')}</dd></div>}
             {product.availableMeasures.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Medidas</dt><dd className="mt-1">{product.availableMeasures.join(', ')}</dd></div>}

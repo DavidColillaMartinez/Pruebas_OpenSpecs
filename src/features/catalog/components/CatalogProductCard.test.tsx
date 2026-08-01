@@ -20,8 +20,10 @@ describe('CatalogProductCard', () => {
 
     expect(screen.getByRole('link', { name: /Espejo Alba/ })).toHaveAttribute('href', '/productos/mt-espejos-alba');
     expect(screen.getByRole('img', { name: 'Espejo Alba' })).toHaveAttribute('loading', 'lazy');
+    expect(screen.getByRole('img', { name: 'Espejo Alba' })).toHaveAttribute('src', product.images[0].url);
     expect(screen.getByRole('img', { name: 'Espejo Alba' })).toHaveClass('object-contain');
     expect(screen.getByRole('img', { name: 'Espejo Alba' }).parentElement).not.toHaveClass('bg-stonewash');
+    expect(screen.getByRole('status')).toHaveTextContent('Cargando imagen');
     expect(screen.queryByText(/€/)).not.toBeInTheDocument();
   });
 

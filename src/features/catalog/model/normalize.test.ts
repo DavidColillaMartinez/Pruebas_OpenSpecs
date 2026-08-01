@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { MANILLONS_TORRENT_REQUIRED_MODELS } from '../api/fixtures/manillons-torrent-contract';
-import { normalizeProductDetail, normalizeProductList, resolveAssetUrl } from './normalize';
+import { deriveCatalogFacets, normalizeProductDetail, normalizeProductList, resolveAssetUrl } from './normalize';
 
 describe('product normalization', () => {
   it('keeps public identity, variants and absolute assets', () => {
@@ -139,6 +139,7 @@ describe('product normalization', () => {
         has_led: [{ value: true, label: 'Sí', count: 1 }, { value: false, label: 'No', count: 0 }],
         lighting_types: [{ value: 'Integrada', label: 'Integrada', count: 1 }],
         finishes: [{ value: 'Negro mate', label: 'Negro mate', count: 1 }],
+        measures: [{ value: '80 x 100', label: '80 x 100', count: 1 }],
       },
       sort: { supported: ['relevance'] },
     });
@@ -150,6 +151,50 @@ describe('product normalization', () => {
     ]);
     expect(response.facets.lighting_type).toEqual([{ value: 'Integrada', label: 'Integrada', count: 1 }]);
     expect(response.facets.finish).toEqual([{ value: 'Negro mate', label: 'Negro mate', count: 1 }]);
+    expect(response.facets.measure).toEqual([{ value: '80 x 100', label: '80 x 100', count: 1 }]);
+  });
+
+  it('uses explicit list specs for contextual mirror fields without inventing absent values', () => {
+    const response = normalizeProductList({
+      items: [{
+        id: 'mt-espejos-alba',
+        name: 'Alba',
+        slug: 'mt-espejos-alba',
+        category_id: 'espejos',
+        category_name: 'Espejos',
+        specs: { LED: 'No', Forma: 'Circular', 'Tipo de iluminación': 'Sin luz' },
+        images: [],
+      }, {
+        id: 'mt-espejos-unknown',
+        name: 'Sin campos',
+        slug: 'mt-espejos-unknown',
+        category_id: 'espejos',
+        images: [],
+      }],
+      pagination: { limit: 24, offset: 0, total: 2 },
+      facets: {},
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.items[0]).toMatchObject({ shape: 'Circular', hasLed: false, lightingType: 'Sin luz' });
+    expect(response.items[1].hasLed).toBeUndefined();
+  });
+
+  it('derives fallback Espejos facets from complete normalized items without turning absent LED into false', () => {
+    const response = normalizeProductList({
+      items: [
+        { id: 'mirror-led', name: 'LED', slug: 'mirror-led', category_id: 'espejos', specs: { LED: 'Sí', Forma: 'Oval', 'Tipo de iluminación': 'Retroiluminada' }, images: [] },
+        { id: 'mirror-no-led', name: 'No LED', slug: 'mirror-no-led', category_id: 'espejos', specs: { LED: 'No', Forma: 'Circular' }, images: [] },
+        { id: 'mirror-unknown', name: 'Unknown', slug: 'mirror-unknown', category_id: 'espejos', images: [] },
+      ],
+      pagination: { limit: 60, offset: 0, total: 3 },
+      facets: {},
+      sort: { supported: ['relevance'] },
+    });
+    const facets = deriveCatalogFacets(response.items);
+
+    expect(facets.shape?.map((option) => option.value)).toEqual(['Circular', 'Oval']);
+    expect(facets.has_led?.map((option) => option.value)).toEqual(['false', 'true']);
   });
 
   it('excludes prices and technical source fields from public specs', () => {
@@ -170,19 +215,24 @@ describe('product normalization', () => {
       id: 'mt-espejos-retro',
       name: 'Retro',
       slug: 'mt-espejos-retro',
+      shape: 'Oval',
+      has_led: true,
+      lighting_type: 'Retroiluminada',
+      lighting_technology: 'LED estándar',
       supplier_id: 'manillons-torrent',
       category_id: 'espejos',
       specs: { LED: 'Sí', 'Tipo de iluminación': 'Retroiluminada' },
       variants: [
-        { id: 'retro-basic', version: 'Básica', has_led: true, lighting_type: 'Retroiluminada', lighting_technology: 'LED estándar', light_temp: '3000 K' },
-        { id: 'retro-plus', version: 'Plus', has_led: true, lighting_type: 'Retroiluminada', lighting_technology: 'TRILED', light_temp: '3000/4200/6400 K' },
+        { id: 'retro-basic', measure: '60 x 80', version: 'Básica', has_led: true, lighting_type: 'Retroiluminada', lighting_technology: 'LED estándar', light_temp: '3000 K' },
+        { id: 'retro-plus', measure: '80 x 100', version: 'Plus', has_led: true, lighting_type: 'Retroiluminada', lighting_technology: 'TRILED', light_temp: '3000/4200/6400 K' },
       ],
     });
 
     expect(product.variants).toMatchObject([
-      { version: 'Básica', lightingTechnology: 'LED estándar', lightTemp: '3000 K' },
-      { version: 'Plus', lightingTechnology: 'TRILED', lightTemp: '3000/4200/6400 K' },
+      { measure: '60 x 80', dimension: '60 x 80', version: 'Básica', lightingTechnology: 'LED estándar', lightTemp: '3000 K' },
+      { measure: '80 x 100', dimension: '80 x 100', version: 'Plus', lightingTechnology: 'TRILED', lightTemp: '3000/4200/6400 K' },
     ]);
+    expect(product).toMatchObject({ shape: 'Oval', hasLed: true, lightingType: 'Retroiluminada', lightingTechnology: 'LED estándar' });
     expect(normalizeProductDetail({ id: 'missing-light', name: 'Missing', slug: 'missing', variants: [{ id: 'v1' }] }).lightingTechnology).toBeUndefined();
   });
 

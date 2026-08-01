@@ -12,6 +12,7 @@ export type ProductImage = {
 export type ProductVariant = {
   id: string;
   reference?: string;
+  measure?: string;
   dimension?: string;
   finish?: string;
   version?: string;
@@ -53,6 +54,7 @@ export type ProductDetail = {
   categoryName?: string;
   subcategory?: string;
   collection?: string;
+  shape?: string;
   description?: string;
   specs: Record<string, string | number | boolean>;
   productKind?: string;
@@ -80,6 +82,7 @@ export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' |
   measures?: string[];
   productKind?: string;
   subcategory?: string;
+  shape?: string;
   galleryRule?: string;
   hasLed?: boolean;
   lightingType?: string;

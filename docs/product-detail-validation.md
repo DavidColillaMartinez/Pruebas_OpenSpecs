@@ -2,6 +2,8 @@
 
 ## External Contract Checks
 
+Latest audit addendum: 2026-08-01. The resource-specific detail workflow from `.env.example` returns `200` for `mt-espejos-alba`, `mt-espejos-alvero`, and `gme-mamparas-ducha-aktual`. The shared list webhook detail path returns `404` because it is not registered and is not the detail contract. See `docs/catalog-basket-api-audit.md` for exact URLs and response evidence.
+
 | Check | Status | Evidence |
 | --- | --- | --- |
 | Public catalog config | PASS | Inspected active response and verified through `/api/catalog/config` proxy |

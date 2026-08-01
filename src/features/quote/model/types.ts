@@ -5,6 +5,9 @@ export type QuoteRequestItem = {
   reference?: string;
   quantity: number;
   productName: string;
+  supplier?: string;
+  category?: string;
+  imageUrl?: string;
   selectedAttributes?: Record<string, string | number | boolean>;
   variantSnapshot?: Record<string, string | number | boolean | undefined>;
   notes?: string;
