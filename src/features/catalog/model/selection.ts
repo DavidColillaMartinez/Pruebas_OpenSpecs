@@ -6,7 +6,7 @@ type SelectableUnit = SelectedProductUnit & {
   sourceOrder: number;
 };
 
-const DEFAULT_CONFIGURABLE_KEYS = ['dimension', 'measure', 'finish', 'version', 'distribution', 'glass', 'opening', 'orientation'];
+const DEFAULT_CONFIGURABLE_KEYS = ['dimension', 'measure', 'finish', 'offer', 'version', 'distribution', 'glass', 'opening', 'orientation'];
 
 function attributeValue(value: unknown): string | undefined {
   if (typeof value === 'string' && value.trim()) return value;

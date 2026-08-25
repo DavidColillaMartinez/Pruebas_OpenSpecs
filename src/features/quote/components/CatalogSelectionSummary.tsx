@@ -26,6 +26,10 @@ function formatAttributes(line: QuoteSelectionLine): string {
     .join(' · ');
 }
 
+function formatReference(line: QuoteSelectionLine): string {
+  return line.reference ? `Referencia ${line.reference}` : 'Variante seleccionada';
+}
+
 function SelectionLine({ line, compact = false }: { line: QuoteSelectionLine; compact?: boolean }) {
   const { updateQuantity, removeLine } = useQuoteSelection();
   const key = getQuoteSelectionKey(line);
@@ -35,7 +39,7 @@ function SelectionLine({ line, compact = false }: { line: QuoteSelectionLine; co
         {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-14 w-11 shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-14 w-11 shrink-0 place-items-center border border-ink/10 text-[10px] text-graphite">Sin imagen</span>}
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-snug">{line.productName}</p>
-          <p className="mt-1 text-xs text-graphite">{formatAttributes(line) || `Referencia ${line.reference}`}</p>
+          <p className="mt-1 text-xs text-graphite">{formatAttributes(line) || formatReference(line)}</p>
           <div className="mt-3 flex items-center gap-2">
             <label htmlFor={`summary-quantity-${key}`} className="sr-only">Cantidad de {line.productName}</label>
             <input id={`summary-quantity-${key}`} type="number" min="1" max="999" value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-8 w-14 border-b border-ink/25 bg-transparent text-center text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-clay" />

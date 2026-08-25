@@ -15,10 +15,12 @@ const firstLine = {
 };
 
 const secondLine = { ...firstLine, variantId: 'mt-espejos-alba--v0005', reference: '7196', selectedAttributes: { dimension: 'Ø 70', finish: 'Terracota', has_led: false } };
+const noReferenceLine = { ...firstLine, productId: 'gme-mamparas-ducha-akt', variantId: 'gme-mamparas-ducha-akt--ang-cr', reference: undefined, productName: 'Aktual', supplier: 'GME', category: 'Mamparas', selectedAttributes: { finish: 'Cromo', distribution: 'Angular al vértice' } };
+const noAttributesLine = { ...firstLine, productId: 'royo-simple-product', variantId: 'royo-simple-product--v0001', reference: 'C0074654', productName: 'Mueble sencillo', supplier: 'Royo', category: 'Muebles y lavabos', selectedAttributes: undefined };
 
 function Harness() {
   const selection = useQuoteSelection();
-  return <><button type="button" onClick={() => selection.addLine(firstLine)}>Añadir primera</button><button type="button" onClick={() => selection.addLine(secondLine)}>Añadir segunda</button><button type="button" onClick={() => selection.updateQuantity('mt-espejos-alba::mt-espejos-alba--v0001', 4)}>Cambiar cantidad</button><button type="button" onClick={() => selection.removeLine('mt-espejos-alba::mt-espejos-alba--v0001')}>Eliminar primera</button><output data-testid="count">{selection.count}</output><output data-testid="lines">{JSON.stringify(selection.lines)}</output></>;
+  return <><button type="button" onClick={() => selection.addLine(firstLine)}>Añadir primera</button><button type="button" onClick={() => selection.addLine(secondLine)}>Añadir segunda</button><button type="button" onClick={() => selection.addLine(noReferenceLine)}>Añadir GME</button><button type="button" onClick={() => selection.addLine(noAttributesLine)}>Añadir Royo</button><button type="button" onClick={() => selection.updateQuantity('mt-espejos-alba::mt-espejos-alba--v0001', 4)}>Cambiar cantidad</button><button type="button" onClick={() => selection.removeLine('mt-espejos-alba::mt-espejos-alba--v0001')}>Eliminar primera</button><output data-testid="count">{selection.count}</output><output data-testid="lines">{JSON.stringify(selection.lines)}</output></>;
 }
 
 afterEach(() => {
@@ -56,6 +58,31 @@ describe('quote selection store', () => {
     expect(JSON.parse(screen.getByTestId('lines').textContent || '[]')[0].quantity).toBe(4);
     fireEvent.click(screen.getByRole('button', { name: 'Eliminar primera' }));
     expect(screen.getByTestId('count')).toHaveTextContent('0');
+  });
+
+  it('keeps a complete variant whose API does not publish a reference', () => {
+    render(<QuoteSelectionProvider><Harness /></QuoteSelectionProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir GME' }));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(JSON.parse(screen.getByTestId('lines').textContent || '[]')[0]).toMatchObject({
+      productId: noReferenceLine.productId,
+      variantId: noReferenceLine.variantId,
+      selectedAttributes: noReferenceLine.selectedAttributes,
+    });
+    expect(JSON.parse(screen.getByTestId('lines').textContent || '[]')[0].reference).toBeUndefined();
+  });
+
+  it('keeps a complete variant whose API publishes no extra attributes', () => {
+    render(<QuoteSelectionProvider><Harness /></QuoteSelectionProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir Royo' }));
+
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(JSON.parse(screen.getByTestId('lines').textContent || '[]')[0]).toMatchObject({
+      productId: noAttributesLine.productId,
+      variantId: noAttributesLine.variantId,
+      reference: noAttributesLine.reference,
+    });
   });
 
   it('drops legacy lines that cannot be safely migrated to the complete snapshot contract', () => {

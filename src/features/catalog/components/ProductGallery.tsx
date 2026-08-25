@@ -17,13 +17,11 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
   }, [images]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
-  const [loadedUrls, setLoadedUrls] = useState<Set<string>>(() => new Set());
   const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     setActiveIndex(0);
     setFailedUrls(new Set());
-    setLoadedUrls(new Set());
     setZoomOpen(false);
   }, [orderedImages]);
 
@@ -74,7 +72,7 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
   return (
     <section aria-labelledby="product-gallery-heading">
       <h2 id="product-gallery-heading" className="sr-only">Imágenes del producto</h2>
-      <div className="group relative flex aspect-[1489/2105] max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy={Boolean(activeImage && !loadedUrls.has(activeImage.url))}>
+      <div className="group relative flex aspect-[1489/2105] max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy="false">
         {activeImage ? (
           <button
             type="button"
@@ -83,12 +81,12 @@ export function ProductGallery({ images, productName, variantLabel }: ProductGal
             aria-label={`Ampliar imagen de ${altPrefix}`}
           >
             <img
+              key={activeImage.url}
               src={activeImage.url}
               alt={`${altPrefix}, imagen principal`}
-              className={`h-full w-full object-contain ${loadedUrls.has(activeImage.url) ? 'opacity-100' : 'opacity-0'}`}
+              className="h-full w-full object-contain"
               loading="eager"
               decoding="async"
-              onLoad={() => setLoadedUrls((current) => new Set(current).add(activeImage.url))}
               onError={() => markImageFailed(activeImage.url)}
             />
           </button>

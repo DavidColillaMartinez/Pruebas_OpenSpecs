@@ -48,26 +48,26 @@ function normalizeLine(value: unknown): QuoteSelectionLine | null {
   const productId = typeof record.productId === 'string' ? record.productId : '';
   const variantId = typeof record.variantId === 'string' ? record.variantId : undefined;
   const commercialOfferVariantId = typeof record.commercialOfferVariantId === 'string' ? record.commercialOfferVariantId : undefined;
-  const reference = typeof record.reference === 'string' ? record.reference : '';
+  const reference = typeof record.reference === 'string' && record.reference.trim() ? record.reference : undefined;
   const productName = typeof record.productName === 'string' ? record.productName : '';
   const supplier = typeof record.supplier === 'string' ? record.supplier : '';
   const category = typeof record.category === 'string' ? record.category : '';
   const imageUrl = typeof record.imageUrl === 'string' ? record.imageUrl : undefined;
   const selectedAttributes = cleanAttributes(record.selectedAttributes);
   const quantity = Number(record.quantity);
-  if (!productId || (!variantId && !commercialOfferVariantId) || !reference || !productName || !supplier || !category || !selectedAttributes || !Number.isInteger(quantity) || quantity < 1) return null;
+  if (!productId || (!variantId && !commercialOfferVariantId) || !productName || !supplier || !category || !Number.isInteger(quantity) || quantity < 1) return null;
 
   return {
     productId,
     ...(variantId ? { variantId } : {}),
     ...(commercialOfferVariantId ? { commercialOfferVariantId } : {}),
-    reference,
+    ...(reference ? { reference } : {}),
     quantity: Math.min(999, quantity),
     productName,
     supplier,
     category,
     ...(imageUrl ? { imageUrl } : {}),
-    selectedAttributes,
+    ...(selectedAttributes ? { selectedAttributes } : {}),
     variantSnapshot: cleanAttributes(record.variantSnapshot),
     ...(typeof record.notes === 'string' && record.notes.trim() ? { notes: record.notes.trim() } : {}),
   };

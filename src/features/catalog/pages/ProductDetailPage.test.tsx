@@ -218,4 +218,27 @@ describe('ProductDetailPage', () => {
     await waitFor(() => expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', productImage));
     expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(2);
   });
+
+  it('adds a GME variant to the budget when the API omits its reference', async () => {
+    const response = {
+      ...gmeProduct('gme-mamparas-ducha-aktual'),
+      variants: gmeProduct('gme-mamparas-ducha-aktual').variants.map((variant) => ({ ...variant, reference: undefined })),
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    render(
+      <QuoteSelectionProvider>
+        <MemoryRouter initialEntries={['/productos/gme-mamparas-ducha-aktual']}>
+          <Routes><Route path="/productos/:slug" element={<ProductDetailPage />} /></Routes>
+        </MemoryRouter>
+      </QuoteSelectionProvider>,
+    );
+    expect(await screen.findByRole('heading', { name: 'Basic' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).not.toBeDisabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir al presupuesto' }));
+
+    const stored = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '{}');
+    expect(stored.lines[0]).toMatchObject({ productId: 'gme-mamparas-ducha-aktual', variantId: 'gme-mamparas-ducha-aktual-cromo-primary' });
+    expect(stored.lines[0].reference).toBeUndefined();
+  });
 });

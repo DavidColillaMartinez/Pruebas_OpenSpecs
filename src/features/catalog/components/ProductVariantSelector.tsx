@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProductDetail } from '../model/types';
 import { findMatchingUnit, getAttributeOptions, getSelectableUnits, selectCompatibleUnit, selectInitialUnit } from '../model/selection';
 import type { SelectableUnit } from '../model/selection';
@@ -29,12 +29,15 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
   const units = useMemo(() => getSelectableUnits(product), [product]);
   const initialUnit = useMemo(() => selectInitialUnit(units), [units]);
   const [selection, setSelection] = useState<Record<string, string>>(initialUnit?.attributes || {});
+  const productIdRef = useRef(product.id);
   const currentUnit = findMatchingUnit(units, selection) || selectCompatibleUnit(units, selection, undefined, product.configurationFields) || initialUnit;
   const options = getAttributeOptions(units, currentUnit?.attributes || selection, product.configurationFields);
 
   useEffect(() => {
+    if (productIdRef.current === product.id) return;
+    productIdRef.current = product.id;
     setSelection(initialUnit?.attributes || {});
-  }, [initialUnit]);
+  }, [initialUnit, product.id]);
 
   useEffect(() => {
     onSelectionChange(currentUnit);

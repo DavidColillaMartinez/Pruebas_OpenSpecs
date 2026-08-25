@@ -23,6 +23,7 @@ describe('catalog variant selection', () => {
     expect(units.length).toBeGreaterThan(product.variants.length);
     expect(initial?.commercialOfferVariantId).toContain('--offer001--v0001');
     expect(findMatchingUnit(units, initial?.attributes || {})).toMatchObject({ commercialOfferVariantId: initial?.commercialOfferVariantId });
+    expect(getAttributeOptions(units, initial?.attributes || {}).offer).toEqual(['Conjunto completo', 'Conjunto premium']);
   });
 
   it('removes incompatible values instead of creating impossible combinations', () => {

@@ -26,6 +26,10 @@ function displayValue(value: string | number | boolean): string {
   return typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value);
 }
 
+function formatReference(line: { reference?: string }): string {
+  return line.reference ? `Referencia ${line.reference}` : 'Referencia no publicada';
+}
+
 export function QuoteSelectionPage() {
   const { lines, updateQuantity, removeLine, clear } = useQuoteSelection();
   const [form, setForm] = useState({ customerName: '', email: '', phone: '', message: '', consent: false });
@@ -95,7 +99,7 @@ export function QuoteSelectionPage() {
                       <div className="flex items-start gap-4">
                         {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-24 w-20 shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-24 w-20 shrink-0 place-items-center border border-ink/10 text-center text-xs text-graphite">Sin imagen</span>}
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-5"><div><h3 className="text-lg font-semibold">{line.productName}</h3><p className="mt-1 text-sm text-graphite">{line.supplier || line.category || 'Producto'} · Referencia {line.reference}</p></div><button type="button" onClick={() => removeLine(key)} aria-label={`Eliminar ${line.productName} ${line.reference}`} className="shrink-0 text-sm text-graphite underline-offset-4 hover:text-ink hover:underline">Eliminar</button></div>
+                           <div className="flex items-start justify-between gap-5"><div><h3 className="text-lg font-semibold">{line.productName}</h3><p className="mt-1 text-sm text-graphite">{line.supplier || line.category || 'Producto'} · {formatReference(line)}</p></div><button type="button" onClick={() => removeLine(key)} aria-label={`Eliminar ${line.productName}${line.reference ? ` ${line.reference}` : ''}`} className="shrink-0 text-sm text-graphite underline-offset-4 hover:text-ink hover:underline">Eliminar</button></div>
                           <dl className="mt-4 grid gap-x-5 gap-y-2 text-sm sm:grid-cols-2">{Object.entries(line.selectedAttributes || {}).map(([attribute, value]) => <div key={attribute}><dt className="text-graphite">{attributeLabels[attribute] || attribute}</dt><dd className="font-semibold">{displayValue(value)}</dd></div>)}</dl>
                           <div className="mt-5 flex items-center gap-3"><label htmlFor={`quantity-${key}`} className="text-sm font-semibold">Cantidad</label><input id={`quantity-${key}`} type="number" min="1" max="999" value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-10 w-20 border-b border-ink/30 bg-transparent px-1 text-center focus:border-ink focus:outline-none" /></div>
                         </div>

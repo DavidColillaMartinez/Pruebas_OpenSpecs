@@ -41,6 +41,54 @@ describe('quote request payload', () => {
     expect(second.selectedAttributes).toMatchObject({ dimension: 'Ø 70', finish: 'Azul atlántico' });
   });
 
+  it('keeps GME variants selectable without inventing a missing reference and prefers variant media', () => {
+    const product = normalizeProductDetail({
+      id: 'gme-mamparas-ducha-akt',
+      name: 'Aktual',
+      slug: 'gme-mamparas-ducha-aktual',
+      supplier_id: 'gme',
+      supplier_name: 'GME',
+      category_id: 'mamparas',
+      category_name: 'Mamparas',
+      images: [{ url: 'https://assets.example/aktual-product.webp' }],
+      configuration_fields: ['distribution', 'finish'],
+      variants: [{
+        id: 'gme-mamparas-ducha-akt--ang-cr',
+        finish: 'Cromo',
+        images: [{ url: 'https://assets.example/aktual-variant.webp' }],
+        attributes: { distribution: 'Angular al vértice' },
+      }],
+    });
+    const item = buildQuoteRequestItem(product, selectInitialUnit(getSelectableUnits(product)), 1);
+
+    expect(item).toMatchObject({
+      productId: 'gme-mamparas-ducha-akt',
+      variantId: 'gme-mamparas-ducha-akt--ang-cr',
+      imageUrl: 'https://assets.example/aktual-variant.webp',
+      selectedAttributes: { finish: 'Cromo', distribution: 'Angular al vértice' },
+    });
+    expect(item.reference).toBeUndefined();
+    expect(validateQuoteRequest({ customerName: 'Ana', email: 'ana@example.com', consentPrivacy: true, items: [item] })).toEqual({});
+  });
+
+  it('keeps a published variant whose API exposes no additional attributes', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-simple-product',
+      name: 'Mueble sencillo',
+      slug: 'royo-simple-product',
+      supplier_id: 'royo',
+      supplier_name: 'Royo',
+      category_id: 'muebles-y-lavabos',
+      category_name: 'Muebles y lavabos',
+      variants: [{ id: 'royo-simple-product--v0001', reference: 'C0074654', attributes: {} }],
+    });
+    const item = buildQuoteRequestItem(product, selectInitialUnit(getSelectableUnits(product)), 1);
+
+    expect(item).toMatchObject({ productId: 'royo-simple-product', variantId: 'royo-simple-product--v0001', reference: 'C0074654' });
+    expect(item.selectedAttributes).toBeUndefined();
+    expect(validateQuoteRequest({ customerName: 'Ana', email: 'ana@example.com', consentPrivacy: true, items: [item] })).toEqual({});
+  });
+
   it('rejects missing contact, invalid quantity and oversized fields', () => {
     const errors = validateQuoteRequest({
       customerName: '',
