@@ -51,5 +51,5 @@
 - [x] 7.2 Run `npm run lint` and `npm run typecheck` and resolve only issues within the allowed store/catalog/budget scope.
 - [x] 7.3 Run `npm run build` and confirm the production build succeeds without requiring live API data.
 - [x] 7.4 Review `git diff` and `git status`, preserve all pre-existing user changes, and confirm the diff is limited to the approved frontend and test scope.
-- [ ] 7.5 Create the descriptive commit `feat(catalog): complete Royo furniture variants and budget selection` after all validation passes.
-- [ ] 7.6 Push the current work branch and verify the push result and final commit hash.
+- [x] 7.5 Create the descriptive commit `feat(catalog): complete Royo furniture variants and budget selection` after all validation passes.
+- [x] 7.6 Push the current work branch and verify the push result and final commit hash.
