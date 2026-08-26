@@ -1,4 +1,8 @@
-export type PublicAttributes = Record<string, string | number | boolean>;
+export type PublicAttributeValue = string | number | boolean;
+export type PublicAttributes = Record<string, PublicAttributeValue>;
+export type ProductSpecs = Record<string, unknown>;
+import type { CatalogModularity } from './royo';
+export type { CatalogModularity } from './royo';
 
 export type ProductImage = {
   alt: string;
@@ -11,6 +15,7 @@ export type ProductImage = {
 
 export type ProductVariant = {
   id: string;
+  label?: string;
   reference?: string;
   measure?: string;
   dimension?: string;
@@ -24,6 +29,7 @@ export type ProductVariant = {
   finishCode?: string;
   attributes: PublicAttributes;
   images?: ProductImage[];
+  imageMappingStatus?: string;
   sortOrder?: number;
 };
 
@@ -56,7 +62,7 @@ export type ProductDetail = {
   collection?: string;
   shape?: string;
   description?: string;
-  specs: Record<string, string | number | boolean>;
+  specs: ProductSpecs;
   productKind?: string;
   showPrice: boolean;
   galleryRule?: string;
@@ -65,6 +71,9 @@ export type ProductDetail = {
   lightingTechnology?: string;
   lightTemp?: string;
   images: ProductImage[];
+  mainImageUrl?: string;
+  mainImagePath?: string;
+  modularity?: CatalogModularity;
   variants: ProductVariant[];
   commercialOffers: CommercialOffer[];
   availableFinishes: string[];
@@ -90,6 +99,10 @@ export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' |
   lightTemp?: string;
   supplierId?: string;
   supplierName?: string;
+  mainImageUrl?: string;
+  mainImagePath?: string;
+  modularity?: CatalogModularity;
+  modularNotice?: string;
 };
 
 export const CATALOG_FACET_KEYS = [
@@ -104,6 +117,7 @@ export const CATALOG_FACET_KEYS = [
   'product_kind',
   'finish',
   'measure',
+  'modularity',
 ] as const;
 
 export type CatalogFacetKey = typeof CATALOG_FACET_KEYS[number];

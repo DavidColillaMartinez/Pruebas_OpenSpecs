@@ -92,4 +92,48 @@ describe('ProductVariantSelector', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Básica' }));
     expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'switch-small-basic' });
   });
+
+  it('disables an incompatible Royo combination instead of creating it', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-paired',
+      name: 'Royo paired',
+      slug: 'royo-paired',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      modularity: 'normal',
+      configuration_fields: ['measure', 'finish', 'presentation_type'],
+      variants: [
+        { id: 'royo-paired-80-white-wall', measure: '80', finish: 'Blanco', reference: 'R-80-B', attributes: { presentation_type: 'Suspendido' } },
+        { id: 'royo-paired-100-black-floor', measure: '100', finish: 'Negro', reference: 'R-100-N', attributes: { presentation_type: 'Al suelo' } },
+      ],
+    });
+    const onSelectionChange = vi.fn();
+    render(<ProductVariantSelector product={product} onSelectionChange={onSelectionChange} />);
+
+    expect(screen.getByRole('button', { name: 'Negro' })).toBeDisabled();
+    expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'royo-paired-80-white-wall' });
+  });
+
+  it('supports API-backed normal presentation types and resolves their real variants', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-normal-types',
+      name: 'Normal types',
+      slug: 'royo-normal-types',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      modularity: 'normal',
+      configuration_fields: ['measure', 'presentation_type', 'finish'],
+      variants: [
+        { id: 'royo-suspended-white', measure: '80', presentation_type: 'Suspendido', finish: 'Blanco', reference: 'R-1' },
+        { id: 'royo-floor-black', measure: '80', presentation_type: 'Al suelo', finish: 'Negro', reference: 'R-2' },
+      ],
+    });
+    const onSelectionChange = vi.fn();
+    render(<ProductVariantSelector product={product} onSelectionChange={onSelectionChange} />);
+
+    expect(screen.getByRole('group', { name: 'Tipo de presentación' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Negro' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Al suelo' }));
+    expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'royo-floor-black', variantSnapshot: { presentation_type: 'Al suelo', finish: 'Negro' } });
+  });
 });

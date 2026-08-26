@@ -10,6 +10,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
   const [imageState, setImageState] = useState<'loading' | 'loaded' | 'failed'>(images.length > 0 ? 'loading' : 'failed');
   const location = useLocation();
   const metadata = product.brand || product.supplierName || product.categoryName;
+  const modularityLabel = product.modularity === 'modular' ? 'Modular' : product.modularity === 'normal' ? 'Normal' : undefined;
   const activeImage = images[activeIndex] && !failedUrls.has(images[activeIndex].url) ? images[activeIndex] : null;
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
           {(product.collection || product.subcategory) && (
             <p className="mt-1 text-sm text-graphite">{product.collection || product.subcategory}</p>
           )}
+          {modularityLabel && <p className="mt-1 text-sm text-graphite">Modularidad: {modularityLabel}</p>}
         </div>
       </Link>
     </article>

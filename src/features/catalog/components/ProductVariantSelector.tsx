@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProductDetail } from '../model/types';
-import { findMatchingUnit, getAttributeOptions, getSelectableUnits, selectCompatibleUnit, selectInitialUnit } from '../model/selection';
+import { findMatchingUnit, getAttributeOptions, getSelectableUnits, isAttributeValueCompatible, selectCompatibleUnit, selectInitialUnit } from '../model/selection';
 import type { SelectableUnit } from '../model/selection';
+import { isRoyoFurnitureScope } from '../model/royo';
 
 type ProductVariantSelectorProps = {
   product: ProductDetail;
@@ -23,6 +24,13 @@ const labels: Record<string, string> = {
   light_temp: 'Temperatura de luz',
   finishCode: 'Código de acabado',
   offer: 'Oferta',
+  furniture_finish: 'Acabado del mueble',
+  handle_finish: 'Acabado del tirador',
+  countertop_finish: 'Acabado de encimera',
+  presentation_type: 'Tipo de presentación',
+  furniture_type: 'Tipo de mueble',
+  module_type: 'Tipo de módulo',
+  type: 'Tipo',
 };
 
 export function ProductVariantSelector({ product, onSelectionChange }: ProductVariantSelectorProps) {
@@ -32,6 +40,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
   const productIdRef = useRef(product.id);
   const currentUnit = findMatchingUnit(units, selection) || selectCompatibleUnit(units, selection, undefined, product.configurationFields) || initialUnit;
   const options = getAttributeOptions(units, currentUnit?.attributes || selection, product.configurationFields);
+  const enforceCompatibility = isRoyoFurnitureScope(product);
 
   useEffect(() => {
     if (productIdRef.current === product.id) return;
@@ -55,12 +64,15 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
             <div className="mt-2 flex flex-wrap gap-2">
               {values.map((value) => {
                 const isSelected = currentUnit?.attributes[key] === value;
+                const isCompatible = isAttributeValueCompatible(units, currentUnit?.attributes || selection, key, value, product.configurationFields);
                 return (
                   <button
                   key={value}
+                    disabled={enforceCompatibility && !isCompatible}
                     type="button"
-                    className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
+                    className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:cursor-not-allowed disabled:opacity-40 ${isSelected ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
                     aria-pressed={isSelected}
+                    aria-disabled={enforceCompatibility && !isCompatible}
                     onClick={() => {
                       const nextSelection = { ...selection, [key]: value };
                       if (key === 'finish') delete nextSelection.finishCode;

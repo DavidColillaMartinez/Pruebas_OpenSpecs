@@ -187,6 +187,7 @@ describe('ProductDetailPage', () => {
 
     const stored = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '[]');
     expect(stored.lines[0]).toMatchObject({ variantId: 'mt-espejos-alba--v0002', reference: '7195', selectedAttributes: { finish: 'Azul atlántico', dimension: 'Ø 60' } });
+    expect(screen.getByRole('status')).toHaveTextContent('Añadido al presupuesto.');
   });
 
   it.each([
@@ -240,5 +241,34 @@ describe('ProductDetailPage', () => {
     const stored = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '{}');
     expect(stored.lines[0]).toMatchObject({ productId: 'gme-mamparas-ducha-aktual', variantId: 'gme-mamparas-ducha-aktual-cromo-primary' });
     expect(stored.lines[0].reference).toBeUndefined();
+  });
+
+  it('renders Royo modular configuration as information instead of fictional selectors', async () => {
+    const response = {
+      ...royo,
+      modularity: 'modular',
+      specs: {
+        modular_notice: 'La composición se confirma con el equipo.',
+        module_configuration: { module_types: ['Mueble 2 cajones'], measure_options: { 'Mueble 2 cajones': ['60', '80'] }, depths_cm: { standard: 46 } },
+      },
+      configuration_fields: [],
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail(royo.slug);
+    expect(await screen.findByRole('heading', { name: royo.name })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Configuración del mueble' })).toBeInTheDocument();
+    expect(screen.getByText('La composición se confirma con el equipo.')).toBeInTheDocument();
+    expect(screen.getByText(/60, 80/)).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Medida' })).not.toBeInTheDocument();
+  });
+
+  it('disables the budget action when no real Royo variant is available', async () => {
+    const response = { ...royo, variants: [], commercial_offers: [], configuration_fields: [] };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail(royo.slug);
+    expect(await screen.findByRole('heading', { name: royo.name })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeDisabled();
   });
 });

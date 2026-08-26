@@ -3,6 +3,7 @@ import type {
   CatalogFacetKey,
   CatalogFacetOption,
   CatalogFacets,
+  CatalogModularity,
   CatalogSortMetadata,
   CatalogSortValue,
   CommercialOffer,
@@ -13,6 +14,7 @@ import type {
   ProductListResponse,
   ProductVariant,
   PublicAttributes,
+  ProductSpecs,
 } from './types';
 
 type UnknownRecord = Record<string, unknown>;
@@ -38,6 +40,10 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
 }
 
+function asModularity(value: unknown): CatalogModularity | undefined {
+  return value === 'modular' || value === 'normal' ? value : undefined;
+}
+
 function asNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
@@ -52,6 +58,25 @@ function publicAttributes(value: unknown): PublicAttributes {
   return Object.fromEntries(
     Object.entries(record).filter(([key, item]) => ['string', 'number', 'boolean'].includes(typeof item) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))
   ) as PublicAttributes;
+}
+
+const VARIANT_ATTRIBUTE_METADATA = /^(?:id|label|reference|measure|dimension|finish|version|has_led|hasled|lighting_type|lightingtype|lighting_technology|lightingtechnology|light_temp|lighttemp|light_temperature|distribution|finish_code|sort_order|images?|image_url|image_path|image_mapping_status)$/i;
+
+function publicVariantAttributes(record: UnknownRecord): PublicAttributes {
+  const nested = publicAttributes(record.attributes);
+  const direct = Object.fromEntries(Object.entries(record).filter(([key, item]) => (
+    ['string', 'number', 'boolean'].includes(typeof item)
+      && !VARIANT_ATTRIBUTE_METADATA.test(key)
+      && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key)
+  ))) as PublicAttributes;
+  return { ...direct, ...nested };
+}
+
+function publicSpecs(value: unknown): ProductSpecs {
+  const record = asRecord(value);
+  return Object.fromEntries(
+    Object.entries(record).filter(([key, item]) => item !== undefined && item !== null && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))
+  );
 }
 
 export function resolveAssetUrl(value: unknown, assetBaseUrl?: string | null): string | undefined {
@@ -96,7 +121,7 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
   const record = asRecord(value);
   const id = asString(record.id);
   if (!id) return null;
-  const attributes = publicAttributes(record.attributes);
+  const attributes = publicVariantAttributes(record);
   const rawData = asRecord(record.raw_data);
 
   const rawImages = Array.isArray(record.images)
@@ -112,6 +137,7 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
 
   return {
     id,
+    label: asString(record.label),
     reference: asString(record.reference),
     measure: asString(record.measure),
     dimension: asString(record.dimension ?? record.measure),
@@ -125,6 +151,7 @@ function normalizeVariant(value: unknown, productName: string, assetBaseUrl?: st
     finishCode: asString(record.finish_code),
     attributes,
     images: images.length > 0 ? [...new Map(images.map((item) => [item.url, item])).values()] : undefined,
+    imageMappingStatus: asString(record.image_mapping_status),
     sortOrder: asNumber(record.sort_order),
   };
 }
@@ -193,8 +220,11 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
   const images = Array.isArray(record.images)
     ? record.images.map((item) => normalizeImage(item, name, config?.asset_base_url)).filter((item): item is ProductImage => item !== null)
     : [];
-  const uniqueImages = orderImages([...new Map(images.map((item) => [item.url, item])).values()]);
-  const specs = publicAttributes(record.specs);
+  const mainImage = images.length === 0
+    ? normalizeImage({ alt: name, url: record.main_image_url ?? record.main_image_path, role: 'main' }, name, config?.asset_base_url)
+    : null;
+  const uniqueImages = orderImages([...new Map([...images, ...(mainImage ? [mainImage] : [])].map((item) => [item.url, item])).values()]);
+  const specs = publicSpecs(record.specs);
   const hasLed = asBoolean(record.has_led ?? record.hasLed) ?? asBoolean(specs.LED);
   const lightingType = asString(record.lighting_type ?? record.lightingType) || asString(specs['Tipo de iluminación']);
   const lightingTechnology = asString(record.lighting_technology ?? record.lightingTechnology) || asString(specs['Tecnología de iluminación']);
@@ -222,6 +252,9 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     lightingTechnology,
     lightTemp,
     images: uniqueImages,
+    mainImageUrl: asString(record.main_image_url),
+    mainImagePath: asString(record.main_image_path),
+    modularity: asModularity(record.modularity),
     variants: Array.isArray(record.variants)
       ? record.variants.map((item) => normalizeVariant(item, name, config?.asset_base_url)).filter((item): item is ProductVariant => item !== null)
       : [],
@@ -238,11 +271,10 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
 export function normalizeProductCard(value: unknown, config?: CatalogPublicConfig | null): ProductCard | null {
   try {
     const record = asRecord(value);
-    const images = Array.isArray(record.images)
-      ? record.images
-      : (record.main_image_url || record.main_image_path)
-        ? [{ alt: record.name, url: record.main_image_url ?? record.main_image_path, role: 'main' }]
-        : [];
+    const mainImage = record.main_image_url || record.main_image_path
+      ? [{ alt: record.name, url: record.main_image_url ?? record.main_image_path, role: 'main', sort_order: 0 }]
+      : [];
+    const images = [...mainImage, ...(Array.isArray(record.images) ? record.images : [])];
     const product = normalizeProductDetail({ ...record, images }, config);
     return {
       id: product.id,
@@ -262,6 +294,10 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       subcategory: product.subcategory,
       supplierId: product.supplierId,
       supplierName: product.supplierName,
+      mainImageUrl: product.mainImageUrl,
+      mainImagePath: product.mainImagePath,
+      modularity: product.modularity,
+      modularNotice: typeof product.specs.modular_notice === 'string' ? product.specs.modular_notice : undefined,
       galleryRule: product.galleryRule,
       hasLed: product.hasLed,
       lightingType: product.lightingType,
@@ -275,7 +311,7 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
 
 export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
   const facets: CatalogFacets = {};
-  for (const key of ['category', 'supplier', 'subcategory', 'collection', 'product_kind', 'shape', 'has_led', 'lighting_type'] as CatalogFacetKey[]) {
+  for (const key of ['category', 'supplier', 'subcategory', 'collection', 'product_kind', 'shape', 'has_led', 'lighting_type', 'modularity'] as CatalogFacetKey[]) {
     const bucket = new Map<string, CatalogFacetOption>();
     for (const card of items) {
       const result: { value: string; label: string } | null = ((): { value: string; label: string } | null => {
@@ -294,6 +330,7 @@ export const deriveCatalogFacets = (items: ProductCard[]): CatalogFacets => {
           case 'shape': return card.shape ? { value: card.shape, label: card.shape } : null;
           case 'has_led': return card.hasLed === undefined ? null : { value: String(card.hasLed), label: card.hasLed ? 'Sí' : 'No' };
           case 'lighting_type': return card.lightingType ? { value: card.lightingType, label: card.lightingType } : null;
+          case 'modularity': return card.modularity ? { value: card.modularity, label: card.modularity === 'modular' ? 'Modular' : 'Normal' } : null;
           default: return null;
         }
       })();
@@ -363,6 +400,8 @@ const facetAliases: Record<string, CatalogFacetKey> = {
   lighting_types: 'lighting_type',
   lightingType: 'lighting_type',
   lighting_type: 'lighting_type',
+  modularity: 'modularity',
+  modularities: 'modularity',
 };
 
 function normalizeFacetOption(value: unknown): CatalogFacetOption | null {

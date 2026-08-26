@@ -96,4 +96,49 @@ describe('catalog variant selection', () => {
     expect(findEnclosureUnit(units, 'Negro', 'Lateral fijo')?.variantId).toBe('open-negro-lateral');
     expect(findEnclosureUnit(units, 'Cromo', 'Lateral fijo')).toBeNull();
   });
+
+  it('uses only Royo variants for real selectors and keeps modular measurements informational', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-logika',
+      name: 'Logika',
+      slug: 'royo-logika',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      modularity: 'modular',
+      configuration_fields: ['finish', 'handle_finish'],
+      specs: { module_configuration: { measure_options: { 'Mueble 2 cajones': ['60', '80'] } } },
+      variants: [
+        { id: 'royo-logika-nogal-blanco', finish: 'Nogal', reference: undefined, attributes: { handle_finish: 'Blanco' }, sort_order: 1 },
+        { id: 'royo-logika-nogal-inox', finish: 'Nogal', reference: undefined, attributes: { handle_finish: 'Inox' }, sort_order: 2 },
+        { id: 'royo-logika-verde-inox', finish: 'Verde', reference: undefined, attributes: { handle_finish: 'Inox' }, sort_order: 3 },
+      ],
+    });
+    const units = getSelectableUnits(product);
+
+    expect(getAttributeOptions(units, units[0].attributes, product.configurationFields)).toEqual({
+      finish: ['Nogal', 'Verde'],
+      handle_finish: ['Blanco', 'Inox'],
+    });
+    expect(units[0].variantId).toBe('royo-logika-nogal-blanco');
+    expect(units[0].variantSnapshot).not.toHaveProperty('modularity');
+    expect(product.specs.module_configuration).toBeDefined();
+  });
+
+  it('does not expose a measure control for a Royo model with one real measure', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-normal',
+      name: 'Mueble normal',
+      slug: 'royo-normal',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      modularity: 'normal',
+      configuration_fields: ['measure', 'finish'],
+      variants: [
+        { id: 'royo-normal-white', measure: '80', finish: 'Blanco', reference: 'R-1' },
+        { id: 'royo-normal-black', measure: '80', finish: 'Negro', reference: 'R-2' },
+      ],
+    });
+
+    expect(getAttributeOptions(getSelectableUnits(product), {}, product.configurationFields)).toEqual({ finish: ['Blanco', 'Negro'] });
+  });
 });

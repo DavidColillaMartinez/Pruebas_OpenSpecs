@@ -9,6 +9,8 @@ const lines = [
   { productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0005', reference: '7196', quantity: 1, productName: 'Alba', supplier: 'Manillons Torrent', category: 'Espejos', imageUrl: 'https://assets.example/alba.webp', selectedAttributes: { dimension: 'Ø 70', finish: 'Terracota', has_led: false } },
 ];
 
+const royoLine = { productId: 'royo-logika', variantId: 'royo-logika--v0002', reference: 'R-2', quantity: 1, productName: 'Logika', supplier: 'Royo', category: 'Muebles y lavabos', imageUrl: 'https://assets.example/logika.webp', selectedAttributes: { finish: 'Nogal', presentation_type: 'Suspendido' } };
+
 afterEach(() => {
   window.localStorage.removeItem(QUOTE_SELECTION_STORAGE_KEY);
   vi.unstubAllGlobals();
@@ -33,5 +35,24 @@ describe('QuoteSelectionPage', () => {
     expect(body.items.map((item: { variantId: string }) => item.variantId)).toEqual(['mt-espejos-alba--v0001', 'mt-espejos-alba--v0005']);
     expect(body.items[0].selectedAttributes).toMatchObject({ dimension: 'Ø 60', finish: 'Terracota' });
     expect(JSON.stringify(body)).not.toMatch(/price|precio|€/i);
+  });
+
+  it('submits all shared lines, including Royo attributes, without prices', async () => {
+    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify([...lines, royoLine]));
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'quote-2', status: 'received' }), { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
+
+    expect(screen.getByRole('button', { name: 'Enviar 3 selecciones' })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ana@example.com' } });
+    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar 3 selecciones' }));
+
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Solicitud enviada correctamente.'));
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.items).toHaveLength(3);
+    expect(body.items[2]).toMatchObject({ variantId: royoLine.variantId, selectedAttributes: royoLine.selectedAttributes });
+    expect(JSON.stringify(body)).not.toMatch(/price|precio|coste|importe|€/i);
   });
 });

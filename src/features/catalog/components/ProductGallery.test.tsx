@@ -76,4 +76,12 @@ describe('ProductGallery', () => {
     expect(screen.getByRole('img', { name: 'Swing, imagen principal' })).toHaveAttribute('src', swingImages[1].url);
     expect(screen.getAllByRole('button', { name: /Ver imagen/ })[0]).toHaveAttribute('aria-pressed', 'true');
   });
+
+  it('preserves the active API image when a changed gallery keeps its first image', () => {
+    const { rerender } = render(<ProductGallery images={images} productName="Royo" preserveInputOrder preserveActiveImageOnChange />);
+    fireEvent.click(screen.getAllByRole('button', { name: /Ver imagen/ })[1]);
+    rerender(<ProductGallery images={[...images, { alt: 'Alba extra', url: 'https://assets.example/alba-3.webp', role: 'detail' }]} productName="Royo" preserveInputOrder preserveActiveImageOnChange />);
+
+    expect(screen.getByRole('img', { name: 'Royo, imagen principal' })).toHaveAttribute('src', images[1].url);
+  });
 });

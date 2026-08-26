@@ -89,6 +89,39 @@ describe('quote request payload', () => {
     expect(validateQuoteRequest({ customerName: 'Ana', email: 'ana@example.com', consentPrivacy: true, items: [item] })).toEqual({});
   });
 
+  it('maps a Royo variant to the generic public line without prices', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-normal-types',
+      name: 'Normal types',
+      slug: 'royo-normal-types',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      main_image_url: 'https://assets.example/royo-cover.webp',
+      variants: [{
+        id: 'normal-suspended-white',
+        measure: '80',
+        finish: 'Blanco',
+        reference: 'R-1',
+        presentation_type: 'Suspendido',
+        module_type: '2 cajones',
+        price_eur: 100,
+        attributes: { handle_finish: 'Inox', source_price: 100 },
+      }],
+    });
+    const item = buildQuoteRequestItem(product, selectInitialUnit(getSelectableUnits(product)), 2);
+
+    expect(item).toMatchObject({
+      productId: 'royo-normal-types',
+      variantId: 'normal-suspended-white',
+      supplier: 'royo',
+      category: 'muebles-y-lavabos',
+      imageUrl: 'https://assets.example/royo-cover.webp',
+      quantity: 2,
+      selectedAttributes: { measure: '80', finish: 'Blanco', presentation_type: 'Suspendido', module_type: '2 cajones', handle_finish: 'Inox' },
+    });
+    expect(JSON.stringify(item)).not.toMatch(/price|precio|coste|importe/i);
+  });
+
   it('rejects missing contact, invalid quantity and oversized fields', () => {
     const errors = validateQuoteRequest({
       customerName: '',

@@ -23,6 +23,7 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   product_kind: 'Tipo de producto',
   finish: 'Acabado',
   measure: 'Medida',
+  modularity: 'Modularidad',
 };
 
 type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'> & {

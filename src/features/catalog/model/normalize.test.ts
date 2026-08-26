@@ -110,6 +110,101 @@ describe('product normalization', () => {
     expect(response.discardedItemCount).toBe(1);
   });
 
+  it('preserves Royo modularity, API covers and nested public configuration', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-modular-logika',
+      name: 'Logika',
+      slug: 'royo-modular-logika',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      modularity: 'modular',
+      main_image_url: 'https://assets.example/royo-mod-logika-001-cover.webp',
+      main_image_path: 'images/royo/modular/logika/royo-mod-logika-001-cover.webp',
+      specs: {
+        modular_notice: 'Confirmación de composición',
+        module_configuration: { module_types: ['Mueble 2 cajones'], measure_options: { 'Mueble 2 cajones': ['60', '80'] } },
+        finish_image_map: { Nogal: ['https://assets.example/nogal.webp'] },
+      },
+      images: [{ url: 'https://assets.example/royo-mod-logika-001-cover.webp', role: 'main', sort_order: 1 }],
+      variants: [{ id: 'logika-v1', finish: 'Nogal', attributes: { handle_finish: 'Inox', no_prices: true }, image_mapping_status: 'mapped_by_finish_source_page' }],
+    });
+
+    expect(product).toMatchObject({
+      modularity: 'modular',
+      mainImageUrl: 'https://assets.example/royo-mod-logika-001-cover.webp',
+      mainImagePath: 'images/royo/modular/logika/royo-mod-logika-001-cover.webp',
+      specs: {
+        modular_notice: 'Confirmación de composición',
+        module_configuration: { module_types: ['Mueble 2 cajones'] },
+        finish_image_map: { Nogal: ['https://assets.example/nogal.webp'] },
+      },
+    });
+    expect(product.variants[0]).toMatchObject({ imageMappingStatus: 'mapped_by_finish_source_page' });
+    expect(product.variants[0].attributes).not.toHaveProperty('no_prices');
+  });
+
+  it('preserves public Royo variant attributes delivered at the variant root', () => {
+    const product = normalizeProductDetail({
+      id: 'royo-normal-types',
+      name: 'Normal types',
+      slug: 'royo-normal-types',
+      supplier_id: 'royo',
+      category_id: 'muebles-y-lavabos',
+      variants: [{ id: 'normal-suspended-white', presentation_type: 'Suspendido', finish: 'Blanco', reference: 'R-1', price_eur: 100 }],
+    });
+
+    expect(product.variants[0].attributes).toMatchObject({ presentation_type: 'Suspendido' });
+    expect(product.variants[0].attributes).not.toHaveProperty('price_eur');
+  });
+
+  it('uses the API cover without deriving it from the product slug', () => {
+    const response = normalizeProductList({
+      items: [{
+        id: 'royo-card',
+        name: 'Nombre no relacionado con archivo',
+        slug: 'slug-que-no-es-la-ruta',
+        supplier_id: 'royo',
+        category_id: 'muebles-y-lavabos',
+        modularity: 'normal',
+        main_image_url: 'https://assets.example/exact-cover.webp',
+        main_image_path: 'images/exact-cover.webp',
+      }],
+      pagination: { limit: 24, offset: 0, total: 1 },
+      facets: { modularity: [{ value: 'normal', label: 'Normal', count: 1 }] },
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.items[0]).toMatchObject({
+      modularity: 'normal',
+      mainImageUrl: 'https://assets.example/exact-cover.webp',
+      mainImagePath: 'images/exact-cover.webp',
+      images: [{ url: 'https://assets.example/exact-cover.webp' }],
+    });
+    expect(response.facets.modularity).toEqual([{ value: 'normal', label: 'Normal', count: 1 }]);
+  });
+
+  it('prioritizes the API main image when a card also includes gallery images', () => {
+    const response = normalizeProductList({
+      items: [{
+        id: 'royo-card-with-gallery',
+        name: 'Royo card',
+        slug: 'royo-card-with-gallery',
+        supplier_id: 'royo',
+        category_id: 'muebles-y-lavabos',
+        main_image_url: 'https://assets.example/exact-cover.webp',
+        images: [{ url: 'https://assets.example/detail.webp', role: 'detail', sort_order: 1 }],
+      }],
+      pagination: { limit: 24, offset: 0, total: 1 },
+      facets: {},
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.items[0].images.map((image) => image.url)).toEqual([
+      'https://assets.example/exact-cover.webp',
+      'https://assets.example/detail.webp',
+    ]);
+  });
+
   it('normalizes distribution facets and card distributions from API fields', () => {
     const response = normalizeProductList({
       items: [{

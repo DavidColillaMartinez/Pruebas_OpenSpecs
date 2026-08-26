@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getProductBySlug } from '../api/client';
 import type { ProductDetail } from '../model/types';
 import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
+import { isRoyoFurnitureScope } from '../model/royo';
+import { buildRoyoProductGallery } from '../model/gallery';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector } from '../components/ProductVariantSelector';
 import { QuoteRequestForm } from '../../quote/components/QuoteRequestForm';
@@ -25,14 +27,57 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   );
 }
 
+function recordValue(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function stringValues(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
+}
+
+function RoyoConfiguration({ product }: { product: ProductDetail }) {
+  if (!isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId })) return null;
+  const modularNotice = typeof product.specs.modular_notice === 'string' ? product.specs.modular_notice : undefined;
+  const moduleConfiguration = recordValue(product.specs.module_configuration);
+  const moduleTypes = stringValues(moduleConfiguration?.module_types);
+  const depths = recordValue(moduleConfiguration?.depths_cm);
+  const measureOptions = recordValue(moduleConfiguration?.measure_options);
+  const presentationTypes = stringValues(product.specs.presentation_types);
+  const hasInformation = Boolean(modularNotice || moduleTypes.length || depths || measureOptions || presentationTypes.length);
+  if (!hasInformation) return null;
+
+  return (
+    <section className="mt-10 border-t border-ink/10 pt-8" aria-labelledby="royo-configuration-heading">
+      <h2 id="royo-configuration-heading" className="font-display text-3xl">Configuración del mueble</h2>
+      {modularNotice && <p className="mt-4 max-w-3xl leading-relaxed text-graphite">{modularNotice}</p>}
+      {(moduleTypes.length > 0 || presentationTypes.length > 0) && (
+        <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+          {moduleTypes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Tipos de módulo disponibles</dt><dd className="mt-1">{moduleTypes.join(', ')}</dd></div>}
+          {presentationTypes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Tipos de presentación</dt><dd className="mt-1">{presentationTypes.join(', ')}</dd></div>}
+        </dl>
+      )}
+      {(depths || measureOptions) && (
+        <dl className="mt-5 grid gap-4 sm:grid-cols-2">
+          {depths && <div><dt className="text-sm font-semibold text-graphite">Profundidades informativas</dt><dd className="mt-1">{Object.entries(depths).map(([key, value]) => `${key}: ${String(value)} cm`).join(' · ')}</dd></div>}
+          {measureOptions && <div><dt className="text-sm font-semibold text-graphite">Medidas informativas</dt><dd className="mt-1">{Object.entries(measureOptions).map(([key, value]) => `${key}: ${stringValues(value).join(', ')}`).join(' · ')}</dd></div>}
+        </dl>
+      )}
+    </section>
+  );
+}
+
 function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
   const [addedMessage, setAddedMessage] = useState('');
   const { addLine } = useQuoteSelection();
+  const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
   const selectedSnapshot = buildVariantSnapshot(selectedUnit);
   const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
-  const galleryImages = isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
-  const specs = Object.entries(product.specs).filter(([key]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key));
+  const galleryImages = isRoyo
+    ? buildRoyoProductGallery(product, selectedUnit)
+    : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
+  const royoSpecKeys = ['modular_notice', 'module_configuration', 'finish_image_map', 'presentation_types', 'type_image_map'];
+  const specs = Object.entries(product.specs).filter(([key]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)));
   const productFacts = [
     ['LED', selectedSnapshot?.has_led ?? product.hasLed],
     ['Tipo de iluminación', selectedSnapshot?.lighting_type ?? product.lightingType],
@@ -50,7 +95,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
   return (
     <>
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} />
+        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo} preserveActiveImageOnChange={isRoyo} />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>
@@ -84,6 +129,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
           </dl>
         </section>
       )}
+      <RoyoConfiguration product={product} />
       {product.commercialOffers.length > 0 && (
         <section className="mt-10 border-t border-ink/10 pt-8" aria-labelledby="commercial-offers-heading">
           <h2 id="commercial-offers-heading" className="font-display text-3xl">Opciones comerciales</h2>

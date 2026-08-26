@@ -1,29 +1,42 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProductImage } from '../model/types';
 
 type ProductGalleryProps = {
   images: ProductImage[];
   productName: string;
   variantLabel?: string;
+  preserveInputOrder?: boolean;
+  preserveActiveImageOnChange?: boolean;
 };
 
-export function ProductGallery({ images, productName, variantLabel }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, variantLabel, preserveInputOrder = false, preserveActiveImageOnChange = false }: ProductGalleryProps) {
   const orderedImages = useMemo(() => {
     const uniqueImages = [...new Map(images.map((image) => [image.url, image])).values()];
+    if (preserveInputOrder) return uniqueImages;
     return uniqueImages
       .map((image, index) => ({ image, index }))
       .sort((a, b) => (a.image.sortOrder ?? Number.MAX_SAFE_INTEGER) - (b.image.sortOrder ?? Number.MAX_SAFE_INTEGER) || a.index - b.index)
       .map(({ image }) => image);
-  }, [images]);
+  }, [images, preserveInputOrder]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
   const [zoomOpen, setZoomOpen] = useState(false);
+  const activeUrlRef = useRef<string | undefined>(undefined);
+  const previousImagesRef = useRef<ProductImage[]>([]);
 
   useEffect(() => {
-    setActiveIndex(0);
+    const previousImages = previousImagesRef.current;
+    const firstImageChanged = previousImages[0]?.url !== orderedImages[0]?.url;
+    const retainedIndex = orderedImages.findIndex((image) => image.url === activeUrlRef.current);
+    setActiveIndex(preserveActiveImageOnChange && !firstImageChanged && retainedIndex >= 0 ? retainedIndex : 0);
     setFailedUrls(new Set());
     setZoomOpen(false);
-  }, [orderedImages]);
+    previousImagesRef.current = orderedImages;
+  }, [orderedImages, preserveActiveImageOnChange]);
+
+  useEffect(() => {
+    activeUrlRef.current = orderedImages[activeIndex]?.url;
+  }, [activeIndex, orderedImages]);
 
   useEffect(() => {
     if (orderedImages.length === 0) return undefined;

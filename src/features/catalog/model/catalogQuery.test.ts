@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   catalogQueryKey,
   catalogQueryToRequest,
+  getCatalogFilterKeys,
   getCatalogFilterProfile,
   parseCatalogQuery,
   serializeCatalogQuery,
@@ -15,6 +16,9 @@ describe('catalog query state', () => {
     expect(getCatalogFilterProfile({ filters: { supplier: ['gme'] } })).toBe('mamparas');
     expect(getCatalogFilterProfile({ filters: { category: ['espejos'] } })).toBe('espejos');
     expect(getCatalogFilterProfile({ filters: { supplier: ['manillons-torrent'] } })).toBe('espejos');
+    expect(getCatalogFilterProfile({ filters: { category: ['muebles-y-lavabos'], supplier: ['royo'] } })).toBe('royo');
+    expect(getCatalogFilterProfile({ filters: { category: ['muebles-y-lavabos'], supplier: ['royo', 'gme'] } })).toBe('mamparas');
+    expect(getCatalogFilterKeys('royo')[0]).toBe('modularity');
   });
 
   it('parses repeated filters and rejects unsupported sort values', () => {
@@ -45,6 +49,28 @@ describe('catalog query state', () => {
     expect(query.filters.distribution).toEqual(['2 abatibles', 'Fijo + abatible']);
     expect(serializeCatalogQuery(query).toString()).toBe('category=mamparas&distribution=2+abatibles&distribution=Fijo+%2B+abatible');
     expect(catalogQueryToRequest(query, true).distribution).toEqual(['2 abatibles', 'Fijo + abatible']);
+  });
+
+  it('sends modularity only for the exact Royo furniture scope', () => {
+    const royoQuery = parseCatalogQuery('category=muebles-y-lavabos&supplier=royo&modularity=modular');
+    expect(royoQuery.filters).toEqual({ category: ['muebles-y-lavabos'], supplier: ['royo'], modularity: ['modular'] });
+    expect(serializeCatalogQuery(royoQuery).toString()).toBe('category=muebles-y-lavabos&supplier=royo&modularity=modular');
+    expect(catalogQueryToRequest(royoQuery, true)).toMatchObject({
+      category_id: ['muebles-y-lavabos'],
+      supplier_id: ['royo'],
+      modularity: ['modular'],
+    });
+
+    const otherQuery = parseCatalogQuery('category=muebles-y-lavabos&supplier=royo&supplier=gme&modularity=modular');
+    expect(otherQuery.filters.modularity).toBeUndefined();
+    expect(catalogQueryToRequest(otherQuery, true)).not.toHaveProperty('modularity');
+  });
+
+  it('accepts only the closed Modular/Normal values', () => {
+    const query = parseCatalogQuery('category=muebles-y-lavabos&supplier=royo&modularity=unknown&modularity=normal');
+
+    expect(query.filters.modularity).toEqual(['normal']);
+    expect(catalogQueryToRequest(query, true).modularity).toEqual(['normal']);
   });
 
   it('builds server-side params with only the requested page', () => {

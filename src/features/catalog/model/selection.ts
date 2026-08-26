@@ -6,7 +6,25 @@ type SelectableUnit = SelectedProductUnit & {
   sourceOrder: number;
 };
 
-const DEFAULT_CONFIGURABLE_KEYS = ['dimension', 'measure', 'finish', 'offer', 'version', 'distribution', 'glass', 'opening', 'orientation'];
+const DEFAULT_CONFIGURABLE_KEYS = [
+  'dimension',
+  'measure',
+  'finish',
+  'furniture_finish',
+  'handle_finish',
+  'countertop_finish',
+  'offer',
+  'version',
+  'distribution',
+  'glass',
+  'opening',
+  'orientation',
+  'presentation_type',
+  'furniture_type',
+  'module_type',
+  'type',
+];
+const NON_SELECTION_KEYS = /^(?:no_prices|modularity|finish_image_paths|image_mapping_status|configuration_status|source_page|variant_key)$/i;
 
 function attributeValue(value: unknown): string | undefined {
   if (typeof value === 'string' && value.trim()) return value;
@@ -31,8 +49,26 @@ function variantAttributes(variant: ProductVariant): Record<string, string> {
   return Object.fromEntries(
     Object.entries(values)
       .map(([key, value]): [string, string | undefined] => [key, attributeValue(value)])
-      .filter((entry): entry is [string, string] => Boolean(entry[1]) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(entry[0]))
+      .filter((entry): entry is [string, string] => Boolean(entry[1]) && !NON_SELECTION_KEYS.test(entry[0]) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(entry[0]))
   ) as Record<string, string>;
+}
+
+function variantSnapshot(variant: ProductVariant, product: ProductDetail): VariantSnapshot {
+  const values = {
+    reference: variant.reference,
+    measure: variant.measure,
+    dimension: variant.dimension,
+    finish: variant.finish,
+    version: variant.version,
+    has_led: variant.hasLed ?? product.hasLed,
+    lighting_type: variant.lightingType ?? product.lightingType,
+    lighting_technology: variant.lightingTechnology ?? product.lightingTechnology,
+    light_temp: variant.lightTemp ?? product.lightTemp,
+    distribution: variant.distribution,
+    finishCode: variant.finishCode,
+    ...variant.attributes,
+  };
+  return Object.fromEntries(Object.entries(values).filter(([key, value]) => value !== undefined && value !== '' && !NON_SELECTION_KEYS.test(key) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))) as VariantSnapshot;
 }
 
 export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
@@ -41,20 +77,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
     variantId: variant.id,
     quantity: 1,
     productName: product.name,
-    variantSnapshot: {
-      reference: variant.reference,
-      measure: variant.measure,
-      dimension: variant.dimension,
-      finish: variant.finish,
-      version: variant.version,
-      has_led: variant.hasLed ?? product.hasLed,
-      lighting_type: variant.lightingType ?? product.lightingType,
-      lighting_technology: variant.lightingTechnology ?? product.lightingTechnology,
-      light_temp: variant.lightTemp ?? product.lightTemp,
-      distribution: variant.distribution,
-      finishCode: variant.finishCode,
-      ...variant.attributes,
-    } satisfies VariantSnapshot,
+    variantSnapshot: variantSnapshot(variant, product),
     attributes: variantAttributes(variant),
     images: variant.images,
     sourceOrder: variant.sortOrder ?? index,
@@ -68,7 +91,7 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
       commercialOfferVariantId: offerVariant.id,
       quantity: 1,
       productName: product.name,
-       variantSnapshot: {
+      variantSnapshot: {
         reference: offerVariant.reference,
         finish: offerVariant.finishName,
         finishCode: offerVariant.finishCode,
@@ -106,6 +129,18 @@ export function getAttributeOptions(units: SelectableUnit[], current: Record<str
       .filter(Boolean))];
     return options.length > 1 ? [key, options] : null;
   }).filter((entry): entry is [string, string[]] => entry !== null));
+}
+
+export function isAttributeValueCompatible(units: SelectableUnit[], current: Record<string, string>, key: string, value: string, configurationFields?: string[]): boolean {
+  const configuredKeys = configurationFields?.length ? configurationFields.filter((field) => field !== 'finishCode') : DEFAULT_CONFIGURABLE_KEYS;
+  const keyIndex = configuredKeys.indexOf(key);
+  const partial = { ...current, [key]: value };
+  return units.some((unit) => Object.entries(partial)
+    .filter(([attribute]) => {
+      const attributeIndex = configuredKeys.indexOf(attribute);
+      return attributeIndex >= 0 && (keyIndex < 0 || attributeIndex < keyIndex || attribute === key);
+    })
+    .every(([attribute, selected]) => unit.attributes[attribute] === selected));
 }
 
 export function selectCompatibleUnit(units: SelectableUnit[], selection: Record<string, string>, changedKey?: string, configurationFields?: string[]): SelectableUnit | null {
@@ -169,7 +204,7 @@ export function findMatchingUnit(units: SelectableUnit[], selection: Record<stri
 
 export function buildVariantSnapshot(unit: SelectableUnit | null): VariantSnapshot | undefined {
   if (!unit) return undefined;
-  return Object.fromEntries(Object.entries(unit.variantSnapshot || {}).filter(([key, value]) => value !== undefined && value !== '' && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key)));
+  return Object.fromEntries(Object.entries(unit.variantSnapshot || {}).filter(([key, value]) => value !== undefined && value !== '' && !NON_SELECTION_KEYS.test(key) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key)));
 }
 
 export function isManillonsMirrorProduct(product: ProductDetail): boolean {

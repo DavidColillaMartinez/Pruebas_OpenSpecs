@@ -4,6 +4,7 @@ import type {
   CatalogSortMetadata,
   CatalogSortValue,
 } from './types';
+import { isCatalogRoyoFurnitureScope } from './royo';
 
 export const CATALOG_PAGE_SIZE = 24;
 export const CATALOG_RETURN_STORAGE_KEY = 'catalog:return-state';
@@ -19,14 +20,16 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'product_kind',
   'finish',
   'measure',
+  'modularity',
 ];
 
 export const ROOT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['category', 'supplier'];
 export const MAMPARAS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'distribution', 'finish'];
 export const ESPEJOS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'shape', 'has_led', 'lighting_type', 'finish'];
+export const ROYO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['modularity', 'collection', 'subcategory', 'finish', 'measure', 'product_kind'];
 export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = [...new Set([...MAMPARAS_CATALOG_FILTER_KEYS, ...ESPEJOS_CATALOG_FILTER_KEYS])];
 
-export type CatalogFamilyId = 'mamparas' | 'espejos';
+export type CatalogFamilyId = 'mamparas' | 'espejos' | 'royo';
 export type CatalogFilterProfile = 'root' | CatalogFamilyId | 'mixed';
 
 export type CatalogFamilyProfile = {
@@ -44,6 +47,13 @@ export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
     suppliers: ['gme'],
     facetKeys: MAMPARAS_CATALOG_FILTER_KEYS,
     labels: { subcategory: 'Tipo', collection: 'Modelo' },
+  },
+  {
+    id: 'royo',
+    categories: ['muebles-y-lavabos'],
+    suppliers: ['royo'],
+    facetKeys: ROYO_CATALOG_FILTER_KEYS,
+    labels: { modularity: 'Modularidad', subcategory: 'Tipo de mueble', collection: 'Modelo', product_kind: 'Tipo de producto' },
   },
   {
     id: 'espejos',
@@ -97,6 +107,7 @@ function uniqueValues(values: string[]): string[] {
 
 function valuesForFilter(key: CatalogFacetKey, values: string[]): string[] {
   const unique = uniqueValues(values);
+  if (key === 'modularity') return unique.filter((value): value is 'modular' | 'normal' => value === 'modular' || value === 'normal');
   return key === 'category' ? unique.slice(0, 1) : unique;
 }
 
@@ -110,12 +121,15 @@ export function getActiveCatalogFamilies(query: Pick<CatalogQueryState, 'filters
   const categoryValues = (query.filters.category || []).map((value) => value.toLocaleLowerCase());
   const supplierValues = (query.filters.supplier || []).map((value) => value.toLocaleLowerCase());
   return CATALOG_FAMILY_PROFILES
-    .filter((profile) => profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
+    .filter((profile) => profile.id === 'royo'
+      ? isCatalogRoyoFurnitureScope({ supplier: supplierValues, category: categoryValues })
+      : profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
     .map((profile) => profile.id);
 }
 
 export function getCatalogFilterKeys(profile: CatalogFilterProfile): CatalogFacetKey[] {
   if (profile === 'root') return ROOT_CATALOG_FILTER_KEYS;
+  if (profile === 'royo') return [...ROYO_CATALOG_FILTER_KEYS, ...ROOT_CATALOG_FILTER_KEYS];
   const families = profile === 'mixed' ? CATALOG_FAMILY_PROFILES : CATALOG_FAMILY_PROFILES.filter((item) => item.id === profile);
   return [...new Set([...
     ROOT_CATALOG_FILTER_KEYS,
@@ -128,6 +142,7 @@ export function getCatalogFacetLabel(key: CatalogFacetKey, profile: CatalogFilte
     subcategory: 'Tipo',
     collection: 'Modelo',
     finish: 'Acabado',
+    modularity: 'Modularidad',
   };
   const families = profile === 'mixed'
     ? CATALOG_FAMILY_PROFILES
@@ -181,6 +196,10 @@ export function serializeCatalogQuery(query: CatalogQueryState): URLSearchParams
   if (search) params.set('search', search);
 
   CATALOG_FILTER_KEYS.forEach((key) => {
+    if (key === 'modularity' && !isCatalogRoyoFurnitureScope({
+      supplier: query.filters.supplier,
+      category: query.filters.category,
+    })) return;
     valuesForFilter(key, query.filters[key] || []).forEach((value) => params.append(key, value));
   });
 
@@ -204,6 +223,10 @@ export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: b
   if (query.search) params.search = query.search;
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.sort = query.sort;
   CATALOG_FILTER_KEYS.forEach((key) => {
+    if (key === 'modularity' && !isCatalogRoyoFurnitureScope({
+      supplier: query.filters.supplier,
+      category: query.filters.category,
+    })) return;
     const values = valuesForFilter(key, query.filters[key] || []);
     if (values.length > 0) params[requestFilterKeys[key] || key] = values;
   });

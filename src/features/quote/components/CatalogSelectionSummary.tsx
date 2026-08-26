@@ -16,6 +16,13 @@ const attributeLabels: Record<string, string> = {
   opening: 'Apertura',
   orientation: 'Orientación',
   offer: 'Oferta',
+  furniture_finish: 'Acabado del mueble',
+  handle_finish: 'Acabado del tirador',
+  countertop_finish: 'Acabado de encimera',
+  presentation_type: 'Tipo de presentación',
+  furniture_type: 'Tipo de mueble',
+  module_type: 'Tipo de módulo',
+  type: 'Tipo',
 };
 
 function formatAttributes(line: QuoteSelectionLine): string {

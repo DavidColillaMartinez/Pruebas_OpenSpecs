@@ -47,4 +47,10 @@ describe('CatalogProductCard', () => {
       scrollY: 0,
     });
   });
+
+  it('shows API-delivered Royo modularity without inferring it from the model name', () => {
+    render(<MemoryRouter><CatalogProductCard product={{ ...product, supplierId: 'royo', categoryId: 'muebles-y-lavabos', modularity: 'modular' }} /></MemoryRouter>);
+
+    expect(screen.getByText('Modularidad: Modular')).toBeInTheDocument();
+  });
 });

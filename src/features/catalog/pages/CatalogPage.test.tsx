@@ -190,6 +190,43 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('button', { name: 'Acabado' })).toBeInTheDocument();
   });
 
+  it('shows Modularidad first for the exact Royo furniture scope and sends the filter to the API', async () => {
+    const fetchMock = vi.fn().mockImplementation((url: string) => Promise.resolve(new Response(JSON.stringify({
+      items: [{
+        id: 'royo-card',
+        name: url.includes('modularity=modular') ? 'Resultado devuelto por Modular' : 'Mueble Royo',
+        slug: 'royo-card',
+        supplier_id: 'royo',
+        category_id: 'muebles-y-lavabos',
+        modularity: 'normal',
+        main_image_url: 'https://assets.example/royo-cover.webp',
+      }],
+      pagination: { limit: 24, offset: 0, total: 1 },
+      facets: {
+        category: [{ value: 'muebles-y-lavabos', label: 'Muebles y lavabos', count: 1 }],
+        supplier: [{ value: 'royo', label: 'Royo', count: 1 }],
+        modularity: [{ value: 'modular', label: 'Modular', count: 1 }, { value: 'normal', label: 'Normal', count: 1 }],
+        collection: [{ value: 'Logika', label: 'Logika', count: 1 }],
+        subcategory: [{ value: 'Muebles modulares', label: 'Muebles modulares', count: 1 }],
+        finish: [{ value: 'Nogal', label: 'Nogal', count: 1 }],
+        measure: [{ value: '80', label: '80', count: 1 }],
+        product_kind: [{ value: 'configurable_product', label: 'Configurable', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    }), { status: 200, headers: { 'content-type': 'application/json' } })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&supplier=royo']}><CatalogPage /></MemoryRouter>);
+
+    const modularityButton = await screen.findByRole('button', { name: 'Modularidad' });
+    expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim()).at(0)).toBe('Modularidad+');
+    fireEvent.click(modularityButton);
+    fireEvent.click(screen.getByRole('checkbox', { name: /Modular/ }));
+
+    await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => String(url).includes('modularity=modular'))).toBe(true));
+    expect(await screen.findByRole('heading', { name: 'Resultado devuelto por Modular' })).toBeInTheDocument();
+  });
+
   it('exposes a distinct store masthead and skip-to-results landmark', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
       items: [],
