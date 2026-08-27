@@ -58,6 +58,7 @@ export type ProductDetail = {
   supplierId?: string;
   categoryId?: string;
   categoryName?: string;
+  model?: string;
   subcategory?: string;
   collection?: string;
   shape?: string;
@@ -85,6 +86,7 @@ export type ProductDetail = {
 export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' | 'images' | 'showPrice'> & {
   categoryId?: string;
   categoryName?: string;
+  model?: string;
   collection?: string;
   finishes?: string[];
   distributions?: string[];

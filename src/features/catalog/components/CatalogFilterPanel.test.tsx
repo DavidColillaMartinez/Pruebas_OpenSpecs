@@ -134,6 +134,23 @@ describe('CatalogFilterPanel', () => {
     expect(within(dialog).getByRole('checkbox', { name: /Distribución 10/ })).toBeChecked();
   });
 
+  it('keeps a selected zero-count Royo option visible', () => {
+    render(
+      <CatalogFilterPanel
+        facets={{ modularity: [{ value: 'modular', label: 'Modular', count: 0 }, { value: 'normal', label: 'Normal', count: 2 }] }}
+        filters={{ modularity: ['modular'] }}
+        profile="royo"
+        mobileOpen
+        onMobileClose={() => undefined}
+        onToggle={() => undefined}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Modularidad' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Modular/ })).toBeChecked();
+  });
+
   it('orders all Espejos facets and hides zero-result options', () => {
     render(
       <CatalogFilterPanel

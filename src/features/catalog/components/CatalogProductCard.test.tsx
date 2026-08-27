@@ -49,9 +49,39 @@ describe('CatalogProductCard', () => {
   });
 
   it('shows API-delivered Royo modularity without inferring it from the model name', () => {
-    render(<MemoryRouter><CatalogProductCard product={{ ...product, supplierId: 'royo', categoryId: 'muebles-y-lavabos', modularity: 'modular' }} /></MemoryRouter>);
+    render(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Nombre interno', collection: 'Logika', supplierId: 'royo', categoryId: 'muebles-y-lavabos', modularity: 'modular' }} /></MemoryRouter>);
 
     expect(screen.getByText('Modularidad: Modular')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Espejo Alba' }).parentElement).toHaveClass('aspect-[1799/1149]');
+    expect(screen.getByRole('heading', { name: 'Logika' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nombre interno' })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Espejo Alba' }).parentElement).toHaveClass('catalog-card-image-frame', 'aspect-[1489/2105]');
+  });
+
+  it('uses an explicit Royo model only when the API delivers one', () => {
+    const { rerender } = render(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Nombre interno', supplierId: 'royo', categoryId: 'muebles-y-lavabos', model: 'Modelo explícito' }} /></MemoryRouter>);
+
+    expect(screen.getByRole('heading', { name: 'Modelo explícito' })).toBeInTheDocument();
+    rerender(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Nombre interno', supplierId: 'royo', categoryId: 'muebles-y-lavabos' }} /></MemoryRouter>);
+    expect(screen.queryByRole('heading', { name: 'Nombre interno' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Modularidad:/)).not.toBeInTheDocument();
+  });
+
+  it('keeps one image frame and text block structure for Royo and non-Royo cards', () => {
+    render(
+      <MemoryRouter>
+        <CatalogProductCard product={product} />
+        <CatalogProductCard product={{ ...product, id: 'royo', name: 'Royo interno', collection: 'Logika', supplierId: 'royo', categoryId: 'muebles-y-lavabos' }} />
+        <CatalogProductCard product={{ ...product, id: 'gme', name: 'Open', supplierId: 'gme', categoryId: 'mamparas' }} />
+      </MemoryRouter>,
+    );
+
+    expect([...document.querySelectorAll('.catalog-card-image-frame')].map((frame) => frame.className)).toHaveLength(3);
+    expect(new Set([...document.querySelectorAll('.catalog-card-image-frame')].map((frame) => frame.className)).size).toBe(1);
+    expect(new Set([...document.querySelectorAll('.catalog-card-text')].map((text) => text.className)).size).toBe(1);
+    expect(screen.getAllByRole('img').map((image) => image.getAttribute('src'))).toEqual([
+      product.images[0].url,
+      product.images[0].url,
+      product.images[0].url,
+    ]);
   });
 });

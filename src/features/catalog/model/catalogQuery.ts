@@ -53,7 +53,7 @@ export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
     categories: ['muebles-y-lavabos'],
     suppliers: ['royo'],
     facetKeys: ROYO_CATALOG_FILTER_KEYS,
-    labels: { modularity: 'Modularidad', subcategory: 'Tipo de mueble', collection: 'Modelo', product_kind: 'Tipo de producto' },
+    labels: { modularity: 'Modularidad', subcategory: 'Tipo de mueble', collection: 'Modelo', finish: 'Acabado', measure: 'Medida', product_kind: 'Tipo de producto' },
   },
   {
     id: 'espejos',
@@ -193,14 +193,15 @@ export function parseCatalogQuery(input: URLSearchParams | string, sortMetadata?
 export function serializeCatalogQuery(query: CatalogQueryState): URLSearchParams {
   const params = new URLSearchParams();
   const search = query.search.trim();
+  const filters = pruneCatalogFilters(query.filters);
   if (search) params.set('search', search);
 
   CATALOG_FILTER_KEYS.forEach((key) => {
     if (key === 'modularity' && !isCatalogRoyoFurnitureScope({
-      supplier: query.filters.supplier,
-      category: query.filters.category,
+      supplier: filters.supplier,
+      category: filters.category,
     })) return;
-    valuesForFilter(key, query.filters[key] || []).forEach((value) => params.append(key, value));
+    valuesForFilter(key, filters[key] || []).forEach((value) => params.append(key, value));
   });
 
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.set('sort', query.sort);
@@ -214,6 +215,7 @@ export function catalogQueryKey(query: CatalogQueryState): string {
 }
 
 export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: boolean): CatalogRequestParams {
+  const filters = pruneCatalogFilters(query.filters);
   const params: CatalogRequestParams = {
     limit: CATALOG_PAGE_SIZE,
     offset: (query.page - 1) * CATALOG_PAGE_SIZE,
@@ -224,10 +226,10 @@ export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: b
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.sort = query.sort;
   CATALOG_FILTER_KEYS.forEach((key) => {
     if (key === 'modularity' && !isCatalogRoyoFurnitureScope({
-      supplier: query.filters.supplier,
-      category: query.filters.category,
+      supplier: filters.supplier,
+      category: filters.category,
     })) return;
-    const values = valuesForFilter(key, query.filters[key] || []);
+    const values = valuesForFilter(key, filters[key] || []);
     if (values.length > 0) params[requestFilterKeys[key] || key] = values;
   });
   return params;

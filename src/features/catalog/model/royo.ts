@@ -11,7 +11,10 @@ export function isRoyoFurnitureScope(value: { supplierId?: unknown; categoryId?:
 export function isCatalogRoyoFurnitureScope(filters: { supplier?: string[]; category?: string[] }): boolean {
   const suppliers = filters.supplier || [];
   const categories = filters.category || [];
-  return suppliers.length === 1
+  const category = String(categories[0] || '').trim().toLocaleLowerCase();
+  const supplier = String(suppliers[0] || '').trim().toLocaleLowerCase();
+  return suppliers.length <= 1
     && categories.length === 1
-    && isRoyoFurnitureScope({ supplierId: suppliers[0], categoryId: categories[0] });
+    && category === ROYO_FURNITURE_CATEGORY_ID
+    && (suppliers.length === 0 || supplier === ROYO_SUPPLIER_ID);
 }

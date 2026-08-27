@@ -190,14 +190,15 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('button', { name: 'Acabado' })).toBeInTheDocument();
   });
 
-  it('shows Modularidad first for the exact Royo furniture scope and sends the filter to the API', async () => {
+  it('shows the Royo profile from category alone and sends the filter to the API', async () => {
     const fetchMock = vi.fn().mockImplementation((url: string) => Promise.resolve(new Response(JSON.stringify({
       items: [{
         id: 'royo-card',
-        name: url.includes('modularity=modular') ? 'Resultado devuelto por Modular' : 'Mueble Royo',
+        name: url.includes('modularity=modular') ? 'Nombre interno Modular' : 'Nombre interno Royo',
         slug: 'royo-card',
         supplier_id: 'royo',
         category_id: 'muebles-y-lavabos',
+        collection: 'Logika',
         modularity: 'normal',
         main_image_url: 'https://assets.example/royo-cover.webp',
       }],
@@ -216,15 +217,23 @@ describe('CatalogPage', () => {
     }), { status: 200, headers: { 'content-type': 'application/json' } })));
     vi.stubGlobal('fetch', fetchMock);
 
-    render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&supplier=royo']}><CatalogPage /></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&page=3']}><CatalogPage /></MemoryRouter>);
 
     const modularityButton = await screen.findByRole('button', { name: 'Modularidad' });
+    expect(fetchMock.mock.calls.some(([url]) => {
+      const requestUrl = String(url);
+      return requestUrl.includes('category_id=muebles-y-lavabos') && !requestUrl.includes('supplier_id=');
+    })).toBe(true);
     expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim()).at(0)).toBe('Modularidad+');
+    expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
+      'Modularidad+', 'Modelo+', 'Tipo de mueble+', 'Acabado+', 'Medida+', 'Tipo de producto+', 'Categoría+', 'Proveedor+',
+    ]);
     fireEvent.click(modularityButton);
     fireEvent.click(screen.getByRole('checkbox', { name: /Modular/ }));
 
     await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => String(url).includes('modularity=modular'))).toBe(true));
-    expect(await screen.findByRole('heading', { name: 'Resultado devuelto por Modular' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Logika' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nombre interno Modular' })).not.toBeInTheDocument();
   });
 
   it('exposes a distinct store masthead and skip-to-results landmark', async () => {

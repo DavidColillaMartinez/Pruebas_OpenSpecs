@@ -158,6 +158,44 @@ describe('product normalization', () => {
     expect(product.variants[0].attributes).not.toHaveProperty('no_prices');
   });
 
+  it('preserves API collection, explicit model and real fallback facet values', () => {
+    const response = normalizeProductList({
+      items: [{
+        id: 'royo-card-fields',
+        name: 'Internal name',
+        slug: 'royo-card-fields',
+        supplier_id: 'royo',
+        category_id: 'muebles-y-lavabos',
+        collection: 'Logika',
+        model: 'Modelo explícito',
+        subcategory: 'Mueble suspendido',
+        modularity: 'normal',
+        available_finishes: ['Nogal'],
+        available_measures: ['80'],
+        images: [],
+      }],
+      pagination: { limit: 60, offset: 0, total: 1 },
+      facets: {},
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.items[0]).toMatchObject({ collection: 'Logika', model: 'Modelo explícito', modularity: 'normal' });
+    expect(deriveCatalogFacets(response.items)).toMatchObject({
+      collection: [{ value: 'Logika', label: 'Logika', count: 1 }],
+      finish: [{ value: 'Nogal', label: 'Nogal', count: 1 }],
+      measure: [{ value: '80', label: '80', count: 1 }],
+      modularity: [{ value: 'normal', label: 'Normal', count: 1 }],
+    });
+
+    const explicitModel = normalizeProductDetail({
+      id: 'royo-explicit-model',
+      name: 'Internal name',
+      slug: 'royo-explicit-model',
+      specs: { model_name: 'Modelo desde API' },
+    });
+    expect(explicitModel.model).toBe('Modelo desde API');
+  });
+
   it('preserves public Royo variant attributes delivered at the variant root', () => {
     const product = normalizeProductDetail({
       id: 'royo-normal-types',
