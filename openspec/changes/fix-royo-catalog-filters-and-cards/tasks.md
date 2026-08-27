@@ -32,5 +32,5 @@
 - [x] 5.2 Run `npm run lint` and `npm run typecheck` and resolve only issues within the approved catalog scope.
 - [x] 5.3 Run `npm run build` and confirm the production build succeeds without live API data.
 - [x] 5.4 Review `git diff`, `git status` and the staged file list, preserving all pre-existing user changes.
-- [ ] 5.5 Create the descriptive commit `fix(catalog): align Royo filters and cards` after all validation passes.
-- [ ] 5.6 Push the current work branch and verify the push result and final commit hash.
+- [x] 5.5 Create the descriptive commit `fix(catalog): align Royo filters and cards` after all validation passes.
+- [x] 5.6 Push the current work branch and verify the push result and final commit hash.
