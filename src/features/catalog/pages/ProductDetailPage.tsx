@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getProductBySlug } from '../api/client';
 import type { ProductDetail } from '../model/types';
@@ -6,7 +6,7 @@ import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } f
 import { isRoyoFurnitureScope } from '../model/royo';
 import { buildRoyoProductGallery } from '../model/gallery';
 import { ProductGallery } from '../components/ProductGallery';
-import { ProductVariantSelector } from '../components/ProductVariantSelector';
+import { ProductVariantSelector, type SelectionChangeMeta } from '../components/ProductVariantSelector';
 import { QuoteRequestForm } from '../../quote/components/QuoteRequestForm';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { buildQuoteRequestItem } from '../../quote/model/payload';
@@ -68,13 +68,19 @@ function RoyoConfiguration({ product }: { product: ProductDetail }) {
 
 function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
+  const [hasManualRoyoSelection, setHasManualRoyoSelection] = useState(false);
   const [addedMessage, setAddedMessage] = useState('');
   const { addLine } = useQuoteSelection();
   const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
+  const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta) => {
+    if (isRoyo && metadata.source === 'user') setHasManualRoyoSelection(true);
+    setSelectedUnit(unit);
+  }, [isRoyo]);
   const selectedSnapshot = buildVariantSnapshot(selectedUnit);
   const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
+  const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
   const galleryImages = isRoyo
-    ? buildRoyoProductGallery(product, selectedUnit)
+    ? buildRoyoProductGallery(product, galleryUnit)
     : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const royoSpecKeys = ['modular_notice', 'module_configuration', 'finish_image_map', 'presentation_types', 'type_image_map'];
   const specs = Object.entries(product.specs).filter(([key]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)));
@@ -95,7 +101,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
   return (
     <>
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo} preserveActiveImageOnChange={isRoyo} />
+        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo} preserveActiveImageOnChange={isRoyo} wideFrame={isRoyo && product.modularity === 'modular'} />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>
@@ -103,7 +109,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
           {product.subcategory && <p className="mt-1 text-graphite">{product.subcategory}</p>}
           {product.description && <p className="mt-6 whitespace-pre-line leading-relaxed text-graphite">{product.description}</p>}
            <div className="mt-8">
-             <ProductVariantSelector product={product} onSelectionChange={setSelectedUnit} />
+             <ProductVariantSelector product={product} onSelectionChange={handleSelectionChange} />
            </div>
            {selectedUnit && selectedSnapshot && <p className="mt-5 text-sm text-graphite" aria-live="polite">Selección: {variantLabel || selectedSnapshot.reference || 'Variante completa'} · Referencia {selectedSnapshot.reference || 'no publicada'}</p>}
            {!selectedUnit && <p className="mt-5 text-sm text-graphite" role="status">Esta ficha no tiene una variante pública completa seleccionable.</p>}
@@ -229,7 +235,7 @@ export function ProductDetailPage() {
         {state.status === 'loading' && <p role="status" aria-live="polite" className="mt-12">Cargando producto…</p>}
         {state.status === 'not-found' && <div role="status" className="mt-12"><h1 className="font-display text-4xl">Producto no encontrado</h1><p className="mt-3 text-graphite">No hemos encontrado una ficha pública para este slug.</p><Link to="/productos" className="mt-5 inline-block font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Volver al catálogo completo</Link></div>}
         {state.status === 'error' && <div className="mt-12"><ErrorState message={state.message} onRetry={() => setRetry((value) => value + 1)} /></div>}
-        {state.status === 'success' && <div className="mt-8"><ProductContent product={state.product} /></div>}
+        {state.status === 'success' && <div className="mt-8"><ProductContent key={state.product.id} product={state.product} /></div>}
       </div>
     </main>
   );

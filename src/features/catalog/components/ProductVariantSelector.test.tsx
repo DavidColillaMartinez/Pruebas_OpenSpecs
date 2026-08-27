@@ -26,6 +26,7 @@ describe('ProductVariantSelector', () => {
     const onSelectionChange = vi.fn();
     render(<ProductVariantSelector product={gmeProduct()} onSelectionChange={onSelectionChange} />);
 
+    expect(onSelectionChange.mock.calls[0]?.[1]).toEqual({ source: 'initial' });
     expect(screen.getByRole('group', { name: 'Acabado' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Distribución' })).toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'Código de acabado' })).not.toBeInTheDocument();
@@ -34,6 +35,7 @@ describe('ProductVariantSelector', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Free' }));
     fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
+    expect(onSelectionChange.mock.lastCall?.[1]).toEqual({ source: 'user' });
     expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({
       variantId: 'glass-negro-free',
       variantSnapshot: { reference: 'GLASS-NG-FREE', finish: 'Negro', distribution: 'Free' },

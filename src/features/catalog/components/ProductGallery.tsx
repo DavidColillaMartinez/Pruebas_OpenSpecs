@@ -7,9 +7,10 @@ type ProductGalleryProps = {
   variantLabel?: string;
   preserveInputOrder?: boolean;
   preserveActiveImageOnChange?: boolean;
+  wideFrame?: boolean;
 };
 
-export function ProductGallery({ images, productName, variantLabel, preserveInputOrder = false, preserveActiveImageOnChange = false }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, variantLabel, preserveInputOrder = false, preserveActiveImageOnChange = false, wideFrame = false }: ProductGalleryProps) {
   const orderedImages = useMemo(() => {
     const uniqueImages = [...new Map(images.map((image) => [image.url, image])).values()];
     if (preserveInputOrder) return uniqueImages;
@@ -85,7 +86,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
   return (
     <section aria-labelledby="product-gallery-heading">
       <h2 id="product-gallery-heading" className="sr-only">Imágenes del producto</h2>
-      <div className="group relative flex aspect-[1489/2105] max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy="false">
+      <div className={`group relative flex ${wideFrame ? 'aspect-[1799/1149]' : 'aspect-[1489/2105]'} max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10`} aria-busy="false">
         {activeImage ? (
           <button
             type="button"

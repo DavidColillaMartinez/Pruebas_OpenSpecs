@@ -52,5 +52,6 @@ describe('CatalogProductCard', () => {
     render(<MemoryRouter><CatalogProductCard product={{ ...product, supplierId: 'royo', categoryId: 'muebles-y-lavabos', modularity: 'modular' }} /></MemoryRouter>);
 
     expect(screen.getByText('Modularidad: Modular')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Espejo Alba' }).parentElement).toHaveClass('aspect-[1799/1149]');
   });
 });

@@ -220,10 +220,9 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
   const images = Array.isArray(record.images)
     ? record.images.map((item) => normalizeImage(item, name, config?.asset_base_url)).filter((item): item is ProductImage => item !== null)
     : [];
-  const mainImage = images.length === 0
-    ? normalizeImage({ alt: name, url: record.main_image_url ?? record.main_image_path, role: 'main' }, name, config?.asset_base_url)
-    : null;
-  const uniqueImages = orderImages([...new Map([...images, ...(mainImage ? [mainImage] : [])].map((item) => [item.url, item])).values()]);
+  const mainImage = normalizeImage({ alt: name, url: record.main_image_url ?? record.main_image_path, role: 'main', sort_order: 0 }, name, config?.asset_base_url);
+  const imagesWithMain = mainImage && !images.some((image) => image.url === mainImage.url) ? [mainImage, ...images] : images;
+  const uniqueImages = orderImages([...new Map(imagesWithMain.map((item) => [item.url, item])).values()]);
   const specs = publicSpecs(record.specs);
   const hasLed = asBoolean(record.has_led ?? record.hasLed) ?? asBoolean(specs.LED);
   const lightingType = asString(record.lighting_type ?? record.lightingType) || asString(specs['Tipo de iluminación']);

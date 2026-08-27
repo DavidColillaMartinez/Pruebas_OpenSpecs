@@ -4,9 +4,13 @@ import { findMatchingUnit, getAttributeOptions, getSelectableUnits, isAttributeV
 import type { SelectableUnit } from '../model/selection';
 import { isRoyoFurnitureScope } from '../model/royo';
 
+export type SelectionChangeMeta = {
+  source: 'initial' | 'user';
+};
+
 type ProductVariantSelectorProps = {
   product: ProductDetail;
-  onSelectionChange: (unit: SelectableUnit | null) => void;
+  onSelectionChange: (unit: SelectableUnit | null, metadata: SelectionChangeMeta) => void;
 };
 
 const labels: Record<string, string> = {
@@ -38,19 +42,21 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
   const initialUnit = useMemo(() => selectInitialUnit(units), [units]);
   const [selection, setSelection] = useState<Record<string, string>>(initialUnit?.attributes || {});
   const productIdRef = useRef(product.id);
+  const userSelectionRef = useRef(false);
   const currentUnit = findMatchingUnit(units, selection) || selectCompatibleUnit(units, selection, undefined, product.configurationFields) || initialUnit;
   const options = getAttributeOptions(units, currentUnit?.attributes || selection, product.configurationFields);
   const enforceCompatibility = isRoyoFurnitureScope(product);
 
   useEffect(() => {
-    if (productIdRef.current === product.id) return;
+    if (productIdRef.current === product.id) {
+      onSelectionChange(currentUnit, { source: userSelectionRef.current ? 'user' : 'initial' });
+      userSelectionRef.current = false;
+      return;
+    }
     productIdRef.current = product.id;
+    userSelectionRef.current = false;
     setSelection(initialUnit?.attributes || {});
-  }, [initialUnit, product.id]);
-
-  useEffect(() => {
-    onSelectionChange(currentUnit);
-  }, [currentUnit, onSelectionChange]);
+  }, [currentUnit, initialUnit, onSelectionChange, product.id, selection]);
 
   if (units.length <= 1 || Object.keys(options).length === 0) return null;
 
@@ -74,6 +80,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                     aria-pressed={isSelected}
                     aria-disabled={enforceCompatibility && !isCompatible}
                     onClick={() => {
+                      userSelectionRef.current = true;
                       const nextSelection = { ...selection, [key]: value };
                       if (key === 'finish') delete nextSelection.finishCode;
                       const nextUnit = selectCompatibleUnit(units, nextSelection, key, product.configurationFields);

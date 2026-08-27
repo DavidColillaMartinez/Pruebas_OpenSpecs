@@ -46,6 +46,12 @@ describe('ProductGallery', () => {
     await waitFor(() => expect(screen.getByRole('region', { name: 'Imágenes del producto' }).querySelector('div[aria-busy]')).toHaveAttribute('aria-busy', 'false'));
   });
 
+  it('uses the horizontal frame for modular Royo covers when requested', () => {
+    render(<ProductGallery images={images} productName="Logika" wideFrame />);
+
+    expect(screen.getByRole('region', { name: 'Imágenes del producto' }).querySelector('div[aria-busy]')).toHaveClass('aspect-[1799/1149]');
+  });
+
   it('navigates a long ordered gallery through five visible thumbnails and the zoom view', () => {
     const manyImages = Array.from({ length: 23 }, (_, index) => ({
       alt: `Imagen ${index + 1}`,

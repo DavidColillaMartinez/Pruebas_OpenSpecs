@@ -58,6 +58,33 @@ function gmeProduct(slug: string) {
   };
 }
 
+function royoModularProduct() {
+  return {
+    id: 'royo-modular-logika',
+    name: 'Logika',
+    slug: 'royo-modular-logika',
+    supplier_id: 'royo',
+    supplier_name: 'Royo',
+    category_id: 'muebles-y-lavabos',
+    category_name: 'Muebles y lavabos',
+    modularity: 'modular',
+    images: [
+      { alt: 'Logika', url: 'https://assets.example/logika-cover.webp', role: 'main', sort_order: 1, width: 1799, height: 1149 },
+      { alt: 'Logika detalle 1', url: 'https://assets.example/logika-detail-1.webp', role: 'gallery', sort_order: 2 },
+      { alt: 'Logika detalle 2', url: 'https://assets.example/logika-detail-2.webp', role: 'gallery', sort_order: 3 },
+    ],
+    variants: [
+      { id: 'logika-blanco', finish: 'Blanco Pure', reference: 'LOG-1', sort_order: 1, images: [{ alt: 'Logika Blanco Pure', url: 'https://assets.example/logika-blanco.webp', role: 'variant' }] },
+      { id: 'logika-azul', finish: 'Azul Talco Pure', reference: 'LOG-2', sort_order: 2, images: [{ alt: 'Logika Azul Talco Pure', url: 'https://assets.example/logika-azul.webp', role: 'variant' }] },
+    ],
+    available_finishes: ['Blanco Pure', 'Azul Talco Pure'],
+    available_measures: [],
+    configuration_fields: ['finish'],
+    specs: {},
+    commercial_offers: [],
+  };
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
   window.localStorage.removeItem(QUOTE_SELECTION_STORAGE_KEY);
@@ -148,6 +175,23 @@ describe('ProductDetailPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Azul Ocean' }));
 
     await waitFor(() => expect(screen.getByRole('img', { name: /Azul Ocean.*imagen principal/ })).toHaveAttribute('src', variantImage));
+  });
+
+  it('keeps the Royo modular cover first on load and exposes the full gallery before a manual shortcut', async () => {
+    const response = royoModularProduct();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail(response.slug);
+
+    expect(await screen.findByRole('heading', { name: 'Logika' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', response.images[0].url);
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(response.images.length);
+    expect(screen.getByRole('region', { name: 'Imágenes del producto' }).querySelector('div[aria-busy]')).toHaveClass('aspect-[1799/1149]');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Azul Talco Pure' }));
+
+    await waitFor(() => expect(screen.getByRole('img', { name: /Azul Talco Pure.*imagen principal/ })).toHaveAttribute('src', 'https://assets.example/logika-azul.webp'));
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(response.images.length + 1);
   });
 
   it('keeps the Manillons Torrent model gallery when the selected finish changes', async () => {

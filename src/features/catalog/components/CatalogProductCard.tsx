@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
+import { isRoyoFurnitureScope } from '../model/royo';
 import type { ProductCard } from '../model/types';
 
 export function CatalogProductCard({ product }: { product: ProductCard }) {
@@ -11,6 +12,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
   const location = useLocation();
   const metadata = product.brand || product.supplierName || product.categoryName;
   const modularityLabel = product.modularity === 'modular' ? 'Modular' : product.modularity === 'normal' ? 'Normal' : undefined;
+  const isRoyoModular = isRoyoFurnitureScope(product) && product.modularity === 'modular';
   const activeImage = images[activeIndex] && !failedUrls.has(images[activeIndex].url) ? images[activeIndex] : null;
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
         onClick={() => sessionStorage.setItem(CATALOG_RETURN_STORAGE_KEY, JSON.stringify({ search: location.search, scrollY: window.scrollY }))}
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain"
       >
-        <div className="relative flex aspect-[1489/2105] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy={imageState === 'loading' && Boolean(activeImage)}>
+        <div className={`relative flex ${isRoyoModular ? 'aspect-[1799/1149]' : 'aspect-[1489/2105]'} items-center justify-center overflow-hidden border-y border-ink/10`} aria-busy={imageState === 'loading' && Boolean(activeImage)}>
           {activeImage ? (
             <img
               key={activeImage.url}

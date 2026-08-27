@@ -16,6 +16,21 @@ describe('product normalization', () => {
     expect(product).not.toHaveProperty('quality_status');
   });
 
+  it('keeps the API main image first when the detail payload also contains gallery images', () => {
+    const product = normalizeProductDetail({
+      id: 'main-image-product',
+      name: 'Producto con portada',
+      slug: 'main-image-product',
+      main_image_url: 'https://assets.example/cover.webp',
+      images: [{ url: 'https://assets.example/detail.webp', role: 'gallery', sort_order: 1 }],
+    });
+
+    expect(product.images.map((image) => image.url)).toEqual([
+      'https://assets.example/cover.webp',
+      'https://assets.example/detail.webp',
+    ]);
+  });
+
   it('preserves real offer and finish data without technical fields', () => {
     const product = normalizeProductDetail(royo);
 
