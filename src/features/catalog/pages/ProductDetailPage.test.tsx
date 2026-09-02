@@ -139,6 +139,28 @@ describe('ProductDetailPage', () => {
     });
   });
 
+  it('keeps public details collapsed by default and expands them on demand', async () => {
+    const response = {
+      ...alba,
+      specs: { 'Tipo de cristal': 'Transparente', 'Perfil': 'Aluminio' },
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail();
+    expect(await screen.findByRole('heading', { name: 'Alba' })).toBeInTheDocument();
+
+    const toggle = screen.getByRole('button', { name: /Detalles públicos/ });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    const details = document.getElementById('product-details-content');
+    expect(details).toHaveAttribute('hidden');
+    expect(screen.getByText('Transparente')).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(details).not.toHaveAttribute('hidden');
+    expect(screen.getByText('Aluminio')).toBeInTheDocument();
+  });
+
   it('allows retry after a recoverable error', async () => {
     const fetchMock = vi.fn()
       .mockRejectedValueOnce(new Error('offline'))

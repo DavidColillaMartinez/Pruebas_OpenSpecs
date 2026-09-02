@@ -70,6 +70,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
   const [hasManualRoyoSelection, setHasManualRoyoSelection] = useState(false);
   const [addedMessage, setAddedMessage] = useState('');
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { addLine } = useQuoteSelection();
   const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
   const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta) => {
@@ -124,12 +125,23 @@ function ProductContent({ product }: { product: ProductDetail }) {
         </div>
       </div>
       {(productFacts.length > 0 || selectionFacts.length > 0 || specs.length > 0 || product.availableFinishes.length > 0 || product.availableMeasures.length > 0) && (
-        <section className="mt-14 border-t border-ink/10 pt-8" aria-labelledby="product-details-heading">
-          <h2 id="product-details-heading" className="font-display text-3xl">Detalles públicos</h2>
-           <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-             {productFacts.map(([key, value]) => <div key={String(key)}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
-              {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' || key === 'measure' ? 'Medida' : key === 'finish' ? 'Acabado' : key === 'version' ? 'Versión' : key === 'has_led' ? 'LED' : key.replaceAll('_', ' ')}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
-             {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{String(value)}</dd></div>)}
+<section className="mt-14 border-t border-ink/10 pt-8" aria-labelledby="product-details-heading">
+          <h2 id="product-details-heading" className="font-display text-3xl">
+            <button
+              type="button"
+              aria-expanded={detailsOpen}
+              aria-controls="product-details-content"
+              onClick={() => setDetailsOpen((open) => !open)}
+              className="flex min-h-12 w-full items-center justify-between gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+            >
+              <span>Detalles públicos</span>
+              <span aria-hidden="true" className="text-lg font-normal leading-none text-graphite/70">{detailsOpen ? '−' : '+'}</span>
+            </button>
+          </h2>
+          <dl id="product-details-content" hidden={!detailsOpen} className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {productFacts.map(([key, value]) => <div key={String(key)}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
+            {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' || key === 'measure' ? 'Medida' : key === 'finish' ? 'Acabado' : key === 'version' ? 'Versión' : key === 'has_led' ? 'LED' : key.replaceAll('_', ' ')}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
+            {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{String(value)}</dd></div>)}
             {product.availableFinishes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Acabados</dt><dd className="mt-1">{product.availableFinishes.join(', ')}</dd></div>}
             {product.availableMeasures.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Medidas</dt><dd className="mt-1">{product.availableMeasures.join(', ')}</dd></div>}
           </dl>
