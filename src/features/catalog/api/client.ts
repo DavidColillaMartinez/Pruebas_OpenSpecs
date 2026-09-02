@@ -1,8 +1,53 @@
 import { normalizeProductDetail, normalizeProductList } from '../model/normalize';
+import { catalogQueryToRequest, parseCatalogQuery } from '../model/catalogQuery';
 import type { CatalogPublicConfig, CatalogRequestParams, ProductDetail, ProductListResponse } from '../model/types';
 import type { QuoteRequestCreated, QuoteRequestPayload } from '../../quote/model/types';
 
 export const PUBLIC_CATALOG_BASE_PATH = '/api/catalog';
+
+const CATALOG_CACHE_TTL_MS = 60_000;
+const CATALOG_CACHE_MAX_ENTRIES = 60;
+
+type CacheEntry = { raw: unknown; expiresAt: number };
+const responseCache = new Map<string, CacheEntry>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
+export function resetCatalogApiCacheForTests(): void {
+  responseCache.clear();
+  inFlightRequests.clear();
+}
+
+function storeInCache(path: string, raw: unknown): void {
+  responseCache.delete(path);
+  responseCache.set(path, { raw, expiresAt: Date.now() + CATALOG_CACHE_TTL_MS });
+  while (responseCache.size > CATALOG_CACHE_MAX_ENTRIES) {
+    const oldest = responseCache.keys().next().value;
+    if (oldest === undefined) break;
+    responseCache.delete(oldest);
+  }
+}
+
+function withAbort<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  if (signal.aborted) return Promise.reject(new DOMException('Request aborted', 'AbortError'));
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new DOMException('Request aborted', 'AbortError'));
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort));
+  });
+}
+
+function scheduleRevalidation(path: string): void {
+  if (inFlightRequests.has(path)) return;
+  const promise: Promise<unknown> = performRequest(path).then((raw) => {
+    storeInCache(path, raw);
+    return raw;
+  });
+  inFlightRequests.set(path, promise);
+  void promise.catch(() => undefined).finally(() => {
+    if (inFlightRequests.get(path) === promise) inFlightRequests.delete(path);
+  });
+}
 
 export class CatalogApiError extends Error {
   code: string;
@@ -40,7 +85,7 @@ async function parseResponse(response: Response): Promise<unknown> {
   }
 }
 
-async function request(path: string, { signal, method = 'GET', body, timeoutMs = 10000 }: RequestOptions = {}): Promise<unknown> {
+async function performRequest(path: string, { signal, method = 'GET', body, timeoutMs = 10000 }: RequestOptions = {}): Promise<unknown> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   const abort = () => controller.abort();
@@ -82,6 +127,32 @@ async function request(path: string, { signal, method = 'GET', body, timeoutMs =
   }
 }
 
+async function request(path: string, { signal, method = 'GET', body, timeoutMs = 10000 }: RequestOptions = {}): Promise<unknown> {
+  if (method !== 'GET') return performRequest(path, { signal, method, body, timeoutMs });
+
+  const cached = responseCache.get(path);
+  if (cached) {
+    if (cached.expiresAt <= Date.now()) scheduleRevalidation(path);
+    return cached.raw;
+  }
+
+  const inFlight = inFlightRequests.get(path);
+  if (inFlight) return withAbort(inFlight, signal);
+
+  const leader = performRequest(path, { timeoutMs });
+  inFlightRequests.set(path, leader);
+  void leader.then(
+    (raw) => {
+      storeInCache(path, raw);
+      if (inFlightRequests.get(path) === leader) inFlightRequests.delete(path);
+    },
+    () => {
+      if (inFlightRequests.get(path) === leader) inFlightRequests.delete(path);
+    },
+  );
+  return withAbort(leader, signal);
+}
+
 export async function getCatalogConfig(options?: RequestOptions): Promise<CatalogPublicConfig> {
   const data = await request('/config', options);
   if (!data || typeof data !== 'object' || !('api_contract_version' in data)) {
@@ -90,17 +161,11 @@ export async function getCatalogConfig(options?: RequestOptions): Promise<Catalo
   return data as CatalogPublicConfig;
 }
 
-export async function getProductBySlug(slug: string, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductDetail> {
-  if (!slug) throw new CatalogApiError('INVALID_SLUG', 'Falta el identificador del producto.');
-  const data = await request(`/products/${encodeURIComponent(slug)}`, options);
-  try {
-    return normalizeProductDetail(data, config);
-  } catch {
-    throw new CatalogApiError('CONTRACT_ERROR', 'La respuesta del producto no tiene una estructura válida.');
-  }
+function detailPath(slug: string): string {
+  return `/products/${encodeURIComponent(slug)}`;
 }
 
-export async function getProducts(params: CatalogRequestParams = {}, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductListResponse> {
+function listPath(params: CatalogRequestParams): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined) return;
@@ -110,12 +175,46 @@ export async function getProducts(params: CatalogRequestParams = {}, config?: Ca
     }
     search.set(key, String(value));
   });
-  const data = await request(`/products${search.size ? `?${search}` : ''}`, options);
+  return `/products${search.size ? `?${search}` : ''}`;
+}
+
+export function catalogFirstPagePath(): string {
+  return listPath(catalogQueryToRequest(parseCatalogQuery(''), true));
+}
+
+export async function getProductBySlug(slug: string, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductDetail> {
+  if (!slug) throw new CatalogApiError('INVALID_SLUG', 'Falta el identificador del producto.');
+  const data = await request(detailPath(slug), options);
+  try {
+    return normalizeProductDetail(data, config);
+  } catch {
+    throw new CatalogApiError('CONTRACT_ERROR', 'La respuesta del producto no tiene una estructura válida.');
+  }
+}
+
+export async function getProducts(params: CatalogRequestParams = {}, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductListResponse> {
+  const data = await request(listPath(params), options);
   try {
     return normalizeProductList(data, config);
   } catch {
     throw new CatalogApiError('CONTRACT_ERROR', 'La respuesta del listado no tiene una estructura válida.');
   }
+}
+
+async function warmCache(path: string): Promise<void> {
+  try {
+    await request(path);
+  } catch {
+    /* silent: real navigation requests retry on their own */
+  }
+}
+
+export function prefetchProductBySlug(slug: string): void {
+  if (slug) void warmCache(detailPath(slug));
+}
+
+export function prefetchCatalogFirstPage(): void {
+  void warmCache(catalogFirstPagePath());
 }
 
 export async function createQuoteRequest(payload: QuoteRequestPayload, options?: RequestOptions): Promise<QuoteRequestCreated> {

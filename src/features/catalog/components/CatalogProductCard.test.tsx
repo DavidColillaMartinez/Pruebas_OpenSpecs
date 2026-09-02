@@ -1,8 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CatalogProductCard } from './CatalogProductCard';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
+
+const prefetchProductBySlug = vi.hoisted(() => vi.fn());
+vi.mock('../api/client', () => ({ prefetchProductBySlug }));
 
 const product = {
   id: 'alba',
@@ -108,5 +111,16 @@ describe('CatalogProductCard', () => {
       product.images[0].url,
       product.images[0].url,
     ]);
+  });
+
+  it('prefetches the linked product detail on hover and keyboard focus', () => {
+    prefetchProductBySlug.mockClear();
+    render(<MemoryRouter><CatalogProductCard product={product} /></MemoryRouter>);
+
+    const link = screen.getByRole('link', { name: /Espejo Alba/ });
+    fireEvent.mouseEnter(link);
+    expect(prefetchProductBySlug).toHaveBeenCalledWith('mt-espejos-alba');
+    fireEvent.focus(link);
+    expect(prefetchProductBySlug).toHaveBeenCalledTimes(2);
   });
 });

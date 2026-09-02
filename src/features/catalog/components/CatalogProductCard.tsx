@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { prefetchProductBySlug } from '../api/client';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { isRoyoFurnitureScope } from '../model/royo';
 import type { ProductCard } from '../model/types';
@@ -44,6 +45,8 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
       <Link
         to={`/productos/${encodeURIComponent(product.slug)}`}
         onClick={() => sessionStorage.setItem(CATALOG_RETURN_STORAGE_KEY, JSON.stringify({ search: location.search, scrollY: window.scrollY }))}
+        onMouseEnter={() => prefetchProductBySlug(product.slug)}
+        onFocus={() => prefetchProductBySlug(product.slug)}
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain"
       >
         <div className="catalog-card-image-frame relative flex aspect-[1489/2105] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy={imageState === 'loading' && Boolean(activeImage)}>
