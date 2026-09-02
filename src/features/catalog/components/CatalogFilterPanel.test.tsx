@@ -185,6 +185,55 @@ describe('CatalogFilterPanel', () => {
     expect(within(dialog).queryByRole('button', { name: 'Tipo de producto' })).not.toBeInTheDocument();
   });
 
+  it('renders every Royo facet option with counts and reports toggles with the right key', () => {
+    const onToggle = vi.fn();
+    render(
+      <CatalogFilterPanel
+        facets={{
+          modularity: [{ value: 'modular', label: 'Modular', count: 3 }, { value: 'normal', label: 'Normal', count: 2 }],
+          collection: [{ value: 'Logika', label: 'Logika', count: 4 }],
+          subcategory: [{ value: 'Muebles modulares', label: 'Muebles modulares', count: 5 }],
+          finish: [{ value: 'Nogal', label: 'Nogal', count: 0 }, { value: 'Roble', label: 'Roble', count: 6 }],
+          measure: [{ value: '80', label: '80', count: 7 }],
+          product_kind: [{ value: 'configurable_product', label: 'Configurable', count: 8 }],
+          category: [{ value: 'muebles-y-lavabos', label: 'Muebles y lavabos', count: 9 }],
+          supplier: [{ value: 'royo', label: 'Royo', count: 10 }],
+        }}
+        filters={{ finish: ['Nogal'] }}
+        profile="royo"
+        mobileOpen
+        onMobileClose={() => undefined}
+        onToggle={onToggle}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Modelo' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Logika/ })).toHaveAccessibleDescription('4 resultados');
+    expect(within(dialog).getByText('4')).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Tipo de mueble' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Muebles modulares/ })).toHaveAccessibleDescription('5 resultados');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Acabado' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Nogal/ })).toBeChecked();
+    expect(within(dialog).getByRole('checkbox', { name: /Roble/ })).toHaveAccessibleDescription('6 resultados');
+    fireEvent.click(within(dialog).getByRole('checkbox', { name: /Roble/ }));
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Medida' }));
+    expect(within(dialog).getByRole('checkbox', { name: /^80/ })).toHaveAccessibleDescription('7 resultados');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Categoría' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Muebles y lavabos/ })).toHaveAccessibleDescription('9 resultados');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Proveedor' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Royo/ })).toHaveAccessibleDescription('10 resultados');
+
+    expect(onToggle).toHaveBeenCalledWith('finish', 'Roble', true);
+    expect(onToggle).not.toHaveBeenCalledWith('modularity', expect.anything(), expect.anything());
+    expect(onToggle).not.toHaveBeenCalledWith('product_kind', expect.anything(), expect.anything());
+  });
+
   it('orders all Espejos facets and hides zero-result options', () => {
     render(
       <CatalogFilterPanel

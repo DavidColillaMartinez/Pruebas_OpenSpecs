@@ -51,7 +51,6 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
         const open = openGroups.has(key);
         const expanded = expandedGroups.has(key);
         const contentId = `catalog-filter-${idPrefix}-${key}`;
-        const countId = `catalog-filter-count-${idPrefix}-${key}`;
         const selectedOptions = options.filter((option) => filters[key]?.includes(option.value));
         const visibleOptions = expanded
           ? options
@@ -71,8 +70,9 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
               </button>
             </legend>
             <div id={contentId} hidden={!open} className="space-y-1 px-1 pb-2 pt-1">
-              {visibleOptions.map((option) => {
+              {visibleOptions.map((option, optionIndex) => {
                 const checked = filters[key]?.includes(option.value) || false;
+                const countId = `catalog-filter-count-${idPrefix}-${key}-${optionIndex}`;
                 return (
                   <label key={option.value} className="group flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2 py-1 text-sm text-graphite transition-colors duration-200 ease-out hover:bg-stonewash hover:text-ink">
                     <input

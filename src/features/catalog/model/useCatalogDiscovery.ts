@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CatalogApiError, getProducts } from '../api/client';
 import { deriveCatalogFacets } from './normalize';
+import { isRoyoFurnitureScope } from './royo';
 import type { CatalogFacetKey, CatalogFacetOption, CatalogFacets, CatalogSortMetadata, ProductCard } from './types';
 import {
   catalogQueryKey,
@@ -56,10 +57,19 @@ const emptyData: DiscoveryData = {
   loadingMore: false,
 };
 
+function visibleSortKey(product: ProductCard): string {
+  if (isRoyoFurnitureScope(product)) {
+    // Royo furniture titles come from the API model. Fall back to the internal
+    // name only as a technical sort key; it is never displayed as a model.
+    return product.collection || product.model || product.name;
+  }
+  return product.name;
+}
+
 function sortItems(items: ProductCard[], sort: CatalogSortMetadata): ProductCard[] {
   if (sort.applied === 'name_asc' || sort.applied === 'name_desc') {
     const direction = sort.applied === 'name_asc' ? 1 : -1;
-    return [...items].sort((a, b) => a.name.localeCompare(b.name, 'es') * direction);
+    return [...items].sort((a, b) => visibleSortKey(a).localeCompare(visibleSortKey(b), 'es') * direction);
   }
   return items;
 }

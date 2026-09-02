@@ -66,6 +66,31 @@ describe('CatalogProductCard', () => {
     expect(screen.queryByText(/Modularidad:/)).not.toBeInTheDocument();
   });
 
+  it('keeps the non-Royo card title as the product name', () => {
+    render(<MemoryRouter><CatalogProductCard product={product} /></MemoryRouter>);
+
+    expect(screen.getByRole('heading', { name: 'Alba' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Logika' })).not.toBeInTheDocument();
+  });
+
+  it('maps Royo normal modularity to Normal without leaking it into the title', () => {
+    render(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Nombre interno', collection: 'Logika', supplierId: 'royo', categoryId: 'muebles-y-lavabos', modularity: 'normal' }} /></MemoryRouter>);
+
+    expect(screen.getByRole('heading', { name: 'Logika' })).toBeInTheDocument();
+    expect(screen.getByText('Modularidad: Normal')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nombre interno' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Logika Normal/)).not.toBeInTheDocument();
+  });
+
+  it('never invents a Royo title from slug, name or image when collection and model are missing', () => {
+    render(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Nombre interno', slug: 'slug-que-no-es-modelo', supplierId: 'royo', categoryId: 'muebles-y-lavabos' }} /></MemoryRouter>);
+
+    expect(screen.queryByRole('heading', { name: 'Nombre interno' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /slug-que-no-es-modelo/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    expect(screen.getByText('Manillons Torrent')).toBeInTheDocument();
+  });
+
   it('keeps one image frame and text block structure for Royo and non-Royo cards', () => {
     render(
       <MemoryRouter>

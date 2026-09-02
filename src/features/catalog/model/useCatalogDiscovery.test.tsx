@@ -17,6 +17,7 @@ function Harness() {
       <button type="button" onClick={discovery.retry}>Reintentar</button>
       <output data-testid="url">{location.search}</output>
       <output data-testid="count">{discovery.data.items.length}</output>
+      <output data-testid="titles">{discovery.data.items.map((item) => item.collection || item.model || item.name).join('|')}</output>
       <output data-testid="page">{discovery.data.loadedPage}</output>
       <output data-testid="additional-error">{discovery.data.additionalError || ''}</output>
     </>
@@ -139,6 +140,57 @@ describe('useCatalogDiscovery', () => {
 
     await waitFor(() => expect(screen.getByTestId('url')).not.toHaveTextContent('shape=Circular'));
     expect(screen.getByTestId('url')).not.toHaveTextContent('category=espejos');
+  });
+
+  it('sorts Royo furniture by the visible model title and keeps other suppliers by name', async () => {
+    const royoFacets = {
+      category: [{ value: 'muebles-y-lavabos', label: 'Muebles y lavabos', count: 3 }],
+      supplier: [{ value: 'royo', label: 'Royo', count: 3 }],
+      modularity: [{ value: 'modular', label: 'Modular', count: 3 }],
+      collection: [{ value: 'Beta', label: 'Beta', count: 1 }, { value: 'Zeta', label: 'Zeta', count: 1 }],
+      subcategory: [{ value: 'Muebles modulares', label: 'Muebles modulares', count: 3 }],
+      finish: [{ value: 'Nogal', label: 'Nogal', count: 3 }],
+      measure: [{ value: '80', label: '80', count: 3 }],
+      product_kind: [{ value: 'configurable_product', label: 'Configurable', count: 3 }],
+    };
+    const royoItems = [
+      { id: 'beta', name: 'Zeta interno', slug: 'beta', supplier_id: 'royo', category_id: 'muebles-y-lavabos', collection: 'Beta' },
+      { id: 'zeta', name: 'Alfa interno', slug: 'zeta', supplier_id: 'royo', category_id: 'muebles-y-lavabos', collection: 'Zeta' },
+      { id: 'gamma', name: 'Gamma interno', slug: 'gamma', supplier_id: 'royo', category_id: 'muebles-y-lavabos' },
+    ];
+    let applied: 'name_asc' | 'name_desc' = 'name_asc';
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({
+      items: royoItems,
+      pagination: { limit: 24, offset: 0, total: 3 },
+      facets: royoFacets,
+      sort: { supported: ['name_asc', 'name_desc', 'relevance'], applied },
+    }), { status: 200 })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const asc = render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&sort=name_asc']}><Harness /></MemoryRouter>);
+    await waitFor(() => expect(asc.getByTestId('count')).toHaveTextContent('3'));
+    expect(asc.getByTestId('titles')).toHaveTextContent('Beta|Gamma interno|Zeta');
+
+    asc.unmount();
+    applied = 'name_desc';
+    const desc = render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&sort=name_desc']}><Harness /></MemoryRouter>);
+    await waitFor(() => expect(desc.getByTestId('count')).toHaveTextContent('3'));
+    expect(desc.getByTestId('titles')).toHaveTextContent('Zeta|Gamma interno|Beta');
+
+    desc.unmount();
+    const gmeItems = [
+      { id: 'zeta', name: 'Zeta', slug: 'zeta', supplier_id: 'gme', category_id: 'mamparas' },
+      { id: 'alfa', name: 'Alfa', slug: 'alfa', supplier_id: 'gme', category_id: 'mamparas' },
+    ];
+    fetchMock.mockImplementation(() => Promise.resolve(new Response(JSON.stringify({
+      items: gmeItems,
+      pagination: { limit: 24, offset: 0, total: 2 },
+      facets: { category: [{ value: 'mamparas', label: 'Mamparas', count: 2 }], supplier: [{ value: 'gme', label: 'GME', count: 2 }], finish: [{ value: 'Cromo', label: 'Cromo', count: 2 }], measure: [{ value: '100', label: '100', count: 2 }] },
+      sort: { supported: ['name_asc', 'name_desc', 'relevance'], applied: 'name_asc' },
+    }), { status: 200 })));
+    const gme = render(<MemoryRouter initialEntries={['/productos?category=mamparas&sort=name_asc']}><Harness /></MemoryRouter>);
+    await waitFor(() => expect(gme.getByTestId('count')).toHaveTextContent('2'));
+    expect(gme.getByTestId('titles')).toHaveTextContent('Alfa|Zeta');
   });
 
 });
