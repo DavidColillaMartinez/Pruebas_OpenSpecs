@@ -190,11 +190,11 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('button', { name: 'Acabado' })).toBeInTheDocument();
   });
 
-  it('shows the Royo profile from category alone and sends the filter to the API', async () => {
-    const fetchMock = vi.fn().mockImplementation((url: string) => Promise.resolve(new Response(JSON.stringify({
+  it('shows the Royo profile from category alone without Modularidad and Tipo de producto', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify({
       items: [{
         id: 'royo-card',
-        name: url.includes('modularity=modular') ? 'Nombre interno Modular' : 'Nombre interno Royo',
+        name: 'Nombre interno Royo',
         slug: 'royo-card',
         supplier_id: 'royo',
         category_id: 'muebles-y-lavabos',
@@ -219,21 +219,18 @@ describe('CatalogPage', () => {
 
     render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&page=3']}><CatalogPage /></MemoryRouter>);
 
-    const modularityButton = await screen.findByRole('button', { name: 'Modularidad' });
+    expect(await screen.findByRole('button', { name: 'Modelo' })).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([url]) => {
       const requestUrl = String(url);
       return requestUrl.includes('category_id=muebles-y-lavabos') && !requestUrl.includes('supplier_id=');
     })).toBe(true);
-    expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim()).at(0)).toBe('Modularidad+');
     expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
-      'Modularidad+', 'Modelo+', 'Tipo de mueble+', 'Acabado+', 'Medida+', 'Tipo de producto+', 'Categoría+', 'Proveedor+',
+      'Modelo+', 'Tipo de mueble+', 'Acabado+', 'Medida+', 'Categoría+', 'Proveedor+',
     ]);
-    fireEvent.click(modularityButton);
-    fireEvent.click(screen.getByRole('checkbox', { name: /Modular/ }));
-
-    await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => String(url).includes('modularity=modular'))).toBe(true));
+    expect(screen.queryByRole('button', { name: 'Modularidad' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Tipo de producto' })).not.toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'Logika' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Nombre interno Modular' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Nombre interno Royo' })).not.toBeInTheDocument();
   });
 
   it('exposes a distinct store masthead and skip-to-results landmark', async () => {

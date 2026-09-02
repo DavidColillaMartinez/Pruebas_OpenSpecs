@@ -137,6 +137,14 @@ export function getCatalogFilterKeys(profile: CatalogFilterProfile): CatalogFace
   ])];
 }
 
+const ROYO_HIDDEN_DISPLAY_FILTER_KEYS: CatalogFacetKey[] = ['modularity', 'product_kind'];
+
+export function getDisplayCatalogFilterKeys(profile: CatalogFilterProfile): CatalogFacetKey[] {
+  const keys = getCatalogFilterKeys(profile);
+  if (profile !== 'royo') return keys;
+  return keys.filter((key) => !ROYO_HIDDEN_DISPLAY_FILTER_KEYS.includes(key));
+}
+
 export function getCatalogFacetLabel(key: CatalogFacetKey, profile: CatalogFilterProfile): string | undefined {
   const genericLabels: Partial<Record<CatalogFacetKey, string>> = {
     subcategory: 'Tipo',

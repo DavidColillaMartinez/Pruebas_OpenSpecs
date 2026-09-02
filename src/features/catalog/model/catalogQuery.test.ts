@@ -5,6 +5,7 @@ import {
   getCatalogFacetLabel,
   getCatalogFilterKeys,
   getCatalogFilterProfile,
+  getDisplayCatalogFilterKeys,
   parseCatalogQuery,
   serializeCatalogQuery,
   withCatalogQueryChange,
@@ -24,6 +25,12 @@ describe('catalog query state', () => {
     expect(getCatalogFilterKeys('royo')).toEqual([
       'modularity', 'collection', 'subcategory', 'finish', 'measure', 'product_kind', 'category', 'supplier',
     ]);
+    expect(getDisplayCatalogFilterKeys('royo')).toEqual([
+      'collection', 'subcategory', 'finish', 'measure', 'category', 'supplier',
+    ]);
+    expect(getDisplayCatalogFilterKeys('mamparas')).toEqual(getCatalogFilterKeys('mamparas'));
+    expect(getDisplayCatalogFilterKeys('espejos')).toEqual(getCatalogFilterKeys('espejos'));
+    expect(getDisplayCatalogFilterKeys('root')).toEqual(getCatalogFilterKeys('root'));
   });
 
   it('parses repeated filters and rejects unsupported sort values', () => {

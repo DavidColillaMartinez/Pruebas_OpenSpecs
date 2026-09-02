@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CatalogFacetKey, CatalogFacets } from '../model/types';
-import { getCatalogFacetLabel, getCatalogFilterKeys, type CatalogFilterProfile, type CatalogFilters } from '../model/catalogQuery';
+import { getCatalogFacetLabel, getDisplayCatalogFilterKeys, type CatalogFilterProfile, type CatalogFilters } from '../model/catalogQuery';
 
 type CatalogFilterPanelProps = {
   facets: CatalogFacets;
@@ -38,7 +38,7 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
   const groupEntries = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
     .map(([key, options]) => [key, options.filter((option) => option.count > 0 || filters[key]?.includes(option.value))] as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>])
     .filter(([, options]) => options.length > 0);
-  const visibleKeys = getCatalogFilterKeys(profile);
+  const visibleKeys = getDisplayCatalogFilterKeys(profile);
   const groups = visibleKeys
     .map((key) => groupEntries.find(([groupKey]) => groupKey === key))
     .filter((entry): entry is [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>] => Boolean(entry));

@@ -137,8 +137,8 @@ describe('CatalogFilterPanel', () => {
   it('keeps a selected zero-count Royo option visible', () => {
     render(
       <CatalogFilterPanel
-        facets={{ modularity: [{ value: 'modular', label: 'Modular', count: 0 }, { value: 'normal', label: 'Normal', count: 2 }] }}
-        filters={{ modularity: ['modular'] }}
+        facets={{ finish: [{ value: 'Nogal', label: 'Nogal', count: 0 }, { value: 'Roble', label: 'Roble', count: 2 }] }}
+        filters={{ finish: ['Nogal'] }}
         profile="royo"
         mobileOpen
         onMobileClose={() => undefined}
@@ -147,8 +147,42 @@ describe('CatalogFilterPanel', () => {
     );
 
     const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Modularidad' }));
-    expect(within(dialog).getByRole('checkbox', { name: /Modular/ })).toBeChecked();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Acabado' }));
+    expect(within(dialog).getByRole('checkbox', { name: /Nogal/ })).toBeChecked();
+  });
+
+  it('hides Modularidad and Tipo de producto for the Royo profile only', () => {
+    render(
+      <CatalogFilterPanel
+        facets={{
+          modularity: [{ value: 'modular', label: 'Modular', count: 1 }, { value: 'normal', label: 'Normal', count: 1 }],
+          collection: [{ value: 'Logika', label: 'Logika', count: 1 }],
+          subcategory: [{ value: 'Muebles modulares', label: 'Muebles modulares', count: 1 }],
+          finish: [{ value: 'Nogal', label: 'Nogal', count: 1 }],
+          measure: [{ value: '80', label: '80', count: 1 }],
+          product_kind: [{ value: 'configurable_product', label: 'Configurable', count: 1 }],
+          category: [{ value: 'muebles-y-lavabos', label: 'Muebles y lavabos', count: 1 }],
+          supplier: [{ value: 'royo', label: 'Royo', count: 1 }],
+        }}
+        filters={{}}
+        profile="royo"
+        mobileOpen
+        onMobileClose={() => undefined}
+        onToggle={() => undefined}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    expect([...dialog.querySelectorAll('fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
+      'Modelo+',
+      'Tipo de mueble+',
+      'Acabado+',
+      'Medida+',
+      'Categoría+',
+      'Proveedor+',
+    ]);
+    expect(within(dialog).queryByRole('button', { name: 'Modularidad' })).not.toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: 'Tipo de producto' })).not.toBeInTheDocument();
   });
 
   it('orders all Espejos facets and hides zero-result options', () => {

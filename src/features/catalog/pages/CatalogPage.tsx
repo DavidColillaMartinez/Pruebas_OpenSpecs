@@ -4,7 +4,7 @@ import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
 import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
 import { CatalogSelectionSummary } from '../../quote/components/CatalogSelectionSummary';
-import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterKeys, getCatalogFilterProfile, type CatalogQueryState } from '../model/catalogQuery';
+import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterProfile, getDisplayCatalogFilterKeys, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
 
@@ -42,7 +42,7 @@ export function CatalogPage() {
   const location = useLocation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const filterProfile = getCatalogFilterProfile(query);
-  const visibleFilterKeys = getCatalogFilterKeys(filterProfile);
+  const visibleFilterKeys = getDisplayCatalogFilterKeys(filterProfile);
   const hasActiveCriteria = Boolean(query.search || Object.values(query.filters).some((values) => values && values.length > 0));
   const sortSupported = new Set(data.sort.supported);
   const facetLabels = Object.fromEntries([
