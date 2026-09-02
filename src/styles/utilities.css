@@ -21,41 +21,26 @@
 
 /* ---- Animated minimal logo ---- */
 
-.animated-logo-svg {
-  overflow: visible;
-}
-
-.animated-logo .logo-outer-draw,
-.animated-logo .logo-inner-draw {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: logo-draw-stroke 3500ms linear 0ms 1 forwards;
-}
-
-.animated-logo .logo-gold-line {
+/* Sequential perpendicular wipes: every piece reveals along its own axis with
+   length-proportional duration/delay so the reveal edge moves at one constant
+   speed from the first stroke to the last (linear, no corner pops). */
+.animated-logo .logo-wipe-rect,
+.animated-logo .logo-gold-bar {
   transform: scaleX(0);
-  transform-origin: 50% 50%;
-  animation: logo-draw-line 3500ms linear 0ms 1 forwards;
+  transform-box: fill-box;
+  transform-origin: left center;
+  will-change: transform;
+  animation: logo-wipe-in var(--logo-wipe-duration, 0ms) linear var(--logo-wipe-delay, 0ms) 1 forwards;
 }
 
-@keyframes logo-draw-stroke {
-  0%   { stroke-dashoffset: 1; }
-  100% { stroke-dashoffset: 0; }
-}
-
-@keyframes logo-draw-line {
-  0%   { transform: scaleX(0); }
-  100% { transform: scaleX(1); }
+@keyframes logo-wipe-in {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animated-logo .logo-outer-draw,
-  .animated-logo .logo-inner-draw {
-    stroke-dashoffset: 0;
-    animation: none;
-  }
-
-  .animated-logo .logo-gold-line {
+  .animated-logo .logo-wipe-rect,
+  .animated-logo .logo-gold-bar {
     transform: scaleX(1);
     animation: none;
   }
