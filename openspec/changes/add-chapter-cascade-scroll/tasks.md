@@ -42,3 +42,12 @@
 - [ ] 6.3 Ajustar `CASCADE_STEP_MS`/retardos solo si alguna cascada se siente atrapante (Colección 5 pasos es el peor caso); documentar valores finales en design.md si cambian.
 - [ ] 6.4 Inspeccionar `git status`/`git diff` (sin incluir los 3 preexistentes), commit focalizado `feat(landing): chapter cascade scroll with Quiénes somos y Opiniones`; push únicamente si el propietario lo pide.
 - [ ] 6.5 Dejar pendientes reales como pendientes: textos de marca y reseñas de Google confirmados por el propietario antes de publicar; registrar evidencia de aceptación solo cuando exista.
+
+## 7. Follow-up de revisión del propietario (2026-09-07)
+
+- [x] 7.1 Inicio: el grid de pasos fluye bajo el H1 (`mt-10`) en lugar de anclarse al borde inferior; el espacio sobrante pasa al bottom del capítulo.
+- [x] 7.2 Inicio/Visión: soltar el hold tras el trazo del logo o el boceto arranca la cascada sin el retardo adicional de 1 s (`pendingStart` en el hook).
+- [x] 7.3 Re-cascada en cada re-entrada para Quiénes somos y Colección (como Visión); Inicio/Opiniones/Contacto mantienen estado completado.
+- [x] 7.4 Coreografía de Quiénes somos en 5 pasos: texto 1 arriba, imagen 1 arriba, imagen 2 izquierda + texto 2 derecha simultáneos, texto 3 abajo, imagen 3 abajo desfasada 180 ms.
+- [x] 7.5 Ubicación del capítulo Contacto apunta al perfil de empresa de Google (`?cid=8560142667066455201`) en lugar de a la calle y número, en desktop, móvil y `ContactLinks` (desktop+carded).
+- [ ] 7.6 Rellenar `src/data/reviewsContent.js` con autor/estrellas/texto de las 7 reseñas verificadas cuando las aporte el propietario (enlaces ya registrados en el fichero).
