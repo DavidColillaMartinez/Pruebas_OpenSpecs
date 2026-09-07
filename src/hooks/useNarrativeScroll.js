@@ -10,8 +10,8 @@ const labelIndex = (label) => chapterLabels.indexOf(label);
 const VISION_INDEX = labelIndex('Visión');
 // Chapters whose cascade must wait for an external ready signal (logo draw, boceto video).
 const INITIAL_HELD_LABELS = ['Inicio', 'Visión'];
-// Visión re-cascades on every re-entry; the rest stay complete once revealed.
-const REPLAY_ON_ENTRY_LABELS = ['Visión'];
+// These chapters re-run their cascade on every re-entry, like Visión's headline beat.
+const REPLAY_ON_ENTRY_LABELS = ['Quiénes somos', 'Colección', 'Visión'];
 
 function getDesktopGate() {
   if (typeof window === 'undefined') return false;
@@ -32,11 +32,29 @@ export function useNarrativeScroll() {
   const completedRef = useRef({});
   const enteredRef = useRef({});
   const timersRef = useRef([]);
+  const pendingStartRef = useRef({});
   const holdsRef = useRef(Object.fromEntries(INITIAL_HELD_LABELS.map((label) => [labelIndex(label), true])));
 
   const clearCascadeTimers = useCallback(() => {
     timersRef.current.forEach((id) => window.clearTimeout(id));
     timersRef.current = [];
+  }, []);
+
+  const beginCascade = useCallback((index) => {
+    const max = chapterSteps[index];
+    const complete = () => { completedRef.current[index] = true; };
+    let nextStep = 1;
+    const tick = () => {
+      stepRef.current = nextStep;
+      setStep(nextStep);
+      if (nextStep >= max) {
+        timersRef.current.push(window.setTimeout(complete, CASCADE_SETTLE_MS));
+        return;
+      }
+      nextStep += 1;
+      timersRef.current.push(window.setTimeout(tick, CASCADE_STEP_MS));
+    };
+    tick();
   }, []);
 
   const scheduleCascade = useCallback((index) => {
@@ -45,34 +63,27 @@ export function useNarrativeScroll() {
     if (index !== activeRef.current) return;
     clearCascadeTimers();
     const max = chapterSteps[index];
-    const complete = () => { completedRef.current[index] = true; };
     if (!isDesktop || reducedMotion) {
       stepRef.current = max;
       setStep(max);
-      complete();
+      completedRef.current[index] = true;
       return;
     }
     const start = () => {
-      if (holdsRef.current[index]) return;
-      let nextStep = 1;
-      const tick = () => {
-        stepRef.current = nextStep;
-        setStep(nextStep);
-        if (nextStep >= max) {
-          timersRef.current.push(window.setTimeout(complete, CASCADE_SETTLE_MS));
-          return;
-        }
-        nextStep += 1;
-        timersRef.current.push(window.setTimeout(tick, CASCADE_STEP_MS));
-      };
-      tick();
+      if (holdsRef.current[index]) {
+        pendingStartRef.current[index] = true;
+        return;
+      }
+      pendingStartRef.current[index] = false;
+      beginCascade(index);
     };
     timersRef.current.push(window.setTimeout(start, CASCADE_INITIAL_DELAY_MS));
-  }, [clearCascadeTimers, isDesktop, reducedMotion]);
+  }, [beginCascade, clearCascadeTimers, isDesktop, reducedMotion]);
 
   const navigateTo = useCallback((index) => {
     if (index < 0 || index >= TOTAL_CHAPTERS) return;
     clearCascadeTimers();
+    pendingStartRef.current[index] = false;
     activeRef.current = index;
     stepRef.current = 0;
     accumulatedRef.current = 0;
@@ -94,13 +105,15 @@ export function useNarrativeScroll() {
   }, [clearCascadeTimers, scheduleCascade]);
 
   // Gated chapters (Inicio logo, Visión boceto) call this when they are ready
-  // for their cascade; held chapters simply ignore scheduled cascade starts.
+  // for their cascade. If the entry timer already fired while held, start now;
+  // otherwise the scheduled entry cascade (1 s headline pause) keeps its timing.
   const setChapterHold = useCallback((index, held) => {
     holdsRef.current[index] = held;
-    if (!held && index === activeRef.current && chapterType[index] === 'step' && !completedRef.current[index]) {
-      scheduleCascade(index);
+    if (!held && pendingStartRef.current[index] && index === activeRef.current && chapterType[index] === 'step' && !completedRef.current[index]) {
+      pendingStartRef.current[index] = false;
+      beginCascade(index);
     }
-  }, [scheduleCascade]);
+  }, [beginCascade]);
 
   useEffect(() => {
     const onResize = () => setIsDesktop(getDesktopGate());
@@ -167,9 +180,6 @@ export function useNarrativeScroll() {
         navigateTo(current + 1);
       } else if (accumulatedRef.current <= 20 && direction < 0 && current > 0) {
         navigateTo(current - 1);
-        completedRef.current[current - 1] = true;
-        stepRef.current = chapterSteps[current - 1];
-        setStep(chapterSteps[current - 1]);
         accumulatedRef.current = 1950;
         targetRef.current = 0.93;
       } else {

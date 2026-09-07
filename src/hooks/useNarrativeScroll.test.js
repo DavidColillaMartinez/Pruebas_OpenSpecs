@@ -6,6 +6,7 @@ import { chapterSteps, sectionIds } from '../data/copy';
 const COLECCION = sectionIds.indexOf('coleccion');
 const REFORMAS = sectionIds.indexOf('reformas');
 const VISION = sectionIds.indexOf('vision');
+const OPINIONES = sectionIds.indexOf('opiniones');
 
 function wheel(deltaY) {
   const event = new Event('wheel', { bubbles: true, cancelable: true });
@@ -39,7 +40,6 @@ describe('useNarrativeScroll chapter cascade', () => {
     expect(result.current.step).toBe(0);
 
     act(() => { result.current.setChapterHold(0, false); });
-    act(() => { vi.advanceTimersByTime(1000); });
     expect(result.current.step).toBe(1);
   });
 
@@ -70,16 +70,28 @@ describe('useNarrativeScroll chapter cascade', () => {
     expect(result.current.activeChapter).toBe(REFORMAS);
   });
 
-  it('returns completed chapters instantly without replaying the cascade', () => {
+  it('keeps non-replay chapters complete when returning to them', () => {
+    const { result } = renderHook(() => useNarrativeScroll());
+    act(() => { result.current.navigateTo(OPINIONES); });
+    act(() => { vi.advanceTimersByTime(6000); });
+    expect(result.current.step).toBe(chapterSteps[OPINIONES]);
+
+    act(() => { result.current.navigateTo(VISION); });
+    act(() => { result.current.navigateTo(OPINIONES); });
+    expect(result.current.step).toBe(chapterSteps[OPINIONES]);
+  });
+
+  it('replays the Colección cascade when returning to it', () => {
     const { result } = renderHook(() => useNarrativeScroll());
     act(() => { result.current.navigateTo(COLECCION); });
     act(() => { vi.advanceTimersByTime(8000); });
     expect(result.current.step).toBe(chapterSteps[COLECCION]);
 
-    act(() => { result.current.navigateTo(0); });
-    expect(result.current.activeChapter).toBe(0);
+    act(() => { result.current.navigateTo(REFORMAS); });
     act(() => { result.current.navigateTo(COLECCION); });
-    expect(result.current.step).toBe(chapterSteps[COLECCION]);
+    expect(result.current.step).toBe(0);
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(result.current.step).toBe(1);
   });
 
   it('replays the Visión cascade on every re-entry after its first release', () => {
