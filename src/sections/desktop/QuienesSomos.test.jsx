@@ -3,31 +3,51 @@ import { render, screen } from '@testing-library/react';
 import { QuienesSomos } from './QuienesSomos';
 import { chapterSteps, chapterLabels, sectionIds } from '../../data/copy';
 
+function parts(container) {
+  const rows = [...container.querySelectorAll('div.space-y-7 > div.grid')];
+  return rows.map((row) => ({ text: row.querySelector('div'), image: row.querySelector('img') }));
+}
+
 describe('desktop QuienesSomos chapter', () => {
-  it('declares one cascade step per block plus a leading pause state', () => {
+  it('declares the chapter order and five choreographed cascade steps', () => {
     expect(sectionIds.indexOf('quienes-somos')).toBe(1);
     expect(chapterLabels[1]).toBe('Quiénes somos');
-    expect(chapterSteps[1]).toBe(3);
+    expect(chapterSteps[1]).toBe(5);
   });
 
-  it('renders the headline immediately and reveals the three blocks in order', () => {
+  it('reveals block one text from above and its image right after', () => {
+    const { container } = render(<QuienesSomos step={1} isActive />);
+    const [first, second] = parts(container);
+    expect(first.text.className).toContain('opacity-100');
+    expect(first.image.className).toContain('opacity-0');
+    expect(first.image.className).toContain('-translate-y-8');
+    expect(second.text.className).toContain('opacity-0');
+
+    const { container: c2 } = render(<QuienesSomos step={2} isActive />);
+    expect(parts(c2)[0].image.className).toContain('opacity-100');
+  });
+
+  it('slides the second image from the left and its text from the right together', () => {
     const { container } = render(<QuienesSomos step={2} isActive />);
-    expect(screen.getByRole('heading', { name: 'Qué hay detrás de cada baño.' })).toBeInTheDocument();
+    const [first, second] = parts(container);
+    expect(second.text.className).toContain('translate-x-8');
+    expect(second.image.className).toContain('-translate-x-8');
+    expect(second.image.className).toContain('lg:order-1');
 
-    const rows = [...container.querySelectorAll('div.space-y-7 > div.grid')];
-    expect(rows).toHaveLength(3);
-    expect(rows[0].className).toContain('opacity-100');
-    expect(rows[1].className).toContain('opacity-100');
-    expect(rows[2].className).toContain('opacity-0');
+    const { container: c3 } = render(<QuienesSomos step={3} isActive />);
+    expect(parts(c3)[1].text.className).toContain('opacity-100');
+    expect(parts(c3)[1].image.className).toContain('opacity-100');
   });
 
-  it('alternates layout and completes all blocks at the last step', () => {
-    const { container } = render(<QuienesSomos step={3} isActive />);
-    const rows = [...container.querySelectorAll('div.space-y-7 > div.grid')];
-    expect(rows.every((row) => row.className.includes('opacity-100'))).toBe(true);
-    const image = rows[1].querySelector('img');
-    const text = rows[1].querySelector('div');
-    expect(image.className).toContain('lg:order-1');
-    expect(text.className).toContain('lg:order-2');
+  it('raises the last text from below and staggers its image after', () => {
+    const { container } = render(<QuienesSomos step={4} isActive />);
+    const last = parts(container)[2];
+    expect(last.text.className).toContain('opacity-100');
+    expect(last.image.className).toContain('translate-y-8');
+
+    const { container: c5 } = render(<QuienesSomos step={5} isActive />);
+    const finalParts = parts(c5);
+    expect(finalParts.every((part) => part.text.className.includes('opacity-100') && part.image.className.includes('opacity-100'))).toBe(true);
+    expect(finalParts[2].image.style.transitionDelay).toBe('180ms');
   });
 });
