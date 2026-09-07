@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AnimatedLogoMark, logoWipeTimings, WIPE_STROKES, LOGO_DRAW_MS, LOGO_BASE_DELAY_MS, LOGO_LETTER_SPEED } from './AnimatedLogoMark';
 
 describe('AnimatedLogoMark', () => {
@@ -61,6 +61,38 @@ describe('AnimatedLogoMark', () => {
     expect(gold).toBeInTheDocument();
     expect(gold.getAttribute('style')).toContain(`--logo-wipe-delay: ${timings[4].delay}ms`);
     expect(gold.getAttribute('style')).toContain(`--logo-wipe-duration: ${timings[4].duration}ms`);
+  });
+
+  it('fires onAnimationEnd once the full wipe chain has finished', () => {
+    vi.useFakeTimers();
+    try {
+      const onAnimationEnd = vi.fn();
+      render(<AnimatedLogoMark onAnimationEnd={onAnimationEnd} />);
+      expect(onAnimationEnd).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(4000);
+      expect(onAnimationEnd).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('fires onAnimationEnd immediately when reduced motion is preferred', () => {
+    const matchMedia = vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
+      matches: query.includes('prefers-reduced-motion'),
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    try {
+      const onAnimationEnd = vi.fn();
+      vi.useFakeTimers();
+      render(<AnimatedLogoMark onAnimationEnd={onAnimationEnd} />);
+      vi.advanceTimersByTime(0);
+      expect(onAnimationEnd).toHaveBeenCalledTimes(1);
+      vi.useRealTimers();
+    } finally {
+      matchMedia.mockRestore();
+    }
   });
 
   it('no longer uses the dash-brush and center scale animation', () => {

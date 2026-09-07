@@ -11,13 +11,19 @@ describe('desktop landing catalog access', () => {
     expect(screen.getByRole('link', { name: 'Abrir catálogo de productos' })).toHaveAttribute('href', '/productos');
   });
 
-  it('reveals all method articles from one step with one-second delays', () => {
+  it('reveals all method articles from one step with faster staggered delays', () => {
     const { container } = render(<MemoryRouter><Inicio step={1} isActive /></MemoryRouter>);
     const articles = [...container.querySelectorAll('article')];
 
     expect(chapterSteps[0]).toBe(1);
     expect(articles).toHaveLength(3);
-    expect(articles.map((article) => article.style.transitionDelay)).toEqual(['0ms', '800ms', '1600ms']);
+    expect(articles.map((article) => article.style.transitionDelay)).toEqual(['0ms', '320ms', '640ms']);
     expect(articles.every((article) => article.className.includes('opacity-100'))).toBe(true);
+  });
+
+  it('hides method articles before the cascade step arrives', () => {
+    const { container } = render(<MemoryRouter><Inicio step={0} isActive /></MemoryRouter>);
+    const articles = [...container.querySelectorAll('article')];
+    expect(articles.every((article) => article.className.includes('opacity-0'))).toBe(true);
   });
 });

@@ -4,20 +4,22 @@ import { CompareSlider } from '../../components/CompareSlider';
 
 const visionSeenRef = { current: false };
 
-export function Vision({ step, isActive, setBlocked }) {
+export function Vision({ step, isActive, onHold }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
   const activeRef = useRef(false);
   const [videoDone, setVideoDone] = useState(false);
   const [sliderX, setSliderX] = useState(0.5);
+  const holdRef = useRef(onHold);
+  holdRef.current = onHold;
   const s = isActive ? step : 0;
 
   const finishPlayback = () => {
     if (!activeRef.current) return;
     videoRef.current?.pause();
     setVideoDone(true);
-    setBlocked(false);
+    holdRef.current(false);
     visionSeenRef.current = true;
   };
 
@@ -25,8 +27,7 @@ export function Vision({ step, isActive, setBlocked }) {
     activeRef.current = isActive;
     if (!isActive) {
       videoRef.current?.pause();
-      setBlocked(false);
-      return () => { activeRef.current = false; videoRef.current?.pause(); setBlocked(false); };
+      return () => { activeRef.current = false; videoRef.current?.pause(); };
     }
     if (!videoRef.current) return;
     const video = videoRef.current;
@@ -36,16 +37,15 @@ export function Vision({ step, isActive, setBlocked }) {
     if (visionSeenRef.current) {
       video.pause();
       setVideoDone(true);
-      setBlocked(false);
+      holdRef.current(false);
       return () => {
         video.removeEventListener('ended', done);
         video.removeEventListener('error', done);
         activeRef.current = false;
         video.pause();
-        setBlocked(false);
       };
     }
-    setBlocked(true);
+    holdRef.current(true);
     setVideoDone(false);
     video.currentTime = 0;
     video.play().catch(done);
@@ -54,14 +54,13 @@ export function Vision({ step, isActive, setBlocked }) {
       video.removeEventListener('error', done);
       activeRef.current = false;
       video.pause();
-      setBlocked(false);
     };
-  }, [isActive, setBlocked]);
+  }, [isActive]);
 
   const handleReplay = () => {
     if (!videoRef.current) return;
     visionSeenRef.current = true;
-    setBlocked(true);
+    holdRef.current(true);
     setVideoDone(false);
     setSliderX(0.5);
     videoRef.current.currentTime = 0;

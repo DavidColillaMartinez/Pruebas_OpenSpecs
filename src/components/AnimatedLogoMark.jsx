@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 
 // Geometry extracted from public/logopng.png (500x306) via scanline measurement:
 // every edge is a straight segment with slope |dx/dy| = 0.5 (legs) or horizontal.
@@ -38,11 +38,25 @@ function wipeStyle({ delay, duration }) {
   return { '--logo-wipe-delay': `${delay}ms`, '--logo-wipe-duration': `${duration}ms` };
 }
 
-export function AnimatedLogoMark({ className = '' }) {
+export function AnimatedLogoMark({ className = '', onAnimationEnd }) {
   const uid = useId().replace(/:/g, '');
   const outerMaskId = `${uid}-logo-outer-mask`;
   const innerMaskId = `${uid}-logo-inner-mask`;
   const timings = logoWipeTimings();
+  const callbackRef = useRef(onAnimationEnd);
+  callbackRef.current = onAnimationEnd;
+  useEffect(() => {
+    const finish = () => callbackRef.current?.();
+    const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      const id = window.setTimeout(finish, 0);
+      return () => window.clearTimeout(id);
+    }
+    const currentTimings = logoWipeTimings();
+    const total = Math.max(...currentTimings.map(({ delay, duration }) => delay + duration));
+    const id = window.setTimeout(finish, total + 50);
+    return () => window.clearTimeout(id);
+  }, []);
   const wipeRect = (stroke, index) => (
     <g key={`${stroke.from.join('-')}-${index}`} transform={stroke.transform}>
       <rect className="logo-wipe-rect" fill="white" x="0" y={stroke.y} width={stroke.axisLength + 0.1} height={stroke.height} style={wipeStyle(timings[index])} />

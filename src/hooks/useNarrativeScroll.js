@@ -1,5 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { sectionIds, chapterSteps, chapterType, TOTAL_CHAPTERS, DESKTOP_MIN_WIDTH, DESKTOP_MIN_HEIGHT } from '../data/copy';
+import { sectionIds, chapterLabels, chapterSteps, chapterType, TOTAL_CHAPTERS, DESKTOP_MIN_WIDTH, DESKTOP_MIN_HEIGHT } from '../data/copy';
+
+const CASCADE_INITIAL_DELAY_MS = 1000;
+const CASCADE_STEP_MS = 800;
+const CASCADE_SETTLE_MS = 1600;
+const WHEEL_COOLDOWN_MS = 420;
+
+const labelIndex = (label) => chapterLabels.indexOf(label);
+const VISION_INDEX = labelIndex('Visión');
+// Chapters whose cascade must wait for an external ready signal (logo draw, boceto video).
+const INITIAL_HELD_LABELS = ['Inicio', 'Visión'];
+// Visión re-cascades on every re-entry; the rest stay complete once revealed.
+const REPLAY_ON_ENTRY_LABELS = ['Visión'];
 
 function getDesktopGate() {
   if (typeof window === 'undefined') return false;
@@ -14,10 +26,81 @@ export function useNarrativeScroll() {
   const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false);
   const activeRef = useRef(0);
   const stepRef = useRef(0);
-  const blockedRef = useRef(false);
   const cooldownRef = useRef(false);
   const accumulatedRef = useRef(0);
   const targetRef = useRef(0);
+  const completedRef = useRef({});
+  const enteredRef = useRef({});
+  const timersRef = useRef([]);
+  const holdsRef = useRef(Object.fromEntries(INITIAL_HELD_LABELS.map((label) => [labelIndex(label), true])));
+
+  const clearCascadeTimers = useCallback(() => {
+    timersRef.current.forEach((id) => window.clearTimeout(id));
+    timersRef.current = [];
+  }, []);
+
+  const scheduleCascade = useCallback((index) => {
+    if (chapterType[index] !== 'step') return;
+    if (completedRef.current[index]) return;
+    if (index !== activeRef.current) return;
+    clearCascadeTimers();
+    const max = chapterSteps[index];
+    const complete = () => { completedRef.current[index] = true; };
+    if (!isDesktop || reducedMotion) {
+      stepRef.current = max;
+      setStep(max);
+      complete();
+      return;
+    }
+    const start = () => {
+      if (holdsRef.current[index]) return;
+      let nextStep = 1;
+      const tick = () => {
+        stepRef.current = nextStep;
+        setStep(nextStep);
+        if (nextStep >= max) {
+          timersRef.current.push(window.setTimeout(complete, CASCADE_SETTLE_MS));
+          return;
+        }
+        nextStep += 1;
+        timersRef.current.push(window.setTimeout(tick, CASCADE_STEP_MS));
+      };
+      tick();
+    };
+    timersRef.current.push(window.setTimeout(start, CASCADE_INITIAL_DELAY_MS));
+  }, [clearCascadeTimers, isDesktop, reducedMotion]);
+
+  const navigateTo = useCallback((index) => {
+    if (index < 0 || index >= TOTAL_CHAPTERS) return;
+    clearCascadeTimers();
+    activeRef.current = index;
+    stepRef.current = 0;
+    accumulatedRef.current = 0;
+    targetRef.current = 0;
+    setActiveChapter(index);
+    setStep(0);
+    setSmoothProgress(0);
+    enteredRef.current[index] = true;
+    if (chapterType[index] !== 'step') return;
+    const max = chapterSteps[index];
+    const replay = REPLAY_ON_ENTRY_LABELS.includes(chapterLabels[index]);
+    if (completedRef.current[index] && !replay) {
+      stepRef.current = max;
+      setStep(max);
+      return;
+    }
+    completedRef.current[index] = false;
+    scheduleCascade(index);
+  }, [clearCascadeTimers, scheduleCascade]);
+
+  // Gated chapters (Inicio logo, Visión boceto) call this when they are ready
+  // for their cascade; held chapters simply ignore scheduled cascade starts.
+  const setChapterHold = useCallback((index, held) => {
+    holdsRef.current[index] = held;
+    if (!held && index === activeRef.current && chapterType[index] === 'step' && !completedRef.current[index]) {
+      scheduleCascade(index);
+    }
+  }, [scheduleCascade]);
 
   useEffect(() => {
     const onResize = () => setIsDesktop(getDesktopGate());
@@ -36,19 +119,6 @@ export function useNarrativeScroll() {
     return () => m.removeEventListener('change', h);
   }, []);
 
-  const setBlocked = useCallback((value) => { blockedRef.current = value; }, []);
-
-  const navigateTo = useCallback((index, startStep = 0) => {
-    if (index < 0 || index >= TOTAL_CHAPTERS) return;
-    activeRef.current = index;
-    stepRef.current = startStep;
-    accumulatedRef.current = 0;
-    targetRef.current = 0;
-    setActiveChapter(index);
-    setStep(startStep);
-    setSmoothProgress(0);
-  }, []);
-
   useEffect(() => {
     if (!isDesktop || reducedMotion) return;
     let raf;
@@ -65,34 +135,41 @@ export function useNarrativeScroll() {
   }, [isDesktop, reducedMotion]);
 
   useEffect(() => {
+    if (isDesktop) scheduleCascade(activeRef.current);
+  }, [isDesktop, scheduleCascade]);
+
+  useEffect(() => {
     if (!isDesktop) return;
+    const isChapterBusy = (index) => chapterType[index] === 'step' && (!completedRef.current[index] || holdsRef.current[index]);
     const onWheel = (e) => {
-      if (blockedRef.current || cooldownRef.current) return;
-      e.preventDefault();
+      if (cooldownRef.current) return;
       const direction = e.deltaY > 0 ? 1 : -1;
       const current = activeRef.current;
 
       if (chapterType[current] === 'step') {
-        const nextStep = stepRef.current + direction;
-        if (nextStep < 0 && current > 0) {
-          navigateTo(current - 1, chapterSteps[current - 1]);
-        } else if (nextStep > chapterSteps[current] && current < TOTAL_CHAPTERS - 1) {
-          navigateTo(current + 1, 0);
-        } else if (nextStep >= 0 && nextStep <= chapterSteps[current]) {
-          stepRef.current = nextStep;
-          setStep(nextStep);
-          cooldownRef.current = true;
-          setTimeout(() => { cooldownRef.current = false; }, reducedMotion ? 100 : 420);
+        if (isChapterBusy(current)) {
+          e.preventDefault();
+          return;
         }
+        e.preventDefault();
+        const next = current + direction;
+        if (next < 0 || next >= TOTAL_CHAPTERS) return;
+        navigateTo(next);
+        cooldownRef.current = true;
+        setTimeout(() => { cooldownRef.current = false; }, reducedMotion ? 100 : WHEEL_COOLDOWN_MS);
         return;
       }
 
+      if (isChapterBusy(current)) return;
       accumulatedRef.current = Math.max(0, accumulatedRef.current + e.deltaY * 0.62);
       const raw = accumulatedRef.current / 2100;
       if (raw >= 0.92 && direction > 0 && current < TOTAL_CHAPTERS - 1) {
-        navigateTo(current + 1, 0);
+        navigateTo(current + 1);
       } else if (accumulatedRef.current <= 20 && direction < 0 && current > 0) {
-        navigateTo(current - 1, chapterSteps[current - 1]);
+        navigateTo(current - 1);
+        completedRef.current[current - 1] = true;
+        stepRef.current = chapterSteps[current - 1];
+        setStep(chapterSteps[current - 1]);
         accumulatedRef.current = 1950;
         targetRef.current = 0.93;
       } else {
@@ -115,19 +192,12 @@ export function useNarrativeScroll() {
       e.preventDefault();
       const current = activeRef.current;
       const direction = e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1;
-      if (blockedRef.current) { blockedRef.current = false; return; }
-      if (chapterType[current] === 'continuous') {
-        navigateTo(Math.max(0, Math.min(TOTAL_CHAPTERS - 1, current + direction)));
-        return;
-      }
-      const nextStep = stepRef.current + direction;
-      if (nextStep < 0 && current > 0) navigateTo(current - 1, chapterSteps[current - 1]);
-      else if (nextStep > chapterSteps[current] && current < TOTAL_CHAPTERS - 1) navigateTo(current + 1);
-      else if (nextStep >= 0 && nextStep <= chapterSteps[current]) { stepRef.current = nextStep; setStep(nextStep); }
+      if (chapterType[current] === 'step' && (!completedRef.current[current] || holdsRef.current[current])) return;
+      navigateTo(Math.max(0, Math.min(TOTAL_CHAPTERS - 1, current + direction)));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [isDesktop, navigateTo]);
 
-  return { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo };
+  return { activeChapter, step, smoothProgress, isDesktop, reducedMotion, activeSectionId: sectionIds[activeChapter], navigateTo, setChapterHold };
 }

@@ -3,13 +3,13 @@ import { prefetchCatalogFirstPage } from '../../features/catalog/api/client';
 import { AnimatedLogoMark } from '../../components/AnimatedLogoMark';
 import { methodSteps } from '../../data/methodSteps';
 
-export function Inicio({ step, isActive }) {
+export function Inicio({ step, isActive, onLogoDone }) {
   const s = isActive ? step : 0;
   return (
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden">
       <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
-       <AnimatedLogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" />
+       <AnimatedLogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" onAnimationEnd={onLogoDone} />
       <div className="relative z-10 mx-auto max-w-6xl px-4 text-center sm:px-6">
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
@@ -19,12 +19,12 @@ export function Inicio({ step, isActive }) {
         <span className="block h-8 w-px bg-white/35 mx-auto" />
         <span className="mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Gira para avanzar</span>
       </div>
-      <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-32 sm:px-6">
+      <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-20 sm:px-6 sm:pb-24">
         <div className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-3">
           {methodSteps.map((item, index) => (
             <article
               key={item.title}
-              style={{ transitionDelay: s >= 1 ? `${index * 800}ms` : '0ms' }}
+              style={{ transitionDelay: s >= 1 ? `${index * 320}ms` : '0ms' }}
               className={`border-l-2 border-clay/40 pl-5 text-left transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-14 blur-[2px]'}`}
             >
               <span className="font-display text-3xl text-clay">{index + 1}</span>

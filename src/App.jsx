@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useNarrativeScroll } from './hooks/useNarrativeScroll';
 import { Header } from './components/Header';
@@ -77,8 +77,17 @@ function MobileSections({ reducedMotion }) {
 }
 
 export function LandingPage() {
-  const { activeChapter, step, smoothProgress, setBlocked, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
+  const { activeChapter, step, smoothProgress, setChapterHold, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
+
+  const hashHandledRef = useRef(false);
+  useEffect(() => {
+    if (hashHandledRef.current) return;
+    hashHandledRef.current = true;
+    const id = window.location.hash.replace('#', '');
+    const index = sectionIds.indexOf(id);
+    if (index > 0) navigateTo(index);
+  }, [navigateTo]);
 
   useEffect(() => {
     document.body.classList.add('landing-narrative');
@@ -112,11 +121,11 @@ export function LandingPage() {
   const isInicio = currentSectionId === 'inicio';
 
   const chapters = [
-    <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} />,
+    <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} onLogoDone={() => setChapterHold(sectionIds.indexOf('inicio'), false)} />,
     <QuienesSomos key="quienes-somos" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
     <Coleccion key="coleccion" step={activeChapter === 2 ? step : 0} isActive={activeChapter === 2} />,
     <Reformas key="reformas" smoothProgress={activeChapter === 3 ? smoothProgress : 0} isActive={activeChapter === 3} />,
-    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} setBlocked={setBlocked} />,
+    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} onHold={(held) => setChapterHold(sectionIds.indexOf('vision'), held)} />,
     <Opiniones key="opiniones" step={activeChapter === 5 ? step : 0} isActive={activeChapter === 5} />,
     <Contacto key="contacto" step={activeChapter === 6 ? step : 0} isActive={activeChapter === 6} />,
   ];
@@ -125,10 +134,10 @@ export function LandingPage() {
     <main className="font-body text-ink" id="contenido">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
       <BusinessJsonLd />
-      <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id), 0) : undefined} isDesktop={isDesktop} isInicio={isInicio} />
+      <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id)) : undefined} isDesktop={isDesktop} isInicio={isInicio} />
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
-          <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index, 0)} />
+          <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index)} />
           <div className={`absolute inset-0 ease-out ${reducedMotion ? 'transition-none' : 'transition-transform duration-500'}`} style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
             {chapters.map((chapter, index) => <div key={index} className="w-full" style={{ height: '100svh' }}>{chapter}</div>)}
           </div>
