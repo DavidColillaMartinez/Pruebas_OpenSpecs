@@ -1,4 +1,4 @@
-import { PHONE, PHONE_INTL, ADDRESS, INSTAGRAM_URL, MAPS_URL } from '../data/business';
+import { PHONE, PHONE_INTL, INSTAGRAM_URL, MAPS_URL } from '../data/business';
 import { ContactIcon } from './ContactIcon';
 
 const iconBoxMinimal = 'inline-grid h-7 w-7 place-items-center text-current';
@@ -22,7 +22,7 @@ export function ContactLinks({ minimal = false }) {
         </a>
         <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 py-3 text-ink transition hover:opacity-70">
           <span className={iconBoxMinimal}><ContactIcon channel="map" className="text-ink/55 h-full w-full" /></span>
-          <span className="font-semibold">Ver ubicación</span>
+          <span className="font-semibold">Perfil de empresa en Google</span>
         </a>
       </>
     );
@@ -42,7 +42,7 @@ export function ContactLinks({ minimal = false }) {
         <span className="font-semibold">Instagram</span>
       </a>
       <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
-        <div className="grid h-32 place-items-center bg-brand-map text-center text-sm font-semibold text-ink/75">Ver ubicación</div>
+        <div className="grid h-32 place-items-center bg-brand-map text-center text-sm font-semibold text-ink/75">Perfil de empresa en Google</div>
       </a>
     </>
   );

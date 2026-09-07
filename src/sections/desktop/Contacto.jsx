@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { LogoMark } from '../../components/LogoMark';
 import { ContactLinks } from '../../components/ContactLinks';
 import { ContactForm } from '../../components/ContactForm';
-import { ADDRESS } from '../../data/business';
+import { GOOGLE_BUSINESS_PROFILE_URL } from '../../data/business';
 
 export function Contacto({ step, isActive }) {
   const s = isActive ? step : 0;
@@ -20,7 +20,7 @@ export function Contacto({ step, isActive }) {
           <div>
             <LogoMark className="mb-6 h-[7.5rem] w-[7.5rem]" minimal />
             <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
-            <p className="mt-3 text-ink/65">{ADDRESS}</p>
+            <a href={GOOGLE_BUSINESS_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-ink/65 underline-offset-2 transition hover:text-ink hover:underline">Ver perfil de empresa en Google</a>
           </div>
           <ContactLinks minimal />
         </div>
