@@ -3,14 +3,18 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useNarrativeScroll } from './hooks/useNarrativeScroll';
 import { Header } from './components/Header';
 import { Inicio } from './sections/desktop/Inicio';
+import { QuienesSomos } from './sections/desktop/QuienesSomos';
 import { Coleccion } from './sections/desktop/Coleccion';
 import { Reformas } from './sections/desktop/Reformas';
 import { Vision } from './sections/desktop/Vision';
+import { Opiniones } from './sections/desktop/Opiniones';
 import { Contacto } from './sections/desktop/Contacto';
 import { MobileInicio } from './sections/mobile/Inicio';
+import { MobileQuienesSomos } from './sections/mobile/QuienesSomos';
 import { MobileColeccion } from './sections/mobile/Coleccion';
 import { MobileReformas } from './sections/mobile/Reformas';
 import { MobileVision } from './sections/mobile/Vision';
+import { MobileOpiniones } from './sections/mobile/Opiniones';
 import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
@@ -62,9 +66,11 @@ function MobileSections({ reducedMotion }) {
   return (
     <div className="bg-transparent text-ink">
       <MobileInicio />
+      <MobileQuienesSomos />
       <MobileColeccion />
       <MobileReformas reducedMotion={reducedMotion} />
       <MobileVision reducedMotion={reducedMotion} />
+      <MobileOpiniones />
       <MobileContacto />
     </div>
   );
@@ -107,10 +113,12 @@ export function LandingPage() {
 
   const chapters = [
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} />,
-    <Coleccion key="coleccion" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
-    <Reformas key="reformas" smoothProgress={activeChapter === 2 ? smoothProgress : 0} isActive={activeChapter === 2} />,
-    <Vision key="vision" step={activeChapter === 3 ? step : 0} isActive={activeChapter === 3} setBlocked={setBlocked} />,
-    <Contacto key="contacto" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} />,
+    <QuienesSomos key="quienes-somos" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
+    <Coleccion key="coleccion" step={activeChapter === 2 ? step : 0} isActive={activeChapter === 2} />,
+    <Reformas key="reformas" smoothProgress={activeChapter === 3 ? smoothProgress : 0} isActive={activeChapter === 3} />,
+    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} setBlocked={setBlocked} />,
+    <Opiniones key="opiniones" step={activeChapter === 5 ? step : 0} isActive={activeChapter === 5} />,
+    <Contacto key="contacto" step={activeChapter === 6 ? step : 0} isActive={activeChapter === 6} />,
   ];
 
   return (

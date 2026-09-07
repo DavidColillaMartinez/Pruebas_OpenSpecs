@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Vision } from './Vision';
-import { chapterSteps } from '../../data/copy';
+import { chapterSteps, sectionIds } from '../../data/copy';
 
 const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
 const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
@@ -17,7 +17,7 @@ describe('desktop Vision video compare flow', () => {
     const { container } = render(<Vision step={0} isActive setBlocked={setBlocked} />);
     const video = container.querySelector('video');
 
-    expect(chapterSteps[3]).toBe(1);
+    expect(chapterSteps[sectionIds.indexOf('vision')]).toBe(1);
     expect(play).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('button', { name: 'Revelar' })).not.toBeInTheDocument();
 
