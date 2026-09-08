@@ -47,4 +47,4 @@
 - [x] 7.3 Run `npm run typecheck`
 - [x] 7.4 Run `npm run build`
 - [x] 7.5 Inspect `git diff` and `git status` to confirm only permitted frontend and OpenSpec files changed and protected assets, landing and infrastructure remain untouched
-- [ ] 7.6 Create a focused commit for the completed Duplach integration and push it to the configured remote
+- [x] 7.6 Create a focused commit for the completed Duplach integration and push it to the configured remote

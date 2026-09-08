@@ -46,3 +46,4 @@ Observed 2026-09-08 against the live public endpoints used by the existing proxy
 ## Detail payload sizes
 
 List ≈ 191 KB (8 items, all facets). Detail: Zeus 1.65 MB / 1,512 variants; Plus 4.4 MB / 5,760; 3D 5.8 MB / 4,452. The existing client cache, abort/timeout and detail prefetch are reused unchanged; no extra catalog-wide downloads were added.
+note: backup branch created at 7f65d49; commit c00870a pushed to main
