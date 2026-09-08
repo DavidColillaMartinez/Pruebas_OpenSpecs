@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useNarrativeScroll } from './hooks/useNarrativeScroll';
 import { Header } from './components/Header';
@@ -18,11 +18,14 @@ import { MobileOpiniones } from './sections/mobile/Opiniones';
 import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
-import { CatalogPage } from './features/catalog/pages/CatalogPage';
-import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
-import { QuoteSelectionPage } from './features/quote/pages/QuoteSelectionPage';
 import { QuoteSelectionProvider } from './features/quote/model/selectionStore';
-import { NotFoundPage } from './routes/NotFoundPage';
+
+const CatalogPage = lazy(() => import('./features/catalog/pages/CatalogPage').then((module) => ({ default: module.CatalogPage })));
+const ProductDetailPage = lazy(() => import('./features/catalog/pages/ProductDetailPage').then((module) => ({ default: module.ProductDetailPage })));
+const QuoteSelectionPage = lazy(() => import('./features/quote/pages/QuoteSelectionPage').then((module) => ({ default: module.QuoteSelectionPage })));
+const NotFoundPage = lazy(() => import('./routes/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
+
+const RouteFallback = () => <div className="min-h-svh" aria-hidden="true" />;
 
 function ChapterDots({ active, labels, onNavigate }) {
   const [hovered, setHovered] = useState(null);
@@ -153,10 +156,10 @@ export default function App() {
       <QuoteSelectionProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/productos" element={<CatalogPage />} />
-          <Route path="/productos/:slug" element={<ProductDetailPage />} />
-          <Route path="/presupuesto" element={<QuoteSelectionPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/productos" element={<Suspense fallback={<RouteFallback />}><CatalogPage /></Suspense>} />
+          <Route path="/productos/:slug" element={<Suspense fallback={<RouteFallback />}><ProductDetailPage /></Suspense>} />
+          <Route path="/presupuesto" element={<Suspense fallback={<RouteFallback />}><QuoteSelectionPage /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={<RouteFallback />}><NotFoundPage /></Suspense>} />
         </Routes>
       </QuoteSelectionProvider>
     </BrowserRouter>

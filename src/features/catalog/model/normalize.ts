@@ -291,39 +291,50 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
 export function normalizeProductCard(value: unknown, config?: CatalogPublicConfig | null): ProductCard | null {
   try {
     const record = asRecord(value);
-    const mainImage = record.main_image_url || record.main_image_path
-      ? [{ alt: record.name, url: record.main_image_url ?? record.main_image_path, role: 'main', sort_order: 0 }]
+    const id = asString(record.id);
+    const name = asString(record.name);
+    const slug = asString(record.slug);
+    if (!id || !name || !slug) return null;
+
+    // Fast path: list responses arrive per-card in high volumes, so build the
+    // card shape directly instead of running the full detail parser over the
+    // whole variants/commercial-offers payload and discarding the result.
+    const assetBaseUrl = config?.asset_base_url;
+    const specs = publicSpecs(record.specs);
+    const gallery = Array.isArray(record.images)
+      ? record.images.map((item) => normalizeImage(item, name, assetBaseUrl)).filter((item): item is ProductImage => item !== null)
       : [];
-    const images = [...mainImage, ...(Array.isArray(record.images) ? record.images : [])];
-    const product = normalizeProductDetail({ ...record, images }, config);
+    const mainImage = normalizeImage({ alt: name, url: record.main_image_url ?? record.main_image_path, role: 'main', sort_order: 0 }, name, assetBaseUrl);
+    const imagesWithMain = mainImage && !gallery.some((image) => image.url === mainImage.url) ? [mainImage, ...gallery] : gallery;
+
     return {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      brand: product.brand,
-      images: product.images,
-      showPrice: product.showPrice,
-      categoryId: product.categoryId,
-      categoryName: product.categoryName,
-      model: product.model,
-      collection: product.collection,
-      shape: product.shape,
-      finishes: product.availableFinishes,
-      distributions: product.availableDistributions,
-      measures: product.availableMeasures,
-      productKind: product.productKind,
-      subcategory: product.subcategory,
-      supplierId: product.supplierId,
-      supplierName: product.supplierName,
-      mainImageUrl: product.mainImageUrl,
-      mainImagePath: product.mainImagePath,
-      modularity: product.modularity,
-      modularNotice: typeof product.specs.modular_notice === 'string' ? product.specs.modular_notice : undefined,
-      galleryRule: product.galleryRule,
-      hasLed: product.hasLed,
-      lightingType: product.lightingType,
-      lightingTechnology: product.lightingTechnology,
-      lightTemp: product.lightTemp,
+      id,
+      name,
+      slug,
+      brand: asString(record.brand),
+      images: orderImages([...new Map(imagesWithMain.map((item) => [item.url, item])).values()]),
+      showPrice: record.show_price === true,
+      categoryId: asString(record.category_id),
+      categoryName: asString(record.category_name),
+      model: asString(record.model) || asString(record.model_name) || asString(specs.model) || asString(specs.model_name),
+      collection: asString(record.collection),
+      shape: asString(record.shape) || asString(specs.shape) || asString(specs.Forma),
+      finishes: asStringArray(record.available_finishes),
+      distributions: asStringArray(record.available_distributions ?? record.distributions),
+      measures: asStringArray(record.available_measures),
+      productKind: asString(record.product_kind),
+      subcategory: asString(record.subcategory),
+      supplierId: asString(record.supplier_id),
+      supplierName: asString(record.supplier_name),
+      mainImageUrl: asString(record.main_image_url),
+      mainImagePath: asString(record.main_image_path),
+      modularity: asModularity(record.modularity),
+      modularNotice: typeof specs.modular_notice === 'string' ? specs.modular_notice : undefined,
+      galleryRule: asString(record.gallery_rule) || asString(asRecord(record.raw_data).gallery_rule) || asString(specs['Regla de galería']),
+      hasLed: asBoolean(record.has_led ?? record.hasLed) ?? asBoolean(specs.LED),
+      lightingType: asString(record.lighting_type ?? record.lightingType) || asString(specs['Tipo de iluminación']),
+      lightingTechnology: asString(record.lighting_technology ?? record.lightingTechnology) || asString(specs['Tecnología de iluminación']),
+      lightTemp: asString(record.light_temp ?? record.lightTemp ?? record.light_temperature) || asString(specs['Temperatura de luz']),
     };
   } catch {
     return null;

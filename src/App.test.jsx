@@ -46,12 +46,12 @@ describe('application routing', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Catálogo' })).toBeInTheDocument());
   });
 
-  it('renders the controlled fallback for an unknown application route', () => {
+  it('renders the controlled fallback for an unknown application route', async () => {
     window.history.pushState({}, '', '/ruta-inexistente');
 
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Página no encontrada' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Página no encontrada' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '/');
   });
 });
