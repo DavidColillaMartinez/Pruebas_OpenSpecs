@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 import { googleReviews } from '../../data/reviewsContent';
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 4000;
+const GLIDE_MS = 700;
+const MECHANICAL_EASE = 'cubic-bezier(0.75, 0, 0.18, 1)';
+
+const cardTransform = (offset) => {
+  if (offset === 0) return { transform: 'translate(-50%, -50%) scale(1)', zIndex: 20, opacity: 1, blurred: false };
+  if (offset === -1) return { transform: 'translate(-50%, -50%) translateX(-52%) translateY(-10%) scale(0.84)', zIndex: 10, opacity: 0.55, blurred: true };
+  if (offset === 1) return { transform: 'translate(-50%, -50%) translateX(52%) translateY(10%) scale(0.84)', zIndex: 10, opacity: 0.55, blurred: true };
+  if (offset < 0) return { transform: 'translate(-50%, -50%) translateX(-108%) translateY(-18%) scale(0.7)', zIndex: 0, opacity: 0, blurred: true };
+  return { transform: 'translate(-50%, -50%) translateX(108%) translateY(18%) scale(0.7)', zIndex: 0, opacity: 0, blurred: true };
+};
 
 function StarRow({ rating }) {
   return (
@@ -26,11 +36,16 @@ export function Opiniones({ step, isActive }) {
   }, [index, total]);
 
   useEffect(() => {
-    if (!total || total < 2 || paused) return;
+    if (!total || total < 3 || paused || !isActive || s < 1) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setInterval(() => setIndex((current) => (current + 1) % total), AUTOPLAY_MS);
-    return () => window.clearInterval(timer);
-  }, [total, paused]);
+    const timer = window.setTimeout(() => setIndex((current) => (current + 1) % total), AUTOPLAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [index, total, paused, isActive, s]);
+
+  const offsetFrom = (reviewIndex) => {
+    const raw = (reviewIndex - index + total) % total;
+    return raw > Math.floor(total / 2) ? raw - total : raw;
+  };
 
   return (
     <div className="flex h-full items-center justify-center bg-transparent px-6 py-24 md:pb-8 md:pt-32">
@@ -52,25 +67,35 @@ export function Opiniones({ step, isActive }) {
             onFocusCapture={() => setPaused(true)}
             onBlurCapture={() => setPaused(false)}
           >
-            <div className="overflow-hidden rounded-[1.8rem] border border-ink/8 bg-white/85 px-8 py-10 shadow-soft">
-              <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${index * 100}%)` }}>
-                {googleReviews.map((review, reviewIndex) => (
-                  <figure key={`${review.author}-${reviewIndex}`} className="w-full shrink-0" aria-hidden={reviewIndex !== index}>
+            <div className="relative h-[clamp(23rem,45svh,30rem)] w-full overflow-hidden">
+              {googleReviews.map((review, reviewIndex) => {
+                const offset = offsetFrom(reviewIndex);
+                const state = cardTransform(offset);
+                const active = offset === 0;
+                return (
+                  <figure
+                    key={`${review.author}-${reviewIndex}`}
+                    aria-hidden={!active}
+                    inert={!active}
+                    style={{ transform: state.transform, zIndex: state.zIndex, opacity: state.opacity, filter: state.blurred ? 'blur(5px)' : 'none', transition: `transform ${GLIDE_MS}ms ${MECHANICAL_EASE}, opacity ${GLIDE_MS}ms ${MECHANICAL_EASE}, filter ${GLIDE_MS}ms ${MECHANICAL_EASE}` }}
+                    className="absolute left-1/2 top-1/2 flex h-full w-[clamp(20rem,34vw,24rem)] flex-col items-center justify-center overflow-hidden rounded-[1.8rem] border border-ink/8 bg-white/85 p-8 text-center shadow-soft will-change-transform"
+                  >
+                    <span aria-hidden="true" className={`pointer-events-none absolute inset-0 rounded-[inherit] bg-white/55 transition-opacity ${GLIDE_MS}ms ${MECHANICAL_EASE} ${active ? 'opacity-0' : 'opacity-100'}`} />
                     <StarRow rating={review.rating} />
                     {review.text ? (
-                      <blockquote className="mx-auto mt-5 max-h-64 max-w-xl overflow-y-auto text-base leading-7 text-ink/78">«{review.text}»</blockquote>
+                      <blockquote className="mt-5 max-h-64 overflow-y-auto text-base leading-7 text-ink/78">«{review.text}»</blockquote>
                     ) : (
-                      <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-ink/45">Reseña sin comentario de texto.</p>
+                      <p className="mt-5 text-base leading-7 text-ink/45">Reseña sin comentario de texto.</p>
                     )}
                     <figcaption className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
                       {review.image ? <img src={review.image} alt="" aria-hidden="true" loading="lazy" className="h-9 w-9 rounded-full border border-ink/10 object-cover" /> : null}
                       <span className="text-sm font-semibold uppercase tracking-[0.16em] text-ink/55">{review.author}</span>
                       {review.date ? <span className="text-xs uppercase tracking-[0.14em] text-ink/40">{review.date}</span> : null}
                     </figcaption>
-                    <a href={review.googleUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-xs font-semibold uppercase tracking-[0.16em] text-clay underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Ver en Google</a>
+                    <a href={review.googleUrl} target="_blank" rel="noopener noreferrer" tabIndex={active ? undefined : -1} className="mt-3 inline-block text-xs font-semibold uppercase tracking-[0.16em] text-clay underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Ver en Google</a>
                   </figure>
-                ))}
-              </div>
+                );
+              })}
             </div>
             <div className={`mt-6 flex items-center justify-center gap-4 transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <button type="button" onClick={() => setIndex((current) => (current - 1 + total) % total)} aria-label="Reseña anterior" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">

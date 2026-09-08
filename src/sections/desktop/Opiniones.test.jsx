@@ -11,6 +11,7 @@ vi.mock('../../data/reviewsContent', () => ({
 
 const REVIEW_ONE = { author: 'Ana', rating: 5, text: 'Instalación impecable.', googleUrl: 'https://maps.google.com/review-1' };
 const REVIEW_TWO = { author: 'Luis', rating: 4, text: 'Muy buen trato y medidas exactas.', googleUrl: 'https://maps.google.com/review-2' };
+const REVIEW_THREE = { author: 'Mar', rating: 5, text: 'Plazo y acabado perfectos.', googleUrl: 'https://maps.google.com/review-3' };
 
 describe('desktop Opiniones chapter', () => {
   beforeEach(() => {
@@ -38,6 +39,42 @@ describe('desktop Opiniones chapter', () => {
     expect(screen.getByRole('button', { name: 'Reseña siguiente' })).toBeInTheDocument();
   });
 
+  it('gives each review its own card with the previous and next layered behind', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    const { container } = render(<Opiniones step={2} isActive />);
+    const figures = [...container.querySelectorAll('figure')];
+    expect(figures).toHaveLength(3);
+    expect(figures[0].style.transform).toContain('scale(1)');
+    expect(figures[0].style.zIndex).toBe('20');
+    expect(figures[1].style.transform).toContain('translateX(52%)');
+    expect(figures[1].style.transform).toContain('translateY(10%)');
+    expect(figures[2].style.transform).toContain('translateX(-52%)');
+    expect(figures[2].style.transform).toContain('translateY(-10%)');
+    expect(figures[1].style.zIndex).toBe('10');
+    expect(figures[2].style.zIndex).toBe('10');
+  });
+
+  it('glides all cards in one simultaneous mechanical move', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    const { container } = render(<Opiniones step={2} isActive />);
+    const figures = [...container.querySelectorAll('figure')];
+    figures.forEach((figure) => {
+      expect(figure.style.transition).toContain('700ms');
+      expect(figure.style.transition).toContain('cubic-bezier(0.75, 0, 0.18, 1)');
+      expect(figure.style.transition).toContain('transform');
+    });
+  });
+
+  it('keeps inactive cards out of the accessibility and tab order', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    const { container } = render(<Opiniones step={2} isActive />);
+    const figures = [...container.querySelectorAll('figure')];
+    expect(figures[0].getAttribute('aria-hidden')).not.toBe('true');
+    expect(figures[1].getAttribute('aria-hidden')).toBe('true');
+    expect(figures[1].hasAttribute('inert')).toBe(true);
+    expect(figures[1].querySelector('a')).toHaveAttribute('tabindex', '-1');
+  });
+
   it('advances manually and through the dots', () => {
     reviews.push(REVIEW_ONE, REVIEW_TWO);
     render(<Opiniones step={2} isActive />);
@@ -47,8 +84,8 @@ describe('desktop Opiniones chapter', () => {
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
   });
 
-  it('auto-plays every six seconds unless the pointer or keyboard holds focus', () => {
-    reviews.push(REVIEW_ONE, REVIEW_TWO);
+  it('auto-plays every four seconds unless the pointer or keyboard holds focus', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
     vi.useFakeTimers();
     render(<Opiniones step={2} isActive />);
     const region = screen.getByRole('region', { name: 'Reseñas de Google' });
@@ -57,12 +94,12 @@ describe('desktop Opiniones chapter', () => {
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
 
     fireEvent.focusOut(region);
-    act(() => { vi.advanceTimersByTime(6_000); });
+    act(() => { vi.advanceTimersByTime(4_000); });
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
   });
 
   it('never auto-plays with reduced motion', () => {
-    reviews.push(REVIEW_ONE, REVIEW_TWO);
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
     vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
       matches: query.includes('prefers-reduced-motion'),
       media: query,
