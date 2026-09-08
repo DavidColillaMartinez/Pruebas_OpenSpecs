@@ -193,6 +193,29 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(timeoutResponse.result.body).toEqual({ error: 'CATALOG_UPSTREAM_TIMEOUT', message: 'No se pudo consultar el catálogo.' });
   });
 
+  it('retries transient GET upstream failures without retrying a write', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const fetchMock = vi.fn()
+      .mockRejectedValueOnce(Object.assign(new Error('temporary timeout'), { name: 'TimeoutError' }))
+      .mockResolvedValueOnce(responseBody({ items: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await productsHandler({ method: 'GET', query: {} }, response);
+
+    expect(response.result.statusCode).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    fetchMock.mockReset();
+    fetchMock.mockRejectedValueOnce(Object.assign(new Error('temporary timeout'), { name: 'TimeoutError' }));
+    const quoteResponse = createResponse();
+
+    await quoteRequestsHandler({ method: 'POST', query: {}, body: { name: 'Test' } }, quoteResponse);
+
+    expect(quoteResponse.result.statusCode).toBe(502);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps only the four physical Vercel catalog entrypoints under api/catalog', () => {
     const catalogDirectory = resolve(process.cwd(), 'api/catalog');
     const names = readdirSync(catalogDirectory);

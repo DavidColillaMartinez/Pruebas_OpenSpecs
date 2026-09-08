@@ -1,6 +1,8 @@
 import { normalizeCatalogResponseStatus } from './response.js';
 
 export const CATALOG_BODY_BYTE_LIMIT = 65536;
+const CATALOG_UPSTREAM_ATTEMPT_TIMEOUT_MS = 3000;
+const CATALOG_UPSTREAM_MAX_GET_ATTEMPTS = 3;
 const CATALOG_PRODUCT_QUERY_KEYS = Object.freeze([
   'limit',
   'offset',
@@ -106,6 +108,29 @@ function getUpstreamUrl(request, route, identifier) {
   return upstreamUrl;
 }
 
+function isRetryableUpstreamError(error) {
+  return error?.name === 'TimeoutError' || error?.name === 'AbortError' || error?.name === 'TypeError';
+}
+
+async function fetchUpstream(upstreamUrl, options) {
+  const maxAttempts = options.method === 'GET' ? CATALOG_UPSTREAM_MAX_GET_ATTEMPTS : 1;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await fetch(upstreamUrl, {
+        ...options,
+        signal: AbortSignal.timeout(CATALOG_UPSTREAM_ATTEMPT_TIMEOUT_MS),
+      });
+    } catch (error) {
+      lastError = error;
+      if (attempt === maxAttempts || !isRetryableUpstreamError(error)) throw error;
+    }
+  }
+
+  throw lastError;
+}
+
 export async function handleCatalogRequest(request, response, route) {
   const method = request.method || 'GET';
   if (!route.methods.includes(method)) {
@@ -129,14 +154,14 @@ export async function handleCatalogRequest(request, response, route) {
 
   try {
     const headers = { accept: 'application/json' };
-    const options = { method, headers, signal: AbortSignal.timeout(10000) };
+    const options = { method, headers };
 
     if (method === 'POST') {
       headers['content-type'] = 'application/json';
       options.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body ?? {});
     }
 
-    const upstreamResponse = await fetch(upstreamUrl, options);
+    const upstreamResponse = await fetchUpstream(upstreamUrl, options);
     const body = await upstreamResponse.text();
     const contentType = upstreamResponse.headers.get('content-type');
     const cacheControl = upstreamResponse.headers.get('cache-control');
