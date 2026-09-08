@@ -22,7 +22,7 @@ export function ContactLinks({ minimal = false }) {
         </a>
         <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-4 py-3 text-ink transition hover:opacity-70">
           <span className={iconBoxMinimal}><ContactIcon channel="map" className="text-ink/55 h-full w-full" /></span>
-          <span className="font-semibold">Perfil de empresa en Google</span>
+          <span className="font-semibold">Encuentranos</span>
         </a>
       </>
     );

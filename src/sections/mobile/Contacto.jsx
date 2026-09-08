@@ -16,7 +16,7 @@ export function MobileContacto() {
       <div className="mt-10 border-l-2 border-clay/30 pl-5">
         <LogoMark className="mb-5 h-16 w-16" minimal />
         <p className="font-display text-2xl leading-tight text-ink sm:text-3xl">AREA LRMQ Tienda</p>
-        <a href={GOOGLE_BUSINESS_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm text-ink/70 underline-offset-2 hover:underline sm:text-base">Ver perfil de empresa en Google</a>
+        <a href={GOOGLE_BUSINESS_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm text-ink/70 underline-offset-2 hover:underline sm:text-base">Encuentranos</a>
       </div>
       <ul className="mt-10 space-y-1 border-l-2 border-clay/15 pl-5">
         <li>
@@ -40,7 +40,7 @@ export function MobileContacto() {
         <li>
           <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group flex min-h-[44px] items-center gap-3 text-sm text-ink transition hover:text-clay sm:text-base">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-ink/8 text-ink/70"><ContactIcon channel="map" className="h-5 w-5" /></span>
-            <span className="font-semibold">Perfil de empresa en Google</span>
+            <span className="font-semibold">Encuentranos</span>
           </a>
         </li>
       </ul>
