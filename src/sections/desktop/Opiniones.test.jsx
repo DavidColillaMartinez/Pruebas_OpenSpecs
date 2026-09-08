@@ -98,6 +98,56 @@ describe('desktop Opiniones chapter', () => {
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
   });
 
+  it('auto-plays through all thirteen reviews and wraps back to the first', () => {
+    reviews.push(...Array.from({ length: 13 }, (_, i) => ({
+      author: `Cliente ${i + 1}`,
+      rating: 5,
+      text: `Reseña ${i + 1}.`,
+      googleUrl: `https://maps.google.com/review-${i + 1}`,
+    })));
+    vi.useFakeTimers();
+    render(<Opiniones step={2} isActive />);
+    const activeDotNumber = () => {
+      for (let n = 1; n <= 13; n += 1) {
+        if (screen.getByRole('button', { name: `Ver reseña ${n}` }).getAttribute('aria-current') === 'true') return n;
+      }
+      return 0;
+    };
+
+    const sequence = [];
+    for (let tick = 0; tick < 13; tick += 1) {
+      act(() => { vi.advanceTimersByTime(4_000); });
+      sequence.push(activeDotNumber());
+    }
+    expect(sequence).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1]);
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
+  });
+
+  it('resumes autoplay after manual navigation even while the control keeps focus', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    vi.useFakeTimers();
+    render(<Opiniones step={2} isActive />);
+    const next = screen.getByRole('button', { name: 'Reseña siguiente' });
+    fireEvent.focusIn(next);
+    fireEvent.click(next);
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
+
+    act(() => { vi.advanceTimersByTime(4_000); });
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-3');
+  });
+
+  it('resumes autoplay after jumping through the dots', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    vi.useFakeTimers();
+    render(<Opiniones step={2} isActive />);
+    fireEvent.focusIn(screen.getByRole('button', { name: 'Ver reseña 2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver reseña 2' }));
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
+
+    act(() => { vi.advanceTimersByTime(4_000); });
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-3');
+  });
+
   it('never auto-plays with reduced motion', () => {
     reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
     vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({

@@ -47,6 +47,14 @@ export function Opiniones({ step, isActive }) {
     return raw > Math.floor(total / 2) ? raw - total : raw;
   };
 
+  // Manual navigation is an explicit interaction: reposition the carousel and
+  // restart the autoplay countdown even if the pressed control keeps focus
+  // (focus alone would otherwise leave the autoplay paused indefinitely).
+  const goTo = (nextIndex) => {
+    setPaused(false);
+    setIndex(((nextIndex % total) + total) % total);
+  };
+
   return (
     <div className="flex h-full items-center justify-center bg-transparent px-6 py-24 md:pb-8 md:pt-32">
       <div className="mx-auto w-full max-w-3xl text-center">
@@ -98,15 +106,15 @@ export function Opiniones({ step, isActive }) {
               })}
             </div>
             <div className={`mt-6 flex items-center justify-center gap-4 transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <button type="button" onClick={() => setIndex((current) => (current - 1 + total) % total)} aria-label="Reseña anterior" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+              <button type="button" onClick={() => goTo(index - 1)} aria-label="Reseña anterior" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
               </button>
               <div className="flex items-center gap-2" aria-label="Seleccionar reseña">
                 {googleReviews.map((review, dotIndex) => (
-                  <button key={`${review.author}-dot-${dotIndex}`} type="button" onClick={() => setIndex(dotIndex)} aria-label={`Ver reseña ${dotIndex + 1}`} aria-current={dotIndex === index ? 'true' : undefined} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dotIndex === index ? 'scale-125 bg-ink' : 'bg-ink/20 hover:bg-ink/40'}`} />
+                  <button key={`${review.author}-dot-${dotIndex}`} type="button" onClick={() => goTo(dotIndex)} aria-label={`Ver reseña ${dotIndex + 1}`} aria-current={dotIndex === index ? 'true' : undefined} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dotIndex === index ? 'scale-125 bg-ink' : 'bg-ink/20 hover:bg-ink/40'}`} />
                 ))}
               </div>
-              <button type="button" onClick={() => setIndex((current) => (current + 1) % total)} aria-label="Reseña siguiente" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+              <button type="button" onClick={() => goTo(index + 1)} aria-label="Reseña siguiente" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
               </button>
             </div>
