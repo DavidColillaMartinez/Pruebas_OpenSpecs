@@ -29,30 +29,32 @@ export function Opiniones({ step, isActive }) {
   const s = isActive ? step : 0;
   const total = googleReviews.length;
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  // Bumped by manual navigation so the 4 s countdown restarts even when the
+  // pressed control points at the review that is already active.
+  const [manualTick, setManualTick] = useState(0);
 
   useEffect(() => {
     if (index >= total) setIndex(0);
   }, [index, total]);
 
+  // The autoplay clock is always running from mount, independently of the
+  // active chapter, pointer hover, or keyboard focus. It only stops for
+  // reduced motion. Manual navigation repositions and restarts the countdown.
   useEffect(() => {
-    if (!total || total < 3 || paused || !isActive || s < 1) return;
+    if (total < 2) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setTimeout(() => setIndex((current) => (current + 1) % total), AUTOPLAY_MS);
     return () => window.clearTimeout(timer);
-  }, [index, total, paused, isActive, s]);
+  }, [index, manualTick, total]);
 
   const offsetFrom = (reviewIndex) => {
     const raw = (reviewIndex - index + total) % total;
     return raw > Math.floor(total / 2) ? raw - total : raw;
   };
 
-  // Manual navigation is an explicit interaction: reposition the carousel and
-  // restart the autoplay countdown even if the pressed control keeps focus
-  // (focus alone would otherwise leave the autoplay paused indefinitely).
   const goTo = (nextIndex) => {
-    setPaused(false);
     setIndex(((nextIndex % total) + total) % total);
+    setManualTick((tick) => tick + 1);
   };
 
   return (
@@ -70,10 +72,6 @@ export function Opiniones({ step, isActive }) {
             aria-roledescription="carrusel"
             aria-label="Reseñas de Google"
             className={`mt-10 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[2px]'}`}
-            onPointerEnter={() => setPaused(true)}
-            onPointerLeave={() => setPaused(false)}
-            onFocusCapture={() => setPaused(true)}
-            onBlurCapture={() => setPaused(false)}
           >
             <div className="relative h-[clamp(23rem,45svh,30rem)] w-full overflow-hidden">
               {googleReviews.map((review, reviewIndex) => {

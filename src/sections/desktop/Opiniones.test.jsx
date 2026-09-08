@@ -84,18 +84,25 @@ describe('desktop Opiniones chapter', () => {
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
   });
 
-  it('auto-plays every four seconds unless the pointer or keyboard holds focus', () => {
+  it('auto-plays every four seconds regardless of pointer or keyboard focus', () => {
     reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
     vi.useFakeTimers();
     render(<Opiniones step={2} isActive />);
     const region = screen.getByRole('region', { name: 'Reseñas de Google' });
     fireEvent.focusIn(region);
-    act(() => { vi.advanceTimersByTime(12_000); });
-    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
-
-    fireEvent.focusOut(region);
+    fireEvent.pointerEnter(region);
     act(() => { vi.advanceTimersByTime(4_000); });
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
+  });
+
+  it('keeps the autoplay clock running while the chapter is inactive', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    vi.useFakeTimers();
+    render(<Opiniones step={0} isActive={false} />);
+    act(() => { vi.advanceTimersByTime(4_000); });
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
+    act(() => { vi.advanceTimersByTime(4_000); });
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-3');
   });
 
   it('auto-plays through all thirteen reviews and wraps back to the first', () => {
@@ -146,6 +153,18 @@ describe('desktop Opiniones chapter', () => {
 
     act(() => { vi.advanceTimersByTime(4_000); });
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-3');
+  });
+
+  it('restarts the four-second countdown after manual navigation without stopping', () => {
+    reviews.push(REVIEW_ONE, REVIEW_TWO, REVIEW_THREE);
+    vi.useFakeTimers();
+    render(<Opiniones step={2} isActive />);
+    act(() => { vi.advanceTimersByTime(3_000); });
+    fireEvent.click(screen.getByRole('button', { name: 'Ver reseña 1' }));
+    act(() => { vi.advanceTimersByTime(3_000); });
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
+    act(() => { vi.advanceTimersByTime(1_000); });
+    expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-2');
   });
 
   it('never auto-plays with reduced motion', () => {
