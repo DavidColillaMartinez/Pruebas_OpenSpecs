@@ -391,6 +391,23 @@ describe('ProductDetailPage', () => {
       expect(screen.queryByText(/\d+[,.]?\d*\s*€/)).not.toBeInTheDocument();
     });
 
+    it('keeps family images usable when the public config request times out', async () => {
+      const product = duplachStone3dFixture();
+      vi.stubGlobal('fetch', vi.fn().mockImplementation((input: unknown) => {
+        if (String(input).includes('/config')) return Promise.reject(new Error('config timeout'));
+        return Promise.resolve(new Response(JSON.stringify(product), { status: 200 }));
+      }));
+
+      renderDetail('duplach-stone-3d');
+      await screen.findByRole('heading', { name: 'Stone 3D' });
+      fireEvent.click(screen.getByRole('button', { name: 'Maderas naturales' }));
+
+      expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute(
+        'src',
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp',
+      );
+    });
+
     it('promotes the API quick image on a manual change without dropping the gallery', async () => {
       stubDuplach(duplachStonePlusFixture());
       renderDetail('duplach-stone-plus');

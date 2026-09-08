@@ -37,6 +37,15 @@ function stringValues(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
 }
 
+function inferAssetBaseUrl(product: Pick<ProductDetail, 'images' | 'mainImageUrl'>): string | null {
+  const imageUrls = [...product.images.map((image) => image.url), product.mainImageUrl || ''];
+  const absoluteImageUrl = imageUrls.find((url) => /^https?:\/\//i.test(url));
+  if (!absoluteImageUrl) return null;
+  const imagesMarker = '/images/';
+  const markerIndex = absoluteImageUrl.indexOf(imagesMarker);
+  return markerIndex > 0 ? absoluteImageUrl.slice(0, markerIndex) : null;
+}
+
 function readableDetailValue(value: unknown): string | null {
   if (typeof value === 'boolean') return value ? 'Sí' : 'No';
   if (typeof value === 'number') return Number.isFinite(value) ? String(value) : null;
@@ -215,6 +224,7 @@ export function ProductDetailPage() {
   useEffect(() => {
     const controller = new AbortController();
     let cancelled = false;
+    setConfig(null);
     setState({ status: 'loading' });
     getProductBySlug(slug, null, { signal: controller.signal })
       .then((product) => {
@@ -268,6 +278,10 @@ export function ProductDetailPage() {
     }
   })();
 
+  const assetBaseUrl = state.status === 'success'
+    ? config?.asset_base_url || inferAssetBaseUrl(state.product)
+    : null;
+
   return (
     <main className="min-h-screen bg-porcelain px-5 py-10 text-ink sm:px-8" id="product-content">
       <div className="mx-auto max-w-7xl">
@@ -290,7 +304,7 @@ export function ProductDetailPage() {
         {state.status === 'loading' && <p role="status" aria-live="polite" className="mt-12">Cargando producto…</p>}
         {state.status === 'not-found' && <div role="status" className="mt-12"><h1 className="font-display text-4xl">Producto no encontrado</h1><p className="mt-3 text-graphite">No hemos encontrado una ficha pública para este slug.</p><Link to="/productos" className="mt-5 inline-block font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Volver al catálogo completo</Link></div>}
         {state.status === 'error' && <div className="mt-12"><ErrorState message={state.message} onRetry={() => setRetry((value) => value + 1)} /></div>}
-        {state.status === 'success' && <div className="mt-8"><ProductContent key={state.product.id} product={state.product} assetBaseUrl={config?.asset_base_url} /></div>}
+        {state.status === 'success' && <div className="mt-8"><ProductContent key={state.product.id} product={state.product} assetBaseUrl={assetBaseUrl} /></div>}
       </div>
     </main>
   );
