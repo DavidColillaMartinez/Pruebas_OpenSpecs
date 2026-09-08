@@ -42,7 +42,7 @@ export function ContactLinks({ minimal = false }) {
         <span className="font-semibold">Instagram</span>
       </a>
       <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-[2rem] border border-ink/8 bg-white/78 shadow-soft transition hover:-translate-y-0.5">
-        <div className="grid h-32 place-items-center bg-brand-map text-center text-sm font-semibold text-ink/75">Perfil de empresa en Google</div>
+        <div className="grid h-32 place-items-center bg-brand-map text-center text-sm font-semibold text-ink/75">Encuentranos</div>
       </a>
     </>
   );
