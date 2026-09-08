@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { normalizeCatalogResponseStatus } from './response.js';
 
 export const CATALOG_BODY_BYTE_LIMIT = 65536;
@@ -112,18 +113,42 @@ function isRetryableUpstreamError(error) {
   return error?.name === 'TimeoutError' || error?.name === 'AbortError' || error?.name === 'TypeError';
 }
 
-async function fetchUpstream(upstreamUrl, options) {
+function logUpstream(event, context, details = {}) {
+  // Never log URLs, query strings, bodies, error messages or stacks: they may contain secrets or PII.
+  console.info(JSON.stringify({ event, ...context, ...details }));
+}
+
+function safeErrorLabel(value) {
+  return typeof value === 'string' && /^[A-Za-z0-9_]{1,64}$/.test(value) ? value : 'unknown';
+}
+
+async function fetchUpstream(upstreamUrl, options, context) {
   const maxAttempts = options.method === 'GET' ? CATALOG_UPSTREAM_MAX_GET_ATTEMPTS : 1;
   let lastError;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const startedAt = Date.now();
+    let phase = 'headers';
+    logUpstream('catalog.upstream.start', context, { attempt });
     try {
-      return await fetch(upstreamUrl, {
+      const upstreamResponse = await fetch(upstreamUrl, {
         ...options,
-        signal: AbortSignal.timeout(CATALOG_UPSTREAM_ATTEMPT_TIMEOUT_MS),
+        signal: AbortSignal.timeout(options.method === 'GET' ? CATALOG_UPSTREAM_ATTEMPT_TIMEOUT_MS : 10000),
       });
+      const headersMs = Date.now() - startedAt;
+      phase = 'body';
+      const body = await upstreamResponse.text();
+      logUpstream('catalog.upstream.complete', context, {
+        attempt, headersMs, durationMs: Date.now() - startedAt, status: upstreamResponse.status,
+      });
+      return { upstreamResponse, body };
     } catch (error) {
       lastError = error;
+      logUpstream('catalog.upstream.failure', context, {
+        attempt, phase, durationMs: Date.now() - startedAt,
+        errorName: safeErrorLabel(error?.name),
+        errorCode: safeErrorLabel(error?.cause?.code ?? error?.code),
+      });
       if (attempt === maxAttempts || !isRetryableUpstreamError(error)) throw error;
     }
   }
@@ -161,8 +186,10 @@ export async function handleCatalogRequest(request, response, route) {
       options.body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body ?? {});
     }
 
-    const upstreamResponse = await fetchUpstream(upstreamUrl, options);
-    const body = await upstreamResponse.text();
+    const { upstreamResponse, body } = await fetchUpstream(upstreamUrl, options, {
+      requestId: randomUUID(), method,
+      route: Object.keys(CATALOG_ROUTES).find((key) => CATALOG_ROUTES[key] === route) ?? 'unknown',
+    });
     const contentType = upstreamResponse.headers.get('content-type');
     const cacheControl = upstreamResponse.headers.get('cache-control');
 

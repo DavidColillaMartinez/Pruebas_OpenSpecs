@@ -41,6 +41,7 @@ function responseBody(body, status = 200) {
 }
 
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
   restoreEnvironment();
 });
@@ -223,5 +224,42 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(names).toEqual(expect.arrayContaining(['config.js', 'products.js', 'quote-requests.js', 'products']));
     expect(existsSync(resolve(catalogDirectory, '[...path].js'))).toBe(false);
     expect(existsSync(resolve(catalogDirectory, 'response.js'))).toBe(false);
+  });
+
+  it('retries GET body failures and logs only safe diagnostic fields', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const log = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const error = Object.assign(new Error('private-url?email=secret@example.com'), {
+      name: 'TypeError', cause: { code: 'ECONNRESET' },
+    });
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ text: () => Promise.reject(error) })
+      .mockResolvedValueOnce(responseBody({ items: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    await productsHandler({ method: 'GET', query: { search: 'private-search' } }, response);
+    expect(response.result.statusCode).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const events = log.mock.calls.map(([line]) => JSON.parse(line));
+    expect(events.find((event) => event.event === 'catalog.upstream.failure')).toMatchObject({
+      phase: 'body', attempt: 1, errorCode: 'ECONNRESET', route: 'products',
+    });
+    expect(new Set(events.map((event) => event.requestId)).size).toBe(1);
+    expect(JSON.stringify(events)).not.toMatch(/secret@example|private-search|products\.example|private-url/);
+  });
+
+  it('allows ten seconds for POST and never retries a failed response body', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    vi.spyOn(console, 'info').mockImplementation(() => {});
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    const fetchMock = vi.fn().mockResolvedValue({
+      text: () => Promise.reject(Object.assign(new Error('timed out'), { name: 'AbortError' })),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    await quoteRequestsHandler({ method: 'POST', query: {}, body: {} }, response);
+    expect(timeout).toHaveBeenCalledWith(10000);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(response.result.statusCode).toBe(502);
   });
 });
