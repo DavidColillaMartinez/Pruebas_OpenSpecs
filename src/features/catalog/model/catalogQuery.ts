@@ -5,7 +5,6 @@ import type {
   CatalogSortValue,
 } from './types';
 import { isCatalogRoyoFurnitureScope } from './royo';
-import { isCatalogDuplachScope } from './duplach';
 
 export const CATALOG_PAGE_SIZE = 24;
 export const CATALOG_RETURN_STORAGE_KEY = 'catalog:return-state';
@@ -35,7 +34,7 @@ export const ROOT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['category', 'supplie
 export const MAMPARAS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'distribution', 'finish'];
 export const ESPEJOS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'shape', 'has_led', 'lighting_type', 'finish'];
 export const ROYO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['modularity', 'collection', 'subcategory', 'finish', 'measure', 'product_kind'];
-export const DUPLACH_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['model', 'measure', 'texture', 'color', 'grille', 'valve', 'orientation', 'finish_family', 'finish'];
+export const DUPLACH_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['model', 'measure', 'grille', 'valve'];
 export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = [...new Set([...MAMPARAS_CATALOG_FILTER_KEYS, ...ESPEJOS_CATALOG_FILTER_KEYS])];
 
 export type CatalogFamilyId = 'mamparas' | 'espejos' | 'royo' | 'duplach';
@@ -47,7 +46,6 @@ export type CatalogFamilyProfile = {
   suppliers: string[];
   facetKeys: CatalogFacetKey[];
   labels: Partial<Record<CatalogFacetKey, string>>;
-  exactScope?: boolean;
 };
 
 export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
@@ -69,18 +67,12 @@ export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
     id: 'duplach',
     categories: ['platos-de-ducha'],
     suppliers: ['duplach'],
-    exactScope: true,
     facetKeys: DUPLACH_CATALOG_FILTER_KEYS,
     labels: {
       model: 'Modelo',
       measure: 'Medida',
-      texture: 'Textura',
-      color: 'Color',
       grille: 'Rejilla',
       valve: 'Válvula',
-      orientation: 'Orientación',
-      finish_family: 'Familia de acabado',
-      finish: 'Acabado',
     },
   },
   {
@@ -151,9 +143,7 @@ export function getActiveCatalogFamilies(query: Pick<CatalogQueryState, 'filters
   return CATALOG_FAMILY_PROFILES
     .filter((profile) => profile.id === 'royo'
       ? isCatalogRoyoFurnitureScope({ supplier: supplierValues, category: categoryValues })
-      : profile.exactScope
-        ? profile.id === 'duplach' && isCatalogDuplachScope({ supplier: supplierValues, category: categoryValues })
-        : profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
+      : profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
     .map((profile) => profile.id);
 }
 

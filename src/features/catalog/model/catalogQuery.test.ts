@@ -176,35 +176,55 @@ describe('catalog query state', () => {
   describe('duplach server-side filters and scope isolation', () => {
     const duplachQuery = parseCatalogQuery('supplier=duplach&category=platos-de-ducha&model=duplach-stone-plus&measure=120x90&texture=Liso&color=Antracita&grille=Color&valve=Sif%C3%B3n&orientation=Derecha&finish_family=maderas-naturales&finish=Roble');
 
-    it('activates the duplach profile only with the exact supplier and category', () => {
+    it('activates the duplach profile from the shower-tray category without requiring a supplier', () => {
       expect(getCatalogFilterProfile({ filters: duplachQuery.filters })).toBe('duplach');
-      expect(getCatalogFilterProfile({ filters: { supplier: ['duplach'] } })).toBe('root');
-      expect(getCatalogFilterProfile({ filters: { category: ['platos-de-ducha'] } })).toBe('root');
-      expect(getCatalogFilterProfile({ filters: { supplier: ['duplach', 'royo'], category: ['platos-de-ducha'] } })).toBe('root');
-      expect(getCatalogFilterKeys('duplach')).toEqual(expect.arrayContaining(['model', 'texture', 'color', 'grille', 'valve', 'orientation', 'finish_family']));
+      expect(getCatalogFilterProfile({ filters: { category: ['platos-de-ducha'] } })).toBe('duplach');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['duplach'] } })).toBe('duplach');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['duplach', 'royo'], category: ['platos-de-ducha'] } })).toBe('duplach');
+      expect(getCatalogFilterKeys('duplach')).toEqual(['category', 'supplier', 'model', 'measure', 'grille', 'valve']);
       expect(getCatalogFacetLabel('model', 'duplach')).toBe('Modelo');
-      expect(getCatalogFacetLabel('finish_family', 'duplach')).toBe('Familia de acabado');
+      expect(getCatalogFacetLabel('grille', 'duplach')).toBe('Rejilla');
+      expect(getCatalogFacetLabel('valve', 'duplach')).toBe('Válvula');
       expect(getCatalogFacetLabel('measure', 'duplach')).toBe('Medida');
+      expect(getCatalogFacetLabel('finish_family', 'duplach')).toBeUndefined();
     });
 
-    it('sends every duplach filter to the request with the observed parameter names', () => {
+    it('shows only model, measure, grille and valve and hides the withdrawn color dimensions', () => {
+      expect(getDisplayCatalogFilterKeys('duplach')).toEqual(['category', 'supplier', 'model', 'measure', 'grille', 'valve']);
+      for (const key of ['texture', 'color', 'orientation', 'finish_family', 'finish'] as const) {
+        expect(getDisplayCatalogFilterKeys('duplach')).not.toContain(key);
+      }
+    });
+
+    it('sends the supported duplach filters and prunes the withdrawn ones', () => {
       const request = catalogQueryToRequest(duplachQuery, false);
       expect(request).toMatchObject({
         supplier_id: ['duplach'],
         category_id: ['platos-de-ducha'],
         model: ['duplach-stone-plus'],
         measure: ['120x90'],
-        texture: ['Liso'],
-        color: ['Antracita'],
         grille: ['Color'],
         valve: ['Sifón'],
-        orientation: ['Derecha'],
-        finish_family: ['maderas-naturales'],
-        finish: ['Roble'],
       });
+      expect(request).not.toHaveProperty('texture');
+      expect(request).not.toHaveProperty('color');
+      expect(request).not.toHaveProperty('orientation');
+      expect(request).not.toHaveProperty('finish_family');
+      expect(request).not.toHaveProperty('finish');
       expect(request).not.toHaveProperty('product_id');
-      expect(serializeCatalogQuery(duplachQuery).toString()).toContain('model=duplach-stone-plus');
-      expect(parseCatalogQuery(serializeCatalogQuery(duplachQuery)).filters).toEqual(duplachQuery.filters);
+      const serialized = serializeCatalogQuery(duplachQuery).toString();
+      expect(serialized).toContain('model=duplach-stone-plus');
+      expect(serialized).not.toContain('color=');
+      expect(serialized).not.toContain('finish_family=');
+      expect(serialized).not.toContain('texture=');
+      expect(parseCatalogQuery(serialized).filters).toEqual({
+        supplier: ['duplach'],
+        category: ['platos-de-ducha'],
+        model: ['duplach-stone-plus'],
+        measure: ['120x90'],
+        grille: ['Color'],
+        valve: ['Sifón'],
+      });
     });
 
     it('prunes duplach-only keys outside the exact scope and keeps other profiles byte-identical', () => {
@@ -213,6 +233,9 @@ describe('catalog query state', () => {
       expect(catalogQueryToRequest(royoQuery, false)).not.toHaveProperty('texture');
       expect(catalogQueryToRequest(royoQuery, false)).not.toHaveProperty('model');
       expect(catalogQueryToRequest(royoQuery, false)).not.toHaveProperty('color');
+
+      const categoryOnlyQuery = parseCatalogQuery('category=platos-de-ducha&color=Antracita&finish=Roble&finish_family=maderas-naturales&texture=Liso&orientation=Derecha&model=duplach-stone-plus');
+      expect(serializeCatalogQuery(categoryOnlyQuery).toString()).toBe('category=platos-de-ducha&model=duplach-stone-plus');
 
       const mirrorQuery = parseCatalogQuery('category=espejos&shape=Circular&finish=Oro');
       expect(serializeCatalogQuery(mirrorQuery).toString()).toBe('category=espejos&shape=Circular&finish=Oro');

@@ -233,6 +233,52 @@ describe('CatalogPage', () => {
     expect(screen.queryByRole('heading', { name: 'Nombre interno Royo' })).not.toBeInTheDocument();
   });
 
+  it('shows the Duplach category filter set from the shower-tray category alone', async () => {
+    const payload = {
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 8 },
+      facets: {
+        category: [{ value: 'platos-de-ducha', label: 'Platos de ducha', count: 8 }],
+        supplier: [{ value: 'duplach', label: 'Duplach', count: 8 }],
+        model: [{ value: 'duplach-stone-3d', label: 'Stone 3D', count: 1 }, { value: 'duplach-stone-plus', label: 'Stone Plus', count: 1 }],
+        measure: [{ value: '70x70', label: '70x70', count: 8 }],
+        texture: [{ value: 'Liso', label: 'Liso', count: 5 }],
+        color: [{ value: 'Antracita', label: 'Antracita', count: 7 }],
+        grille: [{ value: 'Acero inoxidable', label: 'Acero inoxidable', count: 5 }],
+        valve: [{ value: 'Sifón', label: 'Sifón', count: 7 }],
+        orientation: [{ value: 'Derecha', label: 'Derecha', count: 1 }],
+        finish_family: [{ value: 'maderas-naturales', label: 'Maderas naturales', count: 1 }],
+        finish: [{ value: 'Roble', label: 'Roble', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    };
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => Promise.resolve(new Response(JSON.stringify(payload), { status: 200, headers: { 'content-type': 'application/json' } }))));
+
+    render(<MemoryRouter initialEntries={['/productos?category=platos-de-ducha']}><CatalogPage /></MemoryRouter>);
+
+    expect(await screen.findByRole('button', { name: 'Modelo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Medida' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rejilla' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Válvula' })).toBeInTheDocument();
+    expect([...document.querySelectorAll('aside fieldset legend button')].map((button) => button.textContent?.trim())).toEqual([
+      'Categoría+',
+      'Proveedor+',
+      'Modelo+',
+      'Medida+',
+      'Rejilla+',
+      'Válvula+',
+    ]);
+    expect(screen.queryByRole('button', { name: 'Color' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Textura' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Orientación' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Familia de acabado' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Acabado' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modelo' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Stone 3D/ }));
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: /Stone 3D/ })).toBeChecked());
+  });
+
   it('exposes a distinct store masthead and skip-to-results landmark', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
       items: [],
