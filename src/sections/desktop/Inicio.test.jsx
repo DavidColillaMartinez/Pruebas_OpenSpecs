@@ -26,4 +26,11 @@ describe('desktop landing catalog access', () => {
     const articles = [...container.querySelectorAll('article')];
     expect(articles.every((article) => article.className.includes('opacity-0'))).toBe(true);
   });
+
+  it('anchors the method grid at an intermediate fluid distance below the headline', () => {
+    const { container } = render(<MemoryRouter><Inicio step={1} isActive /></MemoryRouter>);
+    const grid = container.querySelector('[class*="max-w-4xl"]');
+    expect(grid.className).toContain('mt-[clamp(3.5rem,14vh,10rem)]');
+    expect(grid.className).not.toContain('absolute');
+  });
 });

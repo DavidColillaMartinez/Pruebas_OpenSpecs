@@ -14,7 +14,7 @@ export function Inicio({ step, isActive, onLogoDone }) {
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
         <p className="mt-4 text-3xl font-semibold tracking-[0.16em] text-clay uppercase">DESIGN S.L.</p>
-        <div className="mx-auto mt-10 grid max-w-4xl gap-5 text-left sm:grid-cols-3">
+        <div className="mx-auto mt-[clamp(3.5rem,14vh,10rem)] grid max-w-4xl gap-5 text-left sm:grid-cols-3">
           {methodSteps.map((item, index) => (
             <article
               key={item.title}
