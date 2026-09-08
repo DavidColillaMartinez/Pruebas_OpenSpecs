@@ -99,6 +99,12 @@ export function duplachStonePlusFixture() {
         Antracita: ['images/duplach_platos/stone-plus/gallery-1.webp'],
         Blanco: ['images/duplach_platos/stone-plus/cover.webp'],
       },
+      selector_images: {
+        colors: [
+          { code: 'RAL 7011', name: 'Antracita', sha256: '997b2d', source_page: 25, filename: 'images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-antracita.webp' },
+          { code: 'RAL 9003', name: 'Blanco', sha256: '2f71d4', source_page: 25, filename: 'images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-blanco.webp' },
+        ],
+      },
       selection_image_map: {
         'Liso:Antracita': ['images/duplach_platos/stone-plus/gallery-1.webp'],
         'Liso:Blanco': [],
@@ -167,11 +173,14 @@ export function duplachStone3dFixture() {
     description: 'Plato de ducha Stone 3D.',
     images: [
       { alt: 'Stone 3D · portada', url: `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/cover.webp`, path: 'images/duplach_platos/stone-3d/cover.webp', role: 'main', sort_order: 1 },
-      { alt: 'Stone 3D · galería', url: `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/gallery-1.webp`, path: 'images/duplach_platos/stone-3d/gallery-1.webp', role: 'gallery', sort_order: 2 },
+      { alt: 'Stone 3D · galería', url: `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp`, path: 'images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp', role: 'gallery', sort_order: 2 },
+      { alt: 'Stone 3D · galería', url: `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/maderas-naturales/demo-2.webp`, path: 'images/duplach_platos/stone-3d/maderas-naturales/demo-2.webp', role: 'gallery', sort_order: 3 },
+      { alt: 'Stone 3D · galería', url: `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/cementos-metales-oxidos/demo-1.webp`, path: 'images/duplach_platos/stone-3d/cementos-metales-oxidos/demo-1.webp', role: 'gallery', sort_order: 4 },
     ],
     main_image_url: `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/cover.webp`,
     specs: {
       selector_type: 'finish_family',
+      selector_images: {},
       no_prices: true,
       model_key: 'stone-3d',
       colors: [],

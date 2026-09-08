@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
@@ -153,13 +153,43 @@ describe('ProductDetailPage', () => {
     const toggle = screen.getByRole('button', { name: /Detalles públicos/ });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     const details = document.getElementById('product-details-content');
+    expect(details?.tagName).toBe('DIV');
     expect(details).toHaveAttribute('hidden');
     expect(screen.getByText('Transparente')).toBeInTheDocument();
+    expect(toggle.querySelector('span')).toHaveTextContent('Detalles públicos');
 
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(details).not.toHaveAttribute('hidden');
     expect(screen.getByText('Aluminio')).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(details).toHaveAttribute('hidden');
+  });
+
+  it('renders readable public values and never exposes structured objects', async () => {
+    const response = {
+      ...alba,
+      specs: {
+        'Tipo de cristal': 'Transparente',
+        marcados: ['Clase 2', 'Clase 4'],
+        ficha_tecnica: { url: 'https://example.test/ficha.pdf' },
+        anidamientos: [{ tipo: 'hueco' }],
+      },
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+
+    renderDetail();
+    await screen.findByRole('heading', { name: 'Alba' });
+    const toggle = screen.getByRole('button', { name: /Detalles públicos/ });
+    fireEvent.click(toggle);
+    await waitFor(() => expect(toggle).toHaveAttribute('aria-expanded', 'true'));
+
+    expect(screen.getByText('Clase 2, Clase 4')).toBeInTheDocument();
+    expect(document.body.textContent).not.toContain('[object Object]');
+    expect(screen.queryByText('https://example.test/ficha.pdf')).toBeNull();
+    expect(screen.queryByText('hueco')).toBeNull();
   });
 
   it('allows retry after a recoverable error', async () => {
@@ -353,7 +383,7 @@ describe('ProductDetailPage', () => {
 
       expect(await screen.findByRole('heading', { name: 'Stone Plus' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'Configura tu plato de ducha' })).toBeInTheDocument();
-      expect(screen.getByRole('group', { name: 'Medida' })).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Medida' })).toBeInTheDocument();
       expect(screen.getByRole('group', { name: 'Textura' })).toBeInTheDocument();
       expect(screen.getByRole('group', { name: 'Color' })).toBeInTheDocument();
       expect(screen.getByRole('group', { name: 'Rejilla' })).toBeInTheDocument();
@@ -416,6 +446,85 @@ describe('ProductDetailPage', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Maderas naturales' }));
       expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeDisabled();
       fireEvent.click(screen.getByRole('button', { name: 'Roble' }));
+      expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeEnabled();
+    });
+
+    it('shows the cover plus all family demos initially and scopes the main gallery to the selected family', async () => {
+      stubDuplach(duplachStone3dFixture());
+      renderDetail('duplach-stone-3d');
+      await screen.findByRole('heading', { name: 'Stone 3D' });
+
+      const main = screen.getByRole('img', { name: /imagen principal/ });
+      expect(main).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-3d/cover.webp');
+      const thumbnailSrcs = () => screen.getAllByRole('button', { name: /Ver imagen/ }).map((button) => button.querySelector('img')?.getAttribute('src'));
+      expect(thumbnailSrcs()).toEqual([
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/cover.webp',
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp',
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-2.webp',
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/cementos-metales-oxidos/demo-1.webp',
+      ]);
+      expect(screen.queryByText(/Imágenes de demostración/)).toBeNull();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Maderas naturales' }));
+      expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp');
+      expect(thumbnailSrcs()).toEqual([
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp',
+        'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-2.webp',
+      ]);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cementos, metales y óxidos' }));
+      expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-3d/cementos-metales-oxidos/demo-1.webp');
+      expect(screen.queryAllByRole('button', { name: /Ver imagen/ })).toHaveLength(0);
+    });
+
+    it('never inserts finish or color swatches into the main gallery, including after enlargement', async () => {
+      stubDuplach(duplachStone3dFixture());
+      renderDetail('duplach-stone-3d');
+      await screen.findByRole('heading', { name: 'Stone 3D' });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Maderas naturales' }));
+      const roble = within(screen.getByRole('group', { name: 'Acabado' })).getByRole('button', { name: 'Roble' });
+      fireEvent.click(roble);
+      const gallerySrcs = () => Array.from(document.querySelectorAll('section[aria-labelledby="product-gallery-heading"] img')).map((img) => img.getAttribute('src') ?? '');
+      expect(gallerySrcs().some((src) => src.includes('/swatches/'))).toBe(false);
+
+      fireEvent.click(roble);
+      expect(roble).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp');
+      expect(gallerySrcs().some((src) => src.includes('/swatches/'))).toBe(false);
+    });
+
+    it('keeps conventional color swatch enlargement out of the main gallery', async () => {
+      stubDuplach(duplachStonePlusFixture());
+      renderDetail('duplach-stone-plus');
+      await screen.findByRole('heading', { name: 'Stone Plus' });
+      const blanco = within(screen.getByRole('group', { name: 'Color' })).getByRole('button', { name: 'Blanco' });
+      fireEvent.click(blanco);
+      fireEvent.click(blanco);
+      expect(blanco).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-plus/cover.webp');
+      const gallerySrcs = () => Array.from(document.querySelectorAll('section[aria-labelledby="product-gallery-heading"] img')).map((img) => img.getAttribute('src') ?? '');
+      expect(gallerySrcs().filter((src) => src.includes('/swatches/'))).toEqual([]);
+    });
+
+    it('toggling public details keeps the selected variant, gallery and budget state', async () => {
+      stubDuplach(duplachStonePlusFixture());
+      renderDetail('duplach-stone-plus');
+      await screen.findByRole('heading', { name: 'Stone Plus' });
+
+      fireEvent.click(within(screen.getByRole('group', { name: 'Textura' })).getByRole('button', { name: 'Pizarra' }));
+      fireEvent.click(within(screen.getByRole('group', { name: 'Rejilla' })).getByRole('button', { name: 'Color' }));
+      const selectionBefore = screen.getByText(/^Selección:/).textContent;
+      const galleryBefore = Array.from(document.querySelectorAll('#product-content img')).map((img) => img.getAttribute('src'));
+      const toggle = screen.getByRole('button', { name: /Detalles públicos/ });
+
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+      expect(screen.getByText(/^Selección:/).textContent).toBe(selectionBefore);
+      expect(Array.from(document.querySelectorAll('#product-content img')).map((img) => img.getAttribute('src'))).toEqual(galleryBefore);
       expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeEnabled();
     });
   });

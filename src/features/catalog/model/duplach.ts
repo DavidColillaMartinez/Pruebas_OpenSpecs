@@ -52,6 +52,28 @@ function stringListMap(value: unknown): Record<string, string[]> {
   return Object.fromEntries(entries);
 }
 
+export type DuplachColorSwatch = {
+  name: string;
+  code?: string;
+  filename?: string;
+};
+
+function optionalString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function parseDuplachColorSwatches(value: unknown): DuplachColorSwatch[] {
+  const colors = Array.isArray(asRecord(value).colors) ? asRecord(value).colors as unknown[] : [];
+  return colors.map((item): DuplachColorSwatch | null => {
+    const entry = asRecord(item);
+    const name = optionalString(entry.name);
+    if (!name) return null;
+    const code = optionalString(entry.code);
+    const filename = optionalString(entry.filename);
+    return { name, ...(code ? { code } : {}), ...(filename ? { filename } : {}) };
+  }).filter((item): item is DuplachColorSwatch => item !== null);
+}
+
 export type DuplachSelectorModel = {
   selectorType: string;
   configurationKeys: string[];
@@ -60,7 +82,7 @@ export type DuplachSelectorModel = {
   familyDemoImages: Record<string, string[]>;
   familyNames: Record<string, string>;
   finishSwatchImages: Record<string, string[]>;
-  colorSwatchImages: Record<string, string[]>;
+  colorSwatches: DuplachColorSwatch[];
 };
 
 export function getDuplachSelectorModel(product: ProductDetail): DuplachSelectorModel {
@@ -77,7 +99,7 @@ export function getDuplachSelectorModel(product: ProductDetail): DuplachSelector
     familyDemoImages: stringListMap(specs.family_image_map),
     familyNames: Object.fromEntries(families.map((family) => [family.key, family.name])),
     finishSwatchImages: stringListMap(specs.finish_image_map),
-    colorSwatchImages: stringListMap(specs.color_image_map),
+    colorSwatches: parseDuplachColorSwatches(specs.selector_images),
   };
 }
 
@@ -106,8 +128,16 @@ function resolvedImages(paths: string[] | undefined, productName: string, label:
   return [...new Map(images.map((url) => [url, { url, alt: `${productName}, ${label}`, role: 'variant' }])).values()];
 }
 
-export function getDuplachSwatchImage(model: DuplachSelectorModel, key: string, assetBaseUrl?: string | null): ProductImage | undefined {
-  return resolvedImages(model.colorSwatchImages[key] || model.finishSwatchImages[key], key, key, assetBaseUrl)[0];
+export function getDuplachColorSwatchImage(model: DuplachSelectorModel, colorValue: string, assetBaseUrl?: string | null): ProductImage | undefined {
+  const swatch = model.colorSwatches.find((entry) => entry.name === colorValue)
+    ?? model.colorSwatches.find((entry) => entry.code !== undefined && entry.code === colorValue);
+  if (!swatch?.filename) return undefined;
+  const url = resolveAssetUrl(swatch.filename, assetBaseUrl);
+  return url ? { url, alt: swatch.name, role: 'swatch' } : undefined;
+}
+
+export function getDuplachFinishSwatchImage(model: DuplachSelectorModel, familyKey: string, finish: string, assetBaseUrl?: string | null): ProductImage | undefined {
+  return resolvedImages(model.finishSwatchImages[`${familyKey}:${finish}`], finish, finish, assetBaseUrl)[0];
 }
 
 export function getDuplachFamilyImages(product: ProductDetail, model: DuplachSelectorModel, familyKey: string, assetBaseUrl?: string | null): ProductImage[] {

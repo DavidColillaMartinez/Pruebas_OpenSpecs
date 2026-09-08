@@ -6,16 +6,18 @@ import type { SelectionChangeMeta } from './ProductVariantSelector';
 import {
   DUPLACH_FILTER_LABELS,
   findCompleteDuplachUnit,
+  getDuplachColorSwatchImage,
   getDuplachDependentOptions,
-  getDuplachFamilyImages,
+  getDuplachFinishSwatchImage,
   getDuplachSelectorModel,
-  getDuplachSwatchImage,
 } from '../model/duplach';
+
+export type DuplachSelectionMeta = SelectionChangeMeta & { family: string | null };
 
 type DuplachVariantSelectorProps = {
   product: ProductDetail;
   assetBaseUrl?: string | null;
-  onSelectionChange: (unit: SelectableUnit | null, metadata: SelectionChangeMeta) => void;
+  onSelectionChange: (unit: SelectableUnit | null, metadata: DuplachSelectionMeta) => void;
 };
 
 const OPTION_ORDER = ['measure', 'texture', 'color', 'grille', 'valve', 'orientation', 'finish_family', 'finish'];
@@ -37,20 +39,20 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
       .filter((entry): entry is [string, string] => entry[1] !== undefined && entry[1] !== ''));
   }, [configurationKeys, familyFirst, initialUnit]);
   const [selection, setSelection] = useState<Record<string, string>>(initialSelection);
-  const [familyImageIndex, setFamilyImageIndex] = useState(0);
+  const [enlarged, setEnlarged] = useState<{ group: string; value: string } | null>(null);
   const productIdRef = useRef(product.id);
   const userSelectionRef = useRef(false);
   const currentUnit = findCompleteDuplachUnit(units, selection, configurationKeys);
 
   useEffect(() => {
     if (productIdRef.current === product.id) {
-      onSelectionChange(currentUnit, { source: userSelectionRef.current ? 'user' : 'initial' });
+      onSelectionChange(currentUnit, { source: userSelectionRef.current ? 'user' : 'initial', family: selection.finish_family ?? null });
       userSelectionRef.current = false;
       return;
     }
     productIdRef.current = product.id;
     userSelectionRef.current = false;
-    setFamilyImageIndex(0);
+    setEnlarged(null);
     setSelection(initialSelection);
   }, [currentUnit, initialSelection, onSelectionChange, product.id, selection]);
 
@@ -77,12 +79,26 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
       const compatible = units.some((unit) => upTo.every((attribute) => unit.attributes[attribute] === next[attribute]));
       if (!compatible) delete next[dependentKey];
     });
-    if (key === 'finish_family') setFamilyImageIndex(0);
+    if (key === 'measure' || key === 'finish_family') setEnlarged(null);
     setSelection(next);
   };
 
-  const familyImages = familyFirst && activeFamily ? getDuplachFamilyImages(product, model, activeFamily, assetBaseUrl) : [];
-  const activeFamilyImage = familyImages[Math.min(familyImageIndex, Math.max(0, familyImages.length - 1))];
+  const isSelected = (key: string, value: string) => (key === 'finish_family' ? activeFamily : selection[key]) === value;
+
+  const activateOption = (key: string, value: string) => {
+    if (key !== 'finish_family' && isSelected(key, value)) {
+      setEnlarged((current) => current && current.group === key && current.value === value ? null : { group: key, value });
+      return;
+    }
+    setEnlarged(null);
+    selectValue(key, value);
+  };
+
+  const swatchImage = (key: string, value: string) => {
+    if (key === 'color') return getDuplachColorSwatchImage(model, value, assetBaseUrl);
+    if (key === 'finish' && activeFamily) return getDuplachFinishSwatchImage(model, activeFamily, value, assetBaseUrl);
+    return undefined;
+  };
 
   return (
     <section aria-labelledby="duplach-selector-heading">
@@ -91,54 +107,69 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
         {groups.map(({ key, options }) => {
           const label = DUPLACH_FILTER_LABELS[key] || key;
           const displayOption = (value: string) => key === 'finish_family' ? model.familyNames[value] || value : value;
-          const isSelected = (value: string) => (key === 'finish_family' ? activeFamily : selection[key]) === value;
-          const swatch = (value: string) => key === 'color' || key === 'finish'
-            ? getDuplachSwatchImage(model, key === 'finish' && activeFamily ? `${activeFamily}:${value}` : value, assetBaseUrl)
-            : undefined;
+          if (key === 'measure') {
+            return (
+              <div key={key}>
+                <label htmlFor="duplach-measure-select" className="text-sm font-semibold text-graphite">{label}</label>
+                <select
+                  id="duplach-measure-select"
+                  value={selection.measure ?? ''}
+                  onChange={(event) => { if (event.target.value) selectValue('measure', event.target.value); }}
+                  className="mt-2 block min-h-11 w-full max-w-xs rounded-lg border border-ink/20 bg-white px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+                >
+                  {options.map((value) => <option key={value} value={value}>{value}</option>)}
+                </select>
+              </div>
+            );
+          }
+          if (key === 'color' || key === 'finish') {
+            return (
+              <fieldset key={key} disabled={key === 'finish' && !activeFamily}>
+                <legend className="text-sm font-semibold text-graphite">{label}</legend>
+                <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
+                  {options.map((value) => {
+                    const image = swatchImage(key, value);
+                    const selected = isSelected(key, value);
+                    const enlargedActive = enlarged?.group === key && enlarged?.value === value;
+                    const showLabel = !image || selected || enlargedActive;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        aria-pressed={selected}
+                        aria-expanded={enlargedActive}
+                        onClick={() => activateOption(key, value)}
+                        className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border bg-white text-center transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${selected ? 'border-ink ring-2 ring-ink' : 'border-ink/20 hover:border-ink/50'} ${enlargedActive ? 'z-10 scale-125 shadow-lift' : ''}`}
+                      >
+                        {image && <img src={image.url} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
+                        <span className={`relative z-[1] mx-1 max-h-full overflow-hidden break-words rounded-full bg-white/92 px-1.5 py-1 text-xs font-semibold text-ink shadow-soft transition-opacity duration-150 ${showLabel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'}`}>{displayOption(value)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            );
+          }
           return (
-            <fieldset key={key} disabled={key === 'finish' && !activeFamily}>
+            <fieldset key={key}>
               <legend className="text-sm font-semibold text-graphite">{label}</legend>
               <div className="mt-2 flex flex-wrap gap-2">
-                {options.map((value) => {
-                  const image = swatch(value);
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      aria-pressed={isSelected(value)}
-                      onClick={() => selectValue(key, value)}
-                      className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected(value) ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
-                    >
-                      {image && <img src={image.url} alt="" aria-hidden="true" className="h-6 w-6 rounded object-cover" loading="lazy" decoding="async" />}
-                      {displayOption(value)}
-                    </button>
-                  );
-                })}
+                {options.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={isSelected(key, value)}
+                    onClick={() => selectValue(key, value)}
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected(key, value) ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
+                  >
+                    {displayOption(value)}
+                  </button>
+                ))}
               </div>
             </fieldset>
           );
         })}
       </div>
-      {familyFirst && activeFamily && familyImages.length > 0 && (
-        <div className="mt-5 rounded-xl border border-ink/10 bg-white p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">
-            Imágenes de demostración · {model.familyNames[activeFamily] || activeFamily}
-          </p>
-          <div className="relative mt-2 flex items-center justify-center overflow-hidden rounded-lg bg-stonewash">
-            {activeFamilyImage ? (
-              <img key={activeFamilyImage.url} src={activeFamilyImage.url} alt={`${product.name}, familia ${model.familyNames[activeFamily] || activeFamily}, imagen ${Math.min(familyImageIndex, familyImages.length - 1) + 1} de ${familyImages.length}`} className="max-h-72 w-full object-contain" loading="lazy" decoding="async" />
-            ) : (
-              <p className="text-sm text-graphite" role="status">Sin imágenes para esta familia</p>
-            )}
-            {familyImages.length > 1 && (
-              <>
-                <button type="button" aria-label="Imagen de familia anterior" disabled={familyImageIndex <= 0} onClick={() => setFamilyImageIndex((index) => Math.max(0, index - 1))} className="absolute left-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/88 text-lg text-ink shadow-soft disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"><span aria-hidden="true">←</span></button>
-                <button type="button" aria-label="Imagen de familia siguiente" disabled={familyImageIndex >= familyImages.length - 1} onClick={() => setFamilyImageIndex((index) => Math.min(familyImages.length - 1, index + 1))} className="absolute right-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-white/88 text-lg text-ink shadow-soft disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"><span aria-hidden="true">→</span></button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
       {familyFirst && !activeFamily && (
         <p className="mt-4 text-sm text-graphite" role="status">Selecciona una familia para elegir su acabado.</p>
       )}

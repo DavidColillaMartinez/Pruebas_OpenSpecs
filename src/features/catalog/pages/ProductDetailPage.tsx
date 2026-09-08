@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getCatalogConfig, getProductBySlug } from '../api/client';
 import type { CatalogPublicConfig, ProductDetail } from '../model/types';
 import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
 import { isRoyoFurnitureScope } from '../model/royo';
-import { isDuplachShowerTrayProduct, buildDuplachProductGallery } from '../model/duplach';
+import { buildDuplachProductGallery, getDuplachFamilyImages, getDuplachSelectorModel, isDuplachShowerTrayProduct } from '../model/duplach';
 import { buildRoyoProductGallery } from '../model/gallery';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector, type SelectionChangeMeta } from '../components/ProductVariantSelector';
@@ -35,6 +35,18 @@ function recordValue(value: unknown): Record<string, unknown> | null {
 
 function stringValues(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
+}
+
+function readableDetailValue(value: unknown): string | null {
+  if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : null;
+  if (typeof value === 'string') return value.trim() ? value : null;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return null;
+    const parts = value.map((item) => (typeof item === 'boolean' ? (item ? 'Sí' : 'No') : typeof item === 'number' && Number.isFinite(item) ? String(item) : typeof item === 'string' && item.trim() ? item : null));
+    return parts.every((part): part is string => part !== null) ? parts.join(', ') : null;
+  }
+  return null;
 }
 
 function RoyoConfiguration({ product }: { product: ProductDetail }) {
@@ -74,24 +86,29 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   const [hasManualDuplachSelection, setHasManualDuplachSelection] = useState(false);
   const [addedMessage, setAddedMessage] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [duplachFamily, setDuplachFamily] = useState<string | null>(null);
   const { addLine } = useQuoteSelection();
   const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
   const isDuplach = isDuplachShowerTrayProduct(product);
-  const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta) => {
+  const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta & { family?: string | null }) => {
     if (metadata.source === 'user' && isRoyo) setHasManualRoyoSelection(true);
     if (metadata.source === 'user' && isDuplach) setHasManualDuplachSelection(true);
+    if (isDuplach) setDuplachFamily(metadata.family ?? null);
     setSelectedUnit(unit);
   }, [isDuplach, isRoyo]);
   const selectedSnapshot = buildVariantSnapshot(selectedUnit);
   const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
   const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
+  const duplachModel = useMemo(() => isDuplach ? getDuplachSelectorModel(product) : null, [isDuplach, product]);
   const galleryImages = isDuplach
-    ? buildDuplachProductGallery(product, hasManualDuplachSelection ? selectedUnit : null, { manualSelection: hasManualDuplachSelection, assetBaseUrl })
+    ? (duplachFamily && duplachModel
+      ? getDuplachFamilyImages(product, duplachModel, duplachFamily, assetBaseUrl)
+      : buildDuplachProductGallery(product, hasManualDuplachSelection ? selectedUnit : null, { manualSelection: hasManualDuplachSelection, assetBaseUrl }))
     : isRoyo
     ? buildRoyoProductGallery(product, galleryUnit)
     : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const royoSpecKeys = ['modular_notice', 'module_configuration', 'finish_image_map', 'presentation_types', 'type_image_map'];
-  const specs = Object.entries(product.specs).filter(([key, value]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)) && !(isDuplach && typeof value === 'object'));
+  const specs = Object.entries(product.specs).filter(([key, value]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)) && readableDetailValue(value) !== null);
   const productFacts = [
     ['LED', selectedSnapshot?.has_led ?? product.hasLed],
     ['Tipo de iluminación', selectedSnapshot?.lighting_type ?? product.lightingType],
@@ -148,13 +165,15 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
               <span aria-hidden="true" className="text-lg font-normal leading-none text-graphite/70">{detailsOpen ? '−' : '+'}</span>
             </button>
           </h2>
-          <dl id="product-details-content" hidden={!detailsOpen} className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {productFacts.map(([key, value]) => <div key={String(key)}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
-            {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' || key === 'measure' ? 'Medida' : key === 'finish' ? 'Acabado' : key === 'version' ? 'Versión' : key === 'has_led' ? 'LED' : key.replaceAll('_', ' ')}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
-            {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{String(value)}</dd></div>)}
-            {product.availableFinishes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Acabados</dt><dd className="mt-1">{product.availableFinishes.join(', ')}</dd></div>}
-            {product.availableMeasures.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Medidas</dt><dd className="mt-1">{product.availableMeasures.join(', ')}</dd></div>}
-          </dl>
+          <div id="product-details-content" hidden={!detailsOpen}>
+            <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {productFacts.map(([key, value]) => <div key={String(key)}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
+              {selectionFacts.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key === 'dimension' || key === 'measure' ? 'Medida' : key === 'finish' ? 'Acabado' : key === 'version' ? 'Versión' : key === 'has_led' ? 'LED' : key.replaceAll('_', ' ')}</dt><dd className="mt-1">{typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}</dd></div>)}
+              {specs.map(([key, value]) => <div key={key}><dt className="text-sm font-semibold text-graphite">{key}</dt><dd className="mt-1">{readableDetailValue(value)}</dd></div>)}
+              {product.availableFinishes.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Acabados</dt><dd className="mt-1">{product.availableFinishes.join(', ')}</dd></div>}
+              {product.availableMeasures.length > 0 && <div><dt className="text-sm font-semibold text-graphite">Medidas</dt><dd className="mt-1">{product.availableMeasures.join(', ')}</dd></div>}
+            </dl>
+          </div>
         </section>
       )}
       <RoyoConfiguration product={product} />

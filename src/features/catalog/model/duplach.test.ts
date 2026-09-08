@@ -4,10 +4,11 @@ import { getSelectableUnits, selectInitialUnit } from './selection';
 import {
   buildDuplachProductGallery,
   findCompleteDuplachUnit,
+  getDuplachColorSwatchImage,
   getDuplachDependentOptions,
   getDuplachFamilyImages,
+  getDuplachFinishSwatchImage,
   getDuplachSelectorModel,
-  getDuplachSwatchImage,
   isCatalogDuplachScope,
   isDuplachShowerTrayProduct,
 } from './duplach';
@@ -70,6 +71,20 @@ describe('duplach normalization', () => {
       Antracita: ['images/duplach_platos/stone-plus/gallery-1.webp'],
       Blanco: ['images/duplach_platos/stone-plus/cover.webp'],
     });
+    expect(product.specs.selector_images).toEqual({
+      colors: [
+        { code: 'RAL 7011', name: 'Antracita', sha256: '997b2d', source_page: 25, filename: 'images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-antracita.webp' },
+        { code: 'RAL 9003', name: 'Blanco', sha256: '2f71d4', source_page: 25, filename: 'images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-blanco.webp' },
+      ],
+    });
+    const plusModel = getDuplachSelectorModel(product);
+    expect(plusModel.colorSwatches).toEqual([
+      { name: 'Antracita', code: 'RAL 7011', filename: 'images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-antracita.webp' },
+      { name: 'Blanco', code: 'RAL 9003', filename: 'images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-blanco.webp' },
+    ]);
+    expect(plusModel.finishSwatchImages['maderas-naturales:Roble']).toBeUndefined();
+    expect(plusModel).not.toHaveProperty('colorSwatchImages');
+    expect(JSON.stringify(plusModel.colorSwatches)).not.toMatch(/sha256|source_page/);
     expect(product.finishFamilies).toBeUndefined();
 
     const stone3d = threeDProduct();
@@ -171,12 +186,18 @@ describe('duplach gallery composer', () => {
     expect(gallery.map((image) => image.url)).toEqual(product.images.map((image) => image.url));
   });
 
-  it('never promotes swatches and keeps Stone 3D family demos out of the main gallery', () => {
+  it('never promotes swatches and keeps Stone 3D family demos scoped after selection', () => {
     const product = threeDProduct();
     const units = getSelectableUnits(product);
     const gallery = buildDuplachProductGallery(product, selectInitialUnit(units), { manualSelection: true, assetBaseUrl: ASSET_BASE_URL });
     expect(gallery.map((image) => image.url)).toEqual(product.images.map((image) => image.url));
     expect(gallery.some((image) => image.url.includes('/swatches/'))).toBe(false);
+    expect(gallery.map((image) => image.url)).toEqual([
+      `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/cover.webp`,
+      `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp`,
+      `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/maderas-naturales/demo-2.webp`,
+      `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/cementos-metales-oxidos/demo-1.webp`,
+    ]);
 
     const model = getDuplachSelectorModel(product);
     const familyImages = getDuplachFamilyImages(product, model, 'maderas-naturales', ASSET_BASE_URL);
@@ -184,17 +205,56 @@ describe('duplach gallery composer', () => {
       `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/maderas-naturales/demo-1.webp`,
       `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/maderas-naturales/demo-2.webp`,
     ]);
-    expect(product.images.every((image) => !familyImages.some((family) => family.url === image.url))).toBe(true);
+    const otherFamily = getDuplachFamilyImages(product, model, 'cementos-metales-oxidos', ASSET_BASE_URL);
+    expect(otherFamily.map((image) => image.url)).toEqual([
+      `${ASSET_BASE_URL}/images/duplach_platos/stone-3d/cementos-metales-oxidos/demo-1.webp`,
+    ]);
+    expect(familyImages.some((image) => otherFamily.some((other) => other.url === image.url))).toBe(false);
+    expect(getDuplachFamilyImages(product, model, 'familia-inexistente', ASSET_BASE_URL)).toEqual([]);
   });
 
-  it('uses API swatch images for colors and finishes when associated', () => {
+  it('shows the documented empty state for a family without published demos instead of inventing images', () => {
+    const raw = duplachStone3dFixture();
+    raw.specs.family_image_map = { 'maderas-naturales': [], 'cementos-metales-oxidos': raw.specs.family_image_map['cementos-metales-oxidos'] };
+    (raw.specs as { finish_families: unknown }).finish_families = raw.specs.finish_families.map((family: { key: string; demo_images: string[] }) => family.key === 'maderas-naturales' ? { ...family, demo_images: [] } : family);
+    const product = normalizeProductDetail(raw, {
+      catalog_version: 'test',
+      api_contract_version: 'catalog-api-v1',
+      asset_base_url: ASSET_BASE_URL,
+      source_catalog_base_url: ASSET_BASE_URL,
+      database_ready_for_public_api: true,
+    });
+    const model = getDuplachSelectorModel(product);
+    expect(getDuplachFamilyImages(product, model, 'maderas-naturales', ASSET_BASE_URL)).toEqual([]);
+  });
+
+  it('uses selector_images swatches for colors and finish_image_map for finishes, never color_image_map', () => {
     const plus = plusProduct();
     const plusModel = getDuplachSelectorModel(plus);
-    expect(getDuplachSwatchImage(plusModel, 'Antracita', ASSET_BASE_URL)?.url).toBe(`${ASSET_BASE_URL}/images/duplach_platos/stone-plus/gallery-1.webp`);
-    expect(getDuplachSwatchImage(plusModel, 'SinImagen', ASSET_BASE_URL)).toBeUndefined();
+    expect(getDuplachColorSwatchImage(plusModel, 'Antracita', ASSET_BASE_URL)?.url).toBe(`${ASSET_BASE_URL}/images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-antracita.webp`);
+    expect(getDuplachColorSwatchImage(plusModel, 'Blanco', ASSET_BASE_URL)?.url).toBe(`${ASSET_BASE_URL}/images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-blanco.webp`);
+    expect(getDuplachColorSwatchImage(plusModel, 'Antracita', ASSET_BASE_URL)?.url).not.toContain('gallery-1');
+    expect(getDuplachColorSwatchImage(plusModel, 'RAL 7011', ASSET_BASE_URL)?.url).toBe(`${ASSET_BASE_URL}/images/duplach_platos/stone-plus/swatches/duplach-stone-plus-color-antracita.webp`);
+    expect(getDuplachColorSwatchImage(plusModel, 'SinImagen', ASSET_BASE_URL)).toBeUndefined();
+    expect(getDuplachColorSwatchImage(plusModel, 'Antracita', null)).toBeUndefined();
+
+    const withoutFile = duplachStonePlusFixture();
+    (withoutFile.specs as { selector_images: unknown }).selector_images = { colors: [{ code: 'RAL 7011', name: 'Antracita' }, { name: '   ' }] };
+    const fallbackProduct = normalizeProductDetail(withoutFile, {
+      catalog_version: 'test',
+      api_contract_version: 'catalog-api-v1',
+      asset_base_url: ASSET_BASE_URL,
+      source_catalog_base_url: ASSET_BASE_URL,
+      database_ready_for_public_api: true,
+    });
+    const fallbackModel = getDuplachSelectorModel(fallbackProduct);
+    expect(fallbackModel.colorSwatches).toEqual([{ name: 'Antracita', code: 'RAL 7011' }]);
+    expect(getDuplachColorSwatchImage(fallbackModel, 'Antracita', ASSET_BASE_URL)).toBeUndefined();
 
     const stone3d = threeDProduct();
     const stone3dModel = getDuplachSelectorModel(stone3d);
-    expect(getDuplachSwatchImage(stone3dModel, 'maderas-naturales:Roble', ASSET_BASE_URL)?.url).toBe(`${ASSET_BASE_URL}/images/duplach_platos/stone-3d/swatches/maderas-naturales/duplach-stone-3d-maderas-naturales-roble.webp`);
+    expect(stone3dModel.colorSwatches).toEqual([]);
+    expect(getDuplachFinishSwatchImage(stone3dModel, 'maderas-naturales', 'Roble', ASSET_BASE_URL)?.url).toBe(`${ASSET_BASE_URL}/images/duplach_platos/stone-3d/swatches/maderas-naturales/duplach-stone-3d-maderas-naturales-roble.webp`);
+    expect(getDuplachFinishSwatchImage(stone3dModel, 'cementos-metales-oxidos', 'Roble', ASSET_BASE_URL)).toBeUndefined();
   });
 });
