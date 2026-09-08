@@ -179,3 +179,23 @@ Resumen aquí; detalle completo en `docs/audit/assets-inventory.md`.
 1. **Informativos (esta auditoría):** los dos documentos de `docs/audit/` y la propuesta `docs/proposals/catalog-api-v2.md`.
 2. **Local, sin backend:** hardening de `.env.example`/docs, cabeceras `vercel.json`, allowlist/límites del proxy, unificación del doble GET, fast-path de normalización de tarjetas, `React.lazy` por rutas, limpieza de assets y `.gitignore`, renombrado PII de reseñas, borrado de backup branches.
 3. **Requieren backend/hosting (no ejecutar aquí):** rotación de webhook, rate limiting, detalle/facetas server-side, HSTS, CSP enforce, migración de `assets/Catalogo/` y tooling a repos privado.
+
+## 9. Addendum de ejecución (rama `work/catalog-perf-security`)
+
+- El hallazgo del doble GET (§1.2) se resolvió integrando el trabajo concurrente de otro agente (`d7dfd7a`): el montaje queda en un único GET de listado con facetas incluidas y fallback de derivación local; el selector Duplach ya consume listas de opciones server-side en lugar de variantes materializadas.
+- Code splitting por ruta y fast-path de tarjetas implementados localmente (`1365eff`). Métricas finales en la entrega B4 de la rama de trabajo.
+- Seguridad aplicada (`82bd685`) y limpieza de assets con PII/redacción (`504e7d5`); la rotación del webhook sigue siendo acción externa obligatoria.
+
+### Métricas finales (build de `work/catalog-perf-security`)
+
+| Métrica | Antes (a46c299) | Después | Delta |
+|---|---|---|---|
+| JS del chunk principal | 418,9 KB raw / 119,2 KB gz | 331,5 KB / 99,4 KB gz | **−87,4 KB raw / −19,8 KB gz (−21 % / −17 %)** |
+| Página de catálogo | en el chunk principal | chunk separado 32,1 KB (8,9 KB gz) | carga bajo demanda |
+| Detalle de producto | en el chunk principal | chunk separado 40,5 KB (10,7 KB gz) | carga bajo demanda |
+| Presupuesto | en el chunk principal | chunk separado 8,9 KB (2,9 KB gz) | carga bajo demanda |
+| GETs en montaje de catálogo | ≥2 (histórico pre-integración) | 1 | −1 solicitud por visita |
+| Bytes de media eliminados del repo | — | ≈10,2 MB (10 archivos) | perfil de clonado |
+| Tests | 269/269 | 273/273 | +4 |
+| typecheck / lint / build | verdes | verdes | — |
+| Filtración al bundle | 0 | 0 (grep `n8n|webhook|colilladavid|N8N_` sobre `dist/`) | — |
