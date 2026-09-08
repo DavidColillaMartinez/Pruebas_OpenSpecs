@@ -29,8 +29,14 @@ const emptyContext: QuoteSelectionContextValue = {
 
 const QuoteSelectionContext = createContext<QuoteSelectionContextValue>(emptyContext);
 
-function lineKey(line: Pick<QuoteRequestItem, 'productId' | 'variantId' | 'commercialOfferVariantId'>): string {
-  return `${line.productId}::${line.variantId || line.commercialOfferVariantId || ''}`;
+type SelectionIdentity = Pick<QuoteRequestItem, 'productId' | 'variantId' | 'commercialOfferVariantId'>
+  & Partial<Pick<QuoteRequestItem, 'variantSnapshot' | 'selectedAttributes'>>;
+
+function lineKey(line: SelectionIdentity): string {
+  const identity = line.variantId || line.commercialOfferVariantId;
+  if (identity) return `${line.productId}::${identity}`;
+  const attributes = line.variantSnapshot || line.selectedAttributes || {};
+  return `${line.productId}::selection:${JSON.stringify(Object.entries(attributes).sort(([a], [b]) => a.localeCompare(b)))}`;
 }
 
 function cleanAttributes(value: unknown): Record<string, string | number | boolean> | undefined {
@@ -54,8 +60,11 @@ function normalizeLine(value: unknown): QuoteSelectionLine | null {
   const category = typeof record.category === 'string' ? record.category : '';
   const imageUrl = typeof record.imageUrl === 'string' ? record.imageUrl : undefined;
   const selectedAttributes = cleanAttributes(record.selectedAttributes);
+  const variantSnapshot = cleanAttributes(record.variantSnapshot);
   const quantity = Number(record.quantity);
-  if (!productId || (!variantId && !commercialOfferVariantId) || !productName || !supplier || !category || !Number.isInteger(quantity) || quantity < 1) return null;
+  const compactDuplachSelection = productId.toLocaleLowerCase().startsWith('duplach-')
+    && Boolean(variantSnapshot && Object.keys(variantSnapshot).length > 0);
+  if (!productId || (!variantId && !commercialOfferVariantId && !compactDuplachSelection) || !productName || !supplier || !category || !Number.isInteger(quantity) || quantity < 1) return null;
 
   return {
     productId,
@@ -68,7 +77,7 @@ function normalizeLine(value: unknown): QuoteSelectionLine | null {
     category,
     ...(imageUrl ? { imageUrl } : {}),
     ...(selectedAttributes ? { selectedAttributes } : {}),
-    variantSnapshot: cleanAttributes(record.variantSnapshot),
+    ...(variantSnapshot ? { variantSnapshot } : {}),
     ...(typeof record.notes === 'string' && record.notes.trim() ? { notes: record.notes.trim() } : {}),
   };
 }
@@ -92,7 +101,7 @@ function readStoredLines(): QuoteSelectionLine[] {
   return [];
 }
 
-export function getQuoteSelectionKey(line: Pick<QuoteRequestItem, 'productId' | 'variantId' | 'commercialOfferVariantId'>): string {
+export function getQuoteSelectionKey(line: SelectionIdentity): string {
   return lineKey(line);
 }
 

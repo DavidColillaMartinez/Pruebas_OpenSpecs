@@ -140,6 +140,23 @@ describe('quote request payload', () => {
   });
 });
 describe('duplach quote payload', () => {
+  it('accepts a compact Duplach selection without inventing a variant identity', () => {
+    const product = normalizeProductDetail(duplachStonePlusFixture());
+    const unit = {
+      productId: product.id,
+      quantity: 1,
+      productName: product.name,
+      variantSnapshot: { measure: '100x100', texture: 'Pizarra', color: 'Blanco', grille: 'Color' },
+      attributes: { measure: '100x100', texture: 'Pizarra', color: 'Blanco', grille: 'Color' },
+      sourceOrder: 0,
+    };
+    const item = buildQuoteRequestItem(product, unit, 1);
+
+    expect(item.variantId).toBeUndefined();
+    expect(item.selectedAttributes).toMatchObject(unit.attributes);
+    expect(validateQuoteRequest({ customerName: 'Cliente', email: 'cliente@example.test', consentPrivacy: true, items: [item] })).toEqual({});
+  });
+
   it('sends real variant identity with public attributes and excludes prices and absent references', () => {
     const product = normalizeProductDetail(duplachStonePlusFixture());
     const units = getSelectableUnits(product);

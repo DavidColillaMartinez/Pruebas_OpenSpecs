@@ -18,6 +18,15 @@ const secondLine = { ...firstLine, variantId: 'mt-espejos-alba--v0005', referenc
 const noReferenceLine = { ...firstLine, productId: 'gme-mamparas-ducha-akt', variantId: 'gme-mamparas-ducha-akt--ang-cr', reference: undefined, productName: 'Aktual', supplier: 'GME', category: 'Mamparas', selectedAttributes: { finish: 'Cromo', distribution: 'Angular al vértice' } };
 const noAttributesLine = { ...firstLine, productId: 'royo-simple-product', variantId: 'royo-simple-product--v0001', reference: 'C0074654', productName: 'Mueble sencillo', supplier: 'Royo', category: 'Muebles y lavabos', selectedAttributes: undefined };
 const royoLine = { ...firstLine, productId: 'royo-logika', variantId: 'royo-logika--v0002', reference: 'R-2', productName: 'Logika', supplier: 'Royo', category: 'Muebles y lavabos', selectedAttributes: { finish: 'Nogal', handle_finish: 'Inox' } };
+const compactDuplachLine = {
+  productId: 'duplach-stone-plus',
+  quantity: 1,
+  productName: 'Stone Plus',
+  supplier: 'Duplach',
+  category: 'Platos de ducha',
+  variantSnapshot: { measure: '100x100', texture: 'Pizarra', color: 'Blanco', grille: 'Color' },
+  selectedAttributes: { measure: '100x100', texture: 'Pizarra', color: 'Blanco', grille: 'Color' },
+};
 
 function Harness() {
   const selection = useQuoteSelection();
@@ -104,6 +113,19 @@ describe('quote selection store', () => {
     render(<QuoteSelectionProvider><Harness /></QuoteSelectionProvider>);
 
     expect(screen.getByTestId('count')).toHaveTextContent('0');
+  });
+
+  it('keeps different compact Duplach configurations as independent lines', () => {
+    const compactOther = { ...compactDuplachLine, variantSnapshot: { ...compactDuplachLine.variantSnapshot, color: 'Antracita' }, selectedAttributes: { ...compactDuplachLine.selectedAttributes, color: 'Antracita' } };
+    function CompactHarness() {
+      const selection = useQuoteSelection();
+      return <><button type="button" onClick={() => selection.addLine(compactDuplachLine)}>Añadir compacto</button><button type="button" onClick={() => selection.addLine(compactOther)}>Añadir otro compacto</button><output data-testid="compact-count">{selection.count}</output></>;
+    }
+    render(<QuoteSelectionProvider><CompactHarness /></QuoteSelectionProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir compacto' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir compacto' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir otro compacto' }));
+    expect(screen.getByTestId('compact-count')).toHaveTextContent('2');
   });
 });
 

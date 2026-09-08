@@ -86,6 +86,29 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(requested).not.toContain('admin=');
   });
 
+  it('forwards supported catalog facet filters to the upstream list endpoint', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const fetchMock = vi.fn().mockResolvedValue(responseBody({ items: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await productsHandler({ method: 'GET', query: {
+      category_id: 'espejos',
+      texture: ['Liso', 'Pizarra'],
+      color: 'Antracita',
+      lighting_type: 'Retroiluminada',
+      injected: 'discard-me',
+    } }, response);
+
+    const requested = String(fetchMock.mock.calls[0][0]);
+    expect(requested).toContain('category_id=espejos');
+    expect(requested).toContain('texture=Liso');
+    expect(requested).toContain('texture=Pizarra');
+    expect(requested).toContain('color=Antracita');
+    expect(requested).toContain('lighting_type=Retroiluminada');
+    expect(requested).not.toContain('injected=');
+  });
+
   it('rejects oversized quote bodies with 413 without contacting upstream', async () => {
     Object.assign(process.env, RESOURCE_ENV);
     const fetchMock = vi.fn();

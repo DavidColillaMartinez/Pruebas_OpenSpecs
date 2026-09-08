@@ -1,6 +1,35 @@
 import { normalizeCatalogResponseStatus } from './response.js';
 
 export const CATALOG_BODY_BYTE_LIMIT = 65536;
+const CATALOG_PRODUCT_QUERY_KEYS = Object.freeze([
+  'limit',
+  'offset',
+  'include_facets',
+  'search',
+  'sort',
+  'category',
+  'category_id',
+  'supplier',
+  'supplier_id',
+  'locale',
+  'subcategory',
+  'collection',
+  'distribution',
+  'shape',
+  'has_led',
+  'lighting_type',
+  'product_kind',
+  'finish',
+  'measure',
+  'modularity',
+  'model',
+  'texture',
+  'color',
+  'grille',
+  'valve',
+  'orientation',
+  'finish_family',
+]);
 
 export const CATALOG_ROUTES = Object.freeze({
   config: Object.freeze({
@@ -13,7 +42,7 @@ export const CATALOG_ROUTES = Object.freeze({
     methods: ['GET'],
     envKey: 'N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL',
     path: () => '/products',
-    queryKeys: Object.freeze(['limit', 'offset', 'include_facets', 'search', 'sort', 'category', 'category_id', 'supplier', 'supplier_id', 'locale']),
+    queryKeys: CATALOG_PRODUCT_QUERY_KEYS,
   }),
   productDetail: Object.freeze({
     methods: ['GET'],

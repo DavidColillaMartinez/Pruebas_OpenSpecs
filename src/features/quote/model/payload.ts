@@ -4,6 +4,11 @@ import type { QuoteRequestItem, QuoteRequestPayload } from './types';
 
 const IDENTIFIER_PATTERN = /^[A-Za-z0-9._:-]+$/;
 
+function isCompactDuplachSelection(item: QuoteRequestItem): boolean {
+  return item.productId.toLocaleLowerCase().startsWith('duplach-')
+    && Boolean(item.variantSnapshot && Object.keys(item.variantSnapshot).length > 0);
+}
+
 export function buildQuoteRequestItem(product: ProductDetail, unit: SelectableUnit | null, quantity: number, notes?: string): QuoteRequestItem {
   const snapshot = buildVariantSnapshot(unit);
   const reference = typeof snapshot?.reference === 'string' ? snapshot.reference : undefined;
@@ -48,7 +53,9 @@ export function validateQuoteRequest(payload: QuoteRequestPayload): Record<strin
     if (!IDENTIFIER_PATTERN.test(item.productId)) errors[`${prefix}.productId`] = 'Identificador de producto no válido.';
     if (item.variantId && !IDENTIFIER_PATTERN.test(item.variantId)) errors[`${prefix}.variantId`] = 'Identificador de variante no válido.';
     if (item.commercialOfferVariantId && !IDENTIFIER_PATTERN.test(item.commercialOfferVariantId)) errors[`${prefix}.commercialOfferVariantId`] = 'Identificador de oferta no válido.';
-    if (!item.variantId && !item.commercialOfferVariantId) errors[`${prefix}.variantId`] = 'La variante completa es obligatoria.';
+    if (!item.variantId && !item.commercialOfferVariantId && !isCompactDuplachSelection(item)) {
+      errors[`${prefix}.variantId`] = 'La variante completa es obligatoria.';
+    }
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 999) errors[`${prefix}.quantity`] = 'La cantidad debe estar entre 1 y 999.';
     if (!item.productName.trim() || item.productName.length > 300) errors[`${prefix}.productName`] = 'El nombre del producto es obligatorio y no puede superar 300 caracteres.';
     if (!item.supplier?.trim()) errors[`${prefix}.supplier`] = 'El proveedor de la línea es obligatorio.';
