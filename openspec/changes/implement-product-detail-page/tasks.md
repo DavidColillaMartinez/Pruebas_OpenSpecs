@@ -1,6 +1,6 @@
 ## 1. Fase 0 — Desbloqueo de contrato n8n
 
-- [x] 1.1 Verificar el upstream n8n actualizado: `GET /webhook/35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog/products/:slug` devuelve `200` para ambos slugs publicables verificados.
+- [x] 1.1 Verificar el upstream n8n actualizado: `GET /webhook/<detalle-workflow>/lrmq/catalog/products/:slug` (ruta exacta redactada por seguridad) devuelve `200` para ambos slugs publicables verificados.
 - [x] 1.2 Verificar y filtrar en la capa de aplicación los campos técnicos presentes en la respuesta real (`source_page`, `component_refs`, `search_text`, `quality_status`) para que nunca se expongan al usuario.
 - [x] 1.3 Verificar `PRODUCT_NOT_FOUND`, CORS y `Cache-Control: public, max-age=60, stale-while-revalidate=300` en el upstream de detalle; documentar que n8n conserva HTTP `200` y el proxy público lo normaliza a `404`.
 - [x] 1.4 Confirmar por inspección externa el contrato de `POST /catalog/quote-requests` para `201`, `400 VALIDATION_ERROR` y `429 RATE_LIMITED`; las pruebas interceptan el POST y no se envía ninguna solicitud real.

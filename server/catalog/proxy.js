@@ -1,28 +1,50 @@
 import { normalizeCatalogResponseStatus } from './response.js';
 
+export const CATALOG_BODY_BYTE_LIMIT = 65536;
+
 export const CATALOG_ROUTES = Object.freeze({
   config: Object.freeze({
     methods: ['GET'],
     envKey: 'N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL',
     path: () => '/config',
+    queryKeys: Object.freeze(['locale']),
   }),
   products: Object.freeze({
     methods: ['GET'],
     envKey: 'N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL',
     path: () => '/products',
+    queryKeys: Object.freeze(['limit', 'offset', 'include_facets', 'search', 'sort', 'category', 'category_id', 'supplier', 'supplier_id', 'locale']),
   }),
   productDetail: Object.freeze({
     methods: ['GET'],
     envKey: 'N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL',
     identifierQuery: 'slug',
     path: (slug) => `/products/${encodeURIComponent(slug)}`,
+    queryKeys: Object.freeze(['locale']),
   }),
   quoteRequests: Object.freeze({
     methods: ['POST'],
     envKey: 'N8N_CATALOG_QUOTE_REQUESTS_UPSTREAM_BASE_URL',
     path: () => '/quote-requests',
+    queryKeys: Object.freeze([]),
   }),
 });
+
+export function catalogQueryKeysForPath(publicPath) {
+  if (publicPath.startsWith('/api/catalog/products/')) return CATALOG_ROUTES.productDetail.queryKeys;
+  if (publicPath.startsWith('/api/catalog/products')) return CATALOG_ROUTES.products.queryKeys;
+  if (publicPath.startsWith('/api/catalog/config')) return CATALOG_ROUTES.config.queryKeys;
+  if (publicPath.startsWith('/api/catalog/quote-requests')) return CATALOG_ROUTES.quoteRequests.queryKeys;
+  return [];
+}
+
+export function pickAllowedSearchParams(searchParams, allowedKeys) {
+  const picked = new URLSearchParams();
+  searchParams.forEach((value, key) => {
+    if (allowedKeys.includes(key)) picked.append(key, value);
+  });
+  return picked;
+}
 
 function getIdentifier(request, route) {
   if (!route.identifierQuery) return null;
@@ -30,13 +52,19 @@ function getIdentifier(request, route) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function appendQuery(upstreamUrl, request, excludedKey) {
+function appendQuery(upstreamUrl, request, route, excludedKey) {
   Object.entries(request.query || {}).forEach(([key, value]) => {
     if (key === excludedKey) return;
+    if (!route.queryKeys.includes(key)) return;
     (Array.isArray(value) ? value : [value]).forEach((item) => {
       if (item !== undefined) upstreamUrl.searchParams.append(key, String(item));
     });
   });
+}
+
+function requestBodyBytes(body) {
+  const text = typeof body === 'string' ? body : JSON.stringify(body ?? {});
+  return new TextEncoder().encode(text).length;
 }
 
 function getUpstreamUrl(request, route, identifier) {
@@ -45,7 +73,7 @@ function getUpstreamUrl(request, route, identifier) {
 
   const upstreamUrl = new URL(base);
   upstreamUrl.pathname = `${upstreamUrl.pathname.replace(/\/$/, '')}${route.path(identifier)}`;
-  appendQuery(upstreamUrl, request, route.identifierQuery);
+  appendQuery(upstreamUrl, request, route, route.identifierQuery);
   return upstreamUrl;
 }
 
@@ -59,6 +87,10 @@ export async function handleCatalogRequest(request, response, route) {
   const identifier = getIdentifier(request, route);
   if (route.identifierQuery && typeof identifier !== 'string') {
     return response.status(400).json({ error: 'INVALID_SLUG' });
+  }
+
+  if (method === 'POST' && requestBodyBytes(request.body) > CATALOG_BODY_BYTE_LIMIT) {
+    return response.status(413).json({ error: 'PAYLOAD_TOO_LARGE' });
   }
 
   const upstreamUrl = getUpstreamUrl(request, route, identifier);

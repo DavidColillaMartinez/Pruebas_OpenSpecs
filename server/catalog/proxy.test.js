@@ -71,6 +71,35 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(String(fetchMock.mock.calls[0][0])).toBe('https://products.example/catalog/products?limit=24&category=muebles&category=espejos');
   });
 
+  it('drops query parameters outside the per-route allowlist', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const fetchMock = vi.fn().mockResolvedValue(responseBody({ items: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await productsHandler({ method: 'GET', query: { limit: '24', search: 'alba', injected: '<x>', admin: 'true' } }, response);
+
+    const requested = String(fetchMock.mock.calls[0][0]);
+    expect(response.result.statusCode).toBe(200);
+    expect(requested).toBe('https://products.example/catalog/products?limit=24&search=alba');
+    expect(requested).not.toContain('injected=');
+    expect(requested).not.toContain('admin=');
+  });
+
+  it('rejects oversized quote bodies with 413 without contacting upstream', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    const oversized = { items: Array.from({ length: 64 }, () => ({ text: 'x'.repeat(2048) })) };
+
+    await quoteRequestsHandler({ method: 'POST', query: {}, body: oversized }, response);
+
+    expect(response.result.statusCode).toBe(413);
+    expect(response.result.body).toEqual({ error: 'PAYLOAD_TOO_LARGE' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('routes dynamic detail requests from query.slug without duplicating the slug', async () => {
     Object.assign(process.env, RESOURCE_ENV);
     const fetchMock = vi.fn().mockResolvedValue(responseBody({ id: 'alba' }));

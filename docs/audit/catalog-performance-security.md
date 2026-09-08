@@ -121,7 +121,7 @@ Las cifras de latencia n8n (tabla del encabezado) corresponden al responsable ba
 ### 4.2 Env y filtración al bundle
 
 - `src/` e `index.html` **no usan** `import.meta.env`/`process.env`/`VITE_*` (0 coincidencias): el cliente solo usa rutas relativas `'/api/catalog'`. **Ninguna variable llega al bundle** (verificado con grep sobre `dist/assets/*.js`).
-- `.env.example` contiene **URLs reales de producción n8n**, incluida la ruta de webhook con UUID `https://n8n.…/webhook/35f1a0c4-…/lrmq/catalog` en la línea 6. En n8n la ruta del webhook **es** la credencial de acceso: anyone con la URL invoca el workflow.
+- `.env.example` contenía **URLs reales de producción n8n**, incluida la ruta de webhook con UUID en su línea 6 (ya redactada en `work/catalog-perf-security`). En n8n la ruta del webhook **es** la credencial de acceso: anyone con la URL invoca el workflow.
 - El UUID también está en `docs/catalog-basket-api-audit.md:17-28` y `openspec/changes/implement-product-detail-page/design.md:9` (+ tasks afines). Repo público en GitHub ⇒ **rotación del path de webhook = coordinación backend urgente** (fuera de alcance; documentado en la propuesta).
 - Sin `neon.tech`/credenciales de BD/IPs de producción en el árbol.
 

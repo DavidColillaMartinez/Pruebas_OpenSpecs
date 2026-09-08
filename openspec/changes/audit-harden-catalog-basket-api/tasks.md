@@ -59,7 +59,7 @@
 ## 7. Real Detail Endpoint
 
 - [x] 7.1 Update the detail client and route construction to use the exact slug/identifier published by the listing contract.
-- [x] 7.2 Use the configured detail upstream `.../35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog` without modifying the production workflow.
+- [x] 7.2 Use the configured detail upstream `.../<detalle-workflow>/lrmq/catalog` (exact route redacted for security) without modifying the production workflow.
 - [x] 7.3 Verify GET detail responses for `mt-espejos-alba`, `mt-espejos-alvero`, and `gme-mamparas-ducha-aktual` with status `200` and expected fields.
 - [x] 7.4 Record the exact configured upstream and avoid using the unregistered shared list webhook as the detail contract.
 - [x] 7.5 Add integration tests for published-slug usage, successful detail normalization, not-found/error state, retry behavior, and no generic fallback variant.

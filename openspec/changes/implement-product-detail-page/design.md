@@ -6,7 +6,7 @@ El contrato externo exige una ficha funcional por `slug`, una galería, selecci�
 
 - `GET /webhook/lrmq/catalog/config` responde `catalog-api-v1`, `database_ready_for_public_api: true` y un `asset_base_url` público.
 - `GET /webhook/lrmq/catalog/products?limit=3` responde correctamente con productos y slugs publicables.
-- El upstream real es `https://n8n.colilladavid.es/webhook/35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog/products/:slug` y responde `200` para `mt-espejos-alba` y `royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17`.
+- El upstream real (URL redactada por seguridad; ver `.env.example`) es `https://<n8n-host>/webhook/<detalle-workflow>/lrmq/catalog/products/:slug` y responde `200` para `mt-espejos-alba` y `royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17`.
 - Un slug inexistente mantiene HTTP `200` con `{ "error": "PRODUCT_NOT_FOUND", "message": "Producto no encontrado" }`.
 - El upstream mantiene ese `200` por una configuración fija del nodo de respuesta; el proxy público normaliza únicamente ese caso a HTTP `404` y conserva el JSON.
 

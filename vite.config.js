@@ -1,10 +1,16 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { normalizeCatalogResponseStatus } from './server/catalog/response.js';
+import { CATALOG_BODY_BYTE_LIMIT, catalogQueryKeysForPath, pickAllowedSearchParams } from './server/catalog/proxy.js';
 
-async function readRequestBody(request) {
+async function readRequestBody(request, limit) {
   const chunks = [];
-  for await (const chunk of request) chunks.push(chunk);
+  let total = 0;
+  for await (const chunk of request) {
+    total += chunk.length;
+    if (total > limit) return null;
+    chunks.push(chunk);
+  }
   return Buffer.concat(chunks);
 }
 
@@ -38,14 +44,21 @@ export default defineConfig(({ mode }) => {
 
         const upstreamUrl = new URL(upstreamBase);
         upstreamUrl.pathname = `${upstreamUrl.pathname.replace(/\/$/, '')}${publicUrl.pathname.replace(/^\/api\/catalog/, '')}`;
-        upstreamUrl.search = publicUrl.search;
+        upstreamUrl.search = pickAllowedSearchParams(publicUrl.searchParams, catalogQueryKeysForPath(publicUrl.pathname)).toString();
 
         try {
           const headers = { accept: request.headers.accept || 'application/json' };
           const options = { method: request.method, headers };
           if (request.method === 'POST') {
             headers['content-type'] = request.headers['content-type'] || 'application/json';
-            options.body = await readRequestBody(request);
+            const body = await readRequestBody(request, CATALOG_BODY_BYTE_LIMIT);
+            if (body === null) {
+              response.statusCode = 413;
+              response.setHeader('content-type', 'application/json');
+              response.end(JSON.stringify({ error: 'PAYLOAD_TOO_LARGE' }));
+              return;
+            }
+            options.body = body;
           }
 
           const upstreamResponse = await fetch(upstreamUrl, options);

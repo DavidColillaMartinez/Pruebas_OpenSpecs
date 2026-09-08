@@ -1,5 +1,7 @@
 # Catalog Basket and API Audit
 
+> **HISTÓRICO (2026-08-01).** Documento de evidencia de una auditoría puntual; describe el estado del API en esa fecha y ya no refleja el contrato vigente. Las rutas exactas de los webhooks n8n se han redactado: actúan como credenciales y se gestionan por el responsable backend (ver `docs/audit/catalog-performance-security.md`).
+
 Audit scope: `audit-harden-catalog-basket-api`.
 
 No screenshots, browser harness, POST quote requests, VPS changes, n8n edits, or database writes were performed.
@@ -10,7 +12,7 @@ The catalog header in `b8454e7^` is the dark rounded masthead with the image pan
 
 ## Real GET Checks
 
-All checks below were read-only requests to `https://n8n.colilladavid.es` on 2026-08-01.
+All checks below were read-only requests to the production n8n host (URL redacted) on 2026-08-01.
 
 | Request | Status | Evidence |
 |---|---:|---|
@@ -22,10 +24,10 @@ All checks below were read-only requests to `https://n8n.colilladavid.es` on 202
 | `GET /webhook/lrmq/catalog/products/mt-espejos-alba` | 404 | Shared list webhook path is not registered for detail |
 | `GET /webhook/lrmq/catalog/products/mt-espejos-alvero` | 404 | Shared list webhook path is not registered for detail |
 | `GET /webhook/lrmq/catalog/products/gme-mamparas-ducha-akr` | 404 | Shared list webhook path is not registered for detail |
-| `GET /webhook/35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog/products/mt-espejos-alba` | 200 | Configured detail workflow returns 16 real variants and `mt26-esp-alba-*.webp` images |
-| `GET /webhook/35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog/products/mt-espejos-alvero` | 200 | Configured detail workflow returns 4 real variants and `mt26-esp-alvero-*.webp` images |
-| `GET /webhook/35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog/products/gme-mamparas-ducha-akr` | 404 | Configured detail workflow returns `PRODUCT_NOT_FOUND` for a slug published by the list |
-| `GET /webhook/35f1a0c4-e2e1-443d-8390-56f0027d0742/lrmq/catalog/products/gme-mamparas-ducha-aktual` | 200 | Configured detail workflow returns a real GME variant contract and API-provided variant images |
+| `GET /webhook/<detail-workflow>/lrmq/catalog/products/mt-espejos-alba` | 200 | Configured detail workflow returns 16 real variants and `mt26-esp-alba-*.webp` images |
+| `GET /webhook/<detail-workflow>/lrmq/catalog/products/mt-espejos-alvero` | 200 | Configured detail workflow returns 4 real variants and `mt26-esp-alvero-*.webp` images |
+| `GET /webhook/<detail-workflow>/lrmq/catalog/products/gme-mamparas-ducha-akr` | 404 | Configured detail workflow returns `PRODUCT_NOT_FOUND` for a slug published by the list |
+| `GET /webhook/<detail-workflow>/lrmq/catalog/products/gme-mamparas-ducha-aktual` | 200 | Configured detail workflow returns a real GME variant contract and API-provided variant images |
 
 The live list publishes these detail slugs: `mt-espejos-alba`, `mt-espejos-alvero`, and `gme-mamparas-ducha-aktual`. The configured detail workflow is operational for both Espejos slugs and the GME Aktual slug. The shared list webhook path is not the detail contract.
 
