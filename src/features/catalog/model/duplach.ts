@@ -83,11 +83,53 @@ export type DuplachSelectorModel = {
   familyNames: Record<string, string>;
   finishSwatchImages: Record<string, string[]>;
   colorSwatches: DuplachColorSwatch[];
+  compactOptions: Record<string, string[]>;
+  measureTextures: Record<string, string[]>;
+  finishesByFamily: Record<string, string[]>;
 };
+
+function compactMeasureOptions(value: unknown): { measures: string[]; textures: Record<string, string[]> } {
+  const rows = Array.isArray(value) ? value : [];
+  const measures: string[] = [];
+  const textures: Record<string, string[]> = {};
+  rows.forEach((item) => {
+    const row = asRecord(item);
+    const length = Number(row.length_cm);
+    const width = Number(row.width_cm);
+    if (!Number.isFinite(length) || !Number.isFinite(width)) return;
+    const measure = `${length}x${width}`;
+    if (!measures.includes(measure)) measures.push(measure);
+    const allowedTextures = stringValues(row.textures);
+    if (allowedTextures.length > 0) textures[measure] = allowedTextures;
+  });
+  return { measures, textures };
+}
+
+function compactFinishOptions(value: unknown): { families: string[]; finishes: Record<string, string[]> } {
+  const rows = Array.isArray(value) ? value : [];
+  const families: string[] = [];
+  const finishes: Record<string, string[]> = {};
+  rows.forEach((item) => {
+    const row = asRecord(item);
+    const family = optionalString(row.family_key);
+    const finish = optionalString(row.name);
+    if (!family || !finish) return;
+    if (!families.includes(family)) families.push(family);
+    finishes[family] = finishes[family] || [];
+    if (!finishes[family].includes(finish)) finishes[family].push(finish);
+  });
+  return { families, finishes };
+}
 
 export function getDuplachSelectorModel(product: ProductDetail): DuplachSelectorModel {
   const specs = product.specs;
   const families = product.finishFamilies || parseDuplachFinishFamilies(specs.finish_families) || [];
+  const measures = compactMeasureOptions(specs.size_options);
+  const finishes = compactFinishOptions(specs.finish_options);
+  const colorOptions = Array.isArray(specs.color_options)
+    ? specs.color_options.map((item) => optionalString(asRecord(item).name)).filter((item): item is string => Boolean(item))
+    : [];
+  const valve = optionalString(asRecord(specs.valve).type);
   const configurationKeys = product.configurationFields.length > 0
     ? product.configurationFields
     : [...new Set(product.variants.flatMap((variant: ProductVariant) => Object.keys(variant.attributes)))];
@@ -100,7 +142,29 @@ export function getDuplachSelectorModel(product: ProductDetail): DuplachSelector
     familyNames: Object.fromEntries(families.map((family) => [family.key, family.name])),
     finishSwatchImages: stringListMap(specs.finish_image_map),
     colorSwatches: parseDuplachColorSwatches(specs.selector_images),
+    compactOptions: {
+      measure: measures.measures,
+      texture: stringValues(specs.texture_options),
+      color: colorOptions,
+      grille: stringValues(specs.grille_options),
+      orientation: stringValues(specs.orientation_options),
+      finish_family: finishes.families,
+      finish: Object.values(finishes.finishes).flat(),
+      ...(valve ? { valve: [valve] } : {}),
+    },
+    measureTextures: measures.textures,
+    finishesByFamily: finishes.finishes,
   };
+}
+
+export function getCompactDuplachOptions(model: DuplachSelectorModel, selection: Record<string, string>, key: string): string[] {
+  if (key === 'texture' && selection.measure && model.measureTextures[selection.measure]?.length) {
+    return model.measureTextures[selection.measure];
+  }
+  if (key === 'finish') {
+    return selection.finish_family ? model.finishesByFamily[selection.finish_family] || [] : [];
+  }
+  return model.compactOptions[key] || [];
 }
 
 export function getDuplachDependentOptions(units: SelectableUnit[], configurationKeys: string[], selection: Record<string, string>, key: string): string[] {
@@ -153,7 +217,19 @@ export function buildDuplachProductGallery(
 ): ProductImage[] {
   const gallery = product.images;
   if (!unit || !options.manualSelection) return gallery;
-  const rawPath = typeof unit.attributes.image_path === 'string' ? unit.attributes.image_path.trim() : '';
+  const selectionMap = stringListMap(product.specs.selection_image_map);
+  const finishMap = stringListMap(product.specs.finish_image_map);
+  const colorMap = stringListMap(product.specs.color_image_map);
+  const selectionKeys = [
+    [unit.attributes.texture, unit.attributes.color].filter(Boolean).join(':'),
+    [unit.attributes.finish_family, unit.attributes.finish].filter(Boolean).join(':'),
+  ].filter(Boolean);
+  const compactPath = selectionKeys.flatMap((key) => selectionMap[key] || [])[0]
+    || (unit.attributes.finish_family && unit.attributes.finish
+      ? finishMap[`${unit.attributes.finish_family}:${unit.attributes.finish}`]?.[0]
+      : undefined)
+    || (unit.attributes.color ? colorMap[unit.attributes.color]?.[0] : undefined);
+  const rawPath = typeof unit.attributes.image_path === 'string' ? unit.attributes.image_path.trim() : compactPath || '';
   if (!rawPath || SWATCH_PATH_PATTERN.test(rawPath)) return gallery;
   const url = resolveAssetUrl(rawPath, options.assetBaseUrl);
   if (!url) return gallery;

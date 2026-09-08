@@ -33,29 +33,24 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('option', { name: /Más recientes/ })).toBeDisabled();
   });
 
-  it('derives initial filters from the public catalogue when the API omits facets', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
-      const isFacetWarmup = url.includes('limit=60');
-      const payload = isFacetWarmup
-        ? {
-            items: [{ id: 'mirror-1', name: 'Espejo Alba', slug: 'mirror-1', category_id: 'mirrors', category_name: 'Espejos', images: [] }],
-            pagination: { limit: 60, offset: 0, total: 1 },
-            facets: {},
-            sort: { supported: ['relevance'] },
-          }
-        : {
-            items: [],
-            pagination: { limit: 24, offset: 0, total: 1 },
-            facets: {},
-            sort: { supported: ['relevance'] },
-          };
+  it('derives initial filters from the first page without a second facet request', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => {
+      const payload = {
+        items: [{ id: 'mirror-1', name: 'Espejo Alba', slug: 'mirror-1', category_id: 'mirrors', category_name: 'Espejos', images: [] }],
+        pagination: { limit: 24, offset: 0, total: 1 },
+        facets: {},
+        sort: { supported: ['relevance'] },
+      };
       return Promise.resolve(new Response(JSON.stringify(payload), { status: 200, headers: { 'content-type': 'application/json' } }));
-    }));
+    });
+    vi.stubGlobal('fetch', fetchMock);
 
     render(<MemoryRouter initialEntries={['/productos']}><CatalogPage /></MemoryRouter>);
 
     fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
     expect(screen.getByRole('checkbox', { name: /Espejos/ })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain('limit=60');
   });
 
   it('keeps the full filter taxonomy after applying a filter', async () => {

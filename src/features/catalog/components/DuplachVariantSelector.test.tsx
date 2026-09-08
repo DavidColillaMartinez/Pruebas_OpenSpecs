@@ -21,6 +21,34 @@ function threeDProduct() {
   return normalizeProductDetail(duplachStone3dFixture(), config);
 }
 
+function compactPlusProduct() {
+  const fixture = duplachStonePlusFixture();
+  fixture.variants = [];
+  Object.assign(fixture.specs, {
+    size_options: [
+      { width_cm: 70, length_cm: 70, textures: ['Liso', 'Pizarra'] },
+      { width_cm: 100, length_cm: 100, textures: ['Pizarra'] },
+    ],
+    texture_options: ['Liso', 'Pizarra'],
+    color_options: [{ name: 'Antracita', code: 'RAL 7011' }, { name: 'Blanco', code: 'RAL 9003' }],
+  });
+  return normalizeProductDetail(fixture, config);
+}
+
+function compactThreeDProduct() {
+  const fixture = duplachStone3dFixture();
+  fixture.variants = [];
+  Object.assign(fixture.specs, {
+    size_options: [{ width_cm: 70, length_cm: 70 }],
+    finish_options: [
+      { family_key: 'maderas-naturales', name: 'Roble' },
+      { family_key: 'maderas-naturales', name: 'Olivo' },
+      { family_key: 'cementos-metales-oxidos', name: 'Cemento 01' },
+    ],
+  });
+  return normalizeProductDetail(fixture, config);
+}
+
 function group(name: string) {
   return within(screen.getByRole('group', { name }));
 }
@@ -43,6 +71,24 @@ function userCalls(onSelectionChange: ReturnType<typeof vi.fn>) {
 }
 
 describe('duplach conventional selector', () => {
+  it('selects directly from compact fixed options when cartesian variants are absent', () => {
+    const onSelectionChange = vi.fn();
+    render(<DuplachVariantSelector product={compactPlusProduct()} assetBaseUrl={ASSET_BASE_URL} onSelectionChange={onSelectionChange} />);
+
+    setMeasure('100x100');
+    expect(optionNames('Textura')).toEqual(['Pizarra']);
+    clickGroupOption('Textura', 'Pizarra');
+    clickGroupOption('Color', 'Blanco');
+    clickGroupOption('Rejilla', 'Color');
+
+    const selected = userCalls(onSelectionChange).at(-1)?.[0];
+    expect(selected).toMatchObject({
+      productId: 'duplach-stone-plus',
+      attributes: { measure: '100x100', texture: 'Pizarra', color: 'Blanco', grille: 'Color' },
+    });
+    expect(selected?.variantId).toBeUndefined();
+  });
+
   it('renders measures as a closed native select with API-delivered values in order', () => {
     render(<DuplachVariantSelector product={plusProduct()} assetBaseUrl={ASSET_BASE_URL} onSelectionChange={vi.fn()} />);
     const select = screen.getByRole('combobox', { name: 'Medida' });
@@ -150,6 +196,19 @@ describe('duplach conventional selector', () => {
 });
 
 describe('duplach Stone 3D family-first selector', () => {
+  it('uses compact family and finish lists without generating variant rows', () => {
+    const onSelectionChange = vi.fn();
+    render(<DuplachVariantSelector product={compactThreeDProduct()} assetBaseUrl={ASSET_BASE_URL} onSelectionChange={onSelectionChange} />);
+
+    clickGroupOption('Familia de acabado', 'Maderas naturales');
+    expect(optionNames('Acabado')).toEqual(['Roble', 'Olivo']);
+    clickGroupOption('Acabado', 'Roble');
+
+    const selected = userCalls(onSelectionChange).at(-1)?.[0];
+    expect(selected).toMatchObject({ attributes: { measure: '70x70', finish_family: 'maderas-naturales', finish: 'Roble' } });
+    expect(selected?.variantId).toBeUndefined();
+  });
+
   it('starts without any finish selected and only shows family finishes after a family', () => {
     const onSelectionChange = vi.fn();
     render(<DuplachVariantSelector product={threeDProduct()} assetBaseUrl={ASSET_BASE_URL} onSelectionChange={onSelectionChange} />);

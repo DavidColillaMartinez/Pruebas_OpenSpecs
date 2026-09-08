@@ -6,6 +6,7 @@ import type { SelectionChangeMeta } from './ProductVariantSelector';
 import {
   DUPLACH_FILTER_LABELS,
   findCompleteDuplachUnit,
+  getCompactDuplachOptions,
   getDuplachColorSwatchImage,
   getDuplachDependentOptions,
   getDuplachFinishSwatchImage,
@@ -30,19 +31,38 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
     [model.configurationKeys],
   );
   const familyFirst = model.familyFirst;
+  const usesCompactOptions = units.length === 0 && configurationKeys.some((key) => model.compactOptions[key]?.length);
   const initialUnit = useMemo(() => selectInitialUnit(units), [units]);
   const initialSelection = useMemo<Record<string, string>>(() => {
+    if (usesCompactOptions) {
+      const measure = model.compactOptions.measure?.[0];
+      if (familyFirst) return measure ? { measure } : {};
+      return Object.fromEntries(configurationKeys
+        .map((key) => [key, getCompactDuplachOptions(model, {}, key)[0]] as const)
+        .filter((entry): entry is [string, string] => Boolean(entry[1])));
+    }
     if (!initialUnit) return {};
     if (familyFirst) return initialUnit.attributes.measure ? { measure: initialUnit.attributes.measure } : {};
     return Object.fromEntries(configurationKeys
       .map((key) => [key, initialUnit.attributes[key]] as const)
       .filter((entry): entry is [string, string] => entry[1] !== undefined && entry[1] !== ''));
-  }, [configurationKeys, familyFirst, initialUnit]);
+  }, [configurationKeys, familyFirst, initialUnit, model, usesCompactOptions]);
   const [selection, setSelection] = useState<Record<string, string>>(initialSelection);
   const [enlarged, setEnlarged] = useState<{ group: string; value: string } | null>(null);
   const productIdRef = useRef(product.id);
   const userSelectionRef = useRef(false);
-  const currentUnit = findCompleteDuplachUnit(units, selection, configurationKeys);
+  const currentUnit = useMemo<SelectableUnit | null>(() => {
+    if (!usesCompactOptions) return findCompleteDuplachUnit(units, selection, configurationKeys);
+    if (configurationKeys.some((key) => !selection[key])) return null;
+    return {
+      productId: product.id,
+      quantity: 1,
+      productName: product.name,
+      variantSnapshot: { ...selection },
+      attributes: { ...selection },
+      sourceOrder: 0,
+    };
+  }, [configurationKeys, product.id, product.name, selection, units, usesCompactOptions]);
 
   useEffect(() => {
     if (productIdRef.current === product.id) {
@@ -63,22 +83,32 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
       key,
       options: key === 'finish' && familyFirst && !activeFamily
         ? []
-        : getDuplachDependentOptions(units, configurationKeys, selection, key),
+        : usesCompactOptions
+          ? getCompactDuplachOptions(model, selection, key)
+          : getDuplachDependentOptions(units, configurationKeys, selection, key),
     }))
     .filter((group) => group.options.length > 0);
 
-  if (units.length <= 1) return null;
+  if (!usesCompactOptions && units.length <= 1) return null;
 
   const selectValue = (key: string, value: string) => {
     userSelectionRef.current = true;
     const keyIndex = configurationKeys.indexOf(key);
     const next: Record<string, string> = { ...selection, [key]: value };
-    configurationKeys.slice(keyIndex + 1).forEach((dependentKey) => {
-      if (next[dependentKey] === undefined) return;
-      const upTo = configurationKeys.slice(0, configurationKeys.indexOf(dependentKey) + 1);
-      const compatible = units.some((unit) => upTo.every((attribute) => unit.attributes[attribute] === next[attribute]));
-      if (!compatible) delete next[dependentKey];
-    });
+    if (usesCompactOptions) {
+      configurationKeys.slice(keyIndex + 1).forEach((dependentKey) => {
+        if (next[dependentKey] && !getCompactDuplachOptions(model, next, dependentKey).includes(next[dependentKey])) {
+          delete next[dependentKey];
+        }
+      });
+    } else {
+      configurationKeys.slice(keyIndex + 1).forEach((dependentKey) => {
+        if (next[dependentKey] === undefined) return;
+        const upTo = configurationKeys.slice(0, configurationKeys.indexOf(dependentKey) + 1);
+        const compatible = units.some((unit) => upTo.every((attribute) => unit.attributes[attribute] === next[attribute]));
+        if (!compatible) delete next[dependentKey];
+      });
+    }
     if (key === 'measure' || key === 'finish_family') setEnlarged(null);
     setSelection(next);
   };

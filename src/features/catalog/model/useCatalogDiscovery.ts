@@ -3,13 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { CatalogApiError, getProducts } from '../api/client';
 import { deriveCatalogFacets } from './normalize';
 import { isRoyoFurnitureScope } from './royo';
-import type { CatalogFacetKey, CatalogFacetOption, CatalogFacets, CatalogSortMetadata, ProductCard } from './types';
+import type { CatalogFacetKey, CatalogFacets, CatalogSortMetadata, ProductCard } from './types';
 import {
   catalogQueryKey,
   catalogQueryToRequest,
   getCatalogFilterKeys,
   getCatalogFilterProfile,
-  ROOT_CATALOG_FILTER_KEYS,
   parseCatalogQuery,
   pruneCatalogFilters,
   serializeCatalogQuery,
@@ -39,12 +38,6 @@ type ItemCache = {
   total: number;
   sort: CatalogSortMetadata;
   serverFacets: CatalogFacets;
-};
-
-type FacetCache = {
-  items: Map<string, ProductCard>;
-  facets: CatalogFacets;
-  status: 'idle' | 'loading' | 'success' | 'error';
 };
 
 const emptyData: DiscoveryData = {
@@ -82,50 +75,12 @@ function hasFacets(facets: CatalogFacets): boolean {
   return Object.keys(facets).length > 0;
 }
 
-function hasRequiredFacets(facets: CatalogFacets, query: CatalogQueryState): boolean {
-  const profile = getCatalogFilterProfile(query);
-  if (profile === 'root') return ROOT_CATALOG_FILTER_KEYS.some((key) => Array.isArray(facets[key]));
-  const requiredKeys = getCatalogFilterKeys(profile);
-  return requiredKeys.every((key) => Array.isArray(facets[key]));
-}
-
 function createItemCache(key: string): ItemCache {
   return { key, items: new Map(), pages: new Set(), total: 0, sort: { supported: [] }, serverFacets: {} };
 }
 
-function createFacetCache(): FacetCache {
-  return { items: new Map(), facets: {}, status: 'idle' };
-}
-
 function getLoadedPage(cache: ItemCache): number {
   return Math.max(0, ...cache.pages);
-}
-
-function mergeFacetOptions(globalFacets: CatalogFacets, activeFacets: CatalogFacets): CatalogFacets {
-  const keys = new Set<CatalogFacetKey>([
-    ...(Object.keys(globalFacets) as CatalogFacetKey[]),
-    ...(Object.keys(activeFacets) as CatalogFacetKey[]),
-  ]);
-  const merged: CatalogFacets = {};
-
-  keys.forEach((key) => {
-    const globalOptions = globalFacets[key] || [];
-    const activeOptions = activeFacets[key] || [];
-    const activeByValue = new Map(activeOptions.map((option) => [option.value, option]));
-    const values = new Map<string, CatalogFacetOption>();
-
-    globalOptions.forEach((option) => {
-      const activeOption = activeByValue.get(option.value);
-      values.set(option.value, { ...option, count: activeOption?.count ?? 0 });
-    });
-    activeOptions.forEach((option) => values.set(option.value, option));
-
-    if (values.size > 0) {
-      merged[key] = [...values.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'es'));
-    }
-  });
-
-  return merged;
 }
 
 function pickFacetKeys(facets: CatalogFacets, keys: CatalogFacetKey[]): CatalogFacets {
@@ -134,63 +89,25 @@ function pickFacetKeys(facets: CatalogFacets, keys: CatalogFacetKey[]): CatalogF
     .map((key) => [key, facets[key]])) as CatalogFacets;
 }
 
-function getFacets(cache: ItemCache, facetCache: FacetCache, globalFacetCache: FacetCache, query: CatalogQueryState): CatalogFacets {
-  const activeFacets = hasFacets(cache.serverFacets) ? cache.serverFacets : facetCache.facets;
-  const activeReady = hasFacets(cache.serverFacets) || facetCache.status === 'success';
-  const globalFacets = globalFacetCache.facets;
-  const hasRootContext = Boolean(query.filters.category?.length || query.filters.supplier?.length);
-
-  if (!hasRootContext) return pickFacetKeys(hasFacets(globalFacets) ? globalFacets : activeFacets, ROOT_CATALOG_FILTER_KEYS);
-  if (!activeReady) return pickFacetKeys(globalFacets, ROOT_CATALOG_FILTER_KEYS);
-
-  const rootFacets = mergeFacetOptions(
-    pickFacetKeys(globalFacets, ROOT_CATALOG_FILTER_KEYS),
-    pickFacetKeys(activeFacets, ROOT_CATALOG_FILTER_KEYS),
-  );
-  return {
-    ...rootFacets,
-    ...pickFacetKeys(activeFacets, getCatalogFilterKeys(getCatalogFilterProfile(query)).filter((key) => !ROOT_CATALOG_FILTER_KEYS.includes(key))),
-  };
+function getFacets(cache: ItemCache, query: CatalogQueryState): CatalogFacets {
+  const facets = hasFacets(cache.serverFacets)
+    ? cache.serverFacets
+    : deriveCatalogFacets([...cache.items.values()]);
+  return pickFacetKeys(facets, getCatalogFilterKeys(getCatalogFilterProfile(query)));
 }
 
-function toDiscoveryData(cache: ItemCache, facetCache: FacetCache, globalFacetCache: FacetCache, query: CatalogQueryState): DiscoveryData {
+function toDiscoveryData(cache: ItemCache, query: CatalogQueryState): DiscoveryData {
   const items = sortItems([...cache.items.values()], cache.sort);
   return {
     status: 'success',
     items,
     total: cache.total,
-    facets: getFacets(cache, facetCache, globalFacetCache, query),
+    facets: getFacets(cache, query),
     sort: cache.sort,
     loadedPage: getLoadedPage(cache),
     loadingMore: false,
     additionalError: undefined,
   };
-}
-
-async function loadFacetUniverse(cache: FacetCache, query: CatalogQueryState, signal: AbortSignal, isCancelled: () => boolean): Promise<void> {
-  let offset = 0;
-  let total = Number.POSITIVE_INFINITY;
-  const requestedLimit = 60;
-
-  while (offset < total) {
-    const response = await getProducts({ ...catalogQueryToRequest(query, true), limit: requestedLimit, offset }, null, { signal });
-    if (isCancelled()) return;
-
-    if (hasRequiredFacets(response.facets, query)) {
-      cache.facets = response.facets;
-      cache.status = 'success';
-      return;
-    }
-
-    response.items.forEach((item) => cache.items.set(item.id, item));
-    total = response.pagination.total;
-    const step = response.pagination.limit || response.items.length;
-    if (step <= 0 || response.items.length === 0) break;
-    offset += step;
-  }
-
-  cache.facets = pickFacetKeys(deriveCatalogFacets([...cache.items.values()]), getCatalogFilterKeys(getCatalogFilterProfile(query)));
-  cache.status = 'success';
 }
 
 export function useCatalogDiscovery() {
@@ -202,14 +119,6 @@ export function useCatalogDiscovery() {
   const [retry, setRetry] = useState(0);
   const [data, setData] = useState<DiscoveryData>(emptyData);
   const cacheRef = useRef<ItemCache>(createItemCache(queryKey));
-  const facetCachesRef = useRef(new Map<string, FacetCache>());
-  const globalFacetCacheRef = useRef<FacetCache>(createFacetCache());
-  const facetKey = catalogQueryKey({ ...query, sort: 'relevance', page: 1 });
-  const globalFacetKey = catalogQueryKey({ search: '', filters: {}, sort: 'relevance', page: 1 });
-  const queryRef = useRef(query);
-  const facetKeyRef = useRef(facetKey);
-  queryRef.current = query;
-  facetKeyRef.current = facetKey;
 
   useEffect(() => {
     setSearchInput(query.search);
@@ -227,89 +136,20 @@ export function useCatalogDiscovery() {
   useEffect(() => {
     if (cacheRef.current.key === queryKey) return;
     cacheRef.current = createItemCache(queryKey);
-    const activeFacetCache = facetCachesRef.current.get(facetKey) || createFacetCache();
-    const currentQuery = parseCatalogQuery(queryString);
-    setData((current) => ({ ...emptyData, facets: getFacets(cacheRef.current, activeFacetCache, globalFacetCacheRef.current, currentQuery) || current.facets }));
-  }, [facetKey, queryKey, queryString]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-    const facetCache = facetKey === globalFacetKey
-      ? globalFacetCacheRef.current
-      : facetCachesRef.current.get(facetKey) || createFacetCache();
-    facetCachesRef.current.set(facetKey, facetCache);
-    const facetQuery = { ...parseCatalogQuery(facetKey), sort: 'relevance' as const, page: 1 };
-
-    if (facetCache.status === 'success' || facetCache.status === 'loading') return undefined;
-    facetCache.status = 'loading';
-
-    const loadFacets = async () => {
-      try {
-        await loadFacetUniverse(facetCache, facetQuery, controller.signal, () => cancelled);
-        if (cancelled) return;
-        const activeFacetCache = facetCachesRef.current.get(facetKey) || facetCache;
-        setData((current) => ({ ...current, facets: getFacets(cacheRef.current, activeFacetCache, globalFacetCacheRef.current, facetQuery) || current.facets }));
-      } catch {
-        if (cancelled || controller.signal.aborted) return;
-        facetCache.status = 'error';
-        setData((current) => ({ ...current, facets: getFacets(cacheRef.current, facetCache, globalFacetCacheRef.current, facetQuery) || current.facets }));
-      }
-    };
-
-    void loadFacets();
-    return () => {
-      cancelled = true;
-      controller.abort();
-      if (facetCache.status === 'loading') facetCache.status = 'idle';
-    };
-  }, [facetKey, globalFacetKey, retry]);
-
-  useEffect(() => {
-    if (facetKeyRef.current === globalFacetKey) return undefined;
-    let cancelled = false;
-    const controller = new AbortController();
-    const facetCache = globalFacetCacheRef.current;
-
-    if (facetCache.status === 'success' || facetCache.status === 'loading') return undefined;
-    facetCache.status = 'loading';
-
-    const loadGlobalFacets = async () => {
-      try {
-        await loadFacetUniverse(facetCache, { search: '', filters: {}, sort: 'relevance', page: 1 }, controller.signal, () => cancelled);
-        if (cancelled) return;
-        const activeFacetCache = facetKeyRef.current === globalFacetKey
-          ? facetCache
-          : facetCachesRef.current.get(facetKeyRef.current) || createFacetCache();
-        setData((current) => ({ ...current, facets: getFacets(cacheRef.current, activeFacetCache, facetCache, queryRef.current) || current.facets }));
-      } catch {
-        if (cancelled || controller.signal.aborted) return;
-        facetCache.status = 'error';
-      }
-    };
-
-    void loadGlobalFacets();
-    return () => {
-      cancelled = true;
-      controller.abort();
-      if (facetCache.status === 'loading') facetCache.status = 'idle';
-    };
-  }, [globalFacetKey, retry]);
+    setData(emptyData);
+  }, [queryKey]);
 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
     const cache = cacheRef.current;
-    const facetCache = facetKey === globalFacetKey
-      ? globalFacetCacheRef.current
-      : facetCachesRef.current.get(facetKey) || createFacetCache();
     const currentQuery = parseCatalogQuery(queryString);
     const targetPage = currentQuery.page;
     const missingPages = Array.from({ length: targetPage }, (_, index) => index + 1).filter((page) => !cache.pages.has(page));
     const isInitial = cache.items.size === 0;
 
     if (missingPages.length === 0) {
-      setData(toDiscoveryData(cache, facetCache, globalFacetCacheRef.current, currentQuery));
+      setData(toDiscoveryData(cache, currentQuery));
       return;
     }
 
@@ -324,9 +164,9 @@ export function useCatalogDiscovery() {
           cache.pages.add(page);
           cache.total = response.pagination.total;
           if (response.sort.supported.length > 0 || response.sort.applied) cache.sort = response.sort;
-           if (hasRequiredFacets(response.facets, currentQuery)) cache.serverFacets = response.facets;
+          if (hasFacets(response.facets)) cache.serverFacets = response.facets;
           const items = sortItems([...cache.items.values()], cache.sort);
-          const facets = getFacets(cache, facetCache, globalFacetCacheRef.current, currentQuery);
+          const facets = getFacets(cache, currentQuery);
           setData({
             status: 'success',
             items,
@@ -355,7 +195,7 @@ export function useCatalogDiscovery() {
       cancelled = true;
       controller.abort();
     };
-  }, [facetKey, globalFacetKey, queryKey, queryString, retry]);
+  }, [queryKey, queryString, retry]);
 
   const updateQuery = (next: CatalogQueryState) => {
     setSearchParams(serializeCatalogQuery(next), { replace: false });
