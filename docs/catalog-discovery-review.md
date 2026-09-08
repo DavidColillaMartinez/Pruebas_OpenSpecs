@@ -1,5 +1,7 @@
 # Catalog Discovery Review
 
+
+> **HISTÓRICO (2026-07-24).** Registro de evidencia de una auditoría puntual; puede quedar desactualizado frente al estado vigente. Las URLs de webhooks se han redactado por seguridad (actúan como credenciales).
 Date: 2026-07-24
 Scope: `/productos` discovery, with route-level scroll isolation shared by `/productos/:slug`.
 Method: revision basada en codigo, CSS, tokens y `.md` del proyecto. La comprobacion visual la realiza el propietario.

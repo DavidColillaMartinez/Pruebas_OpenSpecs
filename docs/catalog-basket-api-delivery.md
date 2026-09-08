@@ -1,5 +1,7 @@
 # Catalog Basket API Delivery Evidence
 
+
+> **HISTÓRICO (2026-08-01).** Registro de evidencia de una auditoría puntual; puede quedar desactualizado frente al estado vigente. Las URLs de webhooks se han redactado por seguridad (actúan como credenciales).
 Change: `audit-harden-catalog-basket-api`.
 
 ## 1. Frontend

@@ -7,3 +7,11 @@ dist/
 .DS_Store
 Thumbs.db
 .impeccable/live/
+coverage/
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+*.zip
+web.zip

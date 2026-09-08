@@ -1,5 +1,7 @@
 # Catalog Publication Audit
 
+
+> **HISTÓRICO (2026-07-25).** Registro de evidencia de una auditoría puntual; puede quedar desactualizado frente al estado vigente. Las URLs de webhooks se han redactado por seguridad (actúan como credenciales).
 Status: provisional local evidence. No Neon, n8n, import log or SQL view was modified or queried from this workspace; public GETs were queried read-only.
 
 Audit date: 2026-07-25
