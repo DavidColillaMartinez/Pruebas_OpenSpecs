@@ -173,4 +173,51 @@ describe('catalog query state', () => {
     expect(changed.page).toBe(1);
     expect(catalogQueryKey(query)).toBe(catalogQueryKey({ ...query, page: 1 }));
   });
+  describe('duplach server-side filters and scope isolation', () => {
+    const duplachQuery = parseCatalogQuery('supplier=duplach&category=platos-de-ducha&model=duplach-stone-plus&measure=120x90&texture=Liso&color=Antracita&grille=Color&valve=Sif%C3%B3n&orientation=Derecha&finish_family=maderas-naturales&finish=Roble');
+
+    it('activates the duplach profile only with the exact supplier and category', () => {
+      expect(getCatalogFilterProfile({ filters: duplachQuery.filters })).toBe('duplach');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['duplach'] } })).toBe('root');
+      expect(getCatalogFilterProfile({ filters: { category: ['platos-de-ducha'] } })).toBe('root');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['duplach', 'royo'], category: ['platos-de-ducha'] } })).toBe('root');
+      expect(getCatalogFilterKeys('duplach')).toEqual(expect.arrayContaining(['model', 'texture', 'color', 'grille', 'valve', 'orientation', 'finish_family']));
+      expect(getCatalogFacetLabel('model', 'duplach')).toBe('Modelo');
+      expect(getCatalogFacetLabel('finish_family', 'duplach')).toBe('Familia de acabado');
+      expect(getCatalogFacetLabel('measure', 'duplach')).toBe('Medida');
+    });
+
+    it('sends every duplach filter to the request with the observed parameter names', () => {
+      const request = catalogQueryToRequest(duplachQuery, false);
+      expect(request).toMatchObject({
+        supplier_id: ['duplach'],
+        category_id: ['platos-de-ducha'],
+        model: ['duplach-stone-plus'],
+        measure: ['120x90'],
+        texture: ['Liso'],
+        color: ['Antracita'],
+        grille: ['Color'],
+        valve: ['Sifón'],
+        orientation: ['Derecha'],
+        finish_family: ['maderas-naturales'],
+        finish: ['Roble'],
+      });
+      expect(request).not.toHaveProperty('product_id');
+      expect(serializeCatalogQuery(duplachQuery).toString()).toContain('model=duplach-stone-plus');
+      expect(parseCatalogQuery(serializeCatalogQuery(duplachQuery)).filters).toEqual(duplachQuery.filters);
+    });
+
+    it('prunes duplach-only keys outside the exact scope and keeps other profiles byte-identical', () => {
+      const royoQuery = parseCatalogQuery('category=muebles-y-lavabos&supplier=royo&modularity=modular&texture=Liso&model=duplach-stone-zeus&color=Antracita');
+      expect(serializeCatalogQuery(royoQuery).toString()).toBe('category=muebles-y-lavabos&supplier=royo&modularity=modular');
+      expect(catalogQueryToRequest(royoQuery, false)).not.toHaveProperty('texture');
+      expect(catalogQueryToRequest(royoQuery, false)).not.toHaveProperty('model');
+      expect(catalogQueryToRequest(royoQuery, false)).not.toHaveProperty('color');
+
+      const mirrorQuery = parseCatalogQuery('category=espejos&shape=Circular&finish=Oro');
+      expect(serializeCatalogQuery(mirrorQuery).toString()).toBe('category=espejos&shape=Circular&finish=Oro');
+      const mamparasQuery = parseCatalogQuery('category=mamparas&distribution=Fijo&collection=Akra');
+      expect(serializeCatalogQuery(mamparasQuery).toString()).toBe('category=mamparas&collection=Akra&distribution=Fijo');
+    });
+  });
 });

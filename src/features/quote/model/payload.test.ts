@@ -3,6 +3,7 @@ import alba from '../../catalog/api/fixtures/product-detail.mt-espejos-alba.json
 import { normalizeProductDetail } from '../../catalog/model/normalize';
 import { getSelectableUnits, selectInitialUnit } from '../../catalog/model/selection';
 import { buildQuoteRequestItem, validateQuoteRequest } from './payload';
+import { duplachStonePlusFixture } from '../../catalog/api/fixtures/duplach-platos-contract';
 
 describe('quote request payload', () => {
   it('builds the minimal item from the selected real variant', () => {
@@ -136,5 +137,45 @@ describe('quote request payload', () => {
       'items.0.quantity': expect.any(String),
       'items.0.productName': expect.any(String),
     });
+  });
+});
+describe('duplach quote payload', () => {
+  it('sends real variant identity with public attributes and excludes prices and absent references', () => {
+    const product = normalizeProductDetail(duplachStonePlusFixture());
+    const units = getSelectableUnits(product);
+    const unit = units.find((item) => item.variantId === 'duplach-stone-plus--v00005');
+    const item = buildQuoteRequestItem(product, unit ?? null, 2);
+
+    expect(item).toMatchObject({
+      productId: 'duplach-stone-plus',
+      variantId: 'duplach-stone-plus--v00005',
+      quantity: 2,
+      productName: 'Stone Plus',
+      supplier: 'Duplach',
+      category: 'Platos de ducha',
+    });
+    expect(item.reference).toBeUndefined();
+    expect(item.selectedAttributes).toMatchObject({ measure: '100x100', texture: 'Pizarra', color: 'Blanco', grille: 'Color', valve_type: 'Sifón' });
+    expect(JSON.stringify(item)).not.toMatch(/price_status|min_price|no_prices|show_price/i);
+    const errors = validateQuoteRequest({
+      customerName: 'Cliente',
+      email: 'cliente@example.test',
+      consentPrivacy: true,
+      sourcePage: '/productos/duplach-stone-plus',
+      items: [item],
+    });
+    expect(errors).toEqual({});
+  });
+
+  it('rejects an incomplete duplach selection without a real variant', () => {
+    const product = normalizeProductDetail(duplachStonePlusFixture());
+    const item = buildQuoteRequestItem(product, null, 1);
+    const errors = validateQuoteRequest({
+      customerName: 'Cliente',
+      email: 'cliente@example.test',
+      consentPrivacy: true,
+      items: [item],
+    });
+    expect(errors['items.0.variantId']).toBeTruthy();
   });
 });

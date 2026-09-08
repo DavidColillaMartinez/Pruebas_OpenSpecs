@@ -3,6 +3,7 @@ import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { MANILLONS_TORRENT_REQUIRED_MODELS } from '../api/fixtures/manillons-torrent-contract';
 import { deriveCatalogFacets, normalizeProductDetail, normalizeProductList, resolveAssetUrl } from './normalize';
+import { duplachStonePlusFixture } from '../api/fixtures/duplach-platos-contract';
 
 describe('product normalization', () => {
   it('keeps public identity, variants and absolute assets', () => {
@@ -397,5 +398,21 @@ describe('product normalization', () => {
     expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'tango')).toMatchObject({ lighting: 'Integrada', finishCount: 3, measureCount: 4, imageCount: 4 });
     expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'hula')).toMatchObject({ mirrorType: 'Circular', shape: 'Semicircular' });
     expect(MANILLONS_TORRENT_REQUIRED_MODELS.find((model) => model.slug === 'swing')).toMatchObject({ pages: [158, 159] });
+  });
+});
+describe('duplach contract preservation (no-regression for existing suppliers)', () => {
+  it('keeps duplach public attributes while excluding price-like and technical keys', () => {
+    const product = normalizeProductDetail(duplachStonePlusFixture());
+    expect(product.variants[0].attributes).toMatchObject({ color: 'Antracita', texture: 'Liso', grille: 'Acero inoxidable', valve_type: 'Sifón' });
+    expect(product.variants[0].attributes).not.toHaveProperty('image_mapping_status');
+    expect(product.variants[0].attributes).not.toHaveProperty('no_prices');
+  });
+
+  it('does not change alba normalization by adding duplach fields', () => {
+    const albaProduct = normalizeProductDetail(alba);
+    expect(albaProduct.name).toBe('Alba');
+    expect(albaProduct.finishFamilies).toBeUndefined();
+    expect(albaProduct.variants.length).toBeGreaterThan(0);
+    expect(albaProduct.variants[0].reference).toBeTruthy();
   });
 });

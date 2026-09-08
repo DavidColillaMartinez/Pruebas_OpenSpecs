@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { CatalogApiError, getProductBySlug } from '../api/client';
-import type { ProductDetail } from '../model/types';
+import { CatalogApiError, getCatalogConfig, getProductBySlug } from '../api/client';
+import type { CatalogPublicConfig, ProductDetail } from '../model/types';
 import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
 import { isRoyoFurnitureScope } from '../model/royo';
+import { isDuplachShowerTrayProduct, buildDuplachProductGallery } from '../model/duplach';
 import { buildRoyoProductGallery } from '../model/gallery';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector, type SelectionChangeMeta } from '../components/ProductVariantSelector';
+import { DuplachVariantSelector } from '../components/DuplachVariantSelector';
 import { QuoteRequestForm } from '../../quote/components/QuoteRequestForm';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { buildQuoteRequestItem } from '../../quote/model/payload';
@@ -66,25 +68,30 @@ function RoyoConfiguration({ product }: { product: ProductDetail }) {
   );
 }
 
-function ProductContent({ product }: { product: ProductDetail }) {
+function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; assetBaseUrl?: string | null }) {
   const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
   const [hasManualRoyoSelection, setHasManualRoyoSelection] = useState(false);
+  const [hasManualDuplachSelection, setHasManualDuplachSelection] = useState(false);
   const [addedMessage, setAddedMessage] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const { addLine } = useQuoteSelection();
   const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
+  const isDuplach = isDuplachShowerTrayProduct(product);
   const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta) => {
-    if (isRoyo && metadata.source === 'user') setHasManualRoyoSelection(true);
+    if (metadata.source === 'user' && isRoyo) setHasManualRoyoSelection(true);
+    if (metadata.source === 'user' && isDuplach) setHasManualDuplachSelection(true);
     setSelectedUnit(unit);
-  }, [isRoyo]);
+  }, [isDuplach, isRoyo]);
   const selectedSnapshot = buildVariantSnapshot(selectedUnit);
   const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
   const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
-  const galleryImages = isRoyo
+  const galleryImages = isDuplach
+    ? buildDuplachProductGallery(product, hasManualDuplachSelection ? selectedUnit : null, { manualSelection: hasManualDuplachSelection, assetBaseUrl })
+    : isRoyo
     ? buildRoyoProductGallery(product, galleryUnit)
     : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
   const royoSpecKeys = ['modular_notice', 'module_configuration', 'finish_image_map', 'presentation_types', 'type_image_map'];
-  const specs = Object.entries(product.specs).filter(([key]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)));
+  const specs = Object.entries(product.specs).filter(([key, value]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)) && !(isDuplach && typeof value === 'object'));
   const productFacts = [
     ['LED', selectedSnapshot?.has_led ?? product.hasLed],
     ['Tipo de iluminación', selectedSnapshot?.lighting_type ?? product.lightingType],
@@ -102,7 +109,7 @@ function ProductContent({ product }: { product: ProductDetail }) {
   return (
     <>
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo} preserveActiveImageOnChange={isRoyo} wideFrame={isRoyo && product.modularity === 'modular'} />
+        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo || isDuplach} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>
@@ -110,10 +117,13 @@ function ProductContent({ product }: { product: ProductDetail }) {
           {product.subcategory && <p className="mt-1 text-graphite">{product.subcategory}</p>}
           {product.description && <p className="mt-6 whitespace-pre-line leading-relaxed text-graphite">{product.description}</p>}
            <div className="mt-8">
-             <ProductVariantSelector product={product} onSelectionChange={handleSelectionChange} />
+            {isDuplach
+              ? <DuplachVariantSelector product={product} assetBaseUrl={assetBaseUrl} onSelectionChange={handleSelectionChange} />
+              : <ProductVariantSelector product={product} onSelectionChange={handleSelectionChange} />}
            </div>
            {selectedUnit && selectedSnapshot && <p className="mt-5 text-sm text-graphite" aria-live="polite">Selección: {variantLabel || selectedSnapshot.reference || 'Variante completa'} · Referencia {selectedSnapshot.reference || 'no publicada'}</p>}
-           {!selectedUnit && <p className="mt-5 text-sm text-graphite" role="status">Esta ficha no tiene una variante pública completa seleccionable.</p>}
+           {!selectedUnit && isDuplach && <p className="mt-5 text-sm text-graphite" role="status">Completa la configuración seleccionada para poder añadir esta variante al presupuesto.</p>}
+           {!selectedUnit && !isDuplach && <p className="mt-5 text-sm text-graphite" role="status">Esta ficha no tiene una variante pública completa seleccionable.</p>}
            <div className="mt-8 flex flex-wrap gap-3">
             <button type="button" disabled={!selectedUnit} onClick={addCurrentSelection} className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 px-5 text-sm font-semibold transition-colors hover:border-ink/60 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Añadir al presupuesto</button>
             <Link to="/presupuesto" className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 px-5 text-sm font-semibold transition-colors hover:border-ink/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Ver presupuesto</Link>
@@ -181,21 +191,35 @@ function ProductContent({ product }: { product: ProductDetail }) {
 export function ProductDetailPage() {
   const { slug = '' } = useParams();
   const [state, setState] = useState<DetailState>({ status: 'loading' });
+  const [config, setConfig] = useState<CatalogPublicConfig | null>(null);
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
+    let cancelled = false;
     setState({ status: 'loading' });
     getProductBySlug(slug, null, { signal: controller.signal })
-      .then((product) => setState({ status: 'success', product }))
+      .then((product) => {
+        if (cancelled) return;
+        setState({ status: 'success', product });
+        if (!isDuplachShowerTrayProduct(product)) return undefined;
+        return getCatalogConfig({ signal: controller.signal })
+          .then((nextConfig) => {
+            if (!cancelled) setConfig(nextConfig);
+          })
+          .catch(() => undefined);
+      })
       .catch((error) => {
-        if (error?.name === 'AbortError') return;
+        if (cancelled || error?.name === 'AbortError') return;
         if (error instanceof CatalogApiError && error.code === 'PRODUCT_NOT_FOUND') {
           setState({ status: 'not-found' });
           return;
         }
         setState({ status: 'error', message: error instanceof CatalogApiError ? error.message : 'No se pudo cargar el producto.' });
       });
-    return () => controller.abort();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
   }, [slug, retry]);
 
   useEffect(() => {
@@ -247,7 +271,7 @@ export function ProductDetailPage() {
         {state.status === 'loading' && <p role="status" aria-live="polite" className="mt-12">Cargando producto…</p>}
         {state.status === 'not-found' && <div role="status" className="mt-12"><h1 className="font-display text-4xl">Producto no encontrado</h1><p className="mt-3 text-graphite">No hemos encontrado una ficha pública para este slug.</p><Link to="/productos" className="mt-5 inline-block font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Volver al catálogo completo</Link></div>}
         {state.status === 'error' && <div className="mt-12"><ErrorState message={state.message} onRetry={() => setRetry((value) => value + 1)} /></div>}
-        {state.status === 'success' && <div className="mt-8"><ProductContent key={state.product.id} product={state.product} /></div>}
+        {state.status === 'success' && <div className="mt-8"><ProductContent key={state.product.id} product={state.product} assetBaseUrl={config?.asset_base_url} /></div>}
       </div>
     </main>
   );

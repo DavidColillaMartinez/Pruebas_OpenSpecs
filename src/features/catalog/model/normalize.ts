@@ -8,6 +8,7 @@ import type {
   CatalogSortValue,
   CommercialOffer,
   CommercialOfferVariant,
+  DuplachFinishFamily,
   ProductCard,
   ProductDetail,
   ProductImage,
@@ -208,6 +209,24 @@ function normalizeCommercialOffer(value: unknown, productName: string, assetBase
   };
 }
 
+export function parseDuplachFinishFamilies(value: unknown): DuplachFinishFamily[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const families = value.map((item): DuplachFinishFamily | null => {
+    const record = asRecord(item);
+    const key = asString(record.key);
+    const name = asString(record.name);
+    if (!key || !name) return null;
+    const finishCount = asNumber(record.finish_count);
+    return {
+      key,
+      name,
+      demoImages: asStringArray(record.demo_images),
+      ...(finishCount === undefined ? {} : { finishCount }),
+    };
+  }).filter((item): item is DuplachFinishFamily => item !== null);
+  return families.length > 0 ? families : undefined;
+}
+
 export function normalizeProductDetail(value: unknown, config?: CatalogPublicConfig | null): ProductDetail {
   const record = asRecord(value);
   const id = asString(record.id);
@@ -255,6 +274,7 @@ export function normalizeProductDetail(value: unknown, config?: CatalogPublicCon
     mainImageUrl: asString(record.main_image_url),
     mainImagePath: asString(record.main_image_path),
     modularity: asModularity(record.modularity),
+    finishFamilies: parseDuplachFinishFamilies(record.specs ? asRecord(record.specs).finish_families : undefined),
     variants: Array.isArray(record.variants)
       ? record.variants.map((item) => normalizeVariant(item, name, config?.asset_base_url)).filter((item): item is ProductVariant => item !== null)
       : [],
@@ -403,6 +423,21 @@ const facetAliases: Record<string, CatalogFacetKey> = {
   lighting_type: 'lighting_type',
   modularity: 'modularity',
   modularities: 'modularity',
+  models: 'model',
+  model: 'model',
+  textures: 'texture',
+  texture: 'texture',
+  colors: 'color',
+  color: 'color',
+  grilles: 'grille',
+  grille: 'grille',
+  valves: 'valve',
+  valve: 'valve',
+  orientations: 'orientation',
+  orientation: 'orientation',
+  finish_families: 'finish_family',
+  finishFamilies: 'finish_family',
+  finish_family: 'finish_family',
 };
 
 function normalizeFacetOption(value: unknown): CatalogFacetOption | null {

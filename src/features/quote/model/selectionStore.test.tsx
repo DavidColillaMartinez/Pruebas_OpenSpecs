@@ -106,3 +106,63 @@ describe('quote selection store', () => {
     expect(screen.getByTestId('count')).toHaveTextContent('0');
   });
 });
+
+const duplachLine = {
+  productId: 'duplach-stone-plus',
+  variantId: 'duplach-stone-plus--v00001',
+  quantity: 1,
+  productName: 'Stone Plus',
+  supplier: 'Duplach',
+  category: 'Platos de ducha',
+  imageUrl: 'https://assets.example/catalogo/images/duplach_platos/stone-plus/gallery-1.webp',
+  selectedAttributes: { measure: '70x70', texture: 'Liso', color: 'Antracita', grille: 'Acero inoxidable' },
+};
+const duplachOtherLine = { ...duplachLine, variantId: 'duplach-stone-plus--v00003', selectedAttributes: { ...duplachLine.selectedAttributes, texture: 'Pizarra', grille: 'Color' } };
+const duplachIncompleteLine = { ...duplachLine, variantId: undefined };
+
+function DuplachHarness({ incompleteRef }: { incompleteRef: { current: boolean | undefined } }) {
+  const selection = useQuoteSelection();
+  return <>
+    <button type="button" onClick={() => selection.addLine(duplachLine)}>Añadir Duplach</button>
+    <button type="button" onClick={() => selection.addLine(duplachOtherLine)}>Añadir otra variante</button>
+    <button type="button" onClick={() => { incompleteRef.current = selection.addLine(duplachIncompleteLine); }}>Añadir incompleta</button>
+    <output data-testid="duplach-count">{selection.count}</output>
+    <output data-testid="duplach-lines">{JSON.stringify(selection.lines)}</output>
+  </>;
+}
+
+describe('duplach budget selection', () => {
+  it('increments repeated variant quantities, keeps other variants independent and rejects incomplete lines', () => {
+    render(<QuoteSelectionProvider><DuplachHarness incompleteRef={{ current: undefined }} /></QuoteSelectionProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir Duplach' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir Duplach' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir otra variante' }));
+    expect(screen.getByTestId('duplach-count')).toHaveTextContent('2');
+    const lines = JSON.parse(screen.getByTestId('duplach-lines').textContent || '[]');
+    expect(lines[0]).toMatchObject({ productId: 'duplach-stone-plus', variantId: 'duplach-stone-plus--v00001', quantity: 2 });
+    expect(lines[1]).toMatchObject({ variantId: 'duplach-stone-plus--v00003', quantity: 1 });
+    expect(lines[0].selectedAttributes).toMatchObject({ texture: 'Liso', color: 'Antracita' });
+    expect(lines[0].reference).toBeUndefined();
+  });
+
+  it('rejects an incomplete duplach line without storing a product-only entry', () => {
+    const incompleteRef = { current: undefined as boolean | undefined };
+    render(<QuoteSelectionProvider><DuplachHarness incompleteRef={incompleteRef} /></QuoteSelectionProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir incompleta' }));
+    expect(incompleteRef.current).toBe(false);
+    expect(screen.getByTestId('duplach-count')).toHaveTextContent('0');
+  });
+
+  it('restores duplach lines with prices stripped from persisted storage', () => {
+    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify({
+      version: 2,
+      lines: [{ ...duplachLine, selectedAttributes: { ...duplachLine.selectedAttributes, price_eur: 120, coste: 40 }, variantSnapshot: { measure: '70x70', min_price: 9 } }],
+    }));
+    render(<QuoteSelectionProvider><DuplachHarness incompleteRef={{ current: undefined }} /></QuoteSelectionProvider>);
+    const lines = JSON.parse(screen.getByTestId('duplach-lines').textContent || '[]');
+    expect(lines[0].selectedAttributes).not.toHaveProperty('price_eur');
+    expect(lines[0].selectedAttributes).not.toHaveProperty('coste');
+    expect(lines[0].variantSnapshot).not.toHaveProperty('min_price');
+    expect(lines[0]).toMatchObject({ productId: 'duplach-stone-plus', variantId: 'duplach-stone-plus--v00001', quantity: 1 });
+  });
+});

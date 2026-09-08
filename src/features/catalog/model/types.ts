@@ -75,12 +75,20 @@ export type ProductDetail = {
   mainImageUrl?: string;
   mainImagePath?: string;
   modularity?: CatalogModularity;
+  finishFamilies?: DuplachFinishFamily[];
   variants: ProductVariant[];
   commercialOffers: CommercialOffer[];
   availableFinishes: string[];
   availableDistributions: string[];
   availableMeasures: string[];
   configurationFields: string[];
+};
+
+export type DuplachFinishFamily = {
+  key: string;
+  name: string;
+  demoImages: string[];
+  finishCount?: number;
 };
 
 export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' | 'images' | 'showPrice'> & {
@@ -120,6 +128,13 @@ export const CATALOG_FACET_KEYS = [
   'finish',
   'measure',
   'modularity',
+  'model',
+  'texture',
+  'color',
+  'grille',
+  'valve',
+  'orientation',
+  'finish_family',
 ] as const;
 
 export type CatalogFacetKey = typeof CATALOG_FACET_KEYS[number];

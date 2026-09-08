@@ -5,6 +5,7 @@ import alba from '../api/fixtures/product-detail.mt-espejos-alba.json';
 import royo from '../api/fixtures/product-detail.royo-alfa-compact-100.json';
 import { ProductDetailPage } from './ProductDetailPage';
 import { QuoteSelectionProvider, QUOTE_SELECTION_STORAGE_KEY } from '../../quote/model/selectionStore';
+import { duplachConfigFixture, duplachStonePlusFixture, duplachStone3dFixture } from '../api/fixtures/duplach-platos-contract';
 
 function renderDetail(slug = 'mt-espejos-alba') {
   return render(
@@ -336,5 +337,86 @@ describe('ProductDetailPage', () => {
     renderDetail(royo.slug);
     expect(await screen.findByRole('heading', { name: royo.name })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeDisabled();
+  });
+  describe('duplach shower trays', () => {
+    function stubDuplach(product: unknown) {
+      vi.stubGlobal('fetch', vi.fn().mockImplementation((input: unknown) => {
+        const url = String(input);
+        const body = url.includes('/config') ? duplachConfigFixture : product;
+        return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }));
+      }));
+    }
+
+    it('renders the official title, server-backed selector and keeps the API cover first on load', async () => {
+      stubDuplach(duplachStonePlusFixture());
+      renderDetail('duplach-stone-plus');
+
+      expect(await screen.findByRole('heading', { name: 'Stone Plus' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Configura tu plato de ducha' })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'Medida' })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'Textura' })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'Color' })).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'Rejilla' })).toBeInTheDocument();
+      expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-plus/cover.webp');
+      expect(screen.queryByText(/\d+[,.]?\d*\s*€/)).not.toBeInTheDocument();
+    });
+
+    it('promotes the API quick image on a manual change without dropping the gallery', async () => {
+      stubDuplach(duplachStonePlusFixture());
+      renderDetail('duplach-stone-plus');
+      await screen.findByRole('heading', { name: 'Stone Plus' });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Pizarra' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Color' }));
+
+      const main = screen.getByRole('img', { name: /imagen principal/ });
+      expect(main).toHaveAttribute('src', 'https://assets.example/catalogo/images/duplach_platos/stone-plus/gallery-2.webp');
+      const thumbnails = screen.getAllByRole('button', { name: /Ver imagen/ });
+      expect(thumbnails).toHaveLength(3);
+      expect(thumbnails.some((button) => button.querySelector('img')?.getAttribute('src') === 'https://assets.example/catalogo/images/duplach_platos/stone-plus/cover.webp')).toBe(true);
+    });
+
+    it('adds a real duplach variant to the shared budget without price fields and without navigating', async () => {
+      stubDuplach(duplachStonePlusFixture());
+      render(
+        <QuoteSelectionProvider>
+          <MemoryRouter initialEntries={['/productos/duplach-stone-plus']}>
+            <Routes><Route path="/productos/:slug" element={<ProductDetailPage />} /></Routes>
+          </MemoryRouter>
+        </QuoteSelectionProvider>,
+      );
+      await screen.findByRole('heading', { name: 'Stone Plus' });
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).not.toBeDisabled());
+
+      fireEvent.click(screen.getByRole('button', { name: 'Añadir al presupuesto' }));
+      expect(screen.getByRole('status')).toHaveTextContent('Añadido al presupuesto.');
+      expect(screen.getByRole('heading', { name: 'Stone Plus' })).toBeInTheDocument();
+
+      const stored = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || '{}');
+      const line = stored.lines[0];
+      expect(line).toMatchObject({
+        productId: 'duplach-stone-plus',
+        variantId: 'duplach-stone-plus--v00001',
+        quantity: 1,
+        productName: 'Stone Plus',
+        supplier: 'Duplach',
+        category: 'Platos de ducha',
+      });
+      expect(line.selectedAttributes).toMatchObject({ measure: '70x70', texture: 'Liso', color: 'Antracita', grille: 'Acero inoxidable' });
+      expect(JSON.stringify(line)).not.toMatch(/price|precio|coste|importe/i);
+      expect(line.reference).toBeUndefined();
+    });
+
+    it('keeps the Stone 3D budget action disabled until a family and a real finish are selected', async () => {
+      stubDuplach(duplachStone3dFixture());
+      renderDetail('duplach-stone-3d');
+      await screen.findByRole('heading', { name: 'Stone 3D' });
+
+      expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeDisabled();
+      fireEvent.click(screen.getByRole('button', { name: 'Maderas naturales' }));
+      expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeDisabled();
+      fireEvent.click(screen.getByRole('button', { name: 'Roble' }));
+      expect(screen.getByRole('button', { name: 'Añadir al presupuesto' })).toBeEnabled();
+    });
   });
 });

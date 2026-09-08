@@ -24,6 +24,13 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   finish: 'Acabado',
   measure: 'Medida',
   modularity: 'Modularidad',
+  model: 'Modelo',
+  texture: 'Textura',
+  color: 'Color',
+  grille: 'Rejilla',
+  valve: 'Válvula',
+  orientation: 'Orientación',
+  finish_family: 'Familia de acabado',
 };
 
 type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'> & {
