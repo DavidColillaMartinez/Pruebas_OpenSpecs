@@ -20,7 +20,7 @@ export function Contacto({ step, isActive }) {
           <div>
             <LogoMark className="mb-6 h-[7.5rem] w-[7.5rem]" minimal />
             <p className="font-display text-3xl leading-tight text-ink">AREA LRMQ Tienda</p>
-            <a href={GOOGLE_BUSINESS_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-ink/65 underline-offset-2 transition hover:text-ink hover:underline">Nuestra Ubicación</a>
+            <a href={GOOGLE_BUSINESS_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-ink/65 underline-offset-2 transition hover:text-ink hover:underline">Perfil de empresa google</a>
           </div>
           <ContactLinks minimal />
         </div>
