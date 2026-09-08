@@ -57,8 +57,16 @@ export function Opiniones({ step, isActive }) {
                 {googleReviews.map((review, reviewIndex) => (
                   <figure key={`${review.author}-${reviewIndex}`} className="w-full shrink-0" aria-hidden={reviewIndex !== index}>
                     <StarRow rating={review.rating} />
-                    <blockquote className="mx-auto mt-5 max-w-xl text-base leading-8 text-ink/78 sm:text-lg sm:leading-8">«{review.text}»</blockquote>
-                    <figcaption className="mt-5 text-sm font-semibold uppercase tracking-[0.16em] text-ink/55">{review.author}</figcaption>
+                    {review.text ? (
+                      <blockquote className="mx-auto mt-5 max-h-64 max-w-xl overflow-y-auto text-base leading-7 text-ink/78">«{review.text}»</blockquote>
+                    ) : (
+                      <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-ink/45">Reseña sin comentario de texto.</p>
+                    )}
+                    <figcaption className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+                      {review.image ? <img src={review.image} alt="" aria-hidden="true" loading="lazy" className="h-9 w-9 rounded-full border border-ink/10 object-cover" /> : null}
+                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-ink/55">{review.author}</span>
+                      {review.date ? <span className="text-xs uppercase tracking-[0.14em] text-ink/40">{review.date}</span> : null}
+                    </figcaption>
                     <a href={review.googleUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-xs font-semibold uppercase tracking-[0.16em] text-clay underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Ver en Google</a>
                   </figure>
                 ))}

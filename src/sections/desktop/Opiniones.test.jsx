@@ -75,6 +75,20 @@ describe('desktop Opiniones chapter', () => {
     expect(screen.getByRole('link', { name: 'Ver en Google' })).toHaveAttribute('href', 'https://maps.google.com/review-1');
   });
 
+  it('shows reviewer avatars, dates, and an honest note for reviews without text', () => {
+    reviews.push(
+      { ...REVIEW_ONE, date: 'Hace un mes', image: '/reviews/ana.jpg' },
+      { author: 'Laura', rating: 5, text: '', date: 'Hace 2 años', image: '/reviews/laura.jpg', googleUrl: 'https://maps.google.com/review-3' },
+    );
+    render(<Opiniones step={2} isActive />);
+    const region = screen.getByRole('region', { name: 'Reseñas de Google' });
+    const avatars = [...region.querySelectorAll('img')];
+    expect(avatars).toHaveLength(2);
+    expect(avatars[0]).toHaveAttribute('src', '/reviews/ana.jpg');
+    expect(screen.getByText('Hace un mes')).toBeInTheDocument();
+    expect(screen.getByText('Reseña sin comentario de texto.')).toBeInTheDocument();
+  });
+
   it('reveals the slogan only from the first cascade step', () => {
     render(<Opiniones step={0} isActive />);
     const heading = screen.getByRole('heading', { name: 'Juzga tú mismo.' });
