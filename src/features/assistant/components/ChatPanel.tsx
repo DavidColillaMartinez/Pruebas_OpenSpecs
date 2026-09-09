@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAssistantChat, INITIAL_ASSISTANT_MESSAGE } from '../model/assistantStore';
 import type { AssistantChatMessage } from '../model/assistantStore';
 import { AssistantProductCard } from './AssistantProductCard';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, [tabindex]:not([tabindex="-1"])';
+const CHAT_BOTTOM_THRESHOLD_PX = 96;
+const CHAT_INPUT_MAX_HEIGHT_PX = 132;
 
 type ChatPanelProps = {
   open: boolean;
@@ -22,8 +24,10 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const { status, demoMode, messages, sendMessage, startNewConversation } = useAssistantChat();
   const [draft, setDraft] = useState('');
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const messagesRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const shouldFollowLatestRef = useRef(true);
 
   const isSending = status === 'sending';
   const lastReply = lastAssistantMessage(messages);
@@ -34,8 +38,42 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     if (!open) return undefined;
     restoreFocusRef.current = (document.activeElement as HTMLElement) ?? null;
     inputRef.current?.focus();
+    shouldFollowLatestRef.current = true;
     return () => restoreFocusRef.current?.focus();
   }, [open]);
+
+  const scrollToLatest = () => {
+    const container = messagesRef.current;
+    if (!container) return;
+    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+    if (typeof container.scrollTo === 'function') {
+      container.scrollTo({ top: container.scrollHeight, behavior });
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
+  const handleMessagesScroll = () => {
+    const container = messagesRef.current;
+    if (!container) return;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    shouldFollowLatestRef.current = distanceFromBottom <= CHAT_BOTTOM_THRESHOLD_PX;
+  };
+
+  useEffect(() => {
+    if (!open || !shouldFollowLatestRef.current) return undefined;
+    const timeoutId = window.setTimeout(scrollToLatest, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [open, messages.length, isSending]);
+
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+    input.style.height = 'auto';
+    const nextHeight = Math.min(input.scrollHeight, CHAT_INPUT_MAX_HEIGHT_PX);
+    input.style.height = `${Math.max(nextHeight, 44)}px`;
+    input.style.overflowY = input.scrollHeight > CHAT_INPUT_MAX_HEIGHT_PX ? 'auto' : 'hidden';
+  }, [draft, open]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') {
@@ -71,10 +109,6 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   };
 
   const canSend = draft.trim().length > 0 && !isSending;
-
-  useEffect(() => {
-    if (messages.length === 1 && messages[0].id !== 'initial') return;
-  }, [messages]);
 
   if (!open) return null;
 
@@ -124,7 +158,11 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         </p>
       )}
 
-      <div className="assistant-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div
+        ref={messagesRef}
+        className="assistant-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4"
+        onScroll={handleMessagesScroll}
+      >
         <ul className="space-y-3">
           {messages.map((message) => (
             <li key={message.id} className={message.role === 'user' ? 'flex justify-end' : ''}>
@@ -182,7 +220,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       </div>
 
       <form
-        className="flex items-end gap-2 border-t border-ink/8 bg-white/70 px-4 py-3"
+        className="mx-3 mb-3 mt-2 flex items-end gap-2 rounded-[1.5rem] border border-ink/10 bg-white/85 p-1.5 shadow-soft"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -203,13 +241,13 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           rows={1}
           placeholder="Escribe tu mensaje…"
           disabled={isSending}
-          className="max-h-28 min-h-11 flex-1 resize-none rounded-2xl border border-ink/12 bg-white px-4 py-3 text-sm text-ink placeholder:text-ink/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60"
+          className="assistant-composer-input min-h-11 max-h-[8.25rem] flex-1 resize-none rounded-[1.25rem] border-0 bg-transparent px-3.5 py-2.5 text-sm leading-6 text-ink placeholder:text-ink/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={!canSend}
           aria-label="Enviar mensaje al asistente"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:-translate-y-0.5 hover:bg-graphite disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M4.5 12h13M12 5.5l6.5 6.5-6.5 6.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>

@@ -292,6 +292,14 @@
   scrollbar-width: thin;
 }
 
+.assistant-composer-input {
+  scrollbar-width: none;
+}
+
+.assistant-composer-input::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .assistant-panel-in,
   .assistant-launcher-ring {
