@@ -18,6 +18,7 @@ import { MobileOpiniones } from './sections/mobile/Opiniones';
 import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
+import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from './components/ScrollTopButton';
 import { QuoteSelectionProvider } from './features/quote/model/selectionStore';
 import { AssistantProvider } from './features/assistant/model/assistantStore';
 
@@ -125,6 +126,8 @@ export function LandingPage() {
 
   const currentSectionId = isDesktop ? activeSectionId : mobileActiveSection;
   const isInicio = currentSectionId === 'inicio';
+  const mobileScrollTopVisible = useScrollTopVisibility(!isDesktop);
+  const showScrollTop = isDesktop ? activeChapter > 0 : mobileScrollTopVisible;
 
   const chapters = [
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} onLogoDone={() => setChapterHold(sectionIds.indexOf('inicio'), false)} />,
@@ -141,6 +144,15 @@ export function LandingPage() {
       <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
       <BusinessJsonLd />
       <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id)) : undefined} isDesktop={isDesktop} isInicio={isInicio} />
+      {showScrollTop && (
+        <ScrollTopButton
+          show
+          onClick={() => {
+            if (isDesktop) navigateTo(sectionIds.indexOf('inicio'));
+            else scrollWindowToTop();
+          }}
+        />
+      )}
       {isDesktop ? (
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
           <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index)} />

@@ -4,6 +4,7 @@ import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
 import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
 import { CatalogSelectionSummary } from '../../quote/components/CatalogSelectionSummary';
+import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from '../../../components/ScrollTopButton';
 import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterProfile, getDisplayCatalogFilterKeys, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
@@ -50,6 +51,7 @@ export function CatalogPage() {
     ...Object.entries(data.facets).flatMap(([key, options]) => options.map((option) => [`${key}:${option.value}`, option.label])),
   ]);
   const showing = data.items.length;
+  const scrollTopVisible = useScrollTopVisibility(true);
   const isLoadingInitial = data.status === 'loading' && showing === 0;
   const totalLabel = data.total > 0
     ? `${data.total} productos disponibles`
@@ -164,6 +166,7 @@ export function CatalogPage() {
             <p className="mt-12 text-xs text-graphite/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
           </section>
           <CatalogSelectionSummary />
+          <ScrollTopButton show={scrollTopVisible} onClick={scrollWindowToTop} />
         </div>
       </div>
     </main>

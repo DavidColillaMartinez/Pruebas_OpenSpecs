@@ -21,6 +21,10 @@ function lastAssistantMessage(messages: AssistantChatMessage[]): AssistantChatMe
   return null;
 }
 
+function isCoarsePointer(): boolean {
+  return Boolean(window.matchMedia?.('(hover: none) and (pointer: coarse)').matches);
+}
+
 export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const { status, demoMode, messages, sendMessage, startNewConversation } = useAssistantChat();
   const [draft, setDraft] = useState('');
@@ -39,7 +43,11 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   useEffect(() => {
     if (!open) return undefined;
     restoreFocusRef.current = (document.activeElement as HTMLElement) ?? null;
-    inputRef.current?.focus();
+    if (isCoarsePointer()) {
+      dialogRef.current?.focus();
+    } else {
+      inputRef.current?.focus();
+    }
     shouldFollowLatestRef.current = true;
     return () => restoreFocusRef.current?.focus();
   }, [open]);

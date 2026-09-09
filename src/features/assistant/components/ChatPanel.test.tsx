@@ -111,6 +111,27 @@ describe('ChatPanel dialog accessibility', () => {
     unmount();
     expect(document.body.style.overflow).toBe('');
   });
+
+  it('focuses the dialog instead of the composer on touch devices', () => {
+    const matchMedia = vi.spyOn(window, 'matchMedia').mockImplementation((query) => ({
+      matches: query === '(hover: none) and (pointer: coarse)',
+      media: query,
+      onchange: null,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent() { return false; },
+    }));
+
+    try {
+      render(<ChatPanel open onClose={vi.fn()} />);
+      expect(screen.getByRole('dialog', { name: 'Asistente de Area LRMQ' })).toHaveFocus();
+      expect(screen.getByRole('textbox')).not.toHaveFocus();
+    } finally {
+      matchMedia.mockRestore();
+    }
+  });
 });
 
 describe('ChatPanel actions', () => {

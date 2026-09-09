@@ -29,6 +29,13 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background: transparent;
+  caret-color: transparent;
+}
+
+input,
+textarea,
+[contenteditable='true'] {
+  caret-color: auto;
 }
 
 body::before {
