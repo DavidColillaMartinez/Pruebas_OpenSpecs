@@ -5,7 +5,7 @@ import { markWelcomeDismissed, readWelcomeDismissed } from './chatWelcomeStorage
 const WELCOME_VISIBLE_DELAY_MS = 1200;
 const WELCOME_AUTO_HIDE_MS = 8000;
 
-export function ChatWelcomeBubble({ onOpen }: { onOpen: () => void }) {
+export function ChatWelcomeBubble({ onOpen, onPrepare }: { onOpen: () => void; onPrepare?: () => void }) {
   const [visible, setVisible] = useState(() => !readWelcomeDismissed());
   const [shown, setShown] = useState(false);
   const hideTimerRef = useRef<number | null>(null);
@@ -66,11 +66,12 @@ export function ChatWelcomeBubble({ onOpen }: { onOpen: () => void }) {
       <button
         type="button"
         onClick={openChat}
+        onPointerDown={onPrepare}
         aria-label="Abrir el chat con el asistente de Area LRMQ"
         className="flex min-w-0 flex-1 items-start gap-3 rounded-[1.2rem] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 motion-safe:transition motion-safe:duration-200 motion-safe:hover:bg-stonewash/60"
       >
         <span className="grid h-9 w-9 shrink-0 place-items-center sm:h-10 sm:w-10" aria-hidden="true">
-          <img src={LRMQ_ASSETS.logo} alt="" className="h-full w-full object-contain" loading="eager" />
+          <img src={LRMQ_ASSETS.logo} alt="" className="h-full w-full object-contain" loading="lazy" decoding="async" />
         </span>
         <span className="min-w-0">
           <span className="block text-sm font-semibold leading-snug text-ink">¿Te ayudo con tu reforma?</span>

@@ -1,10 +1,13 @@
-export function ChatLauncher({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+export function ChatLauncher({ open, onToggle, onPrepare }: { open: boolean; onToggle: () => void; onPrepare?: () => void }) {
   return (
     <button
       type="button"
       aria-label={open ? 'Cerrar el asistente' : 'Abrir el asistente de Area LRMQ'}
       aria-expanded={open}
       onClick={onToggle}
+      onPointerDown={onPrepare}
+      onPointerEnter={onPrepare}
+      onFocus={onPrepare}
       className="assistant-launcher-ring fixed bottom-6 right-5 z-[70] grid h-14 w-14 place-items-center rounded-full bg-ink text-white shadow-lift transition-transform duration-300 ease-out hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
     >
       {open ? (

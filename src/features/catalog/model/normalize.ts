@@ -505,14 +505,20 @@ export function normalizeProductList(value: unknown, config?: CatalogPublicConfi
     : [];
   const limit = asNonNegativeNumber(pagination.limit);
   const offset = asNonNegativeNumber(pagination.offset);
-  const total = asNonNegativeNumber(pagination.total);
+  const total = asNonNegativeNumber(pagination.total) ?? null;
+  const hasMore = typeof pagination.has_more === 'boolean'
+    ? pagination.has_more
+    : total !== null
+      ? (offset ?? 0) + items.length < total
+      : items.length >= (limit ?? items.length + 1);
 
   return {
     items,
     pagination: {
       limit: limit ?? items.length,
       offset: offset ?? 0,
-      total: total ?? items.length,
+      total,
+      has_more: hasMore,
     },
     facets: normalizeFacets(record.facets),
     sort: normalizeSort(record.sort),

@@ -206,9 +206,9 @@ describe('catalog api cache', () => {
     prefetchCatalogLocation('/productos/alfa', '');
     expect(fetchMock).not.toHaveBeenCalled();
     prefetchCatalogLocation('/productos', '?category=espejos&page=3');
-    await getProducts(catalogQueryToRequest(parseCatalogQuery('?category=espejos'), true));
+    await getProducts(catalogQueryToRequest(parseCatalogQuery('?category=espejos'), false));
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0][0])).toBe('/api/catalog/products?limit=24&offset=0&include_facets=1&category_id=espejos');
+    expect(String(fetchMock.mock.calls[0][0])).toBe('/api/catalog/products?limit=24&offset=0&include_facets=0&category_id=espejos');
   });
 
   it('prefetches fill the exact request paths the pages will use', async () => {
@@ -216,8 +216,8 @@ describe('catalog api cache', () => {
     vi.stubGlobal('fetch', listMock);
     prefetchCatalogFirstPage();
     await vi.waitFor(() => expect(listMock).toHaveBeenCalledTimes(1));
-    expect(String(listMock.mock.calls[0][0])).toBe('/api/catalog/products?limit=24&offset=0&include_facets=1');
-    await getProducts(catalogQueryToRequest(parseCatalogQuery(''), true));
+    expect(String(listMock.mock.calls[0][0])).toBe('/api/catalog/products?limit=24&offset=0&include_facets=0');
+    await getProducts(catalogQueryToRequest(parseCatalogQuery(''), false));
     expect(listMock).toHaveBeenCalledTimes(1);
 
     resetCatalogApiCacheForTests();

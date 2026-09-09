@@ -7,6 +7,7 @@ import type { CatalogFacetKey, CatalogFacets, CatalogSortMetadata, ProductCard }
 import {
   catalogQueryKey,
   catalogQueryToRequest,
+  CATALOG_PAGE_SIZE,
   getCatalogFilterKeys,
   getCatalogFilterProfile,
   parseCatalogQuery,
@@ -22,7 +23,8 @@ type DiscoveryStatus = 'loading' | 'success' | 'error';
 type DiscoveryData = {
   status: DiscoveryStatus;
   items: ProductCard[];
-  total: number;
+  total: number | null;
+  hasMore: boolean;
   facets: CatalogFacets;
   sort: CatalogSortMetadata;
   loadedPage: number;
@@ -35,7 +37,8 @@ type ItemCache = {
   key: string;
   items: Map<string, ProductCard>;
   pages: Set<number>;
-  total: number;
+  total: number | null;
+  hasMore: boolean;
   sort: CatalogSortMetadata;
   serverFacets: CatalogFacets;
 };
@@ -43,7 +46,8 @@ type ItemCache = {
 const emptyData: DiscoveryData = {
   status: 'loading',
   items: [],
-  total: 0,
+  total: null,
+  hasMore: false,
   facets: {},
   sort: { supported: [] },
   loadedPage: 0,
@@ -76,7 +80,7 @@ function hasFacets(facets: CatalogFacets): boolean {
 }
 
 function createItemCache(key: string): ItemCache {
-  return { key, items: new Map(), pages: new Set(), total: 0, sort: { supported: [] }, serverFacets: {} };
+  return { key, items: new Map(), pages: new Set(), total: null, hasMore: false, sort: { supported: [] }, serverFacets: {} };
 }
 
 function getLoadedPage(cache: ItemCache): number {
@@ -102,6 +106,7 @@ function toDiscoveryData(cache: ItemCache, query: CatalogQueryState): DiscoveryD
     status: 'success',
     items,
     total: cache.total,
+    hasMore: cache.hasMore,
     facets: getFacets(cache, query),
     sort: cache.sort,
     loadedPage: getLoadedPage(cache),
@@ -119,6 +124,7 @@ export function useCatalogDiscovery() {
   const [retry, setRetry] = useState(0);
   const [data, setData] = useState<DiscoveryData>(emptyData);
   const cacheRef = useRef<ItemCache>(createItemCache(queryKey));
+  const facetsRequestedRef = useRef<string | null>(null);
 
   useEffect(() => {
     setSearchInput(query.search);
@@ -158,11 +164,12 @@ export function useCatalogDiscovery() {
       try {
         for (const page of missingPages) {
           const pageQuery: CatalogQueryState = { ...currentQuery, page };
-          const response = await getProducts(catalogQueryToRequest(pageQuery, page === 1), null, { signal: controller.signal });
+          const response = await getProducts(catalogQueryToRequest(pageQuery, false), null, { signal: controller.signal });
           if (cancelled) return;
           response.items.forEach((item) => cache.items.set(item.id, item));
           cache.pages.add(page);
           cache.total = response.pagination.total;
+          cache.hasMore = response.pagination.has_more;
           if (response.sort.supported.length > 0 || response.sort.applied) cache.sort = response.sort;
           if (hasFacets(response.facets)) cache.serverFacets = response.facets;
           const items = sortItems([...cache.items.values()], cache.sort);
@@ -171,6 +178,7 @@ export function useCatalogDiscovery() {
             status: 'success',
             items,
             total: cache.total,
+            hasMore: cache.hasMore,
             facets,
             sort: cache.sort,
             loadedPage: getLoadedPage(cache),
@@ -197,6 +205,39 @@ export function useCatalogDiscovery() {
     };
   }, [queryKey, queryString, retry]);
 
+  useEffect(() => {
+    const cache = cacheRef.current;
+    if (data.status !== 'success' || cache.key !== queryKey || cache.items.size === 0) return undefined;
+    const facetsQuery = parseCatalogQuery(queryKey);
+    const facetsQueryKey = queryKey;
+    if (facetsRequestedRef.current === facetsQueryKey) return undefined;
+    facetsRequestedRef.current = facetsQueryKey;
+    const controller = new AbortController();
+    let cancelled = false;
+    const loadFacets = async () => {
+      try {
+        const response = await getProducts(catalogQueryToRequest(facetsQuery, true, 1), null, { signal: controller.signal });
+        if (cancelled) return;
+        if (response.pagination.total !== null) {
+          cache.total = response.pagination.total;
+          cache.hasMore = response.pagination.total > getLoadedPage(cache) * CATALOG_PAGE_SIZE;
+        } else {
+          cache.hasMore = response.pagination.has_more;
+        }
+        if (hasFacets(response.facets)) cache.serverFacets = response.facets;
+        if (response.sort.supported.length > 0 || response.sort.applied) cache.sort = response.sort;
+        setData(toDiscoveryData(cache, facetsQuery));
+      } catch {
+        // Facets are progressive enhancement; the already loaded product page remains usable.
+      }
+    };
+    void loadFacets();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [data.status, queryKey]);
+
   const updateQuery = (next: CatalogQueryState) => {
     setSearchParams(serializeCatalogQuery(next), { replace: false });
   };
@@ -218,7 +259,7 @@ export function useCatalogDiscovery() {
     updateQuery(withCatalogQueryChange(query, { search: '', filters: {} }));
   };
   const loadMore = () => {
-    if (!data.loadingMore && data.items.length < data.total) updateQuery({ ...query, page: query.page + 1 });
+    if (!data.loadingMore && data.hasMore) updateQuery({ ...query, page: query.page + 1 });
   };
 
   return {

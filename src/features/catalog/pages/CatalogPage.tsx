@@ -53,10 +53,10 @@ export function CatalogPage() {
   const showing = data.items.length;
   const scrollTopVisible = useScrollTopVisibility(true);
   const isLoadingInitial = data.status === 'loading' && showing === 0;
-  const totalLabel = data.total > 0
+  const totalLabel = data.total !== null
     ? `${data.total} productos disponibles`
     : data.status === 'success'
-      ? 'Sin productos disponibles'
+      ? `${showing} productos cargados · comprobando catálogo`
       : 'Consultando catálogo';
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export function CatalogPage() {
 
             <div className="mt-10 flex items-end justify-between gap-4">
               <h2 id="catalog-results-heading" className="font-display text-3xl">Resultados</h2>
-              <p className="text-sm text-graphite">{data.total > 0 ? `Mostrando ${showing} de ${data.total}` : ''}</p>
+              <p className="text-sm text-graphite">{data.total !== null ? `Mostrando ${showing} de ${data.total}` : showing > 0 ? `Mostrando ${showing} productos` : ''}</p>
             </div>
 
             <div className="sr-only" aria-live="polite" role="status">{data.status === 'success' ? `${showing} productos mostrados` : data.status === 'loading' ? 'Cargando productos' : ''}</div>
@@ -154,14 +154,14 @@ export function CatalogPage() {
                 <button type="button" onClick={retry} className="mt-3 font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Reintentar carga</button>
               </div>
             )}
-            {showing > 0 && showing < data.total && (
+            {showing > 0 && data.hasMore && (
               <div className="mt-10 flex justify-center">
                 <button type="button" onClick={loadMore} disabled={data.loadingMore} aria-controls="catalog-items" className="min-h-12 rounded-full border border-ink/30 bg-white px-6 text-sm font-semibold shadow-soft transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-white hover:shadow-lift disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
-                  {data.loadingMore ? 'Cargando…' : `Cargar más (${Math.max(0, data.total - showing)})`}
+                  {data.loadingMore ? 'Cargando…' : data.total !== null ? `Cargar más (${Math.max(0, data.total - showing)})` : 'Cargar más productos'}
                 </button>
               </div>
             )}
-            {showing > 0 && showing >= data.total && <p className="mt-10 text-center text-sm text-graphite">Has llegado al final del catálogo.</p>}
+            {showing > 0 && !data.hasMore && <p className="mt-10 text-center text-sm text-graphite">Has llegado al final del catálogo.</p>}
             {data.status === 'loading' && showing > 0 && <p className="mt-8 text-center text-sm text-graphite" role="status">Cargando más productos…</p>}
             <p className="mt-12 text-xs text-graphite/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
           </section>

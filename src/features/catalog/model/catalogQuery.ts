@@ -242,10 +242,10 @@ export function catalogQueryKey(query: CatalogQueryState): string {
   return serializeCatalogQuery(criteria).toString();
 }
 
-export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: boolean): CatalogRequestParams {
+export function catalogQueryToRequest(query: CatalogQueryState, includeFacets: boolean, limit = CATALOG_PAGE_SIZE): CatalogRequestParams {
   const filters = pruneCatalogFilters(query.filters);
   const params: CatalogRequestParams = {
-    limit: CATALOG_PAGE_SIZE,
+    limit,
     offset: (query.page - 1) * CATALOG_PAGE_SIZE,
     include_facets: includeFacets ? '1' : '0',
   };

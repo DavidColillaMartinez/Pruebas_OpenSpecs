@@ -33,7 +33,7 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('option', { name: /Más recientes/ })).toBeDisabled();
   });
 
-  it('derives initial filters from the first page without a second facet request', async () => {
+  it('renders the first page before the deferred facet request completes', async () => {
     const fetchMock = vi.fn().mockImplementation(() => {
       const payload = {
         items: [{ id: 'mirror-1', name: 'Espejo Alba', slug: 'mirror-1', category_id: 'mirrors', category_name: 'Espejos', images: [] }],
@@ -49,8 +49,11 @@ describe('CatalogPage', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: 'Categoría' }));
     expect(screen.getByRole('checkbox', { name: /Espejos/ })).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(String(fetchMock.mock.calls[0][0])).not.toContain('limit=60');
+    expect(String(fetchMock.mock.calls[0][0])).toContain('include_facets=0');
+    expect(String(fetchMock.mock.calls[1][0])).toContain('include_facets=1');
+    expect(String(fetchMock.mock.calls[1][0])).toContain('limit=1');
   });
 
   it('keeps the full filter taxonomy after applying a filter', async () => {

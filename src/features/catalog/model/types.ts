@@ -160,7 +160,7 @@ export type CatalogRequestParams = Record<string, CatalogQueryValue>;
 
 export type ProductListResponse = {
   items: ProductCard[];
-  pagination: { limit: number; offset: number; total: number };
+  pagination: { limit: number; offset: number; total: number | null; has_more: boolean };
   facets: CatalogFacets;
   sort: CatalogSortMetadata;
   discardedItemCount?: number;

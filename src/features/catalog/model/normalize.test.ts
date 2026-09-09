@@ -126,6 +126,18 @@ describe('product normalization', () => {
     expect(response.discardedItemCount).toBe(1);
   });
 
+  it('accepts the lightweight first-page contract without a global total', () => {
+    const response = normalizeProductList({
+      items: [{ id: 'p', name: 'Producto', slug: 'p', images: [] }],
+      pagination: { limit: 24, offset: 0, total: null, has_more: true },
+      facets: {},
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.pagination).toEqual({ limit: 24, offset: 0, total: null, has_more: true });
+    expect(response.facets).toEqual({});
+  });
+
   it('preserves Royo modularity, API covers and nested public configuration', () => {
     const product = normalizeProductDetail({
       id: 'royo-modular-logika',

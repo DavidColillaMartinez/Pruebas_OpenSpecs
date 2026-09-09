@@ -181,7 +181,7 @@ function listPath(params: CatalogRequestParams): string {
 }
 
 export function catalogFirstPagePath(): string {
-  return listPath(catalogQueryToRequest(parseCatalogQuery(''), true));
+  return listPath(catalogQueryToRequest(parseCatalogQuery(''), false));
 }
 
 export async function getProductBySlug(slug: string, config?: CatalogPublicConfig | null, options?: RequestOptions): Promise<ProductDetail> {
@@ -224,7 +224,7 @@ export function prefetchCatalogFirstPage(): void {
 export function prefetchCatalogLocation(pathname: string, search: string): void {
   if (pathname !== '/productos' && pathname !== '/productos/') return;
   const query = { ...parseCatalogQuery(search), page: 1 };
-  void warmCache(listPath(catalogQueryToRequest(query, true)));
+  void warmCache(listPath(catalogQueryToRequest(query, false)));
 }
 
 export async function createQuoteRequest(payload: QuoteRequestPayload, options?: RequestOptions): Promise<QuoteRequestCreated> {
