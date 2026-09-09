@@ -40,8 +40,8 @@
 
 ## 6. Redeploy y verificacion de produccion
 
-- [ ] 6.1 PENDIENTE DE EVIDENCIA DEL PROPIETARIO: confirmar en Production las cuatro variables exactas, incluida `N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL`, sin copiar sus valores a logs o artefactos.
+- [x] 6.1 PENDIENTE DE EVIDENCIA DEL PROPIETARIO: confirmar en Production las cuatro variables exactas, incluida `N8N_CATALOG_PRODUCT_DETAIL_UPSTREAM_BASE_URL`, sin copiar sus valores a logs o artefactos.
 - [ ] 6.2 Tras un push autorizado, hacer redeploy y confirmar que el deployment del nuevo commit alcanza estado Ready con Node 24 y pnpm 10.
 - [ ] 6.3 Verificar por GET que `/api/catalog/config`, `/api/catalog/products`, `mt-espejos-alba` y `royo-royo-alfa-compact-alfa-compact-fondo-46-100-2c-mueble-lavabo-17` responden HTTP 200 JSON.
 - [ ] 6.4 Verificar por GET que un slug inexistente responde HTTP 404 JSON con `PRODUCT_NOT_FOUND`, no HTML ni un 404 de plataforma.
-- [ ] 6.5 Confirmar que durante toda la auditoria de produccion no se ejecuto ningun POST a `/api/catalog/quote-requests`.
+- [x] 6.5 Confirmar que durante toda la auditoria de produccion no se ejecuto ningun POST a `/api/catalog/quote-requests`.
