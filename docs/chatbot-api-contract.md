@@ -57,7 +57,7 @@ Estado: propuesta V1 implementada en la interfaz/cliente. El backend de IA (n8n)
 }
 ```
 
-Producto: `productId`, `slug`, `name`, `internalPath` e `imageUrl` opcional; solo orígenes de imagen aprobados del catálogo (`assets.colilladavid.es`). La interfaz no muestra precios ni campos técnicos internos.
+Producto: `productId`, `slug`, `name`, `internalPath` e `imageUrl` opcional; solo orígenes de imagen aprobados del catálogo (`assets.colilladavid.es`). Cuando existe, `imageUrl` es la portada publicada del producto y se muestra como preview lazy en la tarjeta; si el asset falla o falta, la tarjeta conserva el enlace y muestra un fallback accesible. La interfaz no muestra precios ni campos técnicos internos.
 
 Acciones: `type` (`navigate_internal` | `contact_official`), `label`, `target`.
 

@@ -1,15 +1,33 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ChatRecommendedProduct } from '../transport/types';
 
-const productImage = 'aspect-square w-20 shrink-0 rounded-xl object-cover';
+const productImage = 'h-full w-full rounded-xl object-contain';
+const productImageFrame = 'grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-ink/8 bg-white/70';
 
 export function AssistantProductCard({ product }: { product: ChatRecommendedProduct }) {
   const label = product.name;
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUrl = product.imageUrl && !imageFailed ? product.imageUrl : undefined;
+
   return (
     <article className="mt-3 flex gap-3 rounded-2xl border border-ink/8 bg-white/78 p-3 shadow-soft">
-      {product.imageUrl && (
-        <img src={product.imageUrl} alt={label} loading="lazy" className={productImage} />
-      )}
+      <div className={productImageFrame} aria-busy={Boolean(imageUrl)}>
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={label}
+            loading="lazy"
+            decoding="async"
+            width={80}
+            height={80}
+            className={productImage}
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <span className="px-1 text-center text-[10px] leading-tight text-graphite" aria-label="Imagen no disponible">Imagen no disponible</span>
+        )}
+      </div>
       <div className="min-w-0">
         <Link to={product.internalPath.replace(/^\/+/, '/')} className="font-display text-lg font-medium text-ink underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
           {label}
