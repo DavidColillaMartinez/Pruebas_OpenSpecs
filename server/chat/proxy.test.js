@@ -1,6 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import chatHandler from '../../api/chat/messages.js';
-import { CHAT_UPSTREAM_AUTH_HEADER, handleChatRequest, sanitizeChatBody } from '../../server/chat/proxy.js';
+import {
+  CHAT_FIRST_REQUEST_TIMEOUT_MS,
+  CHAT_CONTINUED_REQUEST_TIMEOUT_MS,
+  CHAT_DEEP_CONVERSATION_TIMEOUT_MS,
+  CHAT_MAX_REQUEST_TIMEOUT_MS,
+  CHAT_UPSTREAM_AUTH_HEADER,
+  getChatUpstreamTimeoutMs,
+  handleChatRequest,
+  sanitizeChatBody,
+} from '../../server/chat/proxy.js';
 
 const RESOURCE_ENV = {
   CHAT_UPSTREAM_BASE_URL: 'https://chat.example/lrmq/chat',
@@ -56,6 +65,21 @@ describe('chat proxy sanitizer', () => {
 
   it('allows filters to be empty and product slug to be present', () => {
     expect(sanitizeChatBody({ ...VALID_BODY, conversationId: 'opaque-session-id', context: { pagePath: '/productos/mt-espejos-alba', productSlug: 'mt-espejos-alba', filters: {}, locale: 'es' } })).not.toBeNull();
+  });
+
+  it('accepts a bounded conversation turn and rejects unbounded timeout hints', () => {
+    expect(sanitizeChatBody({ ...VALID_BODY, conversationTurn: 4 })).not.toBeNull();
+    expect(sanitizeChatBody({ ...VALID_BODY, conversationTurn: -1 })).toBeNull();
+    expect(sanitizeChatBody({ ...VALID_BODY, conversationTurn: 21 })).toBeNull();
+    expect(sanitizeChatBody({ ...VALID_BODY, conversationTurn: '4' })).toBeNull();
+  });
+
+  it('uses a progressively larger but capped upstream timeout', () => {
+    expect(getChatUpstreamTimeoutMs({ ...VALID_BODY, conversationTurn: 0 })).toBe(CHAT_FIRST_REQUEST_TIMEOUT_MS);
+    expect(getChatUpstreamTimeoutMs({ ...VALID_BODY, conversationTurn: 1 })).toBe(CHAT_CONTINUED_REQUEST_TIMEOUT_MS);
+    expect(getChatUpstreamTimeoutMs({ ...VALID_BODY, conversationTurn: 2 })).toBe(CHAT_DEEP_CONVERSATION_TIMEOUT_MS);
+    expect(getChatUpstreamTimeoutMs({ ...VALID_BODY, conversationTurn: 20 })).toBe(CHAT_MAX_REQUEST_TIMEOUT_MS);
+    expect(getChatUpstreamTimeoutMs({ ...VALID_BODY, conversationId: 'opaque-session-id' })).toBe(CHAT_CONTINUED_REQUEST_TIMEOUT_MS);
   });
 });
 

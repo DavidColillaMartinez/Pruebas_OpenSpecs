@@ -64,7 +64,8 @@ describe('AssistantProvider state', () => {
   it.skip('sends to the HTTP adapter with contract payload and keeps conversation', async () => {
     const reply = { kind: 'success' as const, conversationId: 'opaque-session-id', message: 'He encontrado esto:', products: [], actions: [] };
     const sender = sendHttpChatMessage as unknown as ReturnType<typeof vi.fn>;
-    sender.mockImplementation(() => { console.log('SEND_TEST_CALL'); return Promise.resolve(reply as never); });
+    sender.mockClear();
+    sender.mockImplementation(() => Promise.resolve(reply as never));
     window.history.replaceState(null, '', '/productos?category=gme');
     
     render(<AssistantProvider><Probe /></AssistantProvider>);
@@ -73,6 +74,7 @@ describe('AssistantProvider state', () => {
     const payload = sender.mock.calls[0][0] as import('../transport/types').ChatMessagePayload;
     expect(payload.version).toBe(1);
     expect(payload.conversationId).toBeNull();
+    expect(payload.conversationTurn).toBe(0);
     expect(payload.message).toBe('Busco un mueble de baño de 80 cm');
     expect(payload.context.pagePath).toBe('/productos');
     expect(payload.context.productSlug).toBeNull();
@@ -81,6 +83,23 @@ describe('AssistantProvider state', () => {
 
     await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('opaque-session-id'));
     expect(screen.getByTestId('count').textContent).toBe('3');
+  });
+
+  it('raises the timeout turn after a failed first request so retry has more time', async () => {
+    const sender = sendHttpChatMessage as unknown as ReturnType<typeof vi.fn>;
+    sender.mockClear();
+    sender
+      .mockResolvedValueOnce({ kind: 'error' as const, code: 'CHAT_UNAVAILABLE', message: 'retry', retryable: true })
+      .mockResolvedValueOnce({ kind: 'success' as const, conversationId: 'retry-session', message: 'ok', products: [], actions: [] });
+
+    render(<AssistantProvider><Probe /></AssistantProvider>);
+    fireEvent.click(screen.getByText('send'));
+    await waitFor(() => expect(screen.getByTestId('status').textContent).toBe('unavailable'));
+    fireEvent.click(screen.getByText('send-2'));
+
+    expect(sender.mock.calls[0][0].conversationTurn).toBe(0);
+    expect(sender.mock.calls[1][0].conversationTurn).toBe(1);
+    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('retry-session'));
   });
 
   it('discards a late response after starting a new conversation', async () => {

@@ -1,5 +1,10 @@
 {
   "regions": ["cdg1"],
+  "functions": {
+    "api/chat/messages.js": {
+      "maxDuration": 35
+    }
+  },
   "rewrites": [
     { "source": "/presupuesto", "destination": "/index.html" },
     { "source": "/productos", "destination": "/index.html" },

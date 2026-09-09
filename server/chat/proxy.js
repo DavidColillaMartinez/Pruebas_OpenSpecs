@@ -1,11 +1,30 @@
 import { CATALOG_BODY_BYTE_LIMIT } from '../catalog/proxy.js';
 import { normalizeCatalogResponseStatus } from '../catalog/response.js';
 
-export const CHAT_UPSTREAM_TIMEOUT_MS = 10000;
+export const CHAT_FIRST_REQUEST_TIMEOUT_MS = 15000;
+export const CHAT_CONTINUED_REQUEST_TIMEOUT_MS = 19000;
+export const CHAT_DEEP_CONVERSATION_TIMEOUT_MS = 23000;
+export const CHAT_MAX_REQUEST_TIMEOUT_MS = 30000;
+export const CHAT_MAX_CONVERSATION_TURN = 20;
 export const CHAT_UPSTREAM_AUTH_HEADER = 'LRMQ_Chat_Inbound';
 
-export const CHAT_ALLOWED_BODY_KEYS = Object.freeze(['version', 'conversationId', 'requestId', 'message', 'context']);
+export const CHAT_ALLOWED_BODY_KEYS = Object.freeze(['version', 'conversationId', 'conversationTurn', 'requestId', 'message', 'context']);
 export const CHAT_ALLOWED_CONTEXT_KEYS = Object.freeze(['pagePath', 'productSlug', 'filters', 'locale']);
+
+export function getChatConversationTurn(body) {
+  if (Number.isInteger(body?.conversationTurn) && body.conversationTurn >= 0 && body.conversationTurn <= CHAT_MAX_CONVERSATION_TURN) {
+    return body.conversationTurn;
+  }
+  return body?.conversationId ? 1 : 0;
+}
+
+export function getChatUpstreamTimeoutMs(body) {
+  const turn = getChatConversationTurn(body);
+  if (turn <= 0) return CHAT_FIRST_REQUEST_TIMEOUT_MS;
+  if (turn === 1) return CHAT_CONTINUED_REQUEST_TIMEOUT_MS;
+  if (turn === 2) return CHAT_DEEP_CONVERSATION_TIMEOUT_MS;
+  return CHAT_MAX_REQUEST_TIMEOUT_MS;
+}
 
 function containsKey(record, allowedKeys, { allowEmpty = false } = {}) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) return false;
@@ -20,6 +39,7 @@ export function sanitizeChatBody(body) {
   if (body.version !== 1) return null;
   if (body.conversationId !== null && typeof body.conversationId !== 'string') return null;
   if (typeof body.conversationId !== 'string' && body.conversationId !== null) return null;
+  if (body.conversationTurn !== undefined && (!Number.isInteger(body.conversationTurn) || body.conversationTurn < 0 || body.conversationTurn > CHAT_MAX_CONVERSATION_TURN)) return null;
   if (typeof body.requestId !== 'string' || !/^[A-Za-z0-9._:-]{8,64}$/.test(body.requestId)) return null;
   if (typeof body.message !== 'string' || body.message.trim().length === 0 || body.message.length > 2000) return null;
   const context = body.context;
@@ -70,7 +90,7 @@ export async function handleChatRequest(request, response, runtimeEnv = process.
         [CHAT_UPSTREAM_AUTH_HEADER]: authValue,
       },
       body: JSON.stringify(sanitized),
-      signal: AbortSignal.timeout(CHAT_UPSTREAM_TIMEOUT_MS),
+      signal: AbortSignal.timeout(getChatUpstreamTimeoutMs(sanitized)),
     });
     const raw = await upstreamResponse.text();
     if (raw.length > CATALOG_BODY_BYTE_LIMIT) {

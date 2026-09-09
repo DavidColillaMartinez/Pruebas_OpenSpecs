@@ -8,6 +8,7 @@ export type ChatContext = {
 export type ChatMessagePayload = {
   version: 1;
   conversationId: string | null;
+  conversationTurn: number;
   requestId: string;
   message: string;
   context: ChatContext;
@@ -116,6 +117,7 @@ export function isChatMessagePayload(value: unknown): value is ChatMessagePayloa
   if (!isRecord(value)) return false;
   if (value.version !== 1) return false;
   if (value.conversationId !== null && !isPlainString(value.conversationId)) return false;
+  if (typeof value.conversationTurn !== 'number' || !Number.isInteger(value.conversationTurn) || value.conversationTurn < 0 || value.conversationTurn > 20) return false;
   if (!isPlainString(value.requestId)) return false;
   if (!isPlainString(value.message) || value.message.length > 2000) return false;
   return isValidChatContext(value.context);

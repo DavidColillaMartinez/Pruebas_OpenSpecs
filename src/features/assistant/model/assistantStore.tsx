@@ -12,6 +12,7 @@ import { buildChatContext } from './useChatContext';
 
 export const ASSISTANT_STORAGE_KEY = 'lrmq:assistant:chat:v1';
 const ASSISTANT_STORAGE_VERSION = 1;
+const MAX_CONVERSATION_TURN = 20;
 export const INITIAL_ASSISTANT_MESSAGE = 'Hola, soy el asistente virtual de Area LRMQ. Puedo orientarte sobre reformas y ayudarte a encontrar productos de nuestro catálogo. ¿Qué necesitas?';
 
 export type AssistantChatStatus = 'idle' | 'sending' | 'unavailable' | 'expired';
@@ -200,6 +201,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     const payload: ChatMessagePayload = {
       version: 1,
       conversationId: current.conversationId,
+      conversationTurn: Math.min(MAX_CONVERSATION_TURN, Math.max(current.conversationId ? 1 : 0, current.messages.filter((message) => message.role === 'user').length)),
       requestId,
       message: trimmed,
       context: buildChatContext(window.location.pathname, window.location.search),

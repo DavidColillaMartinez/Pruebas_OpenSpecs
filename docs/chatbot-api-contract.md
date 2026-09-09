@@ -15,6 +15,7 @@ Estado: propuesta V1 implementada en la interfaz/cliente. El backend de IA (n8n)
 {
   "version": 1,
   "conversationId": null,
+  "conversationTurn": 0,
   "requestId": "9f7d0d61-8a44-4bfa-b7e2-8ff3d20716a1",
   "message": "Busco un mueble de baño de 80 cm",
   "context": {
@@ -27,6 +28,7 @@ Estado: propuesta V1 implementada en la interfaz/cliente. El backend de IA (n8n)
 ```
 
 - `conversationId`: `null` en el primer mensaje de la conversación; en los siguientes, el identificador opaco devuelto por el servidor. El cliente no reenvía el historial: la memoria es del backend.
+- `conversationTurn`: contador acotado de mensajes enviados en esta conversación, empezando en `0`. Solo sirve para coordinar un margen de espera progresivo; el servidor lo valida y nunca permite solicitar tiempos ilimitados. Un cliente antiguo puede omitirlo y el servidor usará `0` o `1` según exista `conversationId`.
 - `requestId`: UUID generado en el navegador por mensaje; permite rastrear/descartar respuestas tardías (`REQUEST_IN_PROGRESS`).
 - `context`: solo ruta actual, slug del producto abierto (si existe), filtros ya activos del catálogo (leídos sin modificar su lógica) e idioma `es`. Nunca DOM, textos de página, precios, datos de formularios ni historial de navegación.
 
@@ -92,7 +94,8 @@ La interfaz nunca muestra cuerpos crudos ni detalles internos; solo el estado as
 
 ## Proxy del servidor (comportamiento del servidor propio)
 
-- Allowlist de claves: `version`, `conversationId`, `requestId`, `message`, `context` (con `pagePath`, `productSlug`, `filters`, `locale`). Cualquier otra clave → `INVALID_REQUEST`.
+- Allowlist de claves: `version`, `conversationId`, `conversationTurn`, `requestId`, `message`, `context` (con `pagePath`, `productSlug`, `filters`, `locale`). Cualquier otra clave → `INVALID_REQUEST`.
+- El tiempo de espera del upstream es adaptativo: `15 s` para el primer turno, `19 s` para el segundo, `23 s` para el tercero y `30 s` como máximo desde el cuarto. El navegador, el proxy y n8n aplican la misma escala con margen para transportar y validar la respuesta.
 - Límite de cuerpo: 64 KB; excedido → `413 PAYLOAD_TOO_LARGE` sin reenviar al upstream.
 - Sin `CHAT_UPSTREAM_BASE_URL` o `CHAT_UPSTREAM_AUTH_VALUE` configurada: `502` con `CHAT_UNAVAILABLE` (`retryable: false`) — la interfaz muestra "servicio no disponible" y el modo demostración no se activa nunca de forma automática.
 - El proxy no reintenta POST automáticos y no contiene secretos de IA.
