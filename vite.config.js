@@ -101,7 +101,7 @@ export default defineConfig(({ mode }) => {
               request.body = null;
             }
           }
-          await handleChatRequest(request, response);
+          await handleChatRequest(request, response, env);
           return;
         }
         next();

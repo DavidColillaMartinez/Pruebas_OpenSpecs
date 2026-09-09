@@ -35,7 +35,7 @@ export function sanitizeChatBody(body) {
   return body;
 }
 
-export async function handleChatRequest(request, response) {
+export async function handleChatRequest(request, response, runtimeEnv = process.env) {
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST');
     return response.status(405).json({ version: 1, requestId: 'server', error: { code: 'INVALID_REQUEST', message: 'Método no permitido.', retryable: false } });
@@ -50,7 +50,7 @@ export async function handleChatRequest(request, response) {
     });
   }
 
-  const base = process.env.CHAT_UPSTREAM_BASE_URL;
+  const base = runtimeEnv.CHAT_UPSTREAM_BASE_URL;
   if (!base) {
     return response.status(502).json({
       version: 1,

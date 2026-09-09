@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import chatHandler from '../../api/chat/messages.js';
-import { sanitizeChatBody } from '../../server/chat/proxy.js';
+import { handleChatRequest, sanitizeChatBody } from '../../server/chat/proxy.js';
 
 const RESOURCE_ENV = { CHAT_UPSTREAM_BASE_URL: 'https://chat.example/lrmq/chat' };
 
@@ -87,6 +87,19 @@ describe('chat server endpoint', () => {
     expect(String(fetchMock.mock.calls[0][0])).toBe(RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL);
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual(VALID_BODY);
     expect(JSON.parse(String(response.result.body))).toEqual(upstreamReply);
+  });
+
+  it('accepts env loaded from .env.local by the Vite dev proxy', async () => {
+    delete process.env.CHAT_UPSTREAM_BASE_URL;
+    const upstreamReply = { version: 1, conversationId: null, requestId: VALID_BODY.requestId, message: 'Hola', products: [], actions: [] };
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(upstreamReply), { status: 200, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await handleChatRequest({ method: 'POST', body: VALID_BODY }, response, RESOURCE_ENV);
+
+    expect(response.result.statusCode).toBe(200);
+    expect(String(fetchMock.mock.calls[0][0])).toBe(RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL);
   });
 
   it('maps upstream timeouts to retryable CHAT_UNAVAILABLE without leaking internals', async () => {
