@@ -101,7 +101,7 @@ export function assistantReducer(state: AssistantState, action: AssistantAction)
     case 'restore':
       return { ...action.state, status: 'idle' };
     case 'start':
-      if (state.status !== 'idle' && state.status !== 'expired') return state;
+      if (state.status !== 'idle' && state.status !== 'expired' && state.status !== 'unavailable') return state;
       return {
         ...state,
         status: 'sending',

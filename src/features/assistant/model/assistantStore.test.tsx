@@ -173,3 +173,19 @@ describe('assistantReducer (envíos duplicados)', () => {
     expect(ignored.messages.filter((message) => message.id === 'pending-user')).toHaveLength(1);
   });
 });
+
+describe('assistantReducer (reintento)', () => {
+  it('relanza el mensaje desde el estado unavailable', () => {
+    const failed = assistantReducer(
+      { version: 1, conversationId: null, messages: createInitialMessages(), status: 'idle' },
+      { type: 'start', text: 'Busco un mueble' },
+    );
+    const errored = assistantReducer(failed, { type: 'fail', requestId: 'a', code: 'CHAT_UNAVAILABLE' });
+    expect(errored.status).toBe('unavailable');
+
+    const retried = assistantReducer(errored, { type: 'start', text: 'Busco un mueble' });
+    expect(retried.status).toBe('sending');
+    expect(retried.messages.at(-1)).toMatchObject({ id: 'pending-user', text: 'Busco un mueble' });
+    expect(retried.messages.some((message) => message.role === 'user')).toBe(true);
+  });
+});

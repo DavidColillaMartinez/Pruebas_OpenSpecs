@@ -27,7 +27,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 
   const isSending = status === 'sending';
   const lastReply = lastAssistantMessage(messages);
-  const hasInlineError = Boolean(lastReply?.errorKind && lastReply.errorKind !== 'SESSION_EXPIRED');
+
   const expired = lastReply?.errorKind === 'SESSION_EXPIRED' || status === 'expired';
 
   useEffect(() => {
@@ -139,9 +139,27 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                     </div>
                   </div>
                 ) : (
-                  <p className={`${message.errorKind ? 'rounded-2xl rounded-tl-md border border-clay/40 bg-clay/10 px-4 py-3' : 'rounded-2xl rounded-tl-md bg-white/85 px-4 py-3 shadow-soft'} max-w-[92%] text-sm leading-relaxed text-ink`}>
-                    {message.text}
-                  </p>
+                  message.errorKind ? (
+                    <div className="max-w-[92%] rounded-2xl rounded-tl-md border border-clay/40 bg-clay/10 px-4 py-3">
+                      <p className="text-sm leading-relaxed text-ink">{message.text}</p>
+                      {message.errorKind !== 'SESSION_EXPIRED' && (
+                        <button
+                          type="button"
+                          onClick={retry}
+                          disabled={isSending}
+                          aria-label="Reintentar el último mensaje"
+                          className="mt-2.5 inline-flex min-h-9 items-center gap-2 rounded-full bg-clay/20 px-4 py-1.5 text-xs font-semibold text-ink transition hover:-translate-y-0.5 hover:bg-clay/30 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+                        >
+                          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 12a8 8 0 1 1 2.3 5.6M4 12V7m0 5h5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          Reintentar
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="rounded-2xl rounded-tl-md bg-white/85 px-4 py-3 shadow-soft max-w-[92%] text-sm leading-relaxed text-ink">
+                      {message.text}
+                    </p>
+                  )
                 )
               ) : (
                 <p className="max-w-[92%] rounded-2xl rounded-tr-md bg-ink px-4 py-3 text-sm leading-relaxed text-white">
@@ -162,23 +180,6 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           )}
         </ul>
       </div>
-
-      {(hasInlineError || expired) && (
-        <div className="flex items-center justify-between gap-2 border-t border-ink/8 bg-stonewash px-4 py-2.5">
-          <p className="text-xs text-graphite">
-            {expired ? 'Escribe de nuevo para abrir una conversación nueva.' : 'No se ha podido completar.'}
-          </p>
-          {hasInlineError && (
-            <button
-              type="button"
-              onClick={retry}
-              className="rounded-full border border-ink/20 px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
-            >
-              Reintentar
-            </button>
-          )}
-        </div>
-      )}
 
       <form
         className="flex items-end gap-2 border-t border-ink/8 bg-white/70 px-4 py-3"
