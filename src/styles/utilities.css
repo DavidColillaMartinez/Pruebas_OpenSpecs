@@ -281,15 +281,33 @@
 
 .assistant-panel-in {
   animation: assistant-pop-in 260ms cubic-bezier(0.22, 1, 0.36, 1) 1;
+  bottom: max(6rem, calc(env(safe-area-inset-bottom) + 4.5rem));
 }
 
 .assistant-launcher-ring {
   animation: assistant-launcher-ring 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
 }
 
 .assistant-scroll {
   overscroll-behavior: contain;
   scrollbar-width: thin;
+  scrollbar-color: rgba(21, 21, 21, 0.22) transparent;
+}
+
+.assistant-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.assistant-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(21, 21, 21, 0.22);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.assistant-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .assistant-composer-input {

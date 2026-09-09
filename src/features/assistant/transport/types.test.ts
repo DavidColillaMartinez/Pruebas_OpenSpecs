@@ -35,3 +35,27 @@ describe('parseChatResponse product previews', () => {
     expect(parsed.products).toHaveLength(0);
   });
 });
+
+describe('parseChatResponse actions', () => {
+  it('keeps official contact actions with a known target', () => {
+    const parsed = parseChatResponse({ ...response, actions: [{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' }] });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions).toEqual([{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' }]);
+  });
+
+  it('drops actions whose target is not an approved official channel or internal path', () => {
+    const parsed = parseChatResponse({
+      ...response,
+      actions: [
+        { type: 'contact_official', label: 'Falso', target: 'https://evil.example' },
+        { type: 'navigate_internal', label: 'Externo', target: 'https://evil.example/productos' },
+      ],
+    });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions).toHaveLength(0);
+  });
+});

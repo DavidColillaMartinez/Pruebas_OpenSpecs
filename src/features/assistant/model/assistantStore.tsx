@@ -4,6 +4,8 @@ import { sendHttpChatMessage } from '../transport/httpAdapter';
 import { sendDemoChatMessage, isDemoModeEnabled } from '../transport/demoAdapter';
 import {
   DEFAULT_CHAT_ERROR_TEXT,
+  isChatAction,
+  type ChatAction,
   type ChatErrorKind,
   type ChatMessagePayload,
   type ChatRecommendedProduct,
@@ -22,6 +24,7 @@ export type AssistantChatMessage = {
   role: 'assistant' | 'user';
   text: string;
   products?: ChatRecommendedProduct[];
+  actions?: ChatAction[];
   errorKind?: ChatErrorKind;
 };
 
@@ -38,7 +41,7 @@ type AssistantState = SerializableState & {
 type AssistantAction =
   | { type: 'restore'; state: SerializableState }
   | { type: 'start'; text: string }
-  | { type: 'respond'; requestId: string; conversationId: string; message: string; products?: ChatRecommendedProduct[] }
+  | { type: 'respond'; requestId: string; conversationId: string; message: string; products?: ChatRecommendedProduct[]; actions?: ChatAction[] }
   | { type: 'fail'; requestId: string; code: ChatErrorKind }
   | { type: 'new_conversation' };
 
@@ -88,6 +91,7 @@ function readStoredState(): SerializableState | null {
       role: message.role,
       text: message.text,
       ...(message.products ? { products: message.products } : {}),
+      ...(Array.isArray(message.actions) ? { actions: message.actions.filter(isChatAction) } : {}),
     }));
     if (!messages.length || messages[0].role !== 'assistant') return null;
     if (messages.length === 1 && messages[0].text !== INITIAL_ASSISTANT_MESSAGE) return null;
@@ -114,7 +118,7 @@ export function assistantReducer(state: AssistantState, action: AssistantAction)
         ...state,
         status: 'idle',
         conversationId: action.conversationId,
-        messages: [...settlePending(state.messages), { id: nextMessageId(), role: 'assistant', text: action.message, ...(action.products ? { products: action.products } : {}) }],
+        messages: [...settlePending(state.messages), { id: nextMessageId(), role: 'assistant', text: action.message, ...(action.products ? { products: action.products } : {}), ...(action.actions?.length ? { actions: action.actions } : {}) }],
       };
     case 'fail': {
       if (state.status !== 'sending') return state;
@@ -224,6 +228,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
           conversationId: result.conversationId,
           message: result.message,
           products: result.products.length ? result.products : undefined,
+          actions: result.actions.length ? result.actions : undefined,
         });
       } else if (result.kind === 'error') {
         dispatch({ type: 'fail', requestId, code: result.code });

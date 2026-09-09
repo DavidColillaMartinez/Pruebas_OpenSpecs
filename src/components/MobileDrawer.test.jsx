@@ -21,4 +21,20 @@ describe('MobileDrawer', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Tienda' }));
     expect(onClose).toHaveBeenCalledOnce();
   });
+
+  it('moves focus into the drawer on open and wraps Tab back to the first control', () => {
+    render(
+      <MemoryRouter>
+        <MobileDrawer activeSectionId="inicio" onNavigate={vi.fn()} onClose={vi.fn()} />
+      </MemoryRouter>,
+    );
+
+    const closeButton = screen.getByRole('button', { name: 'Cerrar menú' });
+    expect(closeButton).toHaveFocus();
+
+    const lastLink = screen.getByRole('link', { name: 'Pedir asesoría' });
+    lastLink.focus();
+    fireEvent.keyDown(lastLink, { key: 'Tab' });
+    expect(closeButton).toHaveFocus();
+  });
 });

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAssistantChat, INITIAL_ASSISTANT_MESSAGE } from '../model/assistantStore';
 import type { AssistantChatMessage } from '../model/assistantStore';
 import { AssistantProductCard } from './AssistantProductCard';
+import { AssistantActions } from './AssistantActions';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, [tabindex]:not([tabindex="-1"])';
 const CHAT_BOTTOM_THRESHOLD_PX = 96;
@@ -28,6 +29,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const shouldFollowLatestRef = useRef(true);
+  const forceFollowRef = useRef(false);
 
   const isSending = status === 'sending';
   const lastReply = lastAssistantMessage(messages);
@@ -40,6 +42,15 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     inputRef.current?.focus();
     shouldFollowLatestRef.current = true;
     return () => restoreFocusRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open]);
 
   const scrollToLatest = () => {
@@ -61,7 +72,9 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   };
 
   useEffect(() => {
-    if (!open || !shouldFollowLatestRef.current) return undefined;
+    if (!open) return undefined;
+    if (!shouldFollowLatestRef.current && !forceFollowRef.current) return undefined;
+    forceFollowRef.current = false;
     const timeoutId = window.setTimeout(scrollToLatest, 0);
     return () => window.clearTimeout(timeoutId);
   }, [open, messages.length, isSending]);
@@ -104,6 +117,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const submit = () => {
     const text = draft.trim();
     if (!text || isSending) return;
+    forceFollowRef.current = true;
     sendMessage(text);
     setDraft('');
   };
@@ -116,16 +130,16 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     <div
       ref={dialogRef}
       role="dialog"
+      aria-modal="true"
       aria-label="Asistente de Area LRMQ"
       tabIndex={-1}
       onKeyDown={handleKeyDown}
       onWheel={(event) => event.stopPropagation()}
       onTouchMove={(event) => event.stopPropagation()}
-      className="assistant-panel-in fixed bottom-24 right-5 z-[70] flex max-h-[min(34rem,calc(100svh-8rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-[1.75rem] border border-ink/10 bg-porcelain/95 shadow-lift backdrop-blur"
-      style={{ maxHeight: 'calc(100dvh - 11rem)' }}
+      className="assistant-panel-in fixed bottom-24 right-4 z-[70] flex max-h-[min(38rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.75rem] border border-ink/10 bg-porcelain/95 shadow-lift backdrop-blur md:right-5"
     >
-      <header className="flex items-start justify-between border-b border-ink/8 px-5 py-4">
-        <div>
+      <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-b border-ink/8 px-4 py-3.5 md:px-5 md:py-4">
+        <div className="min-w-0">
           <h2 className="font-display text-lg leading-tight text-ink">Asistente de Area LRMQ</h2>
           <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-ink/55">Reformas · Tienda</p>
         </div>
@@ -133,7 +147,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           <button
             type="button"
             onClick={startNewConversation}
-            className="rounded-full px-3 py-2 text-xs font-semibold text-ink/70 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+            className="min-h-11 whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold text-ink/70 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
           >
             Nueva conversación
           </button>
@@ -141,7 +155,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             type="button"
             aria-label="Cerrar el asistente"
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-full text-ink/70 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+            className="grid h-11 w-11 place-items-center rounded-full text-ink/70 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" /></svg>
           </button>
@@ -175,6 +189,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                         <AssistantProductCard key={`${message.id}-${product.internalPath}`} product={product} />
                       ))}
                     </div>
+                    <AssistantActions actions={message.actions ?? []} />
                   </div>
                 ) : (
                   message.errorKind ? (
@@ -194,9 +209,12 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                       )}
                     </div>
                   ) : (
-                    <p className="rounded-2xl rounded-tl-md bg-white/85 px-4 py-3 shadow-soft max-w-[92%] text-sm leading-relaxed text-ink">
-                      {message.text}
-                    </p>
+                    <div className="max-w-[92%]">
+                      <p className="rounded-2xl rounded-tl-md bg-white/85 px-4 py-3 shadow-soft text-sm leading-relaxed text-ink">
+                        {message.text}
+                      </p>
+                      <AssistantActions actions={message.actions ?? []} />
+                    </div>
                   )
                 )
               ) : (
@@ -247,7 +265,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           type="submit"
           disabled={!canSend}
           aria-label="Enviar mensaje al asistente"
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:-translate-y-0.5 hover:bg-graphite disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-white transition hover:-translate-y-0.5 hover:bg-graphite disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M4.5 12h13M12 5.5l6.5 6.5-6.5 6.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>

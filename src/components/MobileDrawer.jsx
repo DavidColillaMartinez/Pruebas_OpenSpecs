@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { navItems } from '../data/copy';
 import { PHONE_INTL } from '../data/business';
 import { Link } from 'react-router-dom';
@@ -8,13 +9,41 @@ export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
     { label: 'Inicio', href: '#inicio' },
     ...navItems,
   ];
+  const panelRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const restoreFocusRef = useRef(null);
+
+  useEffect(() => {
+    restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButtonRef.current?.focus();
+    const onKeyDown = (event) => {
+      if (event.key !== 'Tab' || !panelRef.current) return;
+      const focusable = [...panelRef.current.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')].filter((element) => !element.hasAttribute('disabled'));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      restoreFocusRef.current?.focus();
+    };
+  }, []);
+
   return (
     <>
       <div className="fixed inset-0 z-40 bg-ink/20" onClick={onClose} aria-hidden="true" />
-      <div className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-ink/8 bg-white p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+      <div ref={panelRef} className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-ink/8 bg-white p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
         <div className="flex items-center justify-between">
           <span className="font-display text-lg tracking-[0.08em] text-ink">AREA LRMQ</span>
-          <button type="button" onClick={onClose} className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-ink/8 text-ink/70 transition hover:bg-ink/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label="Cerrar menú">
+          <button ref={closeButtonRef} type="button" onClick={onClose} className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-ink/8 text-ink/70 transition hover:bg-ink/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label="Cerrar menú">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </button>
         </div>

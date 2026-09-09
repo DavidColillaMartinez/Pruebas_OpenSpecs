@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChatPanel } from './ChatPanel';
 import { useAssistantChat } from '../model/assistantStore';
@@ -98,5 +99,47 @@ describe('ChatPanel composer', () => {
 
     expect(chat.sendMessage).toHaveBeenCalledWith('Hola Area LRMQ');
     expect(input).toHaveValue('');
+  });
+});
+
+describe('ChatPanel dialog accessibility', () => {
+  it('marks the panel as a modal dialog and locks the body scroll while open', () => {
+    const { unmount } = render(<ChatPanel open onClose={vi.fn()} />);
+    expect(screen.getByRole('dialog', { name: 'Asistente de Area LRMQ' })).toHaveAttribute('aria-modal', 'true');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    unmount();
+    expect(document.body.style.overflow).toBe('');
+  });
+});
+
+describe('ChatPanel actions', () => {
+  it('renders official contact actions from an assistant message', () => {
+    const message: AssistantChatMessage = {
+      id: 'assistant-actions',
+      role: 'assistant',
+      text: 'Puedes contactar por estos canales:',
+      actions: [{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' }],
+    };
+    mockedUseAssistantChat.mockReturnValue(chatValue([initialMessage, message]));
+
+    render(<MemoryRouter><ChatPanel open onClose={vi.fn()} /></MemoryRouter>);
+
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', expect.stringContaining('https://wa.me/'));
+  });
+
+  it('renders internal navigation actions without dropping them', () => {
+    const message: AssistantChatMessage = {
+      id: 'assistant-nav',
+      role: 'assistant',
+      text: 'Mira nuestra tienda:',
+      actions: [{ type: 'navigate_internal', label: 'Ver catálogo', target: '/productos' }],
+    };
+    mockedUseAssistantChat.mockReturnValue(chatValue([initialMessage, message]));
+
+    render(<MemoryRouter><ChatPanel open onClose={vi.fn()} /></MemoryRouter>);
+
+    expect(screen.getByRole('link', { name: 'Ver catálogo' })).toHaveAttribute('href', '/productos');
   });
 });

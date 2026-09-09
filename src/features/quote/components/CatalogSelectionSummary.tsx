@@ -127,7 +127,7 @@ export function CatalogSelectionSummary() {
         </div>
       </aside>
       <div className="xl:hidden">
-        <button type="button" onClick={() => setMobileOpen(true)} aria-label={`Mis selecciones, ${count}`} aria-expanded={mobileOpen} aria-controls="catalog-selection-drawer" className="fixed inset-x-4 bottom-4 z-40 flex min-h-12 items-center justify-between rounded-full border border-ink/20 bg-porcelain px-5 text-sm font-semibold text-ink shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+        <button type="button" onClick={() => setMobileOpen(true)} aria-label={`Mis selecciones, ${count}`} aria-expanded={mobileOpen} aria-controls="catalog-selection-drawer" className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-24 z-40 flex min-h-12 items-center justify-between rounded-full border border-ink/20 bg-porcelain px-5 text-sm font-semibold text-ink shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
           <span>Mis selecciones</span>
           <span aria-live="polite">{count}</span>
         </button>

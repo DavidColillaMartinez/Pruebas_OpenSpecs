@@ -139,6 +139,29 @@ describe('AssistantProvider state', () => {
     await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('no-ls'));
     expect(window.localStorage.getItem(ASSISTANT_STORAGE_KEY)).toBeNull();
   });
+
+  it('persists validated official actions and restores them on reload', async () => {
+    (sendHttpChatMessage as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      kind: 'success' as const,
+      conversationId: 'actions-1',
+      message: 'Contacta por WhatsApp:',
+      products: [],
+      actions: [{ type: 'contact_official' as const, label: 'WhatsApp', target: 'whatsapp' }],
+    });
+
+    const { unmount } = render(<AssistantProvider><Probe /></AssistantProvider>);
+    fireEvent.click(screen.getByText('send'));
+    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('actions-1'));
+
+    const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}') as { messages: Array<{ actions?: unknown[] }> };
+    const storedActions = parsed.messages.at(-1)?.actions;
+    expect(storedActions).toHaveLength(1);
+    expect(storedActions?.[0]).toEqual({ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' });
+
+    unmount();
+    render(<AssistantProvider><Probe /></AssistantProvider>);
+    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('actions-1'));
+  });
 });
 
 describe('assistantReducer', () => {
