@@ -262,4 +262,34 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(response.result.statusCode).toBe(502);
   });
+
+  it.each([
+    ['public, max-age=60', 200, 'public, max-age=60'],
+    ['public, max-age=30', 200, 'public, max-age=30'],
+    ['public, max-age=600', 200, 'public, max-age=60'],
+    ['private, max-age=60', 200, undefined],
+    ['public, no-store, max-age=60', 200, undefined],
+    ['public, max-age=60', 503, 'no-store'],
+  ])('caches only explicitly public successful reads: %s / %s', async (policy, status, expected) => {
+    Object.assign(process.env, RESOURCE_ENV);
+    vi.spyOn(console, 'info').mockImplementation(() => {});
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{"items":[]}', {
+      status, headers: { 'content-type': 'application/json', 'cache-control': policy },
+    })));
+    const response = createResponse();
+    await productsHandler({ method: 'GET', query: {} }, response);
+    expect(response.result.headers['Vercel-CDN-Cache-Control']).toBe(expected);
+  });
+
+  it('does not cache quote responses even if upstream sends a public policy', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    vi.spyOn(console, 'info').mockImplementation(() => {});
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{"id":"test-only"}', {
+      status: 201, headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=60' },
+    })));
+    const response = createResponse();
+    await quoteRequestsHandler({ method: 'POST', query: {}, body: {} }, response);
+    expect(response.result.headers['cache-control']).toBe('no-store');
+    expect(response.result.headers['Vercel-CDN-Cache-Control']).toBe('no-store');
+  });
 });

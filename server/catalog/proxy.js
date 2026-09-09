@@ -192,12 +192,26 @@ export async function handleCatalogRequest(request, response, route) {
     });
     const contentType = upstreamResponse.headers.get('content-type');
     const cacheControl = upstreamResponse.headers.get('cache-control');
+    const status = normalizeCatalogResponseStatus(upstreamResponse.status, body);
 
     if (contentType) response.setHeader('content-type', contentType);
-    if (cacheControl) response.setHeader('cache-control', cacheControl);
+    if (method === 'GET' && status === 200) {
+      if (cacheControl) response.setHeader('cache-control', cacheControl);
+      // Only explicitly public JSON reads are eligible. Never extend the origin's freshness lifetime.
+      const maxAge = cacheControl?.match(/(?:^|,)\s*max-age=(\d+)\s*(?:,|$)/i)?.[1];
+      if (contentType?.includes('application/json') && /(?:^|,)\s*public\s*(?:,|$)/i.test(cacheControl ?? '')
+        && !/(?:private|no-store|no-cache)/i.test(cacheControl ?? '') && Number(maxAge) > 0) {
+        response.setHeader('Vercel-CDN-Cache-Control', `public, max-age=${Math.min(Number(maxAge), 60)}`);
+      }
+    } else {
+      response.setHeader('cache-control', 'no-store');
+      response.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+    }
 
-    return response.status(normalizeCatalogResponseStatus(upstreamResponse.status, body)).send(body);
+    return response.status(status).send(body);
   } catch (error) {
+    response.setHeader('cache-control', 'no-store');
+    response.setHeader('Vercel-CDN-Cache-Control', 'no-store');
     const isTimeout = error?.name === 'TimeoutError' || error?.name === 'AbortError';
     return response.status(502).json({
       error: isTimeout ? 'CATALOG_UPSTREAM_TIMEOUT' : 'CATALOG_UPSTREAM_ERROR',
