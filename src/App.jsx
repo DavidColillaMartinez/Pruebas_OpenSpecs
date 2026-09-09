@@ -19,6 +19,9 @@ import { MobileContacto } from './sections/mobile/Contacto';
 import { sectionIds, chapterLabels } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
 import { QuoteSelectionProvider } from './features/quote/model/selectionStore';
+import { AssistantProvider } from './features/assistant/model/assistantStore';
+
+const AssistantShell = lazy(() => import('./features/assistant/AssistantShell').then((module) => ({ default: module.AssistantShell })));
 
 const CatalogPage = lazy(() => import('./features/catalog/pages/CatalogPage').then((module) => ({ default: module.CatalogPage })));
 const ProductDetailPage = lazy(() => import('./features/catalog/pages/ProductDetailPage').then((module) => ({ default: module.ProductDetailPage })));
@@ -154,13 +157,18 @@ export default function App() {
   return (
     <BrowserRouter>
       <QuoteSelectionProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/productos" element={<Suspense fallback={<RouteFallback />}><CatalogPage /></Suspense>} />
-          <Route path="/productos/:slug" element={<Suspense fallback={<RouteFallback />}><ProductDetailPage /></Suspense>} />
-          <Route path="/presupuesto" element={<Suspense fallback={<RouteFallback />}><QuoteSelectionPage /></Suspense>} />
-          <Route path="*" element={<Suspense fallback={<RouteFallback />}><NotFoundPage /></Suspense>} />
-        </Routes>
+        <AssistantProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/productos" element={<Suspense fallback={<RouteFallback />}><CatalogPage /></Suspense>} />
+            <Route path="/productos/:slug" element={<Suspense fallback={<RouteFallback />}><ProductDetailPage /></Suspense>} />
+            <Route path="/presupuesto" element={<Suspense fallback={<RouteFallback />}><QuoteSelectionPage /></Suspense>} />
+            <Route path="*" element={<Suspense fallback={<RouteFallback />}><NotFoundPage /></Suspense>} />
+          </Routes>
+          <Suspense fallback={null}>
+            <AssistantShell />
+          </Suspense>
+        </AssistantProvider>
       </QuoteSelectionProvider>
     </BrowserRouter>
   );

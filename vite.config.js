@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { normalizeCatalogResponseStatus } from './server/catalog/response.js';
 import { CATALOG_BODY_BYTE_LIMIT, catalogQueryKeysForPath, pickAllowedSearchParams } from './server/catalog/proxy.js';
+import { handleChatRequest } from './server/chat/proxy.js';
 
 async function readRequestBody(request, limit) {
   const chunks = [];
@@ -78,7 +79,37 @@ export default defineConfig(({ mode }) => {
     },
   };
 
+  const chatDevProxy = {
+    name: 'chat-dev-proxy',
+    configureServer(server) {
+      // In dev, /api/chat/messages runs through the same sanitize/validation contract
+      // as production; upstream comes from CHAT_UPSTREAM_BASE_URL when available.
+      server.middlewares.use(async (request, response, next) => {
+        if (request.url?.startsWith('/api/chat/') || request.url === '/api/chat') {
+          request.method = request.method || 'POST';
+          if (request.method === 'POST') {
+            const limitedBody = await readRequestBody(request, CATALOG_BODY_BYTE_LIMIT);
+            if (limitedBody === null) {
+              response.statusCode = 413;
+              response.setHeader('content-type', 'application/json');
+              response.end(JSON.stringify({ error: 'PAYLOAD_TOO_LARGE' }));
+              return;
+            }
+            try {
+              request.body = JSON.parse(limitedBody.toString('utf8') || 'null');
+            } catch {
+              request.body = null;
+            }
+          }
+          await handleChatRequest(request, response);
+          return;
+        }
+        next();
+      });
+    },
+  };
+
   return {
-    plugins: [react(), catalogDevProxy],
+    plugins: [react(), catalogDevProxy, chatDevProxy],
   };
 });
