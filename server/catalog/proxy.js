@@ -2,8 +2,9 @@ import { randomUUID } from 'node:crypto';
 import { normalizeCatalogResponseStatus } from './response.js';
 
 export const CATALOG_BODY_BYTE_LIMIT = 65536;
-const CATALOG_UPSTREAM_ATTEMPT_TIMEOUT_MS = 3000;
-const CATALOG_UPSTREAM_MAX_GET_ATTEMPTS = 3;
+// One deadline below the browser's 10s budget, including any transport retry.
+const CATALOG_UPSTREAM_GET_TIMEOUT_MS = 8000;
+const CATALOG_UPSTREAM_MAX_GET_ATTEMPTS = 2;
 const CATALOG_PRODUCT_QUERY_KEYS = Object.freeze([
   'limit',
   'offset',
@@ -110,7 +111,8 @@ function getUpstreamUrl(request, route, identifier) {
 }
 
 function isRetryableUpstreamError(error) {
-  return error?.name === 'TimeoutError' || error?.name === 'AbortError' || error?.name === 'TypeError';
+  // An aborted wait does not cancel the workflow/query. Repeating it amplifies load.
+  return error?.name === 'TypeError';
 }
 
 function logUpstream(event, context, details = {}) {
@@ -124,6 +126,7 @@ function safeErrorLabel(value) {
 
 async function fetchUpstream(upstreamUrl, options, context) {
   const maxAttempts = options.method === 'GET' ? CATALOG_UPSTREAM_MAX_GET_ATTEMPTS : 1;
+  const signal = AbortSignal.timeout(options.method === 'GET' ? CATALOG_UPSTREAM_GET_TIMEOUT_MS : 10000);
   let lastError;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -133,7 +136,7 @@ async function fetchUpstream(upstreamUrl, options, context) {
     try {
       const upstreamResponse = await fetch(upstreamUrl, {
         ...options,
-        signal: AbortSignal.timeout(options.method === 'GET' ? CATALOG_UPSTREAM_ATTEMPT_TIMEOUT_MS : 10000),
+        signal,
       });
       const headersMs = Date.now() - startedAt;
       phase = 'body';
@@ -149,7 +152,7 @@ async function fetchUpstream(upstreamUrl, options, context) {
         errorName: safeErrorLabel(error?.name),
         errorCode: safeErrorLabel(error?.cause?.code ?? error?.code),
       });
-      if (attempt === maxAttempts || !isRetryableUpstreamError(error)) throw error;
+      if (signal.aborted || attempt === maxAttempts || !isRetryableUpstreamError(error)) throw error;
     }
   }
 
@@ -201,7 +204,12 @@ export async function handleCatalogRequest(request, response, route) {
       const maxAge = cacheControl?.match(/(?:^|,)\s*max-age=(\d+)\s*(?:,|$)/i)?.[1];
       if (contentType?.includes('application/json') && /(?:^|,)\s*public\s*(?:,|$)/i.test(cacheControl ?? '')
         && !/(?:private|no-store|no-cache)/i.test(cacheControl ?? '') && Number(maxAge) > 0) {
-        response.setHeader('Vercel-CDN-Cache-Control', `public, max-age=${Math.min(Number(maxAge), 60)}`);
+        const staleWindow = cacheControl.match(/(?:^|,)\s*stale-while-revalidate=(\d+)\s*(?:,|$)/i)?.[1];
+        const mustRevalidate = /(?:^|,)\s*must-revalidate\s*(?:,|$)/i.test(cacheControl);
+        const staleSeconds = mustRevalidate
+          ? 0 : Math.min(Number(staleWindow) || 0, 300);
+        const staleIfError = staleSeconds > 0 ? ', stale-if-error=300' : '';
+        response.setHeader('Vercel-CDN-Cache-Control', `public, max-age=${Math.min(Number(maxAge), 60)}${staleSeconds > 0 ? `, stale-while-revalidate=${staleSeconds}` : ''}${staleIfError}`);
       }
     } else {
       response.setHeader('cache-control', 'no-store');

@@ -41,6 +41,7 @@ function responseBody(body, status = 200) {
 }
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
   restoreEnvironment();
@@ -197,7 +198,7 @@ describe('explicit Vercel catalog entrypoints', () => {
   it('retries transient GET upstream failures without retrying a write', async () => {
     Object.assign(process.env, RESOURCE_ENV);
     const fetchMock = vi.fn()
-      .mockRejectedValueOnce(Object.assign(new Error('temporary timeout'), { name: 'TimeoutError' }))
+      .mockRejectedValueOnce(new TypeError('connection reset'))
       .mockResolvedValueOnce(responseBody({ items: [] }));
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
@@ -224,6 +225,50 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(names).toEqual(expect.arrayContaining(['config.js', 'products.js', 'quote-requests.js', 'products']));
     expect(existsSync(resolve(catalogDirectory, '[...path].js'))).toBe(false);
     expect(existsSync(resolve(catalogDirectory, 'response.js'))).toBe(false);
+  });
+
+  it.each(['TimeoutError', 'AbortError'])('does not repeat a workflow after %s', async (name) => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
+    const fetchMock = vi.fn().mockRejectedValue(Object.assign(new Error('timeout'), { name }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    await productsHandler({ method: 'GET', query: {} }, response);
+    expect(timeout).toHaveBeenCalledWith(8000);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(response.result.body.error).toBe('CATALOG_UPSTREAM_TIMEOUT');
+  });
+
+  it('shares one deadline across at most two transport attempts', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('connection reset'));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    await productsHandler({ method: 'GET', query: {} }, response);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0][1].signal).toBe(fetchMock.mock.calls[1][1].signal);
+    expect(response.result.statusCode).toBe(502);
+  });
+
+  it('accepts a four-second cold read without launching a second workflow', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    vi.useFakeTimers();
+    vi.spyOn(AbortSignal, 'timeout').mockImplementation((ms) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(new DOMException('deadline', 'TimeoutError')), ms);
+      return controller.signal;
+    });
+    const fetchMock = vi.fn().mockImplementation((_url, { signal }) => new Promise((resolve, reject) => {
+      signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+      setTimeout(() => resolve(responseBody({ items: [] })), 4000);
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    const pending = productsHandler({ method: 'GET', query: {} }, response);
+    await vi.advanceTimersByTimeAsync(4000);
+    await pending;
+    expect(response.result.statusCode).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('retries GET body failures and logs only safe diagnostic fields', async () => {
@@ -267,6 +312,10 @@ describe('explicit Vercel catalog entrypoints', () => {
     ['public, max-age=60', 200, 'public, max-age=60'],
     ['public, max-age=30', 200, 'public, max-age=30'],
     ['public, max-age=600', 200, 'public, max-age=60'],
+    ['public, max-age=60, stale-while-revalidate=300', 200, 'public, max-age=60, stale-while-revalidate=300, stale-if-error=300'],
+    ['public, max-age=30, stale-while-revalidate=20', 200, 'public, max-age=30, stale-while-revalidate=20, stale-if-error=300'],
+    ['public, max-age=600, stale-while-revalidate=900', 200, 'public, max-age=60, stale-while-revalidate=300, stale-if-error=300'],
+    ['public, max-age=60, must-revalidate, stale-while-revalidate=300', 200, 'public, max-age=60'],
     ['private, max-age=60', 200, undefined],
     ['public, no-store, max-age=60', 200, undefined],
     ['public, max-age=60', 503, 'no-store'],

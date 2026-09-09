@@ -7,6 +7,7 @@ import {
   getProductBySlug,
   getProducts,
   prefetchCatalogFirstPage,
+  prefetchCatalogLocation,
   prefetchProductBySlug,
   resetCatalogApiCacheForTests,
 } from './client';
@@ -184,6 +185,30 @@ describe('catalog api cache', () => {
     await createQuoteRequest({} as QuoteRequestPayload);
     await createQuoteRequest({} as QuoteRequestPayload);
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops serving stale entries after five minutes past expiry', async () => {
+    let clock = Date.now();
+    vi.spyOn(Date, 'now').mockImplementation(() => clock);
+    const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse(listPayload('V1')))
+      .mockRejectedValueOnce(new TypeError('offline'));
+    vi.stubGlobal('fetch', fetchMock);
+    await getProducts({ limit: 24 });
+    clock += 360_000;
+    await expect(getProducts({ limit: 24 })).rejects.toMatchObject({ code: 'NETWORK_ERROR' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('prefetches a filtered entry once and leaves unrelated routes alone', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(listPayload('Filtered')));
+    vi.stubGlobal('fetch', fetchMock);
+    prefetchCatalogLocation('/', '');
+    prefetchCatalogLocation('/productos/alfa', '');
+    expect(fetchMock).not.toHaveBeenCalled();
+    prefetchCatalogLocation('/productos', '?category=espejos&page=3');
+    await getProducts(catalogQueryToRequest(parseCatalogQuery('?category=espejos'), true));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0][0])).toBe('/api/catalog/products?limit=24&offset=0&include_facets=1&category_id=espejos');
   });
 
   it('prefetches fill the exact request paths the pages will use', async () => {

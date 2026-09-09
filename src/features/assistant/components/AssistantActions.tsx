@@ -5,8 +5,7 @@ import {
   officialContactLabel,
 } from '../model/officialChannels';
 import type { ChatAction } from '../transport/types';
-
-export const INTERNAL_PATH_PATTERN = /^\/(?:productos(?:\/[^/?#]+)?|presupuesto)\/?$/;
+import { INTERNAL_PATH_PATTERN } from './assistantActionValidation';
 
 export function AssistantActions({ actions }: { actions: ChatAction[] }) {
   if (!actions.length) return null;

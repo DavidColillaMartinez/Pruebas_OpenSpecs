@@ -6,6 +6,7 @@ import type { QuoteRequestCreated, QuoteRequestPayload } from '../../quote/model
 export const PUBLIC_CATALOG_BASE_PATH = '/api/catalog';
 
 const CATALOG_CACHE_TTL_MS = 60_000;
+const CATALOG_CACHE_STALE_MS = 300_000;
 const CATALOG_CACHE_MAX_ENTRIES = 60;
 
 type CacheEntry = { raw: unknown; expiresAt: number };
@@ -131,10 +132,11 @@ async function request(path: string, { signal, method = 'GET', body, timeoutMs =
   if (method !== 'GET') return performRequest(path, { signal, method, body, timeoutMs });
 
   const cached = responseCache.get(path);
-  if (cached) {
+  if (cached && Date.now() < cached.expiresAt + CATALOG_CACHE_STALE_MS) {
     if (cached.expiresAt <= Date.now()) scheduleRevalidation(path);
     return cached.raw;
   }
+  if (cached) responseCache.delete(path);
 
   const inFlight = inFlightRequests.get(path);
   if (inFlight) return withAbort(inFlight, signal);
@@ -215,6 +217,14 @@ export function prefetchProductBySlug(slug: string): void {
 
 export function prefetchCatalogFirstPage(): void {
   void warmCache(catalogFirstPagePath());
+}
+
+// Start data before the route chunk renders, using exactly the discovery hook's
+// first request (even on a filtered URL or a restored page > 1).
+export function prefetchCatalogLocation(pathname: string, search: string): void {
+  if (pathname !== '/productos' && pathname !== '/productos/') return;
+  const query = { ...parseCatalogQuery(search), page: 1 };
+  void warmCache(listPath(catalogQueryToRequest(query, true)));
 }
 
 export async function createQuoteRequest(payload: QuoteRequestPayload, options?: RequestOptions): Promise<QuoteRequestCreated> {
