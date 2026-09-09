@@ -50,3 +50,14 @@ La página de catálogo SHALL conservar title, description, canonical y datos es
 #### Scenario: Auditoría de metadatos
 - **WHEN** se compara el HTML de `/productos` antes y después de la corrección
 - **THEN** no se pierden metadatos SEO ni se añade un segundo bloque indexable del chat
+
+### Requirement: Botón volver arriba en el catálogo
+El catálogo SHALL ofrecer un control fijo para volver arriba que aparezca cuando el usuario scrolleé más de un viewport y que, junto a la barra "Mis selecciones" y al launcher del chat, quede apilado sin solapamientos y respetando la safe area. El control SHALL medir al menos 44 px, tener nombre accesible y desplazar la ventana al inicio con `behavior` suave o instantáneo según `prefers-reduced-motion`, sin alterar consultas, filtros ni selección.
+
+#### Scenario: Catálogo con scroll largo
+- **WHEN** el usuario scrollea más de un viewport por `/productos`
+- **THEN** aparece el botón y al pulsarlo vuelve arriba sin alterar el estado de la consulta
+
+#### Scenario: Convivencia con la barra de selecciones
+- **WHEN** "Mis selecciones" y el botón de volver arriba son visibles en móvil
+- **THEN** ninguno tapa al otro ni al launcher del chat

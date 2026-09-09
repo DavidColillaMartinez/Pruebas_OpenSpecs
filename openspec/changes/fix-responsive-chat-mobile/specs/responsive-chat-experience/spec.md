@@ -62,3 +62,33 @@ El campo de mensaje SHALL crecer automáticamente con el texto hasta un máximo 
 #### Scenario: Nueva línea y envío
 - **WHEN** el usuario pulsa `Shift+Enter` y después `Enter`
 - **THEN** el primer gesto conserva la nueva línea y el segundo envía el texto sin duplicar la petición
+
+### Requirement: El chat no abre el teclado automáticamente en móvil
+Al abrir el chat en un dispositivo táctil, el sistema SHALL mover el foco al contenedor del diálogo sin enfocar el compositor, evitando que el teclado virtual se abra por sí solo. El foco sobre el campo de mensaje SHALL conservarse en escritorio y cuando el usuario toque el campo explícitamente; la trampa de foco, Escape y la restauración al launcher SHALL seguir funcionando.
+
+#### Scenario: Apertura en pantalla táctil
+- **WHEN** el usuario abre el chat con puntero grueso (`hover: none` y `pointer: coarse`)
+- **THEN** el foco queda en el contenedor del diálogo y el campo de mensaje no recibe foco automático
+
+#### Scenario: Apertura con puntero fino
+- **WHEN** el usuario abre el chat en escritorio con puntero fino
+- **THEN** el foco entra en el campo de mensaje como antes y el comportamiento por teclado no cambia
+
+### Requirement: Burbuja de bienvenida del asistente en la sesión
+Al entrar a la web, el asistente SHALL mostrar una burbuja de bienvenida no modal junto al launcher, con la marca de AREA LRMQ y una invitación a usar el chat, sin robar el foco ni bloquear el scroll del fondo. PC SHALL mostrar una burbuja extendida a la izquierda del launcher y móvil una variante comprimida encima, respetando la safe area. Un clic en la burbuja SHALL abrir el chat sin abrir el teclado en móvil, y su botón de cierre SHALL tener al menos 44 px. La burbuja SHALL ocultarse sola tras un tiempo prudencial (pausando la cuenta en hover/focus) y SHALL no volver a aparecer en la misma sesión tras cerrarse o tras abrirse el chat.
+
+#### Scenario: Primera carga de la sesión
+- **WHEN** el usuario entra a la web y la pestaña aún no ha visto la burbuja en esta sesión
+- **THEN** la burbuja aparece junto al launcher con la marca y la invitación, sin robar foco ni bloquear el scroll
+
+#### Scenario: Apertura del chat desde la burbuja
+- **WHEN** el usuario pulsa la burbuja en móvil
+- **THEN** se abre el chat sin teclado automático y la burbuja no reaparece durante la misma sesión
+
+#### Scenario: Cierre manual y permanencia
+- **WHEN** el usuario cierra la burbuja con su botón y recarga durante la misma sesión
+- **THEN** la burbuja no reaparece hasta iniciar una pestaña o sesión nueva
+
+#### Scenario: Ocultación automática
+- **WHEN** la burbuja permanece visible sin interacción más allá del tiempo previsto o el usuario la enfoca durante la ocultación
+- **THEN** se oculta sola respetando `prefers-reduced-motion`, y la pausa por hover/focus cancela la ocultación mientras el usuario la explora

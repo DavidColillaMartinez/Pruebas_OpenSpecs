@@ -42,3 +42,14 @@ La corrección SHALL limitarse al código versionado y tests frontend. No SHALL 
 #### Scenario: Problema externo
 - **WHEN** una prueba detecta latencia, webhook, imagen remota, contrato o configuración externa defectuosa
 - **THEN** se documenta archivo, línea y comportamiento observado como pendiente externo, sin esconderlo mediante datos simulados en frontend
+
+### Requirement: Texto no editable sin apariencia de campo de escritura
+El texto no editable de la web SHALL dejar de dibujar un caret de inserción que aparente un campo editable al pulsar sobre él, manteniendo el caret visible y utilizable en campos reales (`input`, `textarea`, `contenteditable`) sin cambiar la selección de texto ni el layout. Este refuerzo cubre la percepción de "campo activo" si la causa del síntoma fuera el caret de selección del navegador, y no sustituye desactivar `F7`/caret browsing si así se confirma por el usuario.
+
+#### Scenario: Pulsar sobre texto de portada o catálogo
+- **WHEN** el usuario pulsa al final de un `h1` o párrafo no editable en un navegador con caret de selección
+- **THEN** no aparece la barra de escritura parpadeante y el layout no cambia
+
+#### Scenario: Campos reales
+- **WHEN** el usuario escribe en el chat, formularios de presupuesto o búsqueda
+- **THEN** el caret sigue visible y con comportamiento normal dentro de esos campos

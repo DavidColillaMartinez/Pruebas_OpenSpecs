@@ -39,3 +39,14 @@ La corrección responsive SHALL mantener los metadatos SEO actuales de `/` y SHA
 #### Scenario: Revisión de portada
 - **WHEN** se inspecciona el HTML y los metadatos de `/` antes y después del cambio
 - **THEN** se conserva la información SEO existente y el contenido del chat no se añade como bloque indexable duplicado
+
+### Requirement: Botón volver arriba en la portada
+La portada SHALL ofrecer un control fijo para volver al principio que aparezca tras avanzar por la página y que no solape launcher, panel del chat, drawer ni otros controles fijos. En móvil SHALL desplazar la ventana al inicio con desplazamiento suave y en narrativa desktop, donde la ventana no scrollea, SHALL llevar el usuario al capítulo Inicio. El control SHALL medir al menos 44 px, tener nombre accesible, animación de presencia y `prefers-reduced-motion`.
+
+#### Scenario: Portada móvil con scroll largo
+- **WHEN** el usuario scrollea más de un viewport en móvil
+- **THEN** aparece el botón y al pulsarlo la ventana vuelve arriba con movimiento suave (o instantáneo con reduced motion)
+
+#### Scenario: Narrativa desktop alejada del inicio
+- **WHEN** el usuario está en un capítulo posterior al inicio en desktop
+- **THEN** el botón devuelve al capítulo Inicio usando el sistema de navegación existente

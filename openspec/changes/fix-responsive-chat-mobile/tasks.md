@@ -41,3 +41,11 @@
 - [ ] 6.3 Comparar visualmente light-mode antes/después en móvil y desktop, verificando que Vision, `CompareSlider`, media protegida y navegación conservan su comportamiento.
 - [x] 6.4 Reparar warnings o regresiones introducidos, repetir tests/lint/typecheck/build y ejecutar `openspec validate fix-responsive-chat-mobile`.
 - [ ] 6.5 Documentar problemas corregidos, resultados por viewport y problemas externos pendientes sin secretos; dejar los cambios locales sin push, merge ni deploy.
+
+## 7. Ronda de UX del asistente y navegación
+
+- [x] 7.1 Quitar el foco automático del compositor en pantallas táctiles en la apertura del chat y enfocar el contenedor del diálogo, conservando el autoenfoque en escritorio y la sintaxis de trampa de foco, Escape y restauración.
+- [x] 7.2 Añadir el refuerzo global `caret-color` para texto no editable con excepción explícita de los campos reales de escritura, sin cambios de layout.
+- [x] 7.3 Implementar la burbuja de bienvenida del asistente (una vez por sesión con `sessionStorage`), con variantes PC extendida y móvil comprimida, cierre de 44 px, auto-ocultación pausada en hover/focus y apertura del chat sin teclado en móvil.
+- [x] 7.4 Implementar el botón fijo "Volver arriba" abajo-izquierda apilado sobre la barra "Mis selecciones" en catálogo y con salto al capítulo Inicio en la narrativa desktop de la portada.
+- [x] 7.5 Añadir pruebas de regresión para el autoenfoque del chat, la burbuja (persistencia por sesión, cierre, apertura) y el botón volver arriba (aparición por umbral y acción), y revalidar tests/lint/typecheck/build y `openspec validate`.
