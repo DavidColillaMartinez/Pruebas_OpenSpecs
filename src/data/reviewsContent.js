@@ -1,3 +1,5 @@
+import { LRMQ_ASSETS } from '../config/mediaAssets';
+
 // Reseñas del capítulo "Opiniones".
 // Datos aportados por el propietario (área Google Business, extracción 2026-09-07):
 // 13 reseñas reales de Area LRMQ Design S.L., todas de 5 estrellas.
@@ -13,7 +15,7 @@ const review = (id, author, date, text, image, googleUrl = GOOGLE_BUSINESS_URL) 
   rating: 5,
   date,
   text,
-  image: `/reviews/${image}`,
+  image: LRMQ_ASSETS.review(image),
   googleUrl,
 });
 

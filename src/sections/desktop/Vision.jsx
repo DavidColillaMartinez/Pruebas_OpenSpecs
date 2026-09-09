@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { LogoMark } from '../../components/LogoMark';
 import { CompareSlider } from '../../components/CompareSlider';
 
@@ -91,9 +92,9 @@ export function Vision({ step, isActive, onHold }) {
           onPointerDown={onPointerDown}
           onKeyDown={(e) => { if (!videoDone) return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
           isCompare={videoDone}
-          videoSrc="/boceto-video.mp4"
-          poster="/boceto-poster.webp"
-          finalImage="/boceto-final.png"
+          videoSrc={LRMQ_ASSETS.sketchVideo}
+          poster={LRMQ_ASSETS.sketchPoster}
+          finalImage={LRMQ_ASSETS.sketchFinal}
           finalImageAlt="Imagen final del proyecto"
         >
           <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">

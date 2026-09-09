@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { ProgressBar } from '../../components/ProgressBar';
 import { ProjectFacts } from '../../components/ProjectFacts';
 import { projectFacts } from '../../data/projectFacts';
@@ -18,7 +19,7 @@ export function Reformas({ smoothProgress, isActive }) {
   return (
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.55fr_0.75fr] lg:items-center">
-        <video ref={videoRef} src="/reforma-bano.mp4" muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.2rem]" aria-label="Video stopmotion de reforma de baño completo" />
+        <video ref={videoRef} src={LRMQ_ASSETS.renovationVideo} muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.2rem]" aria-label="Video stopmotion de reforma de baño completo" />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
           <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink text-wrap-balance">Reforma en 21 días.</h2>

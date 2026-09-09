@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
 import { googleReviews } from './reviewsContent';
+import { LRMQ_ASSET_BASE_URL } from '../config/mediaAssets';
 
 describe('googleReviews content', () => {
   it('holds the 13 owner-provided Google reviews, all five stars', () => {
@@ -12,8 +11,7 @@ describe('googleReviews content', () => {
       expect(review.author).toBeTruthy();
       expect(review.date).toMatch(/^Hace/);
       expect(review.googleUrl).toContain('google.com/maps');
-      expect(review.image.startsWith('/reviews/')).toBe(true);
-      expect(existsSync(path.resolve('public', review.image.slice(1)))).toBe(true);
+      expect(review.image.startsWith(`${LRMQ_ASSET_BASE_URL}/reviews/`)).toBe(true);
     });
   });
 

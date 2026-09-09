@@ -2,7 +2,15 @@
 
 - **Fecha:** 2026-09-08 · **Base:** `main` @ `a46c299`
 - **Método:** `du`/`file`/`md5sum`/`cmp` + búsqueda de referencias en todo el árbol (`src/`, `index.html`, CSS, docs, tests, openspec, `dist/` generado). "Sin refs" = cero coincidencias en código y docs, salvo que se indique.
-- **Protegidos (no tocar sin petición explícita del owner):** `assets/Catalogo/**`, `assets/Boceto/**`, `public/boceto-final.png`.
+- **Nota:** las tablas inferiores conservan el inventario histórico de la auditoría inicial. El estado actual posterior a la migración está documentado a continuación.
+
+## Estado actual — 2026-09-09
+
+- `assets/Catalogo/` se retiró del workspace: no tenía referencias de runtime y contenía material de trabajo, PDFs y datos intermedios, no assets consumidos por la web. Queda excluido por `.gitignore` para evitar que reaparezca.
+- Los recursos usados por la landing se copiaron a `https://assets.colilladavid.es/proyectos/lrmq/site/` y el frontend usa una única base en `src/config/mediaAssets.js`.
+- Se retiraron del repositorio los duplicados locales de logo, vídeos, portada y los 13 avatares. Las URLs se verificaron por HTTPS antes de eliminar las copias.
+- `assets/Boceto/Imagen_Original.png` permanece intacto porque tenía cambios locales preexistentes y no forma parte del runtime.
+- Las imágenes del catálogo siguen siendo responsabilidad del endpoint de catálogo y de `assets.colilladavid.es/proyectos/lrmq/catalogo/`; no se copiaron desde `assets/Catalogo/` porque el código no las consumía.
 
 ## Totales por directorio
 

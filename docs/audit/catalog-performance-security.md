@@ -199,3 +199,10 @@ Resumen aquí; detalle completo en `docs/audit/assets-inventory.md`.
 | Tests | 269/269 | 273/273 | +4 |
 | typecheck / lint / build | verdes | verdes | — |
 | Filtración al bundle | 0 | 0 (grep `n8n|webhook|colilladavid|N8N_` sobre `dist/`) | — |
+
+## 10. Addendum de assets — 2026-09-09
+
+- `assets/Catalogo/` se retiró del workspace porque no tenía referencias de runtime; sus PDFs, JSON y WebP de trabajo no eran consumidos por el frontend.
+- Los recursos estáticos que sí usa la landing se sirven ahora desde `https://assets.colilladavid.es/proyectos/lrmq/site/`, con una única base centralizada en `src/config/mediaAssets.ts`.
+- Las copias locales de esos recursos se eliminaron del repositorio después de verificar las respuestas HTTPS `200` en la VPS.
+- La política CSP de Vercel permite únicamente `assets.colilladavid.es` para imágenes y multimedia remota, además de `images.unsplash.com` para la imagen externa del masthead.

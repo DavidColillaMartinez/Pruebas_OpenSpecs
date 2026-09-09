@@ -1,11 +1,12 @@
 import { PHONE_INTL, ADDRESS, INSTAGRAM_URL } from '../data/business';
+import { LRMQ_ASSETS } from '../config/mediaAssets';
 
 export function BusinessJsonLd() {
   const data = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'AREA LRMQ Tienda',
-    image: 'https://arealrmq.es/logopng.png',
+    image: LRMQ_ASSETS.logo,
     url: 'https://arealrmq.es/',
     telephone: `+${PHONE_INTL}`,
     priceRange: '€€',

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { MobileSectionShell } from '../../components/MobileSectionShell';
 import { GoldLabel } from '../../components/GoldLabel';
 import { PHONE_INTL } from '../../data/business';
@@ -26,7 +27,7 @@ export function MobileReformas({ reducedMotion }) {
       <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
       <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
       <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white">
-        <video ref={videoRef} src="/reforma-bano.mp4" controls muted playsInline preload="metadata" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
+        <video ref={videoRef} src={LRMQ_ASSETS.renovationVideo} controls muted playsInline preload="metadata" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
       </div>
       <div className="mt-3 h-1.5 w-full rounded-full bg-ink/8" role="progressbar" aria-label="Avance de obra" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
         <div className="h-full rounded-full bg-clay transition-[width] duration-200 ease-linear" style={{ width: `${progress * 100}%` }} />

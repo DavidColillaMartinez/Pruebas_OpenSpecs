@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef } from 'react';
 
-// Geometry extracted from public/logopng.png (500x306) via scanline measurement:
+// Geometry extracted from the VPS-hosted logopng.png (500x306) via scanline measurement:
 // every edge is a straight segment with slope |dx/dy| = 0.5 (legs) or horizontal.
 // Baseline: the full mark drew in LOGO_DRAW_MS at 100% speed.
 export const LOGO_DRAW_MS = 2500;
