@@ -7,7 +7,7 @@ Estado: propuesta V1 implementada en la interfaz/cliente. El backend de IA (n8n)
 `POST /api/chat/messages`
 
 - Transporte: JSON (`content-type: application/json`), sin streaming en V1.
-- El navegador nunca llama a n8n directamente: pasa por el propio servidor de la app (entrypoint `api/chat/messages.js` → `server/chat/proxy.js`), igual que el catálogo. El upstream se configura con `CHAT_UPSTREAM_BASE_URL` en el servidor; no hay claves ni URLs de n8n en el navegador.
+- El navegador nunca llama a n8n directamente: pasa por el propio servidor de la app (entrypoint `api/chat/messages.js` → `server/chat/proxy.js`), igual que el catálogo. El upstream se configura con `CHAT_UPSTREAM_BASE_URL` y `CHAT_UPSTREAM_AUTH_VALUE` en el servidor; el proxy envía el secreto como cabecera `LRMQ_Chat_Inbound` y no hay claves ni URLs de n8n en el navegador.
 
 ## Petición
 
@@ -94,7 +94,7 @@ La interfaz nunca muestra cuerpos crudos ni detalles internos; solo el estado as
 
 - Allowlist de claves: `version`, `conversationId`, `requestId`, `message`, `context` (con `pagePath`, `productSlug`, `filters`, `locale`). Cualquier otra clave → `INVALID_REQUEST`.
 - Límite de cuerpo: 64 KB; excedido → `413 PAYLOAD_TOO_LARGE` sin reenviar al upstream.
-- Sin `CHAT_UPSTREAM_BASE_URL` configurada: `502` con `CHAT_UNAVAILABLE` (`retryable: false`) — la interfaz muestra "servicio no disponible" y el modo demostración no se activa nunca de forma automática.
+- Sin `CHAT_UPSTREAM_BASE_URL` o `CHAT_UPSTREAM_AUTH_VALUE` configurada: `502` con `CHAT_UNAVAILABLE` (`retryable: false`) — la interfaz muestra "servicio no disponible" y el modo demostración no se activa nunca de forma automática.
 - El proxy no reintenta POST automáticos y no contiene secretos de IA.
 
 ## Modo demostración
@@ -103,7 +103,7 @@ Solo desarrollo/dev: bandera `VITE_ENABLE_ASSISTANT_DEMO=1` (ver `.env.example`)
 
 ## Cómo conectar el transporte real (futuro backend n8n)
 
-1. Configurar `CHAT_UPSTREAM_BASE_URL` (webhook de n8n del chat) como secreto del servidor, no como `VITE_*`.
+1. Configurar `CHAT_UPSTREAM_BASE_URL` con la URL de producción `/webhook/lrmq-chat-v1` y `CHAT_UPSTREAM_AUTH_VALUE` con el valor de la credencial Header Auth `LRMQ_Chat_Inbound`, siempre como secretos del servidor y no como `VITE_*`.
 2. El backend debe implementar el payload de respuesta de arriba y la política de caducidad de sesión del lado servidor.
 3. El frontend ya llama a `/api/chat/messages`; no se requiere ningún cambio de dominio en la interfaz.
 4. Turn on rate limiting en n8n/proxy correspondientes (acción backend, fuera del alcance del frontend).

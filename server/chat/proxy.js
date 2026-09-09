@@ -2,6 +2,7 @@ import { CATALOG_BODY_BYTE_LIMIT } from '../catalog/proxy.js';
 import { normalizeCatalogResponseStatus } from '../catalog/response.js';
 
 export const CHAT_UPSTREAM_TIMEOUT_MS = 10000;
+export const CHAT_UPSTREAM_AUTH_HEADER = 'LRMQ_Chat_Inbound';
 
 export const CHAT_ALLOWED_BODY_KEYS = Object.freeze(['version', 'conversationId', 'requestId', 'message', 'context']);
 export const CHAT_ALLOWED_CONTEXT_KEYS = Object.freeze(['pagePath', 'productSlug', 'filters', 'locale']);
@@ -51,7 +52,8 @@ export async function handleChatRequest(request, response, runtimeEnv = process.
   }
 
   const base = runtimeEnv.CHAT_UPSTREAM_BASE_URL;
-  if (!base) {
+  const authValue = runtimeEnv.CHAT_UPSTREAM_AUTH_VALUE;
+  if (!base || !authValue) {
     return response.status(502).json({
       version: 1,
       requestId: sanitized.requestId,
@@ -62,7 +64,11 @@ export async function handleChatRequest(request, response, runtimeEnv = process.
   try {
     const upstreamResponse = await fetch(base, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json',
+        [CHAT_UPSTREAM_AUTH_HEADER]: authValue,
+      },
       body: JSON.stringify(sanitized),
       signal: AbortSignal.timeout(CHAT_UPSTREAM_TIMEOUT_MS),
     });

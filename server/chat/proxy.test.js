@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import chatHandler from '../../api/chat/messages.js';
-import { handleChatRequest, sanitizeChatBody } from '../../server/chat/proxy.js';
+import { CHAT_UPSTREAM_AUTH_HEADER, handleChatRequest, sanitizeChatBody } from '../../server/chat/proxy.js';
 
-const RESOURCE_ENV = { CHAT_UPSTREAM_BASE_URL: 'https://chat.example/lrmq/chat' };
+const RESOURCE_ENV = {
+  CHAT_UPSTREAM_BASE_URL: 'https://chat.example/lrmq/chat',
+  CHAT_UPSTREAM_AUTH_VALUE: 'test-auth-value',
+};
 
 const VALID_BODY = {
   version: 1,
@@ -12,7 +15,10 @@ const VALID_BODY = {
   context: { pagePath: '/productos', productSlug: null, filters: {}, locale: 'es' },
 };
 
-const originalEnv = { CHAT_UPSTREAM_BASE_URL: process.env.CHAT_UPSTREAM_BASE_URL };
+const originalEnv = {
+  CHAT_UPSTREAM_BASE_URL: process.env.CHAT_UPSTREAM_BASE_URL,
+  CHAT_UPSTREAM_AUTH_VALUE: process.env.CHAT_UPSTREAM_AUTH_VALUE,
+};
 
 function createResponse() {
   const result = { statusCode: 200, headers: {}, body: undefined };
@@ -30,6 +36,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
   if (originalEnv.CHAT_UPSTREAM_BASE_URL === undefined) delete process.env.CHAT_UPSTREAM_BASE_URL;
   else process.env.CHAT_UPSTREAM_BASE_URL = originalEnv.CHAT_UPSTREAM_BASE_URL;
+  if (originalEnv.CHAT_UPSTREAM_AUTH_VALUE === undefined) delete process.env.CHAT_UPSTREAM_AUTH_VALUE;
+  else process.env.CHAT_UPSTREAM_AUTH_VALUE = originalEnv.CHAT_UPSTREAM_AUTH_VALUE;
 });
 
 describe('chat proxy sanitizer', () => {
@@ -85,6 +93,7 @@ describe('chat server endpoint', () => {
 
     expect(response.result.statusCode).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toBe(RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL);
+    expect(fetchMock.mock.calls[0][1].headers[CHAT_UPSTREAM_AUTH_HEADER]).toBe(RESOURCE_ENV.CHAT_UPSTREAM_AUTH_VALUE);
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual(VALID_BODY);
     expect(JSON.parse(String(response.result.body))).toEqual(upstreamReply);
   });
@@ -100,6 +109,21 @@ describe('chat server endpoint', () => {
 
     expect(response.result.statusCode).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toBe(RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL);
+    expect(fetchMock.mock.calls[0][1].headers[CHAT_UPSTREAM_AUTH_HEADER]).toBe(RESOURCE_ENV.CHAT_UPSTREAM_AUTH_VALUE);
+  });
+
+  it('does not call the upstream without its authentication value', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await handleChatRequest({ method: 'POST', body: VALID_BODY }, response, {
+      CHAT_UPSTREAM_BASE_URL: RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL,
+    });
+
+    expect(response.result.statusCode).toBe(502);
+    expect(response.result.body.error.code).toBe('CHAT_UNAVAILABLE');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('maps upstream timeouts to retryable CHAT_UNAVAILABLE without leaking internals', async () => {
