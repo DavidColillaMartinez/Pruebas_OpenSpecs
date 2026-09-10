@@ -5,6 +5,7 @@ import { sendDemoChatMessage, isDemoModeEnabled } from '../transport/demoAdapter
 import {
   DEFAULT_CHAT_ERROR_TEXT,
   isChatAction,
+  isChatRecommendedProduct,
   type ChatAction,
   type ChatErrorKind,
   type ChatMessagePayload,
@@ -50,6 +51,8 @@ export function createInitialMessages(): AssistantChatMessage[] {
 }
 
 let messageIdSeed = 0;
+export const MAX_STORED_MESSAGE_LENGTH = 8000;
+export const MAX_STORED_MESSAGES = 60;
 export function nextMessageId(): string {
   messageIdSeed += 1;
   return `assistant-msg-${messageIdSeed}`;
@@ -85,14 +88,21 @@ function readStoredState(): SerializableState | null {
       const message = item as AssistantChatMessage;
       if (!message || typeof message.id !== 'string' || typeof message.text !== 'string') return null;
       if (message.role !== 'assistant' && message.role !== 'user') return null;
+      if (message.text.length > MAX_STORED_MESSAGE_LENGTH) return null;
     }
-    const messages = (record.messages as AssistantChatMessage[]).map((message) => ({
-      id: message.id,
-      role: message.role,
-      text: message.text,
-      ...(message.products ? { products: message.products } : {}),
-      ...(Array.isArray(message.actions) ? { actions: message.actions.filter(isChatAction) } : {}),
-    }));
+    const messages = (record.messages as AssistantChatMessage[])
+      .slice(-MAX_STORED_MESSAGES)
+      .map((message) => ({
+        id: message.id,
+        role: message.role,
+        text: message.text,
+        ...(Array.isArray(message.products) && message.products.filter(isChatRecommendedProduct).length > 0
+          ? { products: message.products.filter(isChatRecommendedProduct) }
+          : {}),
+        ...(Array.isArray(message.actions) && message.actions.filter(isChatAction).length > 0
+          ? { actions: message.actions.filter(isChatAction) }
+          : {}),
+      }));
     if (!messages.length || messages[0].role !== 'assistant') return null;
     if (messages.length === 1 && messages[0].text !== INITIAL_ASSISTANT_MESSAGE) return null;
     return { version: ASSISTANT_STORAGE_VERSION, conversationId: String(record.conversationId), messages };
@@ -215,7 +225,6 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
 
     void (async () => {
       const sender = demoModeRef.current ? sendDemoChatMessage : sendHttpChatMessage;
-      console.log('STORE_SEND', requestId, 'inFlight=', JSON.stringify(inFlightRequestIdRef.current), 'statusRef=', stateRef.current.status);
       const result = await sender(payload);
       if (inFlightRequestIdRef.current !== requestId) {
         return;

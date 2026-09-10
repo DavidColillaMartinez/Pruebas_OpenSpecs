@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { applyRouteMeta } from '../../../routes/routeMeta';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getCatalogConfig, getProductBySlug } from '../api/client';
 import type { CatalogPublicConfig, ProductDetail } from '../model/types';
@@ -253,19 +254,13 @@ export function ProductDetailPage() {
 
   useEffect(() => {
     if (state.status !== 'success') return undefined;
-    const previousTitle = document.title;
-    const description = document.querySelector('meta[name="description"]');
-    const previousDescription = description?.getAttribute('content') ?? null;
-    document.title = `${state.product.name} · AREA LRMQ`;
-    description?.setAttribute('content', state.product.description || `${state.product.name} de ${state.product.brand || state.product.supplierName || 'AREA LRMQ'}. Solicita presupuesto.`);
-    return () => {
-      document.title = previousTitle;
-      if (description) {
-        if (previousDescription === null) description.removeAttribute('content');
-        else description.setAttribute('content', previousDescription);
-      }
-    };
-  }, [state]);
+    const cleanSlug = encodeURIComponent(slug);
+    return applyRouteMeta({
+      title: `${state.product.name} · AREA LRMQ`,
+      description: state.product.description || `${state.product.name} de ${state.product.brand || state.product.supplierName || 'AREA LRMQ'}. Solicita presupuesto.`,
+      canonicalPath: `/productos/${cleanSlug}`,
+    });
+  }, [state, slug]);
 
   const returnTo = (() => {
     try {

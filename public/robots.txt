@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /presupuesto/
+
+Sitemap: https://arealrmq.es/sitemap.xml

@@ -92,15 +92,53 @@ describe('chat server endpoint', () => {
 
   it('returns INVALID_REQUEST for bodies outside the contract', async () => {
     const response = createResponse();
-    await chatHandler({ method: 'POST', body: { hello: 'world' } }, response);
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: { hello: 'world' } }, response);
     expect(response.result.statusCode).toBe(400);
     expect(response.result.body.error.code).toBe('INVALID_REQUEST');
+  });
+
+  it('rejects a direct POST without the JSON content-type before reading upstream', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'text/html' }, body: VALID_BODY }, response);
+    expect(response.result.statusCode).toBe(400);
+    expect(response.result.body.error.code).toBe('INVALID_REQUEST');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-JSON upstream replies with a controlled error and no body forwarding', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const fetchMock = vi.fn().mockResolvedValue(new Response('<!doctype html><script>alert(1)</script>', { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response);
+
+    expect(response.result.statusCode).toBe(502);
+    expect(response.result.body.error.code).toBe('CHAT_UNAVAILABLE');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(response.result.body)).not.toContain('<script>');
+  });
+
+  it('serves chat responses without public cache headers', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const upstreamReply = { version: 1, conversationId: 'opaque-session-id', requestId: VALID_BODY.requestId, message: 'Hola', products: [], actions: [] };
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(upstreamReply), { status: 200, headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=600' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response);
+
+    expect(response.result.statusCode).toBe(200);
+    expect(response.result.headers['cache-control']).toBe('no-store');
+    expect(response.result.headers['content-type']).toBe('application/json');
   });
 
   it('answers CHAT_UNAVAILABLE retryable=false when no upstream is configured', async () => {
     delete process.env.CHAT_UPSTREAM_BASE_URL;
     const response = createResponse();
-    await chatHandler({ method: 'POST', body: VALID_BODY }, response);
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response);
     expect(response.result.statusCode).toBe(502);
     expect(response.result.body.error.code).toBe('CHAT_UNAVAILABLE');
     expect(response.result.body.error.retryable).toBe(false);
@@ -113,7 +151,7 @@ describe('chat server endpoint', () => {
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
 
-    await chatHandler({ method: 'POST', body: VALID_BODY }, response);
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response);
 
     expect(response.result.statusCode).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toBe(RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL);
@@ -129,7 +167,7 @@ describe('chat server endpoint', () => {
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
 
-    await handleChatRequest({ method: 'POST', body: VALID_BODY }, response, RESOURCE_ENV);
+    await handleChatRequest({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response, RESOURCE_ENV);
 
     expect(response.result.statusCode).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toBe(RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL);
@@ -141,7 +179,7 @@ describe('chat server endpoint', () => {
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
 
-    await handleChatRequest({ method: 'POST', body: VALID_BODY }, response, {
+    await handleChatRequest({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response, {
       CHAT_UPSTREAM_BASE_URL: RESOURCE_ENV.CHAT_UPSTREAM_BASE_URL,
     });
 
@@ -155,7 +193,7 @@ describe('chat server endpoint', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(Object.assign(new Error('timeout'), { name: 'TimeoutError' })));
     const response = createResponse();
 
-    await chatHandler({ method: 'POST', body: VALID_BODY }, response);
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: VALID_BODY }, response);
 
     expect(response.result.statusCode).toBe(502);
     expect(response.result.body.error.code).toBe('CHAT_UNAVAILABLE');

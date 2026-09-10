@@ -1,4 +1,4 @@
-import { CATALOG_BODY_BYTE_LIMIT } from '../catalog/proxy.js';
+import { CATALOG_BODY_BYTE_LIMIT, isJsonContentType } from '../catalog/proxy.js';
 import { normalizeCatalogResponseStatus } from '../catalog/response.js';
 
 export const CHAT_FIRST_REQUEST_TIMEOUT_MS = 15000;
@@ -33,6 +33,11 @@ function containsKey(record, allowedKeys, { allowEmpty = false } = {}) {
   return keys.length > 0 && keys.every((key) => allowedKeys.includes(key));
 }
 
+function getContentType(value) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return typeof raw === 'string' ? raw.toLowerCase() : '';
+}
+
 export function sanitizeChatBody(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
   if (!containsKey(body, CHAT_ALLOWED_BODY_KEYS)) return null;
@@ -60,6 +65,14 @@ export async function handleChatRequest(request, response, runtimeEnv = process.
   if (request.method !== 'POST') {
     response.setHeader('Allow', 'POST');
     return response.status(405).json({ version: 1, requestId: 'server', error: { code: 'INVALID_REQUEST', message: 'Método no permitido.', retryable: false } });
+  }
+
+  if (!isJsonContentType(getContentType(request.headers?.['content-type']))) {
+    return response.status(400).json({
+      version: 1,
+      requestId: 'server',
+      error: { code: 'INVALID_REQUEST', message: 'Cuerpo fuera de contrato.', retryable: false },
+    });
   }
 
   const sanitized = sanitizeChatBody(request.body);
@@ -93,17 +106,18 @@ export async function handleChatRequest(request, response, runtimeEnv = process.
       signal: AbortSignal.timeout(getChatUpstreamTimeoutMs(sanitized)),
     });
     const raw = await upstreamResponse.text();
-    if (raw.length > CATALOG_BODY_BYTE_LIMIT) {
+    const upstreamContentType = getContentType(upstreamResponse.headers.get('content-type'));
+    if (raw.length > CATALOG_BODY_BYTE_LIMIT || !isJsonContentType(upstreamContentType) || !isJsonContentType(getContentType(request.headers?.['content-type']))) {
       return response.status(502).json({
         version: 1,
         requestId: sanitized.requestId,
-        error: { code: 'CHAT_UNAVAILABLE', message: 'Ahora mismo no podemos responder. Inténtalo de nuevo más tarde.', retryable: true },
+        error: { code: 'CHAT_UNAVAILABLE', message: 'Ahora mismo no podemos responder. Inténtalo de nuevo más tarde.', retryable: raw.length > CATALOG_BODY_BYTE_LIMIT },
       });
     }
     response.statusCode = normalizeCatalogResponseStatus(upstreamResponse.status, raw);
-    response.setHeader('content-type', upstreamResponse.headers.get('content-type') || 'application/json');
-    const cacheControl = upstreamResponse.headers.get('cache-control');
-    if (cacheControl) response.setHeader('cache-control', cacheControl);
+    response.setHeader('content-type', 'application/json');
+    // Chat responses are private per-conversation data; never extend them to shared caches.
+    response.setHeader('cache-control', 'no-store');
     return response.end(raw);
   } catch (error) {
     const timedOut = error?.name === 'TimeoutError' || error?.name === 'AbortError';

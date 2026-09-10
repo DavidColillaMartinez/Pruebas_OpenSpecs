@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { normalizeCatalogResponseStatus } from './response.js';
+import { isJsonContentType, quoteValidationErrors } from './quoteBody.js';
+
+export { isJsonContentType };
 
 export const CATALOG_BODY_BYTE_LIMIT = 65536;
 // One deadline below the browser's 10s budget, including any transport retry.
@@ -100,6 +103,11 @@ function requestBodyBytes(body) {
   return new TextEncoder().encode(text).length;
 }
 
+function getRequestContentType(request) {
+  const raw = request.headers?.['content-type'];
+  return Array.isArray(raw) ? raw[0] : raw;
+}
+
 function getUpstreamUrl(request, route, identifier) {
   const base = process.env[route.envKey];
   if (!base) return null;
@@ -171,8 +179,20 @@ export async function handleCatalogRequest(request, response, route) {
     return response.status(400).json({ error: 'INVALID_SLUG' });
   }
 
-  if (method === 'POST' && requestBodyBytes(request.body) > CATALOG_BODY_BYTE_LIMIT) {
-    return response.status(413).json({ error: 'PAYLOAD_TOO_LARGE' });
+  if (method === 'POST') {
+    if (!isJsonContentType(getRequestContentType(request))) {
+      return response.status(415).json({ error: 'UNSUPPORTED_MEDIA_TYPE', message: 'La solicitud debe enviarse como application/json.' });
+    }
+    if (requestBodyBytes(request.body) > CATALOG_BODY_BYTE_LIMIT) {
+      return response.status(413).json({ error: 'PAYLOAD_TOO_LARGE' });
+    }
+  }
+
+  if (method === 'POST' && route === CATALOG_ROUTES.quoteRequests) {
+    const fields = quoteValidationErrors(request.body);
+    if (fields.length > 0) {
+      return response.status(400).json({ error: 'VALIDATION_ERROR', message: 'La solicitud de presupuesto no es válida.', fields });
+    }
   }
 
   const upstreamUrl = getUpstreamUrl(request, route, identifier);

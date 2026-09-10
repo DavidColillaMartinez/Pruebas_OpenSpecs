@@ -6,6 +6,13 @@ import productsHandler from '../../api/catalog/products.js';
 import productDetailHandler from '../../api/catalog/products/[slug].js';
 import quoteRequestsHandler from '../../api/catalog/quote-requests.js';
 
+const VALID_QUOTE_BODY = {
+  customerName: 'Ana',
+  email: 'ana@example.com',
+  consentPrivacy: true,
+  items: [{ productId: 'prod-1', variantId: 'v-1', quantity: 1, productName: 'Plato de ducha a medida', supplier: 'Duplach', category: 'Platos de ducha' }],
+};
+
 const RESOURCE_ENV = {
   N8N_CATALOG_CONFIG_UPSTREAM_BASE_URL: 'https://config.example/catalog',
   N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL: 'https://products.example/catalog',
@@ -118,7 +125,7 @@ describe('explicit Vercel catalog entrypoints', () => {
     const response = createResponse();
     const oversized = { items: Array.from({ length: 64 }, () => ({ text: 'x'.repeat(2048) })) };
 
-    await quoteRequestsHandler({ method: 'POST', query: {}, body: oversized }, response);
+    await quoteRequestsHandler({ method: 'POST', query: {}, headers: { 'content-type': 'application/json' }, body: oversized }, response);
 
     expect(response.result.statusCode).toBe(413);
     expect(response.result.body).toEqual({ error: 'PAYLOAD_TOO_LARGE' });
@@ -155,13 +162,11 @@ describe('explicit Vercel catalog entrypoints', () => {
     const fetchMock = vi.fn().mockResolvedValue(responseBody({ id: 'quote-1', status: 'received' }));
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
-    const body = { name: 'Test', email: 'test@example.com' };
-
-    await quoteRequestsHandler({ method: 'POST', query: {}, body }, response);
+        await quoteRequestsHandler({ method: 'POST', query: {}, headers: { 'content-type': 'application/json' }, body: VALID_QUOTE_BODY }, response);
 
     expect(response.result.statusCode).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toBe('https://quotes.example/catalog/quote-requests');
-    expect(fetchMock.mock.calls[0][1].body).toBe(JSON.stringify(body));
+    expect(fetchMock.mock.calls[0][1].body).toBe(JSON.stringify(VALID_QUOTE_BODY));
   });
 
   it('rejects methods not allowed without contacting upstream', async () => {
@@ -212,7 +217,7 @@ describe('explicit Vercel catalog entrypoints', () => {
     fetchMock.mockRejectedValueOnce(Object.assign(new Error('temporary timeout'), { name: 'TimeoutError' }));
     const quoteResponse = createResponse();
 
-    await quoteRequestsHandler({ method: 'POST', query: {}, body: { name: 'Test' } }, quoteResponse);
+    await quoteRequestsHandler({ method: 'POST', query: {}, headers: { 'content-type': 'application/json' }, body: VALID_QUOTE_BODY }, quoteResponse);
 
     expect(quoteResponse.result.statusCode).toBe(502);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -302,7 +307,7 @@ describe('explicit Vercel catalog entrypoints', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
-    await quoteRequestsHandler({ method: 'POST', query: {}, body: {} }, response);
+    await quoteRequestsHandler({ method: 'POST', query: {}, headers: { 'content-type': 'application/json' }, body: VALID_QUOTE_BODY }, response);
     expect(timeout).toHaveBeenCalledWith(10000);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(response.result.statusCode).toBe(502);
@@ -337,7 +342,7 @@ describe('explicit Vercel catalog entrypoints', () => {
       status: 201, headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=60' },
     })));
     const response = createResponse();
-    await quoteRequestsHandler({ method: 'POST', query: {}, body: {} }, response);
+    await quoteRequestsHandler({ method: 'POST', query: {}, headers: { 'content-type': 'application/json' }, body: VALID_QUOTE_BODY }, response);
     expect(response.result.headers['cache-control']).toBe('no-store');
     expect(response.result.headers['Vercel-CDN-Cache-Control']).toBe('no-store');
   });

@@ -4,6 +4,7 @@ import {
   AssistantProvider,
   useAssistantChat,
   ASSISTANT_STORAGE_KEY,
+  INITIAL_ASSISTANT_MESSAGE,
   assistantReducer,
   createInitialMessages,
 } from './assistantStore';
@@ -161,6 +162,29 @@ describe('AssistantProvider state', () => {
     unmount();
     render(<AssistantProvider><Probe /></AssistantProvider>);
     await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('actions-1'));
+  });
+
+  it('drops manipulated product data and oversized texts when restoring', () => {
+    window.sessionStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      conversationId: 'session-manipulated',
+      messages: [
+        { id: 'initial', role: 'assistant', text: INITIAL_ASSISTANT_MESSAGE },
+        {
+          id: 'assistant-msg-9',
+          role: 'assistant',
+          text: 'Recomendación',
+          products: [{ productId: 'x', slug: 'x', name: 'X', internalPath: 'javascript:alert(1)', facts: [], recommendationReason: 'r' }],
+          actions: [{ type: 'navigate_internal' as const, label: 'Ir', target: '/presupuesto' }],
+        },
+        { id: 'assistant-msg-10', role: 'assistant', text: 'x'.repeat(9000) },
+      ],
+    }));
+
+    render(<AssistantProvider><Probe /></AssistantProvider>);
+
+    const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}') as { conversationId: string | null; messages: Array<Record<string, unknown>> };
+    expect(parsed.conversationId).toBeNull();
   });
 });
 
