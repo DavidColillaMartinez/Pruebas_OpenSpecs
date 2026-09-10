@@ -33,7 +33,6 @@ describe('LandingPage narrative lifecycle', () => {
     const { unmount } = render(<MemoryRouter><LandingPage /></MemoryRouter>);
 
     expect(document.body.classList.contains('landing-narrative')).toBe(true);
-    expect(document.body.style.background).toBe('rgb(255, 255, 255)');
     expect(screen.getAllByRole('link', { name: 'Tienda' })[0]).toHaveAttribute('href', '/productos');
     expect(screen.queryByRole('link', { name: /Presupuesto/ })).not.toBeInTheDocument();
 

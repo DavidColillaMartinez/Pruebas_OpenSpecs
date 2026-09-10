@@ -85,13 +85,13 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
 
   return (
     <section aria-labelledby="product-gallery-heading">
-      <h2 id="product-gallery-heading" className="sr-only">Imágenes del producto</h2>
-      <div className={`group relative flex ${wideFrame ? 'aspect-[1799/1149]' : 'aspect-[1489/2105]'} max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-ink/10`} aria-busy="false">
+      <span id="product-gallery-heading" className="sr-only">Imágenes del producto</span>
+      <div className={`group relative flex ${wideFrame ? 'aspect-[1799/1149]' : 'aspect-[1489/2105]'} max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-border-hairline/10`} aria-busy="false">
         {activeImage ? (
           <button
             type="button"
             onClick={() => setZoomOpen(true)}
-             className="flex h-full w-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain"
+             className="flex h-full w-full items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
             aria-label={`Ampliar imagen de ${altPrefix}`}
           >
             <img
@@ -105,7 +105,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
             />
           </button>
         ) : (
-          <p role="status" className="text-sm text-graphite">Imagen no disponible</p>
+          <p role="status" className="text-sm text-secondary">Imagen no disponible</p>
         )}
         {orderedImages.length > 1 && (
           <>
@@ -114,7 +114,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
               onClick={goPrevious}
               disabled={activeIndex === 0}
               aria-label="Imagen anterior"
-              className="absolute left-3 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-xl text-ink shadow-soft transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay motion-reduce:transition-none"
+              className="absolute left-3 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-surface-elevated/88 text-xl text-primary shadow-soft transition hover:bg-surface-elevated disabled:pointer-events-none disabled:opacity-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay motion-reduce:transition-none"
             >
               <span aria-hidden="true">←</span>
             </button>
@@ -123,7 +123,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
               onClick={goNext}
               disabled={activeIndex === orderedImages.length - 1}
               aria-label="Imagen siguiente"
-              className="absolute right-3 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/88 text-xl text-ink shadow-soft transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay motion-reduce:transition-none"
+              className="absolute right-3 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-surface-elevated/88 text-xl text-primary shadow-soft transition hover:bg-surface-elevated disabled:pointer-events-none disabled:opacity-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay motion-reduce:transition-none"
             >
               <span aria-hidden="true">→</span>
             </button>
@@ -140,7 +140,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
             <button
               key={image.url}
               type="button"
-              className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${activeIndex === imageIndex ? 'border-ink shadow-lift' : 'border-ink/15 transition-all duration-200 ease-out hover:border-ink/40 hover:shadow-soft motion-reduce:transition-none'}`}
+              className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${activeIndex === imageIndex ? 'border-ink shadow-lift' : 'border-border-hairline/15 transition-all duration-200 ease-out hover:border-border-hairline/40 hover:shadow-soft motion-reduce:transition-none'}`}
               aria-label={`Ver imagen ${imageIndex + 1} de ${orderedImages.length}`}
               aria-pressed={activeIndex === imageIndex}
               onClick={() => goToImage(imageIndex)}
@@ -164,14 +164,14 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
           <button
             type="button"
             onClick={() => setZoomOpen(false)}
-            className="absolute right-6 top-6 inline-flex min-h-11 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-ink shadow-lift transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink motion-reduce:transition-none"
+            className="absolute right-6 top-6 inline-flex min-h-11 items-center justify-center rounded-full bg-surface-elevated/90 px-4 text-sm font-semibold text-primary shadow-lift transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink motion-reduce:transition-none"
           >
             Cerrar
           </button>
           {orderedImages.length > 1 && (
             <>
-              <button type="button" onClick={(event) => { event.stopPropagation(); goPrevious(); }} disabled={activeIndex === 0} aria-label="Imagen anterior" className="absolute left-6 top-1/2 inline-flex min-h-12 min-w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-2xl text-ink shadow-lift disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"><span aria-hidden="true">←</span></button>
-              <button type="button" onClick={(event) => { event.stopPropagation(); goNext(); }} disabled={activeIndex === orderedImages.length - 1} aria-label="Imagen siguiente" className="absolute right-6 top-1/2 inline-flex min-h-12 min-w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-2xl text-ink shadow-lift disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"><span aria-hidden="true">→</span></button>
+              <button type="button" onClick={(event) => { event.stopPropagation(); goPrevious(); }} disabled={activeIndex === 0} aria-label="Imagen anterior" className="absolute left-6 top-1/2 inline-flex min-h-12 min-w-12 -translate-y-1/2 items-center justify-center rounded-full bg-surface-elevated/90 text-2xl text-primary shadow-lift disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"><span aria-hidden="true">←</span></button>
+              <button type="button" onClick={(event) => { event.stopPropagation(); goNext(); }} disabled={activeIndex === orderedImages.length - 1} aria-label="Imagen siguiente" className="absolute right-6 top-1/2 inline-flex min-h-12 min-w-12 -translate-y-1/2 items-center justify-center rounded-full bg-surface-elevated/90 text-2xl text-primary shadow-lift disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"><span aria-hidden="true">→</span></button>
             </>
           )}
           <img

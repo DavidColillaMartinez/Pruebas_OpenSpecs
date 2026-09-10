@@ -1,4 +1,4 @@
-import { PHONE_INTL, ADDRESS, INSTAGRAM_URL } from '../data/business';
+import { PHONE_INTL, INSTAGRAM_URL } from '../data/business';
 import { LRMQ_ASSETS } from '../config/mediaAssets';
 
 export function BusinessJsonLd() {

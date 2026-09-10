@@ -7,7 +7,6 @@ const CASCADE_SETTLE_MS = 1600;
 const WHEEL_COOLDOWN_MS = 420;
 
 const labelIndex = (label) => chapterLabels.indexOf(label);
-const VISION_INDEX = labelIndex('Visión');
 // Chapters whose cascade must wait for an external ready signal (logo draw, boceto video).
 const INITIAL_HELD_LABELS = ['Inicio', 'Visión'];
 // These chapters re-run their cascade on every re-entry, like Visión's headline beat.

@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { MobileSectionShell } from '../../components/MobileSectionShell';
 
-export function MobileVision({ reducedMotion }) {
+export function MobileVision({ reducedMotion: _reducedMotion }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);

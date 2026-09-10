@@ -9,7 +9,7 @@
   "packageManager": "pnpm@10.34.5",
   "scripts": {
     "dev": "vite",
-    "lint": "eslint src/features src/routes api server vite.config.js",
+    "lint": "eslint src api server vite.config.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "vite build",
@@ -34,6 +34,7 @@
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
     "jsdom": "^29.1.1",
+    "playwright": "^1.63.0",
     "postcss": "latest",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",

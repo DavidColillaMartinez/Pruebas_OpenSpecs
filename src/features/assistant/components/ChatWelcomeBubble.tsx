@@ -18,7 +18,10 @@ export function ChatWelcomeBubble({ onOpen, onPrepare }: { onOpen: () => void; o
 
   useEffect(() => {
     if (!shown || !visible) return undefined;
-    const hide = () => setVisible(false);
+    const hide = () => {
+      markWelcomeDismissed();
+      setVisible(false);
+    };
     hideTimerRef.current = window.setTimeout(hide, WELCOME_AUTO_HIDE_MS);
     return () => {
       if (hideTimerRef.current !== null) {
@@ -37,7 +40,10 @@ export function ChatWelcomeBubble({ onOpen, onPrepare }: { onOpen: () => void; o
 
   const resumeHide = () => {
     if (shown && visible && hideTimerRef.current === null) {
-      hideTimerRef.current = window.setTimeout(() => setVisible(false), WELCOME_AUTO_HIDE_MS);
+      hideTimerRef.current = window.setTimeout(() => {
+        markWelcomeDismissed();
+        setVisible(false);
+      }, WELCOME_AUTO_HIDE_MS);
     }
   };
 
@@ -52,12 +58,12 @@ export function ChatWelcomeBubble({ onOpen, onPrepare }: { onOpen: () => void; o
     onOpen();
   };
 
-  if (!visible || readWelcomeDismissed()) return null;
+  if (!visible || !shown || readWelcomeDismissed()) return null;
 
   return (
     <div
       aria-label="Sugerencia del asistente de Area LRMQ"
-      className="assistant-welcome assistant-welcome-in fixed right-4 z-40 flex w-[min(17rem,calc(100vw-2rem))] items-start gap-2.5 rounded-[1.4rem] border border-ink/10 bg-white/96 p-3 shadow-lift backdrop-blur sm:right-5 sm:w-[22.5rem] sm:gap-3 sm:p-3.5"
+      className="assistant-welcome assistant-welcome-in fixed right-4 z-40 flex w-[min(17rem,calc(100vw-2rem))] items-start gap-2.5 rounded-[1.4rem] border border-border-hairline/10 bg-surface-elevated/[0.96] p-3 shadow-lift backdrop-blur sm:right-5 sm:w-[22.5rem] sm:gap-3 sm:p-3.5"
       onMouseEnter={pauseHide}
       onMouseLeave={resumeHide}
       onFocus={pauseHide}

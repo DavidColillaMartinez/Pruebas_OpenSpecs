@@ -11,17 +11,38 @@ beforeEach(() => {
 });
 
 describe('ChatWelcomeBubble', () => {
-  it('appears after a short delay and hides itself without dismissing the session', () => {
+  it('appears only after the agreed short delay', () => {
     vi.useFakeTimers();
     try {
       render(<ChatWelcomeBubble onOpen={vi.fn()} />);
+      expect(screen.queryByRole('button', { name: OPEN_BUTTON })).not.toBeInTheDocument();
+
+      act(() => { vi.advanceTimersByTime(1199); });
+      expect(screen.queryByRole('button', { name: OPEN_BUTTON })).not.toBeInTheDocument();
+
+      act(() => { vi.advanceTimersByTime(1); });
+      expect(screen.getByRole('button', { name: OPEN_BUTTON })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('auto-hides after the delay and keeps it dismissed for the rest of the session', () => {
+    vi.useFakeTimers();
+    try {
+      const { unmount } = render(<ChatWelcomeBubble onOpen={vi.fn()} />);
 
       act(() => { vi.advanceTimersByTime(1200); });
       expect(screen.getByRole('button', { name: OPEN_BUTTON })).toBeInTheDocument();
 
       act(() => { vi.advanceTimersByTime(8000); });
       expect(screen.queryByRole('button', { name: OPEN_BUTTON })).not.toBeInTheDocument();
-      expect(sessionStorage.getItem(ASSISTANT_WELCOME_STORAGE_KEY)).toBeNull();
+      expect(sessionStorage.getItem(ASSISTANT_WELCOME_STORAGE_KEY)).toBe('dismissed');
+
+      unmount();
+      render(<ChatWelcomeBubble onOpen={vi.fn()} />);
+      act(() => { vi.advanceTimersByTime(3000); });
+      expect(screen.queryByRole('button', { name: OPEN_BUTTON })).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }

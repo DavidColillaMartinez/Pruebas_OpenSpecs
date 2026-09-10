@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { LogoMark } from '../../components/LogoMark';
 import { MobileSectionShell } from '../../components/MobileSectionShell';
-import { ContactLinks } from '../../components/ContactLinks';
 import { ContactForm } from '../../components/ContactForm';
 import { ContactIcon } from '../../components/ContactIcon';
 import { GOOGLE_BUSINESS_PROFILE_URL, PHONE, PHONE_INTL, MAPS_URL, INSTAGRAM_URL } from '../../data/business';
