@@ -11,6 +11,12 @@ export default {
         clay: '#c1aa67',
         graphite: '#2e3134',
         mist: '#d9e4e2',
+        surface: 'rgb(var(--lrmq-surface) / <alpha-value>)',
+        'surface-elevated': 'rgb(var(--lrmq-elevated) / <alpha-value>)',
+        'elevated-hover': 'rgb(var(--lrmq-elevated-hover) / <alpha-value>)',
+        primary: 'rgb(var(--lrmq-primary) / <alpha-value>)',
+        secondary: 'rgb(var(--lrmq-secondary) / <alpha-value>)',
+        'border-hairline': 'rgb(var(--lrmq-hairline) / <alpha-value>)',
       },
       boxShadow: {
         soft: '0 24px 80px rgba(35, 31, 27, 0.12)',

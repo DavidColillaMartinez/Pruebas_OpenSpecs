@@ -62,11 +62,11 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
 
   return (
     <section aria-labelledby="variant-selector-heading">
-      <h2 id="variant-selector-heading" className="text-lg font-semibold text-ink">Configura tu producto</h2>
+      <h2 id="variant-selector-heading" className="text-lg font-semibold text-primary">Configura tu producto</h2>
       <div className="mt-4 space-y-4">
         {Object.entries(options).map(([key, values]) => (
           <fieldset key={key}>
-            <legend className="text-sm font-semibold text-graphite">{labels[key] || key}</legend>
+            <legend className="text-sm font-semibold text-secondary">{labels[key] || key}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {values.map((value) => {
                 const isSelected = currentUnit?.attributes[key] === value;
@@ -76,7 +76,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                   key={value}
                     disabled={enforceCompatibility && !isCompatible}
                     type="button"
-                    className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:cursor-not-allowed disabled:opacity-40 ${isSelected ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
+                    className={`rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:cursor-not-allowed disabled:opacity-40 ${isSelected ? 'border-ink bg-ink text-white' : 'border-border-hairline/20 text-secondary hover:border-border-hairline/50'}`}
                     aria-pressed={isSelected}
                     aria-disabled={enforceCompatibility && !isCompatible}
                     onClick={() => {
@@ -96,7 +96,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
         ))}
       </div>
       {currentUnit?.variantSnapshot && (
-        <p className="mt-4 text-sm text-graphite" aria-live="polite">
+        <p className="mt-4 text-sm text-secondary" aria-live="polite">
           {currentUnit.variantSnapshot.reference ? `Referencia: ${currentUnit.variantSnapshot.reference}` : 'Configuración seleccionada'}
         </p>
       )}

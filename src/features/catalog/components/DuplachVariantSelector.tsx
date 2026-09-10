@@ -132,7 +132,7 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
 
   return (
     <section aria-labelledby="duplach-selector-heading">
-      <h2 id="duplach-selector-heading" className="text-lg font-semibold text-ink">Configura tu plato de ducha</h2>
+      <h2 id="duplach-selector-heading" className="text-lg font-semibold text-primary">Configura tu plato de ducha</h2>
       <div className="mt-4 space-y-4">
         {groups.map(({ key, options }) => {
           const label = DUPLACH_FILTER_LABELS[key] || key;
@@ -140,12 +140,12 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
           if (key === 'measure') {
             return (
               <div key={key}>
-                <label htmlFor="duplach-measure-select" className="text-sm font-semibold text-graphite">{label}</label>
+                <label htmlFor="duplach-measure-select" className="text-sm font-semibold text-secondary">{label}</label>
                 <select
                   id="duplach-measure-select"
                   value={selection.measure ?? ''}
                   onChange={(event) => { if (event.target.value) selectValue('measure', event.target.value); }}
-                  className="mt-2 block min-h-11 w-full max-w-xs rounded-lg border border-ink/20 bg-white px-3 text-sm text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+                  className="mt-2 block min-h-11 w-full max-w-xs rounded-lg border border-border-hairline/20 bg-surface-elevated px-3 text-sm text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
                 >
                   {options.map((value) => <option key={value} value={value}>{value}</option>)}
                 </select>
@@ -155,7 +155,7 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
           if (key === 'color' || key === 'finish') {
             return (
               <fieldset key={key} disabled={key === 'finish' && !activeFamily}>
-                <legend className="text-sm font-semibold text-graphite">{label}</legend>
+                <legend className="text-sm font-semibold text-secondary">{label}</legend>
                 <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
                   {options.map((value) => {
                     const image = swatchImage(key, value);
@@ -169,10 +169,10 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
                         aria-pressed={selected}
                         aria-expanded={enlargedActive}
                         onClick={() => activateOption(key, value)}
-                        className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border bg-white text-center transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${selected ? 'border-ink ring-2 ring-ink' : 'border-ink/20 hover:border-ink/50'} ${enlargedActive ? 'z-10 scale-125 shadow-lift' : ''}`}
+                        className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border bg-surface-elevated text-center transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${selected ? 'border-ink ring-2 ring-ink' : 'border-border-hairline/20 hover:border-border-hairline/50'} ${enlargedActive ? 'z-10 scale-125 shadow-lift' : ''}`}
                       >
                         {image && <img src={image.url} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
-                        <span className={`relative z-[1] mx-1 max-h-full overflow-hidden break-words rounded-full bg-white/92 px-1.5 py-1 text-xs font-semibold text-ink shadow-soft transition-opacity duration-150 ${showLabel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'}`}>{displayOption(value)}</span>
+                        <span className={`relative z-[1] mx-1 max-h-full overflow-hidden break-words rounded-full bg-surface-elevated/92 px-1.5 py-1 text-xs font-semibold text-primary shadow-soft transition-opacity duration-150 ${showLabel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'}`}>{displayOption(value)}</span>
                       </button>
                     );
                   })}
@@ -182,7 +182,7 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
           }
           return (
             <fieldset key={key}>
-              <legend className="text-sm font-semibold text-graphite">{label}</legend>
+              <legend className="text-sm font-semibold text-secondary">{label}</legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {options.map((value) => (
                   <button
@@ -190,7 +190,7 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
                     type="button"
                     aria-pressed={isSelected(key, value)}
                     onClick={() => selectValue(key, value)}
-                    className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected(key, value) ? 'border-ink bg-ink text-white' : 'border-ink/20 text-graphite hover:border-ink/50'}`}
+                    className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${isSelected(key, value) ? 'border-ink bg-ink text-white' : 'border-border-hairline/20 text-secondary hover:border-border-hairline/50'}`}
                   >
                     {displayOption(value)}
                   </button>
@@ -201,10 +201,10 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
         })}
       </div>
       {familyFirst && !activeFamily && (
-        <p className="mt-4 text-sm text-graphite" role="status">Selecciona una familia para elegir su acabado.</p>
+        <p className="mt-4 text-sm text-secondary" role="status">Selecciona una familia para elegir su acabado.</p>
       )}
       {currentUnit && (
-        <p className="mt-4 text-sm text-graphite" aria-live="polite">
+        <p className="mt-4 text-sm text-secondary" aria-live="polite">
           {currentUnit.variantSnapshot?.reference ? `Referencia: ${String(currentUnit.variantSnapshot.reference)}` : 'Configuración seleccionada'}
         </p>
       )}

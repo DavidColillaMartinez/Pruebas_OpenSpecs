@@ -109,6 +109,8 @@ describe('ProductDetailPage', () => {
     renderDetail('no-existe-lrmq');
     expect(await screen.findByRole('heading', { name: 'Producto no encontrado' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Volver al catálogo' })).toHaveAttribute('href', '/productos');
+    expect(document.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe('noindex, follow');
+    expect(document.title).toBe('Producto no encontrado · AREA LRMQ');
   });
 
   it('renders direct variant lighting fields and version from the active API variant', async () => {

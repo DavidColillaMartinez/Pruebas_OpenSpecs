@@ -41,15 +41,15 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
   };
 
   return (
-    <article className="group min-w-0 border-b border-ink/10 pb-8">
+    <article className="group min-w-0 border-b border-border-hairline/10 pb-8">
       <Link
         to={`/productos/${encodeURIComponent(product.slug)}`}
         onClick={() => sessionStorage.setItem(CATALOG_RETURN_STORAGE_KEY, JSON.stringify({ search: location.search, scrollY: window.scrollY }))}
         onMouseEnter={() => prefetchProductBySlug(product.slug)}
         onFocus={() => prefetchProductBySlug(product.slug)}
-        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain"
+        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
       >
-        <div className="catalog-card-image-frame relative flex aspect-[1489/2105] items-center justify-center overflow-hidden border-y border-ink/10" aria-busy={imageState === 'loading' && Boolean(activeImage)}>
+        <div className="catalog-card-image-frame relative flex aspect-[1489/2105] items-center justify-center overflow-hidden border-y border-border-hairline/10" aria-busy={imageState === 'loading' && Boolean(activeImage)}>
           {activeImage ? (
             <img
               key={activeImage.url}
@@ -64,17 +64,17 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
               onError={() => markImageFailed(activeImage.url)}
             />
           ) : (
-            <span className="text-center text-sm text-graphite">Imagen no disponible</span>
+            <span className="text-center text-sm text-secondary">Imagen no disponible</span>
           )}
           {activeImage && imageState === 'loading' && <span className="sr-only" role="status">Cargando imagen</span>}
         </div>
         <div className="catalog-card-text min-h-[7rem] pt-4">
-          {metadata && <p className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">{metadata}</p>}
-          {title && <h2 className="mt-1 font-body text-lg font-semibold leading-snug text-ink transition-colors duration-200 ease-out group-hover:text-graphite motion-reduce:transition-none">{title}</h2>}
+          {metadata && <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">{metadata}</p>}
+          {title && <h2 className="mt-1 font-body text-lg font-semibold leading-snug text-primary transition-colors duration-200 ease-out group-hover:text-secondary motion-reduce:transition-none">{title}</h2>}
           {!isRoyo && (product.collection || product.subcategory) && (
-            <p className="mt-1 text-sm text-graphite">{product.collection || product.subcategory}</p>
+            <p className="mt-1 text-sm text-secondary">{product.collection || product.subcategory}</p>
           )}
-          {modularityLabel && <p className="mt-1 text-sm text-graphite">Modularidad: {modularityLabel}</p>}
+          {modularityLabel && <p className="mt-1 text-sm text-secondary">Modularidad: {modularityLabel}</p>}
         </div>
       </Link>
     </article>

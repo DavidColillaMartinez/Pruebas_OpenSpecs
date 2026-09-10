@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { applyRouteMeta } from './routeMeta';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export function NotFoundPage() {
   useEffect(() => {
@@ -14,12 +15,13 @@ export function NotFoundPage() {
   }, []);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-porcelain px-6 text-center text-ink">
+    <main className="grid min-h-screen place-items-center bg-surface px-6 text-center text-primary">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-graphite">404</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">404</p>
         <h1 className="mt-3 font-display text-5xl">Página no encontrada</h1>
-        <p className="mt-4 text-graphite">Puedes volver al inicio o explorar el catálogo completo.</p>
-        <div className="mt-6 flex flex-col items-center gap-3">
+        <p className="mt-4 text-secondary">Puedes volver al inicio o explorar el catálogo completo.</p>
+          <div className="mt-6 flex flex-col items-center gap-3">
+          <ThemeToggle />
           <Link to="/" className="inline-block font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Volver al inicio</Link>
           <Link to="/productos" className="inline-block font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Explorar el catálogo</Link>
         </div>

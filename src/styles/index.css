@@ -3,9 +3,17 @@
 @tailwind utilities;
 
 :root {
+  /* Role tokens. Light values equal the approved light palette; dark overrides below. */
+  --lrmq-surface: 251 250 247;
+  --lrmq-elevated: 255 255 255;
+  --lrmq-elevated-hover: 244 241 236;
+  --lrmq-primary: 21 21 21;
+  --lrmq-secondary: 46 49 52;
+  --lrmq-hairline: 21 21 21;
+
   --brand-map-gradient: linear-gradient(135deg, #d8d0c2, #f8f6f1 45%, #c1aa67 160%);
-  color: #151515;
-  background: #f7f3eb;
+  color: rgb(var(--lrmq-primary));
+  background: rgb(var(--lrmq-surface));
   background-image:
     linear-gradient(115deg, rgba(255,255,255,0.82) 0%, rgba(247,243,235,0.72) 34%, rgba(224,215,201,0.5) 100%),
     radial-gradient(ellipse at 18% 34%, rgba(185,131,100,0.13) 0%, transparent 46%),
@@ -16,6 +24,29 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='dark'] {
+  /* Dark roles: same components, adjusted channel values. Text keeps AA contrast on both surfaces. */
+  --lrmq-surface: 21 21 22;
+  --lrmq-elevated: 34 34 35;
+  --lrmq-elevated-hover: 46 46 48;
+  --lrmq-primary: 242 238 230;
+  --lrmq-secondary: 201 196 187;
+  --lrmq-hairline: 242 238 230;
+
+  --brand-map-gradient: linear-gradient(135deg, #3a3428, #221f19 45%, #8f7c3d 160%);
+  background-image:
+    linear-gradient(115deg, rgba(21,21,22,0.86) 0%, rgba(31,30,29,0.78) 34%, rgba(52,48,40,0.5) 100%),
+    radial-gradient(ellipse at 18% 34%, rgba(112,76,56,0.22) 0%, transparent 46%),
+    radial-gradient(ellipse at 84% 18%, rgba(242,238,230,0.05) 0%, transparent 42%),
+    radial-gradient(ellipse at 62% 86%, rgba(196,168,110,0.1) 0%, transparent 48%);
+}
+
+[data-theme='dark'] body::before {
+  background:
+    linear-gradient(90deg, rgba(242,238,230,0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(242,238,230,0.035) 1px, transparent 1px);
 }
 
 html {
@@ -56,6 +87,7 @@ body::before {
   body.landing-narrative {
     overflow: hidden;
     height: 100svh;
+    background: rgb(var(--lrmq-elevated));
   }
 }
 

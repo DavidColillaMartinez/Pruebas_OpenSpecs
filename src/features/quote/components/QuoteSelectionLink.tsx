@@ -9,8 +9,8 @@ export function QuoteSelectionLink({ compact = false, tone = 'light' }: { compac
       to="/presupuesto"
       aria-label={`Presupuesto, ${count} ${count === 1 ? 'selección' : 'selecciones'}`}
       className={compact
-        ? `inline-flex min-h-11 items-center justify-center rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dark ? 'border-white/35 text-white hover:border-white/80' : 'border-ink/15 text-ink hover:border-ink/40'}`
-        : `inline-flex min-h-11 items-center justify-center rounded-full border px-4 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dark ? 'border-white/35 text-white hover:border-white/80' : 'border-ink/15 bg-white/75 text-ink hover:border-ink/40'}`}
+        ? `inline-flex min-h-11 items-center justify-center rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dark ? 'border-white/35 text-white hover:border-white/80' : 'border-border-hairline/15 text-primary hover:border-border-hairline/40'}`
+        : `inline-flex min-h-11 items-center justify-center rounded-full border px-4 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dark ? 'border-white/35 text-white hover:border-white/80' : 'border-border-hairline/15 bg-surface-elevated/75 text-primary hover:border-border-hairline/40'}`}
     >
       {count > 0 ? `Presupuesto (${count})` : 'Mis selecciones (0)'}
     </Link>

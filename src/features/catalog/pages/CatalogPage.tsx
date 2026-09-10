@@ -6,6 +6,7 @@ import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
 import { CatalogSelectionSummary } from '../../quote/components/CatalogSelectionSummary';
 import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from '../../../components/ScrollTopButton';
+import { ThemeToggle } from '../../../components/ThemeToggle';
 import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterProfile, getDisplayCatalogFilterKeys, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
@@ -29,9 +30,9 @@ function ActiveFilters({ query, labels, visibleKeys, onRemove }: { query: Catalo
 
   return (
     <div className="mt-6 flex flex-wrap items-center gap-2" aria-label="Filtros activos">
-      {query.search && <button type="button" onClick={() => onRemove('search', query.search)} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-stonewash px-3 text-sm text-ink transition-colors duration-200 ease-out hover:bg-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Buscar: {query.search}<span aria-hidden="true">×</span><span className="sr-only">Quitar búsqueda</span></button>}
+      {query.search && <button type="button" onClick={() => onRemove('search', query.search)} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-elevated-hover px-3 text-sm text-primary transition-colors duration-200 ease-out hover:bg-elevated-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Buscar: {query.search}<span aria-hidden="true">×</span><span className="sr-only">Quitar búsqueda</span></button>}
       {entries.map(({ key, value }) => (
-        <button key={`${key}-${value}`} type="button" onClick={() => onRemove(key, value)} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-stonewash px-3 text-sm text-ink transition-colors duration-200 ease-out hover:bg-mist focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+        <button key={`${key}-${value}`} type="button" onClick={() => onRemove(key, value)} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-elevated-hover px-3 text-sm text-primary transition-colors duration-200 ease-out hover:bg-elevated-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
           {labels[`${key}:${value}`] || value}<span aria-hidden="true">×</span><span className="sr-only">Quitar filtro</span>
         </button>
       ))}
@@ -83,31 +84,32 @@ export function CatalogPage() {
   }, [data.loadedPage, data.status, location.search, query.page]);
 
   return (
-    <main className="min-h-screen bg-porcelain px-5 py-6 pb-24 text-ink sm:px-8 sm:py-10 xl:pb-10" id="catalog-content" aria-labelledby="catalog-heading">
+    <main className="min-h-screen bg-surface px-5 py-6 pb-24 text-primary sm:px-8 sm:py-10 xl:pb-10" id="catalog-content" aria-labelledby="catalog-heading">
       <div className="mx-auto max-w-7xl">
         <a href="#catalog-results" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Saltar a resultados</a>
-        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-porcelain">
+        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-secondary underline-offset-4 transition-colors duration-200 ease-out hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
           <span aria-hidden="true">←</span> Volver a AREA LRMQ
         </Link>
+        <div className="flex items-center justify-end"><ThemeToggle /></div>
         <CatalogMasthead />
-        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-graphite" aria-live="polite">{totalLabel}</p>
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-secondary" aria-live="polite">{totalLabel}</p>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16 xl:grid-cols-[15rem_minmax(0,1fr)_18rem]">
           <CatalogFilterPanel facets={data.facets} filters={query.filters} profile={filterProfile} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
           <section id="catalog-results" tabIndex={-1} aria-labelledby="catalog-results-heading" aria-busy={data.status === 'loading'} className="min-w-0 scroll-mt-6 focus-visible:outline-none">
-            <div className="flex flex-col gap-4 border-b border-ink/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 border-b border-border-hairline/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0 flex-1">
-                <label htmlFor="catalog-search" className="text-xs font-semibold uppercase tracking-[0.16em] text-graphite">Buscar en el catálogo</label>
+                <label htmlFor="catalog-search" className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">Buscar en el catálogo</label>
                 <div className="mt-2 flex gap-2">
-                  <input id="catalog-search" type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="Nombre, colección o producto" className="min-h-12 min-w-0 flex-1 rounded-lg border border-ink/20 bg-white px-4 text-base text-ink outline-none transition-shadow duration-200 ease-out placeholder:text-graphite/60 focus:border-clay focus:ring-2 focus:ring-clay/30" />
-                  {searchInput && <button type="button" onClick={() => setSearchInput('')} className="min-h-12 rounded-lg px-3 text-sm font-semibold text-graphite underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Limpiar</button>}
+                  <input id="catalog-search" type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="Nombre, colección o producto" className="min-h-12 min-w-0 flex-1 rounded-lg border border-border-hairline/20 bg-surface-elevated px-4 text-base text-primary outline-none transition-shadow duration-200 ease-out placeholder:text-secondary/60 focus:border-clay focus:ring-2 focus:ring-clay/30" />
+                  {searchInput && <button type="button" onClick={() => setSearchInput('')} className="min-h-12 rounded-lg px-3 text-sm font-semibold text-secondary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Limpiar</button>}
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button type="button" className="min-h-11 rounded-full border border-ink/20 bg-white px-4 text-sm font-semibold transition-colors duration-200 ease-out hover:border-ink/40 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" aria-expanded={mobileFiltersOpen} onClick={() => setMobileFiltersOpen(true)}>Filtros</button>
-                <label className="flex min-h-11 items-center gap-2 text-sm text-graphite">
+                <button type="button" className="min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated px-4 text-sm font-semibold transition-colors duration-200 ease-out hover:border-border-hairline/40 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" aria-expanded={mobileFiltersOpen} onClick={() => setMobileFiltersOpen(true)}>Filtros</button>
+                <label className="flex min-h-11 min-w-0 items-center gap-2 text-sm text-secondary">
                   <span className="sr-only">Ordenar por</span>
-                  <select value={query.sort} onChange={(event) => setSort(event.target.value as CatalogSortValue)} className="min-h-11 rounded-lg border border-ink/20 bg-white px-3 text-sm text-ink outline-none transition-shadow duration-200 ease-out focus:border-clay focus:ring-2 focus:ring-clay/30" aria-label="Ordenar por">
+                  <select value={query.sort} onChange={(event) => setSort(event.target.value as CatalogSortValue)} className="max-w-full min-h-11 min-w-0 rounded-lg border border-border-hairline/20 bg-surface-elevated px-3 text-sm text-primary outline-none transition-shadow duration-200 ease-out focus:border-clay focus:ring-2 focus:ring-clay/30" aria-label="Ordenar por">
                     {(Object.keys(sortLabels) as CatalogSortValue[]).map((sort) => <option key={sort} value={sort} disabled={sort !== 'relevance' && !sortSupported.has(sort)}>{sortLabels[sort]}</option>)}
                   </select>
                 </label>
@@ -115,23 +117,23 @@ export function CatalogPage() {
             </div>
 
              <ActiveFilters query={query} labels={facetLabels} visibleKeys={visibleFilterKeys} onRemove={(key, value) => key === 'search' ? setSearchInput('') : removeFilter(key, value)} />
-            {(hasActiveCriteria || query.sort !== 'relevance') && <button type="button" onClick={clearFilters} className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-graphite underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Limpiar filtros</button>}
+            {(hasActiveCriteria || query.sort !== 'relevance') && <button type="button" onClick={clearFilters} className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-secondary underline-offset-4 transition-colors duration-200 ease-out hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Limpiar filtros</button>}
 
             <div className="mt-10 flex items-end justify-between gap-4">
               <h2 id="catalog-results-heading" className="font-display text-3xl">Resultados</h2>
-              <p className="text-sm text-graphite">{data.total !== null ? `Mostrando ${showing} de ${data.total}` : showing > 0 ? `Mostrando ${showing} productos` : ''}</p>
+              <p className="text-sm text-secondary">{data.total !== null ? `Mostrando ${showing} de ${data.total}` : showing > 0 ? `Mostrando ${showing} productos` : ''}</p>
             </div>
 
             <div className="sr-only" aria-live="polite" role="status">{data.status === 'success' ? `${showing} productos mostrados` : data.status === 'loading' ? 'Cargando productos' : ''}</div>
             {isLoadingInitial && (
               <div className="mt-10 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
                 {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="animate-pulse rounded-2xl bg-white/72 p-3 shadow-soft ring-1 ring-ink/5">
-                    <div className="aspect-[4/3] rounded-xl bg-stonewash" />
+                  <div key={index} className="animate-pulse rounded-2xl bg-surface-elevated/72 p-3 shadow-soft ring-1 ring-ink/5">
+                    <div className="aspect-[4/3] rounded-xl bg-elevated-hover" />
                     <div className="space-y-2 px-1 pb-2 pt-4">
-                      <div className="h-3 w-1/3 rounded-full bg-stonewash" />
-                      <div className="h-4 w-3/4 rounded-full bg-stonewash" />
-                      <div className="h-3 w-1/2 rounded-full bg-stonewash" />
+                      <div className="h-3 w-1/3 rounded-full bg-elevated-hover" />
+                      <div className="h-4 w-3/4 rounded-full bg-elevated-hover" />
+                      <div className="h-3 w-1/2 rounded-full bg-elevated-hover" />
                     </div>
                   </div>
                 ))}
@@ -144,9 +146,9 @@ export function CatalogPage() {
               </div>
             )}
             {data.status === 'success' && showing === 0 && (
-              <div className="mt-10 rounded-xl border border-ink/10 bg-stonewash p-8">
+              <div className="mt-10 rounded-xl border border-border-hairline/10 bg-elevated-hover p-8">
                 <h3 className="font-display text-2xl">{hasActiveCriteria ? 'No hay coincidencias' : 'Catálogo vacío'}</h3>
-                <p className="mt-2 max-w-xl text-graphite">{hasActiveCriteria ? 'Prueba a retirar algún criterio o limpia la búsqueda para volver a explorar todas las piezas.' : 'No hay productos públicos disponibles en este momento.'}</p>
+                <p className="mt-2 max-w-xl text-secondary">{hasActiveCriteria ? 'Prueba a retirar algún criterio o limpia la búsqueda para volver a explorar todas las piezas.' : 'No hay productos públicos disponibles en este momento.'}</p>
                 {hasActiveCriteria && <button type="button" onClick={clearFilters} className="mt-5 font-semibold underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Limpiar filtros</button>}
               </div>
             )}
@@ -163,14 +165,14 @@ export function CatalogPage() {
             )}
             {showing > 0 && data.hasMore && (
               <div className="mt-10 flex justify-center">
-                <button type="button" onClick={loadMore} disabled={data.loadingMore} aria-controls="catalog-items" className="min-h-12 rounded-full border border-ink/30 bg-white px-6 text-sm font-semibold shadow-soft transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-white hover:shadow-lift disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+                <button type="button" onClick={loadMore} disabled={data.loadingMore} aria-controls="catalog-items" className="min-h-12 rounded-full border border-border-hairline/30 bg-surface-elevated px-6 text-sm font-semibold shadow-soft transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-white hover:shadow-lift disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                   {data.loadingMore ? 'Cargando…' : data.total !== null ? `Cargar más (${Math.max(0, data.total - showing)})` : 'Cargar más productos'}
                 </button>
               </div>
             )}
-            {showing > 0 && !data.hasMore && <p className="mt-10 text-center text-sm text-graphite">Has llegado al final del catálogo.</p>}
-            {data.status === 'loading' && showing > 0 && <p className="mt-8 text-center text-sm text-graphite" role="status">Cargando más productos…</p>}
-            <p className="mt-12 text-xs text-graphite/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
+            {showing > 0 && !data.hasMore && <p className="mt-10 text-center text-sm text-secondary">Has llegado al final del catálogo.</p>}
+            {data.status === 'loading' && showing > 0 && <p className="mt-8 text-center text-sm text-secondary" role="status">Cargando más productos…</p>}
+            <p className="mt-12 text-xs text-secondary/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
           </section>
           <CatalogSelectionSummary />
           <ScrollTopButton show={scrollTopVisible} onClick={scrollWindowToTop} />

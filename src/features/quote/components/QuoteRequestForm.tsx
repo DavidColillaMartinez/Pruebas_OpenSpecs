@@ -118,39 +118,39 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
 
   return (
     <section aria-labelledby="quote-heading">
-      <h2 id="quote-heading" className="text-2xl font-semibold text-ink">Solicitar presupuesto</h2>
-      <p className="mt-2 text-sm text-graphite">Producto: {product.name}{selectedSummary ? ` · ${selectedSummary}` : ''}</p>
+      <h2 id="quote-heading" className="text-2xl font-semibold text-primary">Solicitar presupuesto</h2>
+      <p className="mt-2 text-sm text-secondary">Producto: {product.name}{selectedSummary ? ` · ${selectedSummary}` : ''}</p>
       <form className="mt-5 space-y-4" onSubmit={handleSubmit} noValidate>
         <div>
-          <label htmlFor="quote-name" className="text-sm font-semibold text-graphite">Nombre</label>
-          <input id="quote-name" value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} aria-invalid={Boolean(fieldErrors.customerName)} aria-describedby={fieldErrors.customerName ? 'quote-name-error' : undefined} className="mt-1 w-full rounded-lg border border-ink/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+          <label htmlFor="quote-name" className="text-sm font-semibold text-secondary">Nombre</label>
+          <input id="quote-name" value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} aria-invalid={Boolean(fieldErrors.customerName)} aria-describedby={fieldErrors.customerName ? 'quote-name-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
           {fieldErrors.customerName && <p id="quote-name-error" className="mt-1 text-sm text-red-700">{fieldErrors.customerName}</p>}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="quote-email" className="text-sm font-semibold text-graphite">Email</label>
-            <input id="quote-email" type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? 'quote-email-error' : undefined} className="mt-1 w-full rounded-lg border border-ink/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+            <label htmlFor="quote-email" className="text-sm font-semibold text-secondary">Email</label>
+            <input id="quote-email" type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? 'quote-email-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
             {fieldErrors.email && <p id="quote-email-error" className="mt-1 text-sm text-red-700">{fieldErrors.email}</p>}
           </div>
           <div>
-            <label htmlFor="quote-phone" className="text-sm font-semibold text-graphite">Teléfono</label>
-            <input id="quote-phone" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} aria-invalid={Boolean(fieldErrors.phone)} aria-describedby={fieldErrors.phone ? 'quote-phone-error' : undefined} className="mt-1 w-full rounded-lg border border-ink/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+            <label htmlFor="quote-phone" className="text-sm font-semibold text-secondary">Teléfono</label>
+            <input id="quote-phone" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} aria-invalid={Boolean(fieldErrors.phone)} aria-describedby={fieldErrors.phone ? 'quote-phone-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
             {fieldErrors.phone && <p id="quote-phone-error" className="mt-1 text-sm text-red-700">{fieldErrors.phone}</p>}
           </div>
         </div>
         {fieldErrors.contact && <p className="text-sm text-red-700">{fieldErrors.contact}</p>}
         <div>
-          <label htmlFor="quote-quantity" className="text-sm font-semibold text-graphite">Cantidad</label>
-          <input id="quote-quantity" type="number" min="1" max="999" value={form.quantity} onChange={(event) => updateField('quantity', Number(event.target.value))} className="mt-1 w-24 rounded-lg border border-ink/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+          <label htmlFor="quote-quantity" className="text-sm font-semibold text-secondary">Cantidad</label>
+          <input id="quote-quantity" type="number" min="1" max="999" value={form.quantity} onChange={(event) => updateField('quantity', Number(event.target.value))} className="mt-1 w-24 rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
           {fieldErrors.quantity && <p className="mt-1 text-sm text-red-700">{fieldErrors.quantity}</p>}
         </div>
         <div>
-          <label htmlFor="quote-message" className="text-sm font-semibold text-graphite">Mensaje</label>
-          <textarea id="quote-message" rows={4} value={form.message} onChange={(event) => updateField('message', event.target.value)} aria-invalid={Boolean(fieldErrors.message)} aria-describedby={fieldErrors.message ? 'quote-message-error' : undefined} className="mt-1 w-full rounded-lg border border-ink/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+          <label htmlFor="quote-message" className="text-sm font-semibold text-secondary">Mensaje</label>
+          <textarea id="quote-message" rows={4} value={form.message} onChange={(event) => updateField('message', event.target.value)} aria-invalid={Boolean(fieldErrors.message)} aria-describedby={fieldErrors.message ? 'quote-message-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
           {fieldErrors.message && <p id="quote-message-error" className="mt-1 text-sm text-red-700">{fieldErrors.message}</p>}
         </div>
         {fieldErrors.selection && <p className="text-sm text-red-700">{fieldErrors.selection}</p>}
-        <label className="flex items-start gap-2 text-sm text-graphite">
+        <label className="flex items-start gap-2 text-sm text-secondary">
           <input type="checkbox" checked={form.consentPrivacy} onChange={(event) => updateField('consentPrivacy', event.target.checked)} aria-invalid={Boolean(fieldErrors.consentPrivacy)} aria-describedby={fieldErrors.consentPrivacy ? 'quote-consent-error' : undefined} className="mt-1" />
           Acepto la política de privacidad.
         </label>

@@ -98,10 +98,8 @@ export function LandingPage() {
 
   useEffect(() => {
     document.body.classList.add('landing-narrative');
-    document.body.style.background = '#ffffff';
     return () => {
       document.body.classList.remove('landing-narrative');
-      document.body.style.background = '';
     };
   }, []);
 

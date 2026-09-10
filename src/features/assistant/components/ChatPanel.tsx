@@ -144,18 +144,18 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       onKeyDown={handleKeyDown}
       onWheel={(event) => event.stopPropagation()}
       onTouchMove={(event) => event.stopPropagation()}
-      className="assistant-panel-in fixed bottom-24 right-4 z-[70] flex max-h-[min(38rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.75rem] border border-ink/10 bg-porcelain/95 shadow-lift backdrop-blur md:right-5"
+      className="assistant-panel-in fixed bottom-24 right-4 z-[70] flex max-h-[min(38rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-[1.75rem] border border-border-hairline/10 bg-surface/[0.95] shadow-lift backdrop-blur md:right-5"
     >
-      <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-b border-ink/8 px-4 py-3.5 md:px-5 md:py-4">
+      <header className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 border-b border-border-hairline/8 px-4 py-3.5 md:px-5 md:py-4">
         <div className="min-w-0">
-          <h2 className="font-display text-lg leading-tight text-ink">Asistente de Area LRMQ</h2>
-          <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-ink/55">Reformas · Tienda</p>
+          <h2 className="font-display text-lg leading-tight text-primary">Asistente de Area LRMQ</h2>
+          <p className="mt-0.5 text-[11px] uppercase tracking-[0.14em] text-secondary/70">Reformas · Tienda</p>
         </div>
         <div className="flex items-center">
           <button
             type="button"
             onClick={startNewConversation}
-            className="min-h-11 whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold text-ink/70 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+            className="min-h-11 whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold text-secondary/70 transition hover:bg-elevated-hover hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
           >
             Nueva conversación
           </button>
@@ -163,7 +163,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             type="button"
             aria-label="Cerrar el asistente"
             onClick={onClose}
-            className="grid h-11 w-11 place-items-center rounded-full text-ink/70 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+            className="grid h-11 w-11 place-items-center rounded-full text-secondary/70 transition hover:bg-elevated-hover hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
           >
             <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" /></svg>
           </button>
@@ -175,7 +175,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       )}
 
       {expired && (
-        <p className="border-b border-ink/10 bg-stonewash px-5 py-2 text-xs text-graphite">
+        <p className="border-b border-border-hairline/10 bg-elevated-hover px-5 py-2 text-xs text-secondary">
           La conversación anterior ha caducado. Tus datos con el asistente se renuevan al continuar; el servidor guarda su propia caducidad.
         </p>
       )}
@@ -191,7 +191,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
               {message.role === 'assistant' ? (
                 message.products?.length ? (
                   <div className="max-w-[95%]">
-                    <p className="text-sm leading-relaxed text-ink">{message.text}</p>
+                    <p className="text-sm leading-relaxed text-primary">{message.text}</p>
                     <div className="mt-2 space-y-2">
                       {message.products.map((product) => (
                         <AssistantProductCard key={`${message.id}-${product.internalPath}`} product={product} />
@@ -202,14 +202,14 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                 ) : (
                   message.errorKind ? (
                     <div className="max-w-[92%] rounded-2xl rounded-tl-md border border-clay/40 bg-clay/10 px-4 py-3">
-                      <p className="text-sm leading-relaxed text-ink">{message.text}</p>
+                      <p className="text-sm leading-relaxed text-primary">{message.text}</p>
                       {message.errorKind !== 'SESSION_EXPIRED' && (
                         <button
                           type="button"
                           onClick={retry}
                           disabled={isSending}
                           aria-label="Reintentar el último mensaje"
-                          className="mt-2.5 inline-flex min-h-9 items-center gap-2 rounded-full bg-clay/20 px-4 py-1.5 text-xs font-semibold text-ink transition hover:-translate-y-0.5 hover:bg-clay/30 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+                          className="mt-2.5 inline-flex min-h-9 items-center gap-2 rounded-full bg-clay/20 px-4 py-1.5 text-xs font-semibold text-primary transition hover:-translate-y-0.5 hover:bg-clay/30 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
                         >
                           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 12a8 8 0 1 1 2.3 5.6M4 12V7m0 5h5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           Reintentar
@@ -218,7 +218,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                     </div>
                   ) : (
                     <div className="max-w-[92%]">
-                      <p className="rounded-2xl rounded-tl-md bg-white/85 px-4 py-3 shadow-soft text-sm leading-relaxed text-ink">
+                      <p className="rounded-2xl rounded-tl-md bg-surface-elevated/85 px-4 py-3 shadow-soft text-sm leading-relaxed text-primary">
                         {message.text}
                       </p>
                       <AssistantActions actions={message.actions ?? []} />
@@ -233,7 +233,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
             </li>
           ))}
           {isSending && (
-            <li className="flex items-center gap-2 text-xs text-ink/55">
+            <li className="flex items-center gap-2 text-xs text-secondary/70">
               <span className="inline-flex gap-1" aria-hidden="true">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-clay [animation-delay:-160ms]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-clay [animation-delay:-80ms]" />
@@ -246,7 +246,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
       </div>
 
       <form
-        className="mx-3 mb-3 mt-2 flex items-end gap-2 rounded-[1.5rem] border border-ink/10 bg-white/85 p-1.5 shadow-soft"
+        className="mx-3 mb-3 mt-2 flex items-end gap-2 rounded-[1.5rem] border border-border-hairline/10 bg-surface-elevated/85 p-1.5 shadow-soft"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -267,7 +267,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           rows={1}
           placeholder="Escribe tu mensaje…"
           disabled={isSending}
-          className="assistant-composer-input min-h-11 max-h-[8.25rem] flex-1 resize-none rounded-[1.25rem] border-0 bg-transparent px-3.5 py-2.5 text-sm leading-6 text-ink placeholder:text-ink/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60"
+          className="assistant-composer-input min-h-11 max-h-[8.25rem] flex-1 resize-none rounded-[1.25rem] border-0 bg-transparent px-3.5 py-2.5 text-sm leading-6 text-primary placeholder:text-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60"
         />
         <button
           type="submit"
