@@ -63,6 +63,8 @@
   transition: filter 300ms ease;
 }
 
+/* Dark-glass nav pill for sections WITHOUT photography behind (not Inicio).
+ * Inicio keeps a transparent pill with a hairline border on both themes. */
 [data-theme='dark'] .lrmq-nav-pill {
   background-color: rgba(46, 47, 50, 0.88);
   border-color: rgba(228, 226, 220, 0.16);

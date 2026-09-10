@@ -52,15 +52,6 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     return () => restoreFocusRef.current?.focus();
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open]);
-
   const scrollToLatest = () => {
     const container = messagesRef.current;
     if (!container) return;

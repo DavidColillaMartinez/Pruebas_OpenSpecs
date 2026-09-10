@@ -103,10 +103,10 @@ describe('ChatPanel composer', () => {
 });
 
 describe('ChatPanel dialog accessibility', () => {
-  it('marks the panel as a modal dialog and locks the body scroll while open', () => {
+  it('marks the panel as a modal dialog without locking the background scroll', () => {
     const { unmount } = render(<ChatPanel open onClose={vi.fn()} />);
     expect(screen.getByRole('dialog', { name: 'Asistente de Area LRMQ' })).toHaveAttribute('aria-modal', 'true');
-    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.body.style.overflow).toBe('');
 
     unmount();
     expect(document.body.style.overflow).toBe('');

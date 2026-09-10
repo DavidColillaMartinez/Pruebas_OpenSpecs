@@ -41,7 +41,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
             <span className="font-display text-lg tracking-[0.08em] whitespace-nowrap">AREA LRMQ DESIGN S.L.</span>
           </a>
         </div>
-        <nav className={`lrmq-nav-pill rounded-full border border-white/70 bg-elevated-hover/90 shadow-lift transition-all duration-500 ease-out ${isInicio ? 'px-6 py-3' : 'px-4 py-3'}`}>
+        <nav className={`rounded-full transition-all duration-500 ease-out ${isInicio ? 'border border-white/60 px-6 py-3' : 'lrmq-nav-pill rounded-full border border-white/70 bg-elevated-hover/90 shadow-lift px-4 py-3'}`}>
           <div className="flex items-center gap-7 text-sm font-medium">
             {navItems.map((item) => {
               const id = item.href.slice(1);
