@@ -23,16 +23,16 @@ export function MobileReformas({ reducedMotion }) {
 
   return (
     <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas" className="py-16 sm:py-20">
-      <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
-      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
-      <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-ink/8 bg-white">
+      <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
+      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
+      <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-hairline/8 bg-surface-elevated">
         <video ref={videoRef} src={LRMQ_ASSETS.renovationVideo} controls muted playsInline preload="metadata" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
       </div>
-      <div className="mt-3 h-1.5 w-full rounded-full bg-ink/8" role="progressbar" aria-label="Avance de obra" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+      <div className="mt-3 h-1.5 w-full rounded-full bg-hairline/8" role="progressbar" aria-label="Avance de obra" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
         <div className="h-full rounded-full bg-clay transition-[width] duration-200 ease-linear" style={{ width: `${progress * 100}%` }} />
       </div>
-      <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-ink/40">{progress >= 1 ? 'Proyecto completo' : `Avance de obra ${Math.round(progress * 100)}%`}</p>
-      <ol className="mt-8 space-y-4 border-l-2 border-clay/30 pl-5 text-base leading-7 text-ink/75 sm:text-lg">
+      <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-secondary/40">{progress >= 1 ? 'Proyecto completo' : `Avance de obra ${Math.round(progress * 100)}%`}</p>
+      <ol className="mt-8 space-y-4 border-l-2 border-clay/30 pl-5 text-base leading-7 text-secondary/75 sm:text-lg">
         {facts.map((text, index) => (
           <li key={text} className="flex items-start gap-3">
             <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-clay/12 text-xs font-semibold text-clay">{index + 1}</span>

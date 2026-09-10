@@ -11,7 +11,7 @@ export function Inicio({ step, isActive, onLogoDone }) {
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
        <AnimatedLogoMark className="absolute left-1/2 top-[15%] z-10 h-[13.5rem] w-[13.5rem] -translate-x-1/2 opacity-90" onAnimationEnd={onLogoDone} />
       <div className="relative z-10 mx-auto w-full max-w-6xl px-4 text-center sm:px-6">
-        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="inline-block rounded-lg bg-ink/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>
+        <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="inline-block rounded-lg bg-hairline/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>
         <p className="mt-4 text-3xl font-semibold tracking-[0.16em] text-clay uppercase">DESIGN S.L.</p>
         <div className="mx-auto mt-[clamp(3.5rem,14vh,10rem)] grid max-w-4xl gap-5 text-left sm:grid-cols-3">
@@ -29,7 +29,7 @@ export function Inicio({ step, isActive, onLogoDone }) {
         </div>
       </div>
       <div className={`absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-500 ${s >= 1 ? 'opacity-0' : 'opacity-100'}`}>
-        <span className="block h-8 w-px bg-white/35 mx-auto" />
+        <span className="block h-8 w-px bg-surface-elevated/35 mx-auto" />
         <span className="mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Gira para avanzar</span>
       </div>
     </div>

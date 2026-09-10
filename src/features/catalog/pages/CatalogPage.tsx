@@ -86,11 +86,13 @@ export function CatalogPage() {
   return (
     <main className="min-h-screen bg-surface px-5 py-6 pb-24 text-primary sm:px-8 sm:py-10 xl:pb-10" id="catalog-content" aria-labelledby="catalog-heading">
       <div className="mx-auto max-w-7xl">
-        <a href="#catalog-results" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Saltar a resultados</a>
-        <Link to="/" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-secondary underline-offset-4 transition-colors duration-200 ease-out hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
-          <span aria-hidden="true">←</span> Volver a AREA LRMQ
-        </Link>
-        <div className="flex items-center justify-end"><ThemeToggle /></div>
+        <a href="#catalog-results" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-primary focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-surface focus:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Saltar a resultados</a>
+        <div className="mb-6 flex min-h-11 items-start justify-between gap-4">
+          <Link to="/" className="inline-flex min-w-0 items-center gap-2 py-1.5 text-sm font-semibold text-secondary underline-offset-4 transition-colors duration-200 ease-out hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
+            <span aria-hidden="true">←</span> Volver a AREA LRMQ
+          </Link>
+          <ThemeToggle />
+        </div>
         <CatalogMasthead />
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-secondary" aria-live="polite">{totalLabel}</p>
 

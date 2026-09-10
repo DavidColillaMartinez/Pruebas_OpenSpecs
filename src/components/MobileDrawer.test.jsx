@@ -13,7 +13,7 @@ describe('MobileDrawer', () => {
     );
 
     const dialog = screen.getByRole('dialog', { name: 'Menú de navegación' });
-    expect(dialog).toHaveClass('bg-white');
+    expect(dialog).toHaveClass('bg-surface-elevated');
     for (const label of ['Inicio', 'Quiénes somos', 'Colección', 'Reformas', 'Visión', 'Opiniones', 'Contacto']) {
       expect(screen.getByRole('link', { name: label })).toBeInTheDocument();
     }

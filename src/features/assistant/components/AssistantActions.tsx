@@ -32,7 +32,7 @@ export function AssistantActions({ actions }: { actions: ChatAction[] }) {
               key={`contact-${action.target}-${action.label}`}
               href={href}
               {...(nativeHref ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
-              className="rounded-full border border-ink/12 bg-white/85 px-4 py-2 text-sm font-semibold text-ink transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+              className="rounded-full border border-hairline/15 bg-surface-elevated/85 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
             >
               {officialContactLabel(action.target) ?? action.label}
             </a>

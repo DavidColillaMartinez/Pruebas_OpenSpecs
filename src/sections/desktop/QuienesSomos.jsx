@@ -17,8 +17,8 @@ export function QuienesSomos({ step, isActive }) {
     <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-8 md:pt-32">
       <div className="mx-auto w-full max-w-5xl">
         <div className="mb-8 text-center">
-          <h2 className="font-display text-4xl leading-[0.96] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Qué hay detrás de cada baño.</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-ink/74 sm:text-lg sm:leading-8">Un estudio que mide, compone y prepara antes de instalar.</p>
+          <h2 className="font-display text-4xl leading-[0.96] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Qué hay detrás de cada baño.</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-secondary/74 sm:text-lg sm:leading-8">Un estudio que mide, compone y prepara antes de instalar.</p>
         </div>
         <div className="space-y-7">
           {aboutBlocks.map((block, index) => {
@@ -35,8 +35,8 @@ export function QuienesSomos({ step, isActive }) {
             const text = (
               <div className={`border-l-2 border-clay/25 pl-5 transition-all duration-500 ease-out ${row.imageFirst ? 'lg:order-2' : 'lg:order-1'} ${visible ? 'translate-x-0 translate-y-0 opacity-100 blur-0' : `opacity-0 ${row.textHidden ?? row.hidden} blur-[2px]`}`}>
                 <p className="text-sm font-semibold text-clay">{block.label}</p>
-                <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">{block.title}</h3>
-                <p className="mt-3 text-base leading-7 text-ink/68">{block.copy}</p>
+                <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-primary sm:text-2xl">{block.title}</h3>
+                <p className="mt-3 text-base leading-7 text-secondary/68">{block.copy}</p>
               </div>
             );
             return (

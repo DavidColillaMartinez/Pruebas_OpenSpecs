@@ -49,7 +49,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
         onFocus={() => prefetchProductBySlug(product.slug)}
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
       >
-        <div className="catalog-card-image-frame relative flex aspect-[1489/2105] items-center justify-center overflow-hidden border-y border-border-hairline/10" aria-busy={imageState === 'loading' && Boolean(activeImage)}>
+        <div className="catalog-card-image-frame lrmq-dark-soften relative flex aspect-[1489/2105] items-center justify-center overflow-hidden border-y border-border-hairline/10" aria-busy={imageState === 'loading' && Boolean(activeImage)}>
           {activeImage ? (
             <img
               key={activeImage.url}

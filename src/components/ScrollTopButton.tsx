@@ -31,7 +31,7 @@ export function ScrollTopButton({ show, onClick, className = '' }: { show: boole
       aria-label="Volver arriba"
       tabIndex={show ? 0 : -1}
       onClick={onClick}
-      className={`scroll-top-safe fixed left-4 z-40 grid h-11 w-11 place-items-center rounded-full border border-ink/15 bg-white text-ink shadow-lift transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 motion-safe:hover:-translate-y-0.5 ${show ? 'pointer-events-auto opacity-100' : 'pointer-events-none translate-y-2 opacity-0'} ${className}`}
+      className={`scroll-top-safe fixed left-4 z-40 grid h-11 w-11 place-items-center rounded-full border border-hairline/15 bg-surface-elevated text-primary shadow-lift transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 motion-safe:hover:-translate-y-0.5 ${show ? 'pointer-events-auto opacity-100' : 'pointer-events-none translate-y-2 opacity-0'} ${className}`}
     >
       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 19V5m0 0l-6 6m6-6l6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
     </button>

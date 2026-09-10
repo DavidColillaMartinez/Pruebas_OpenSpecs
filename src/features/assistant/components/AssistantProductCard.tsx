@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { ChatRecommendedProduct } from '../transport/types';
 
 const productImage = 'h-full w-full rounded-xl object-contain';
-const productImageFrame = 'grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-border-hairline/8 bg-surface-elevated/70';
+const productImageFrame = 'lrmq-dark-soften grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-border-hairline/8 bg-surface-elevated/70';
 
 export function AssistantProductCard({ product }: { product: ChatRecommendedProduct }) {
   const label = product.name;

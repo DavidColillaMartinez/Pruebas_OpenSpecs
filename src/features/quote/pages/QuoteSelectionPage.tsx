@@ -116,7 +116,7 @@ export function QuoteSelectionPage() {
                   return (
                     <li key={key} className="py-6">
                       <div className="flex items-start gap-4">
-                        {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-24 w-20 shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-24 w-20 shrink-0 place-items-center border border-border-hairline/10 text-center text-xs text-secondary">Sin imagen</span>}
+                        {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-24 w-20 lrmq-soften-quote shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-24 w-20 shrink-0 place-items-center border border-border-hairline/10 text-center text-xs text-secondary">Sin imagen</span>}
                         <div className="min-w-0 flex-1">
                            <div className="flex items-start justify-between gap-5"><div><h3 className="text-lg font-semibold">{line.productName}</h3><p className="mt-1 text-sm text-secondary">{line.supplier || line.category || 'Producto'} · {formatReference(line)}</p></div><button type="button" onClick={() => removeLine(key)} aria-label={`Eliminar ${line.productName}${line.reference ? ` ${line.reference}` : ''}`} className="shrink-0 text-sm text-secondary underline-offset-4 hover:text-primary hover:underline">Eliminar</button></div>
                           <dl className="mt-4 grid gap-x-5 gap-y-2 text-sm sm:grid-cols-2">{Object.entries(line.selectedAttributes || {}).map(([attribute, value]) => <div key={attribute}><dt className="text-secondary">{attributeLabels[attribute] || attribute}</dt><dd className="font-semibold">{displayValue(value)}</dd></div>)}</dl>

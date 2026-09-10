@@ -86,7 +86,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
   return (
     <section aria-labelledby="product-gallery-heading">
       <span id="product-gallery-heading" className="sr-only">Imágenes del producto</span>
-      <div className={`group relative flex ${wideFrame ? 'aspect-[1799/1149]' : 'aspect-[1489/2105]'} max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-border-hairline/10`} aria-busy="false">
+      <div className={`group relative flex ${wideFrame ? 'aspect-[1799/1149]' : 'aspect-[1489/2105]'} max-h-[min(72vh,52rem)] items-center justify-center overflow-hidden border-y border-border-hairline/10 lrmq-dark-soften`} aria-busy="false">
         {activeImage ? (
           <button
             type="button"

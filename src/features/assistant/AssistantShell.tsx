@@ -37,7 +37,7 @@ export function AssistantShell() {
       <ChatLauncher open={open} onToggle={() => (open ? setOpen(false) : openAssistant())} onPrepare={preloadChatPanel} />
       {!open && <ChatWelcomeBubble onOpen={openAssistant} onPrepare={preloadChatPanel} />}
       {activated && (
-        <Suspense fallback={open ? <p role="status" className="fixed bottom-24 right-5 z-[70] rounded-xl bg-porcelain p-3 text-ink">Cargando asistente…</p> : null}>
+        <Suspense fallback={open ? <p role="status" className="fixed bottom-24 right-5 z-[70] rounded-xl bg-surface-elevated p-3 text-primary">Cargando asistente…</p> : null}>
           <ChatPanel open={open} onClose={() => setOpen(false)} />
         </Suspense>
       )}

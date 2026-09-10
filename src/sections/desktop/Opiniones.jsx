@@ -62,10 +62,10 @@ export function Opiniones({ step, isActive }) {
       <div className="mx-auto w-full max-w-3xl text-center">
         <div className={s >= 1 ? 'opacity-100 transition-all duration-500 ease-out translate-y-0 blur-0' : 'opacity-0 translate-y-6 blur-[1px] transition-all duration-500 ease-out'}>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-clay">Opiniones</p>
-          <h2 className="mt-4 font-display text-5xl leading-[0.96] tracking-[0.035em] text-ink sm:text-6xl text-wrap-balance">Juzga tú mismo.</h2>
+          <h2 className="mt-4 font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Juzga tú mismo.</h2>
         </div>
         {total === 0 ? (
-          <p className={`mt-10 text-base leading-7 text-ink/68 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Pronto mostraremos aquí las reseñas verificadas de Google.</p>
+          <p className={`mt-10 text-base leading-7 text-secondary/68 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Pronto mostraremos aquí las reseñas verificadas de Google.</p>
         ) : (
           <div
             role="region"
@@ -84,19 +84,19 @@ export function Opiniones({ step, isActive }) {
                     aria-hidden={!active}
                     inert={!active}
                     style={{ transform: state.transform, zIndex: state.zIndex, opacity: state.opacity, filter: state.blurred ? 'blur(5px)' : 'none', transition: `transform ${GLIDE_MS}ms ${MECHANICAL_EASE}, opacity ${GLIDE_MS}ms ${MECHANICAL_EASE}, filter ${GLIDE_MS}ms ${MECHANICAL_EASE}` }}
-                    className="absolute left-1/2 top-1/2 flex h-full w-[clamp(20rem,34vw,24rem)] flex-col items-center justify-center overflow-hidden rounded-[1.8rem] border border-ink/8 bg-white/85 p-8 text-center shadow-soft will-change-transform"
+                    className="absolute left-1/2 top-1/2 flex h-full w-[clamp(20rem,34vw,24rem)] flex-col items-center justify-center overflow-hidden rounded-[1.8rem] border border-hairline/8 bg-surface-elevated/85 p-8 text-center shadow-soft will-change-transform"
                   >
-                    <span aria-hidden="true" className={`pointer-events-none absolute inset-0 rounded-[inherit] bg-white/55 transition-opacity ${GLIDE_MS}ms ${MECHANICAL_EASE} ${active ? 'opacity-0' : 'opacity-100'}`} />
+                    <span aria-hidden="true" className={`pointer-events-none absolute inset-0 rounded-[inherit] bg-surface-elevated/55 transition-opacity ${GLIDE_MS}ms ${MECHANICAL_EASE} ${active ? 'opacity-0' : 'opacity-100'}`} />
                     <StarRow rating={review.rating} />
                     {review.text ? (
-                      <blockquote className="mt-5 max-h-64 overflow-y-auto text-base leading-7 text-ink/78">«{review.text}»</blockquote>
+                      <blockquote className="mt-5 max-h-64 overflow-y-auto text-base leading-7 text-secondary/78">«{review.text}»</blockquote>
                     ) : (
-                      <p className="mt-5 text-base leading-7 text-ink/45">Reseña sin comentario de texto.</p>
+                      <p className="mt-5 text-base leading-7 text-secondary/45">Reseña sin comentario de texto.</p>
                     )}
                     <figcaption className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-                      {review.image ? <img src={review.image} alt="" aria-hidden="true" loading="lazy" className="h-9 w-9 rounded-full border border-ink/10 object-cover" /> : null}
-                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-ink/55">{review.author}</span>
-                      {review.date ? <span className="text-xs uppercase tracking-[0.14em] text-ink/40">{review.date}</span> : null}
+                      {review.image ? <img src={review.image} alt="" aria-hidden="true" loading="lazy" className="h-9 w-9 rounded-full border border-hairline/10 object-cover" /> : null}
+                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-secondary/55">{review.author}</span>
+                      {review.date ? <span className="text-xs uppercase tracking-[0.14em] text-secondary/40">{review.date}</span> : null}
                     </figcaption>
                     <a href={review.googleUrl} target="_blank" rel="noopener noreferrer" tabIndex={active ? undefined : -1} className="mt-3 inline-block text-xs font-semibold uppercase tracking-[0.16em] text-clay underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Ver en Google</a>
                   </figure>
@@ -104,15 +104,15 @@ export function Opiniones({ step, isActive }) {
               })}
             </div>
             <div className={`mt-6 flex items-center justify-center gap-4 transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              <button type="button" onClick={() => goTo(index - 1)} aria-label="Reseña anterior" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+              <button type="button" onClick={() => goTo(index - 1)} aria-label="Reseña anterior" className="grid h-11 w-11 place-items-center rounded-full border border-hairline/12 text-secondary/60 transition hover:border-hairline/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
               </button>
               <div className="flex items-center gap-2" aria-label="Seleccionar reseña">
                 {googleReviews.map((review, dotIndex) => (
-                  <button key={`${review.author}-dot-${dotIndex}`} type="button" onClick={() => goTo(dotIndex)} aria-label={`Ver reseña ${dotIndex + 1}`} aria-current={dotIndex === index ? 'true' : undefined} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dotIndex === index ? 'scale-125 bg-ink' : 'bg-ink/20 hover:bg-ink/40'}`} />
+                  <button key={`${review.author}-dot-${dotIndex}`} type="button" onClick={() => goTo(dotIndex)} aria-label={`Ver reseña ${dotIndex + 1}`} aria-current={dotIndex === index ? 'true' : undefined} className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${dotIndex === index ? 'scale-125 bg-ink' : 'bg-hairline/20 hover:bg-ink/40'}`} />
                 ))}
               </div>
-              <button type="button" onClick={() => goTo(index + 1)} aria-label="Reseña siguiente" className="grid h-11 w-11 place-items-center rounded-full border border-ink/12 text-ink/60 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+              <button type="button" onClick={() => goTo(index + 1)} aria-label="Reseña siguiente" className="grid h-11 w-11 place-items-center rounded-full border border-hairline/12 text-secondary/60 transition hover:border-hairline/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
               </button>
             </div>

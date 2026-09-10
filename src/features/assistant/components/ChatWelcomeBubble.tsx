@@ -74,21 +74,21 @@ export function ChatWelcomeBubble({ onOpen, onPrepare }: { onOpen: () => void; o
         onClick={openChat}
         onPointerDown={onPrepare}
         aria-label="Abrir el chat con el asistente de Area LRMQ"
-        className="flex min-w-0 flex-1 items-start gap-3 rounded-[1.2rem] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 motion-safe:transition motion-safe:duration-200 motion-safe:hover:bg-stonewash/60"
+        className="flex min-w-0 flex-1 items-start gap-3 rounded-[1.2rem] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 motion-safe:transition motion-safe:duration-200 motion-safe:hover:bg-elevated-hover/60"
       >
-        <span className="grid h-9 w-9 shrink-0 place-items-center sm:h-10 sm:w-10" aria-hidden="true">
+        <span className="assistant-welcome-logo grid h-9 w-9 shrink-0 place-items-center sm:h-10 sm:w-10" aria-hidden="true">
           <img src={LRMQ_ASSETS.logo} alt="" className="h-full w-full object-contain" loading="lazy" decoding="async" />
         </span>
         <span className="min-w-0">
-          <span className="block text-sm font-semibold leading-snug text-ink">¿Te ayudo con tu reforma?</span>
-          <span className="mt-0.5 block text-xs leading-relaxed text-graphite">Soy el asistente de AREA LRMQ: pregúntame y encontraré productos del catálogo contigo.</span>
+          <span className="block text-sm font-semibold leading-snug text-primary">¿Te ayudo con tu reforma?</span>
+          <span className="mt-0.5 block text-xs leading-relaxed text-secondary">Soy el asistente de AREA LRMQ: pregúntame y encontraré productos del catálogo contigo.</span>
         </span>
       </button>
       <button
         type="button"
         onClick={dismiss}
         aria-label="Cerrar la sugerencia del asistente"
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/55 transition hover:bg-stonewash hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-secondary transition hover:bg-elevated-hover hover:text-primary assistant-welcome-close focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" /></svg>
       </button>

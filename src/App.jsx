@@ -53,15 +53,15 @@ function ChapterDots({ active, labels, onNavigate }) {
             onBlur={() => setFocused((f) => (f === index ? null : f))}
             aria-label={`Ir a ${labels[index]}`}
             aria-current={isActive ? 'step' : undefined}
-            className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-porcelain ${
-              isActive || isPreview ? 'scale-125 bg-ink' : 'bg-ink/20'
+            className={`h-2.5 w-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+              isActive || isPreview ? 'scale-125 bg-primary' : 'bg-primary/20'
             }`}
           />
         );
       })}
       <span
         key={transitionKey}
-        className="mt-2 inline-block text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/50 transition-all duration-300 ease-out animate-side-label"
+        className="mt-2 inline-block text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary/70 transition-all duration-300 ease-out animate-side-label"
       >
         {displayed}
       </span>
@@ -71,7 +71,7 @@ function ChapterDots({ active, labels, onNavigate }) {
 
 function MobileSections({ reducedMotion }) {
   return (
-    <div className="bg-transparent text-ink">
+    <div className="bg-transparent text-primary">
       <MobileInicio />
       <MobileQuienesSomos />
       <MobileColeccion />
@@ -124,6 +124,12 @@ export function LandingPage() {
 
   const currentSectionId = isDesktop ? activeSectionId : mobileActiveSection;
   const isInicio = currentSectionId === 'inicio';
+
+  useEffect(() => {
+    // Context for translucent assistant surfaces: photo behind Inicio, surfaces elsewhere.
+    document.documentElement.setAttribute('data-lrmq-context', isInicio ? 'photo' : 'surface');
+    return () => document.documentElement.removeAttribute('data-lrmq-context');
+  }, [isInicio]);
   const mobileScrollTopVisible = useScrollTopVisibility(!isDesktop);
   const showScrollTop = isDesktop ? activeChapter > 0 : mobileScrollTopVisible;
 
@@ -138,8 +144,8 @@ export function LandingPage() {
   ];
 
   return (
-    <main className="font-body text-ink" id="contenido">
-      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lift">Saltar al contenido</a>
+    <main className="font-body text-primary" id="contenido">
+      <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-primary focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-surface focus:shadow-lift">Saltar al contenido</a>
       <BusinessJsonLd />
       <Header activeSectionId={currentSectionId} onNavigate={isDesktop ? (id) => navigateTo(sectionIds.indexOf(id)) : undefined} isDesktop={isDesktop} isInicio={isInicio} />
       {showScrollTop && (
