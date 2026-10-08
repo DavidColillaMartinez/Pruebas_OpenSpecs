@@ -305,7 +305,13 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       ? record.images.map((item) => normalizeImage(item, name, assetBaseUrl)).filter((item): item is ProductImage => item !== null)
       : [];
     const mainImage = normalizeImage({ alt: name, url: record.main_image_url ?? record.main_image_path, role: 'main', sort_order: 0 }, name, assetBaseUrl);
-    const imagesWithMain = mainImage && !gallery.some((image) => image.url === mainImage.url) ? [mainImage, ...gallery] : gallery;
+    const ioScope = `${asString(record.supplier_id)}`.toLocaleLowerCase() === 'gme'
+      && `${asString(record.category_id)}`.toLocaleLowerCase() === 'griferia'
+      && specs.gme_io_2026 === true;
+    // IO cards always put the API cover first, even when it also appears in `images`.
+    const imagesWithMain = ioScope && mainImage
+      ? [mainImage, ...gallery.filter((image) => image.url !== mainImage.url)]
+      : mainImage && !gallery.some((image) => image.url === mainImage.url) ? [mainImage, ...gallery] : gallery;
 
     return {
       id,
@@ -330,6 +336,8 @@ export function normalizeProductCard(value: unknown, config?: CatalogPublicConfi
       mainImagePath: asString(record.main_image_path),
       modularity: asModularity(record.modularity),
       modularNotice: typeof specs.modular_notice === 'string' ? specs.modular_notice : undefined,
+      io2026: ioScope,
+      catalogSection: asString(specs.catalog_section),
       galleryRule: asString(record.gallery_rule) || asString(asRecord(record.raw_data).gallery_rule) || asString(specs['Regla de galería']),
       hasLed: asBoolean(record.has_led ?? record.hasLed) ?? asBoolean(specs.LED),
       lightingType: asString(record.lighting_type ?? record.lightingType) || asString(specs['Tipo de iluminación']),
@@ -449,6 +457,15 @@ const facetAliases: Record<string, CatalogFacetKey> = {
   finish_families: 'finish_family',
   finishFamilies: 'finish_family',
   finish_family: 'finish_family',
+  catalog_section: 'catalog_section',
+  catalogSections: 'catalog_section',
+  tap_types: 'tap_type',
+  tapType: 'tap_type',
+  tap_type: 'tap_type',
+  installations: 'installation',
+  installation: 'installation',
+  mechanisms: 'mechanism',
+  mechanism: 'mechanism',
 };
 
 function normalizeFacetOption(value: unknown): CatalogFacetOption | null {
@@ -476,8 +493,17 @@ function normalizeFacets(value: unknown): CatalogFacets {
     const normalized = options
       .map(normalizeFacetOption)
       .filter((option): option is CatalogFacetOption => option !== null);
-    if (normalized.length > 0) facets[facetKey] = normalized;
+    if (normalized.length <= 0) return;
+    if (facetKey === 'collection' && facets.collection) return;
+    facets[facetKey] = normalized;
   });
+
+  // GME IO accepts `series` as an API alias of `collection`; keep the server
+  // facet either way without inventing values.
+  if (!facets.collection && Array.isArray(record.series)) {
+    const series = record.series.map(normalizeFacetOption).filter((option): option is CatalogFacetOption => option !== null);
+    if (series.length > 0) facets.collection = series;
+  }
 
   return facets;
 }

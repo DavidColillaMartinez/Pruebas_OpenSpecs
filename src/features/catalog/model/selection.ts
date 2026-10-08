@@ -1,4 +1,5 @@
 import type { ProductDetail, ProductImage, ProductVariant, SelectedProductUnit, VariantSnapshot } from './types';
+import { isGmeIoProduct } from './gmeIo';
 
 type SelectableUnit = SelectedProductUnit & {
   attributes: Record<string, string>;
@@ -25,6 +26,8 @@ const DEFAULT_CONFIGURABLE_KEYS = [
   'type',
 ];
 const NON_SELECTION_KEYS = /^(?:no_prices|modularity|finish_image_paths|image_mapping_status|configuration_status|source_page|variant_key)$/i;
+// Selector swatches describe buttons, never the commercial attributes sent to quotes.
+const SELECTOR_IMAGE_PATTERN = /selector/i;
 
 function attributeValue(value: unknown): string | undefined {
   if (typeof value === 'string' && value.trim()) return value;
@@ -49,7 +52,7 @@ function variantAttributes(variant: ProductVariant): Record<string, string> {
   return Object.fromEntries(
     Object.entries(values)
       .map(([key, value]): [string, string | undefined] => [key, attributeValue(value)])
-      .filter((entry): entry is [string, string] => Boolean(entry[1]) && !NON_SELECTION_KEYS.test(entry[0]) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(entry[0]))
+      .filter((entry): entry is [string, string] => Boolean(entry[1]) && !NON_SELECTION_KEYS.test(entry[0]) && !SELECTOR_IMAGE_PATTERN.test(entry[0]) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(entry[0]))
   ) as Record<string, string>;
 }
 
@@ -68,7 +71,7 @@ function variantSnapshot(variant: ProductVariant, product: ProductDetail): Varia
     finishCode: variant.finishCode,
     ...variant.attributes,
   };
-  return Object.fromEntries(Object.entries(values).filter(([key, value]) => value !== undefined && value !== '' && !NON_SELECTION_KEYS.test(key) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))) as VariantSnapshot;
+  return Object.fromEntries(Object.entries(values).filter(([key, value]) => value !== undefined && value !== '' && !NON_SELECTION_KEYS.test(key) && !SELECTOR_IMAGE_PATTERN.test(key) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))) as VariantSnapshot;
 }
 
 export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
@@ -107,7 +110,8 @@ export function getSelectableUnits(product: ProductDetail): SelectableUnit[] {
     };
   }));
 
-  return isGmeEnclosureProduct(product) ? units : offerUnits.length > 0 ? offerUnits : units;
+  // IO grifería selects exclusively among real variants; offers never replace them.
+  return isGmeEnclosureProduct(product) || isGmeIoProduct(product) ? units : offerUnits.length > 0 ? offerUnits : units;
 }
 
 export function selectInitialUnit(units: SelectableUnit[]): SelectableUnit | null {
@@ -204,7 +208,7 @@ export function findMatchingUnit(units: SelectableUnit[], selection: Record<stri
 
 export function buildVariantSnapshot(unit: SelectableUnit | null): VariantSnapshot | undefined {
   if (!unit) return undefined;
-  return Object.fromEntries(Object.entries(unit.variantSnapshot || {}).filter(([key, value]) => value !== undefined && value !== '' && !NON_SELECTION_KEYS.test(key) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key)));
+  return Object.fromEntries(Object.entries(unit.variantSnapshot || {}).filter(([key, value]) => value !== undefined && value !== '' && !NON_SELECTION_KEYS.test(key) && !SELECTOR_IMAGE_PATTERN.test(key) && !/(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key)));
 }
 
 export function isManillonsMirrorProduct(product: ProductDetail): boolean {

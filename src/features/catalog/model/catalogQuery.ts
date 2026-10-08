@@ -28,6 +28,10 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'valve',
   'orientation',
   'finish_family',
+  'catalog_section',
+  'tap_type',
+  'installation',
+  'mechanism',
 ];
 
 export const ROOT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['category', 'supplier'];
@@ -35,9 +39,17 @@ export const MAMPARAS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', '
 export const ESPEJOS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'shape', 'has_led', 'lighting_type', 'finish'];
 export const ROYO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['modularity', 'collection', 'subcategory', 'finish', 'measure', 'product_kind'];
 export const DUPLACH_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['model', 'measure', 'grille', 'valve'];
+export const GME_IO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['catalog_section', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish'];
+// Filters that only apply to one GME IO family; cleaning up dependent filters already selected
+export const GME_IO_SECTION_DEPENDENT_KEYS: Record<string, CatalogFacetKey[]> = {
+  duchas: ['tap_type'],
+  griferia: ['installation', 'mechanism'],
+};
+export const GME_IO_DEFAULT_DEPENDENT_KEYS: CatalogFacetKey[] = ['installation', 'mechanism'];
+export const GME_IO_SINGLE_VALUE_KEYS: CatalogFacetKey[] = ['catalog_section', 'tap_type', 'installation', 'mechanism'];
 export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = [...new Set([...MAMPARAS_CATALOG_FILTER_KEYS, ...ESPEJOS_CATALOG_FILTER_KEYS])];
 
-export type CatalogFamilyId = 'mamparas' | 'espejos' | 'royo' | 'duplach';
+export type CatalogFamilyId = 'mamparas' | 'espejos' | 'royo' | 'duplach' | 'gme-io';
 export type CatalogFilterProfile = 'root' | CatalogFamilyId | 'mixed';
 
 export type CatalogFamilyProfile = {
@@ -89,6 +101,21 @@ export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
       finish: 'Acabado',
     },
   },
+  {
+    id: 'gme-io',
+    categories: ['griferia'],
+    suppliers: ['gme'],
+    facetKeys: GME_IO_CATALOG_FILTER_KEYS,
+    labels: {
+      catalog_section: 'Familia',
+      collection: 'Serie/modelo',
+      tap_type: 'Tipo de grifo',
+      installation: 'Instalación',
+      mechanism: 'Mecanismo',
+      subcategory: 'Subcategoría',
+      finish: 'Acabado',
+    },
+  },
 ];
 
 const requestFilterKeys: Partial<Record<CatalogFacetKey, string>> = {
@@ -128,6 +155,7 @@ function uniqueValues(values: string[]): string[] {
 function valuesForFilter(key: CatalogFacetKey, values: string[]): string[] {
   const unique = uniqueValues(values);
   if (key === 'modularity') return unique.filter((value): value is 'modular' | 'normal' => value === 'modular' || value === 'normal');
+  if (GME_IO_SINGLE_VALUE_KEYS.includes(key)) return unique.slice(0, 1);
   return key === 'category' ? unique.slice(0, 1) : unique;
 }
 
@@ -140,10 +168,15 @@ export function getCatalogFilterProfile(query: Pick<CatalogQueryState, 'filters'
 export function getActiveCatalogFamilies(query: Pick<CatalogQueryState, 'filters'>): CatalogFamilyId[] {
   const categoryValues = (query.filters.category || []).map((value) => value.toLocaleLowerCase());
   const supplierValues = (query.filters.supplier || []).map((value) => value.toLocaleLowerCase());
+  const gmeIoActive = supplierValues.includes('gme') && categoryValues.includes('griferia');
   return CATALOG_FAMILY_PROFILES
     .filter((profile) => profile.id === 'royo'
       ? isCatalogRoyoFurnitureScope({ supplier: supplierValues, category: categoryValues })
-      : profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
+      : profile.id === 'mamparas'
+        ? !gmeIoActive && (profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
+        : gmeIoActive === (profile.id === 'gme-io')
+          ? profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)) || (gmeIoActive && profile.id === 'gme-io')
+          : false)
     .map((profile) => profile.id);
 }
 
@@ -183,8 +216,13 @@ export function getCatalogFacetLabel(key: CatalogFacetKey, profile: CatalogFilte
 export function pruneCatalogFilters(filters: CatalogFilters): CatalogFilters {
   const activeFamilies = getActiveCatalogFamilies({ filters });
   const ownedKeys = new Set(activeFamilies.flatMap((familyId) => CATALOG_FAMILY_PROFILES.find((profile) => profile.id === familyId)?.facetKeys || []));
+  const section = filters.catalog_section?.[0];
+  const excluded = new Set(activeFamilies.includes('gme-io')
+    ? (GME_IO_SECTION_DEPENDENT_KEYS[section ?? ''] ?? GME_IO_DEFAULT_DEPENDENT_KEYS)
+    : []);
   return Object.fromEntries(Object.entries(filters).filter(([key, values]) => {
     if (!values?.length) return false;
+    if (excluded.has(key as CatalogFacetKey)) return false;
     return ROOT_CATALOG_FILTER_KEYS.includes(key as CatalogFacetKey) || ownedKeys.has(key as CatalogFacetKey);
   })) as CatalogFilters;
 }
@@ -209,12 +247,15 @@ export function parseCatalogQuery(input: URLSearchParams | string, sortMetadata?
   const sanitizedFilters = pruneCatalogFilters(filters);
 
   const pageValue = Number(params.get('page'));
+  const droppedFilter = Object.entries(filters).some(([key, values]) => Boolean(values?.length) && !sanitizedFilters[key as CatalogFacetKey]?.length);
 
   return {
     search: params.get('search')?.trim() || '',
     filters: sanitizedFilters,
     sort,
-    page: Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1,
+    // Filters dropped as incompatible (e.g. IO dependents pruned silently) must
+    // not resurrect stale pagination from deep links.
+    page: droppedFilter ? 1 : Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1,
   };
 }
 

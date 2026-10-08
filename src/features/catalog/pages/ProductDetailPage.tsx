@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getCatalogConfig, getProductBySlug } from '../api/client';
 import type { CatalogPublicConfig, ProductDetail } from '../model/types';
 import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
+import { isGmeIoProduct, buildGmeIoGallery, getGmeIoFinishImageUrl } from '../model/gmeIo';
 import { isRoyoFurnitureScope } from '../model/royo';
 import { buildDuplachProductGallery, getDuplachFamilyImages, getDuplachSelectorModel, isDuplachShowerTrayProduct } from '../model/duplach';
 import { buildRoyoProductGallery } from '../model/gallery';
@@ -98,26 +99,39 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   const [addedMessage, setAddedMessage] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [duplachFamily, setDuplachFamily] = useState<string | null>(null);
+  const [manualFinish, setManualFinish] = useState<{ eventId: number; finish?: string } | null>(null);
   const { addLine } = useQuoteSelection();
   const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
   const isDuplach = isDuplachShowerTrayProduct(product);
+  const isIo = isGmeIoProduct(product);
   const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta & { family?: string | null }) => {
     if (metadata.source === 'user' && isRoyo) setHasManualRoyoSelection(true);
     if (metadata.source === 'user' && isDuplach) setHasManualDuplachSelection(true);
+    if (metadata.source === 'user' && isIo) {
+      // Only a manual finish change may activate a large photo; initial
+      // selection and tap_type changes never do.
+      if (metadata.changedKey === 'finish') setManualFinish((current) => ({ eventId: (current?.eventId ?? 0) + 1, finish: unit?.attributes.finish }));
+      else setManualFinish((current) => ({ eventId: current?.eventId ?? 0, finish: undefined }));
+    }
     if (isDuplach) setDuplachFamily(metadata.family ?? null);
     setSelectedUnit(unit);
-  }, [isDuplach, isRoyo]);
-  const selectedSnapshot = buildVariantSnapshot(selectedUnit);
-  const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
-  const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
+  }, [isDuplach, isIo, isRoyo]);
   const duplachModel = useMemo(() => isDuplach ? getDuplachSelectorModel(product) : null, [isDuplach, product]);
-  const galleryImages = isDuplach
+  const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
+  const galleryImages = isIo
+    ? buildGmeIoGallery(product, assetBaseUrl)
+    : isDuplach
     ? (duplachFamily && duplachModel
       ? getDuplachFamilyImages(product, duplachModel, duplachFamily, assetBaseUrl)
       : buildDuplachProductGallery(product, hasManualDuplachSelection ? selectedUnit : null, { manualSelection: hasManualDuplachSelection, assetBaseUrl }))
     : isRoyo
     ? buildRoyoProductGallery(product, galleryUnit)
     : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
+  const selectedSnapshot = buildVariantSnapshot(selectedUnit);
+  const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
+  const ioActivation = isIo && manualFinish
+    ? { eventId: manualFinish.eventId, url: getGmeIoFinishImageUrl(product, manualFinish.finish, assetBaseUrl) }
+    : undefined;
   const royoSpecKeys = ['modular_notice', 'module_configuration', 'finish_image_map', 'presentation_types', 'type_image_map'];
   const specs = Object.entries(product.specs).filter(([key, value]) => !['LED', 'Tipo de iluminación', 'Tecnología de iluminación', 'Temperatura de luz'].includes(key) && (!isRoyo || !royoSpecKeys.includes(key)) && readableDetailValue(value) !== null);
   const productFacts = [
@@ -137,7 +151,7 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   return (
     <>
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo || isDuplach} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} />
+        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo || isDuplach} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} activation={ioActivation} />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>

@@ -36,6 +36,11 @@ const CATALOG_PRODUCT_QUERY_KEYS = Object.freeze([
   'valve',
   'orientation',
   'finish_family',
+  'catalog_section',
+  'tap_type',
+  'installation',
+  'mechanism',
+  'series',
 ]);
 
 export const CATALOG_ROUTES = Object.freeze({

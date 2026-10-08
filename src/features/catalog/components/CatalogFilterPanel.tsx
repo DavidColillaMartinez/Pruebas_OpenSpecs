@@ -31,6 +31,10 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   valve: 'Válvula',
   orientation: 'Orientación',
   finish_family: 'Familia de acabado',
+  catalog_section: 'Familia',
+  tap_type: 'Tipo de grifo',
+  installation: 'Instalación',
+  mechanism: 'Mecanismo',
 };
 
 type FilterGroupsProps = Omit<CatalogFilterPanelProps, 'mobileOpen' | 'onMobileClose'> & {

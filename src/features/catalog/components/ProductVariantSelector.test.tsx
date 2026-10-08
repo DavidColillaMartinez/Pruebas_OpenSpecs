@@ -35,7 +35,7 @@ describe('ProductVariantSelector', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Free' }));
     fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
-    expect(onSelectionChange.mock.lastCall?.[1]).toEqual({ source: 'user' });
+    expect(onSelectionChange.mock.lastCall?.[1]).toEqual({ source: 'user', changedKey: 'finish' });
     expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({
       variantId: 'glass-negro-free',
       variantSnapshot: { reference: 'GLASS-NG-FREE', finish: 'Negro', distribution: 'Free' },
@@ -114,6 +114,47 @@ describe('ProductVariantSelector', () => {
 
     expect(screen.getByRole('button', { name: 'Negro' })).toBeDisabled();
     expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'royo-paired-80-white-wall' });
+  });
+
+  describe('GME IO grifería', () => {
+    function ioSion() {
+      return normalizeProductDetail({
+        id: 'gme-sion', name: 'Sion', slug: 'gme-sion', supplier_id: 'gme', category_id: 'griferia',
+        specs: { gme_io_2026: true },
+        variants: [
+          { id: 'sion-bajo-cromo', attributes: { tap_type: 'lavabo_bajo', finish: 'Cromo' }, reference: '3260' },
+          { id: 'sion-bide-cromo', attributes: { tap_type: 'bide', finish: 'Cromo' }, reference: null },
+        ],
+      });
+    }
+
+    it('offers only realistic combinations from real variants', () => {
+      const onSelectionChange = vi.fn();
+      render(<ProductVariantSelector product={ioSion()} onSelectionChange={onSelectionChange} />);
+      expect(screen.getByRole('group', { name: 'Tipo de grifo' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Caño alto' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'lavabo_alto' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'Acabado' })).not.toBeInTheDocument();
+      expect(screen.getByText(/Acabado: Cromo/)).toBeInTheDocument();
+      expect(onSelectionChange.mock.lastCall?.[0]).toMatchObject({ variantId: 'sion-bajo-cromo' });
+    });
+
+    it('disables incompatible finish and type combinations and matches variants exactly', () => {
+      const product = normalizeProductDetail({
+        id: 'gme-clio', name: 'Clio', slug: 'gme-clio', supplier_id: 'gme', category_id: 'griferia',
+        specs: { gme_io_2026: true },
+        variants: [
+          { id: 'clio-bajo-cromo', attributes: { tap_type: 'lavabo_bajo', finish: 'Cromo' }, reference: '3245' },
+          { id: 'clio-bide-cromo', attributes: { tap_type: 'bide', finish: 'Cromo' }, reference: '3247' },
+          { id: 'clio-bajo-negro', attributes: { tap_type: 'lavabo_bajo', finish: 'Negro' }, reference: '3245NG' },
+        ],
+      });
+      const onSelectionChange = vi.fn();
+      render(<ProductVariantSelector product={product} onSelectionChange={onSelectionChange} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
+      expect(screen.getByRole('button', { name: 'bide' })).toBeDisabled();
+      expect(onSelectionChange.mock.lastCall?.[1].changedKey).toBe('finish');
+    });
   });
 
   it('supports API-backed normal presentation types and resolves their real variants', () => {

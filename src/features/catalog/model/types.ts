@@ -113,6 +113,8 @@ export type ProductCard = Pick<ProductDetail, 'id' | 'name' | 'slug' | 'brand' |
   mainImagePath?: string;
   modularity?: CatalogModularity;
   modularNotice?: string;
+  io2026?: boolean;
+  catalogSection?: string;
 };
 
 export const CATALOG_FACET_KEYS = [
@@ -135,6 +137,10 @@ export const CATALOG_FACET_KEYS = [
   'valve',
   'orientation',
   'finish_family',
+  'catalog_section',
+  'tap_type',
+  'installation',
+  'mechanism',
 ] as const;
 
 export type CatalogFacetKey = typeof CATALOG_FACET_KEYS[number];

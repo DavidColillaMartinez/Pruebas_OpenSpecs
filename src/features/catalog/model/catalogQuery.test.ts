@@ -173,6 +173,54 @@ describe('catalog query state', () => {
     expect(changed.page).toBe(1);
     expect(catalogQueryKey(query)).toBe(catalogQueryKey({ ...query, page: 1 }));
   });
+  describe('gme io catalog scope', () => {
+    it('activates the IO profile only for GME + griferia and keeps families isolated', () => {
+      expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['grifera'] } })).toBe('mamparas');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['griferia'] } })).toBe('gme-io');
+      expect(getCatalogFilterProfile({ filters: { category: ['griferia'] } })).toBe('root');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['mamparas'] } })).toBe('mamparas');
+      expect(getCatalogFilterKeys('gme-io')).toEqual([
+        'category', 'supplier', 'catalog_section', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish',
+      ]);
+      expect(getCatalogFacetLabel('catalog_section', 'gme-io')).toBe('Familia');
+      expect(getCatalogFacetLabel('collection', 'gme-io')).toBe('Serie/modelo');
+      expect(getCatalogFacetLabel('tap_type', 'gme-io')).toBe('Tipo de grifo');
+    });
+
+    it('parses, serializes and sends exact finish values and single-select axes', () => {
+      const query = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=duchas&installation=empotrable&mechanism=termostatico&installation=columna&page=3');
+      expect(query.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['duchas'], installation: ['empotrable'], mechanism: ['termostatico'] });
+      expect(query.page).toBe(3);
+      const request = catalogQueryToRequest(query, false);
+      expect(request).toMatchObject({
+        supplier_id: ['gme'],
+        category_id: ['griferia'],
+        catalog_section: ['duchas'],
+        installation: ['empotrable'],
+        mechanism: ['termostatico'],
+        offset: 48,
+      });
+
+      const tapsQuery = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=griferia&collection=Persio&tap_type=lavabo_alto&finish=N%C3%ADquel');
+      expect(tapsQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['griferia'], collection: ['Persio'], tap_type: ['lavabo_alto'], finish: ['Níquel'] });
+      expect(catalogQueryToRequest(tapsQuery, true).finish).toEqual(['Níquel']);
+      expect(catalogQueryToRequest(tapsQuery, true)).not.toHaveProperty('niquel');
+      expect(catalogQueryToRequest(tapsQuery, true).collection).toEqual(['Persio']);
+    });
+
+    it('drops section-incompatible dependent filters on every parse and reset', () => {
+      const griferiaQuery = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=griferia&mechanism=termostatico&page=2');
+      expect(griferiaQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['griferia'] });
+      expect(griferiaQuery.page).toBe(1);
+
+      const duchasQuery = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=duchas&tap_type=lavabo_bajo&installation=columna');
+      expect(duchasQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['duchas'], installation: ['columna'] });
+
+      const sectionlessQuery = parseCatalogQuery('supplier=gme&category=griferia&mechanism=termostatico');
+      expect(sectionlessQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'] });
+    });
+  });
+
   describe('duplach server-side filters and scope isolation', () => {
     const duplachQuery = parseCatalogQuery('supplier=duplach&category=platos-de-ducha&model=duplach-stone-plus&measure=120x90&texture=Liso&color=Antracita&grille=Color&valve=Sif%C3%B3n&orientation=Derecha&finish_family=maderas-naturales&finish=Roble');
 

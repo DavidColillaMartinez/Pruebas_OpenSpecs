@@ -207,7 +207,8 @@ export function useCatalogDiscovery() {
 
   useEffect(() => {
     const cache = cacheRef.current;
-    if (data.status !== 'success' || cache.key !== queryKey || cache.items.size === 0) return undefined;
+    // Facets also arrive for empty result sets, so zero items must not skip the request.
+    if (data.status !== 'success' || cache.key !== queryKey) return undefined;
     const facetsQuery = parseCatalogQuery(queryKey);
     const facetsQueryKey = queryKey;
     if (facetsRequestedRef.current === facetsQueryKey) return undefined;

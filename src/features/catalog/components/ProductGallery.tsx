@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProductImage } from '../model/types';
 
+type ProductGalleryActivation = {
+  url?: string;
+  // Monotonically increasing event id: re-selecting the same finish must be
+  // able to re-activate its photo even after manual navigation.
+  eventId: number;
+};
+
 type ProductGalleryProps = {
   images: ProductImage[];
   productName: string;
@@ -8,9 +15,10 @@ type ProductGalleryProps = {
   preserveInputOrder?: boolean;
   preserveActiveImageOnChange?: boolean;
   wideFrame?: boolean;
+  activation?: ProductGalleryActivation;
 };
 
-export function ProductGallery({ images, productName, variantLabel, preserveInputOrder = false, preserveActiveImageOnChange = false, wideFrame = false }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, variantLabel, preserveInputOrder = false, preserveActiveImageOnChange = false, wideFrame = false, activation }: ProductGalleryProps) {
   const orderedImages = useMemo(() => {
     const uniqueImages = [...new Map(images.map((image) => [image.url, image])).values()];
     if (preserveInputOrder) return uniqueImages;
@@ -24,6 +32,20 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
   const [zoomOpen, setZoomOpen] = useState(false);
   const activeUrlRef = useRef<string | undefined>(undefined);
   const previousImagesRef = useRef<ProductImage[]>([]);
+  const lastActivationEventRef = useRef<number>(-1);
+  const activationUrlRef = useRef<string | undefined>(undefined);
+
+  // Gallery navigation and the commercial selection stay independent: an
+  // activation event only moves the active photo, never the variant.
+  useEffect(() => {
+    if (!activation || activation.eventId === lastActivationEventRef.current) return undefined;
+    lastActivationEventRef.current = activation.eventId;
+    activationUrlRef.current = activation.url;
+    if (!activation.url) return undefined;
+    const index = orderedImages.findIndex((image) => image.url === activation.url);
+    if (index >= 0 && index !== activeIndex) setActiveIndex(index);
+    return undefined;
+  }, [activation, activeIndex, orderedImages]);
 
   useEffect(() => {
     const previousImages = previousImagesRef.current;

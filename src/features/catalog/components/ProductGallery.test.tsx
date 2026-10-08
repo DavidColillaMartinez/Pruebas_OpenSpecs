@@ -90,4 +90,32 @@ describe('ProductGallery', () => {
 
     expect(screen.getByRole('img', { name: 'Royo, imagen principal' })).toHaveAttribute('src', images[1].url);
   });
+  it('applies GME IO activation events without touching the selection', () => {
+    const images = [
+      { alt: 'A', url: '/cover.webp' },
+      { alt: 'B', url: '/cromo.webp' },
+      { alt: 'C', url: '/negro.webp' },
+    ];
+    const { rerender } = render(<ProductGallery images={images} productName="Fiore" />);
+    expect(screen.getByRole('button', { name: /Ampliar imagen de Fiore/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Imagen siguiente' }));
+    rerender(<ProductGallery images={images} productName="Fiore" activation={{ eventId: 1, url: '/negro.webp' }} />);
+    expect(screen.getByRole('button', { name: 'Imagen anterior' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Imagen siguiente' })).toBeDisabled();
+    rerender(<ProductGallery images={images} productName="Fiore" activation={{ eventId: 2, url: '/cromo.webp' }} />);
+    expect(screen.getAllByRole('button', { name: 'Imagen anterior' }).some((button) => !(button as HTMLButtonElement).disabled)).toBe(true);
+    rerender(<ProductGallery images={images} productName="Fiore" activation={{ eventId: 3, url: '/missing.webp' }} />);
+    expect(screen.getByRole('button', { name: /Ampliar imagen de Fiore/ })).toBeInTheDocument();
+  });
+
+  it('keeps manual navigation stable across rerenders without new finish events', () => {
+    const images = [
+      { alt: 'A', url: '/cover.webp' },
+      { alt: 'B', url: '/cromo.webp' },
+    ];
+    const { rerender } = render(<ProductGallery images={images} productName="Fiore" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Imagen siguiente' }));
+    rerender(<ProductGallery images={images} productName="Fiore" />);
+    expect(screen.getAllByRole('button', { name: 'Imagen anterior' })[0]).not.toBeDisabled();
+  });
 });

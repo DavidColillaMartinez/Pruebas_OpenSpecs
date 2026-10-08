@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { prefetchProductBySlug } from '../api/client';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { isRoyoFurnitureScope } from '../model/royo';
+import { isGmeIoCard } from '../model/gmeIo';
 import type { ProductCard } from '../model/types';
 
 export function CatalogProductCard({ product }: { product: ProductCard }) {
@@ -14,6 +15,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
   const metadata = product.brand || product.supplierName || product.categoryName;
   const modularityLabel = product.modularity === 'modular' ? 'Modular' : product.modularity === 'normal' ? 'Normal' : undefined;
   const isRoyo = isRoyoFurnitureScope(product);
+  const isIo = isGmeIoCard(product);
   const title = isRoyo ? product.collection || product.model : product.name;
   const activeImage = images[activeIndex] && !failedUrls.has(images[activeIndex].url) ? images[activeIndex] : null;
 
@@ -71,7 +73,9 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
         <div className="catalog-card-text min-h-[7rem] pt-4">
           {metadata && <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">{metadata}</p>}
           {title && <h2 className="mt-1 font-body text-lg font-semibold leading-snug text-primary transition-colors duration-200 ease-out group-hover:text-secondary motion-reduce:transition-none">{title}</h2>}
-          {!isRoyo && (product.collection || product.subcategory) && (
+          {!isRoyo && (isIo
+            ? (product.collection === title ? product.subcategory : (product.collection || product.subcategory))
+            : (product.collection || product.subcategory)) && (
             <p className="mt-1 text-sm text-secondary">{product.collection || product.subcategory}</p>
           )}
           {modularityLabel && <p className="mt-1 text-sm text-secondary">Modularidad: {modularityLabel}</p>}
