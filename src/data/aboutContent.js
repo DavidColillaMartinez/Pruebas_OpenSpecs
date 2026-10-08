@@ -5,23 +5,23 @@
 // tocar assets; las fotos definitivas las aportará el propietario.
 export const aboutBlocks = [
   {
-    label: 'Estudio',
-    title: 'Un equipo de baño, no un catálogo',
-    copy: 'Diseñamos y preparamos baños completos: medición, composición y entrega con un mismo criterio visual.',
+    label: 'Experiencia',
+    title: 'Cada espacio tiene sus necesidades.',
+    copy: 'Nuestra experiencia nos permite entender lo que quieres cambiar y plantear soluciones para aprovechar mejor tu vivienda o local.',
     image: 'https://images.unsplash.com/photo-1572742482459-e04d6cfdd6f3?auto=format&fit=crop&w=700&q=85',
     imageAlt: 'Cabina de ducha con mampara de vidrio',
   },
   {
-    label: 'Oficio',
-    title: 'Primero el espacio, después la pieza',
-    copy: 'Cada reforma empieza midiendo luz, paso y proporción; las piezas se eligen cuando el conjunto ya está decidido.',
+    label: 'Equipo',
+    title: 'Los oficios, coordinados.',
+    copy: 'Contamos con profesionales especializados en los distintos oficios. Coordinamos cada parte del proyecto para conseguir un resultado cuidado y de calidad.',
     image: 'https://images.unsplash.com/photo-1656646523907-97b094c7e63a?auto=format&fit=crop&w=700&q=85',
     imageAlt: 'Suelo de ducha con baldosas blancas',
   },
   {
-    label: 'Método',
-    title: 'Instalación sin improvisar',
-    copy: 'Compra, entrega y verificación antes de llegar a obra: sin sorpresas de medidas ni piezas sueltas.',
+    label: 'Compromiso',
+    title: 'Cercanía y atención al detalle.',
+    copy: 'Trabajamos con seriedad, cuidando cada espacio y los detalles de la ejecución, con el compromiso de cumplir los plazos acordados.',
     image: 'https://images.unsplash.com/photo-1623111771733-d3ab4d26ce41?auto=format&fit=crop&w=700&q=85',
     imageAlt: 'Grifo monomando plateado',
   },

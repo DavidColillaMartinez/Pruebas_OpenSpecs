@@ -10,8 +10,8 @@ export function MobileContacto() {
 
   return (
     <MobileSectionShell id="contacto" titleId="mobile-contacto-title" ariaLabel="Contacto" className="py-20 sm:py-24">
-      <h2 id="mobile-contacto-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Hablemos de tu baño.</h2>
-      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
+      <h2 id="mobile-contacto-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Cuéntanos tu proyecto.</h2>
+      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">¿Quieres reformar tu vivienda, renovar una estancia o transformar un local? Cuéntanos qué necesitas y te ayudaremos a plantear el siguiente paso.</p>
       <div className="mt-10 border-l-2 border-clay/30 pl-5">
         <LogoMark className="mb-5 h-16 w-16" minimal />
         <p className="font-display text-2xl leading-tight text-primary sm:text-3xl">AREA LRMQ Tienda</p>

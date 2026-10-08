@@ -1,5 +1,5 @@
 export const methodSteps = [
-  { title: 'Medimos el espacio', copy: 'Dimensiones, uso diario y estilo antes de recomendar piezas.' },
-  { title: 'Componemos la solución', copy: 'Mampara, plato, grifería y accesorios en una línea visual.' },
-  { title: 'Preparamos la instalación', copy: 'Compra, entrega e instalación sin improvisar.' },
+  { title: 'Reformas y proyectos', copy: 'Reformas integrales, proyectos de arquitectura y tramitaciones para transformar locales en viviendas.' },
+  { title: 'Oficios especializados', copy: 'Albañilería, fontanería, electricidad, carpintería y pintura. Coordinamos los trabajos de tu reforma.' },
+  { title: 'Tienda de exposición', copy: 'Muebles de baño y cocina, mamparas, platos de ducha y grifería. Te ayudamos a elegir para tu proyecto.' },
 ];

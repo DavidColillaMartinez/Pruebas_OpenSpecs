@@ -12,8 +12,8 @@ export function Coleccion({ step, isActive }) {
     <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-10 md:pt-36">
       <div className="mx-auto w-full max-w-5xl">
         <div className="mb-10 text-center">
-          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Tres decisiones, una lectura.</h2>
-          <p className={`mx-auto mt-5 max-w-2xl text-lg leading-8 text-secondary/74 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>La tienda ordena vidrio, superficie y metal para que el baño tenga una sola dirección visual.</p>
+          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Soluciones para transformar tu espacio.</h2>
+          <p className={`mx-auto mt-5 max-w-2xl text-lg leading-8 text-secondary/74 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>Desde una reforma completa hasta la renovación de una estancia, adaptamos los trabajos a las necesidades de tu proyecto.</p>
         </div>
         <div className="grid gap-10 lg:grid-cols-[1fr_0.76fr]">
           <div className={`transition-all duration-500 ease-out ${leftVisible ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[2px]'}`}>
@@ -45,7 +45,7 @@ export function Coleccion({ step, isActive }) {
               style={{ transitionDelay: rightVisible ? '320ms' : '0ms' }}
               className={`border-l-2 border-clay/20 pl-4 transition-all duration-500 ease-out ${rightVisible ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}
             >
-              <p className="text-base leading-7 text-secondary/68">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen. Por eso el conjunto se decide antes que el objeto.</p>
+              <p className="text-base leading-7 text-secondary/68">También realizamos proyectos de arquitectura y tramitaciones de local a vivienda. En nuestra tienda de exposición puedes conocer productos y acabados para tu reforma.</p>
             </aside>
           </div>
         </div>

@@ -24,7 +24,7 @@ describe('desktop Opiniones chapter', () => {
 
   it('shows the slogan and an honest empty state without verified reviews', () => {
     render(<Opiniones step={2} isActive />);
-    expect(screen.getByRole('heading', { name: 'Juzga tú mismo.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Su experiencia, en sus palabras.' })).toBeInTheDocument();
     expect(screen.getByText(/Pronto mostraremos aquí las reseñas verificadas de Google/)).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Reseñas de Google' })).not.toBeInTheDocument();
   });
@@ -197,7 +197,7 @@ describe('desktop Opiniones chapter', () => {
 
   it('reveals the slogan only from the first cascade step', () => {
     render(<Opiniones step={0} isActive />);
-    const heading = screen.getByRole('heading', { name: 'Juzga tú mismo.' });
+    const heading = screen.getByRole('heading', { name: 'Su experiencia, en sus palabras.' });
     expect(heading.closest('div').className).toContain('opacity-0');
   });
 });

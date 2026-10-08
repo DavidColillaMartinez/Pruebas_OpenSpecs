@@ -61,8 +61,8 @@ export function Opiniones({ step, isActive }) {
     <div className="flex h-full items-center justify-center bg-transparent px-6 py-24 md:pb-8 md:pt-32">
       <div className="mx-auto w-full max-w-3xl text-center">
         <div className={s >= 1 ? 'opacity-100 transition-all duration-500 ease-out translate-y-0 blur-0' : 'opacity-0 translate-y-6 blur-[1px] transition-all duration-500 ease-out'}>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-clay">Opiniones</p>
-          <h2 className="mt-4 font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Juzga tú mismo.</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-clay">Opiniones de nuestros clientes</p>
+          <h2 className="mt-4 font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Su experiencia, en sus palabras.</h2>
         </div>
         {total === 0 ? (
           <p className={`mt-10 text-base leading-7 text-secondary/68 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>Pronto mostraremos aquí las reseñas verificadas de Google.</p>

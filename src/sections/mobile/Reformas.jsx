@@ -3,7 +3,7 @@ import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { MobileSectionShell } from '../../components/MobileSectionShell';
 import { PHONE_INTL } from '../../data/business';
 
-const facts = ['Baño principal, Madrid.', 'Mampara fija a medida, plato mineral enrasado y grifería mural.', 'El vidrio libera luz, el plato continuo reduce cortes visuales.', 'Satisfacción del cliente: 9.6 / 10.'];
+const facts = ['Estudiamos tu espacio para ofrecerte una solución integral.', 'Definimos la distribución, los materiales y el equipamiento.', 'Coordinamos los distintos oficios durante la ejecución.', 'Cuidamos los acabados para conseguir un resultado funcional y de calidad.'];
 
 export function MobileReformas({ reducedMotion }) {
   const videoRef = useRef(null);
@@ -22,9 +22,9 @@ export function MobileReformas({ reducedMotion }) {
   }, []);
 
   return (
-    <MobileSectionShell id="reformas" label="Proyecto real" titleId="mobile-reformas-title" ariaLabel="Reformas" className="py-16 sm:py-20">
-      <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Reforma en 21 días.</h2>
-      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Cuatro decisiones medidas para que la obra avance sin rectificar.</p>
+    <MobileSectionShell id="reformas" label="Reforma de un baño" titleId="mobile-reformas-title" ariaLabel="Reformas" className="py-16 sm:py-20">
+      <h2 id="mobile-reformas-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Tu proyecto, paso a paso.</h2>
+      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Servicios de reforma y una amplia variedad de productos para dar forma a tu proyecto.</p>
       <div className="mt-8 overflow-hidden rounded-[1.4rem] border border-hairline/8 bg-surface-elevated">
         <video ref={videoRef} src={LRMQ_ASSETS.renovationVideo} controls muted playsInline preload="metadata" className="aspect-[4/3] w-full object-cover" aria-label="Video stopmotion de reforma de baño completo" />
       </div>

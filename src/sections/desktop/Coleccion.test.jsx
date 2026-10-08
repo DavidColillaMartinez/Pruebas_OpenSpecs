@@ -12,7 +12,7 @@ describe('Coleccion minimal presentation', () => {
   it('renders the minimal branch without card articles', () => {
     const { container } = render(<Coleccion step={chapterSteps[sectionIds.indexOf('coleccion')]} isActive />);
 
-    expect(screen.getByRole('heading', { name: 'Tres decisiones, una lectura.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Soluciones para transformar tu espacio.' })).toBeInTheDocument();
     expect(screen.queryByText('Accesorios de baño')).not.toBeInTheDocument();
     expect(container.querySelectorAll('article')).toHaveLength(0);
   });

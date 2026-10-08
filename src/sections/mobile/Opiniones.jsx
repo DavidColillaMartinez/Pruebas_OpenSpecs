@@ -16,8 +16,8 @@ function StarRow({ rating }) {
 export function MobileOpiniones() {
   return (
     <MobileSectionShell id="opiniones" titleId="mobile-opiniones-title" ariaLabel="Opiniones" className="py-14 sm:py-16">
-      <h2 id="mobile-opiniones-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Juzga tú mismo.</h2>
-      <p className="mt-4 text-sm font-semibold uppercase tracking-[0.22em] text-clay">Reseñas de Google</p>
+      <h2 id="mobile-opiniones-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Su experiencia, en sus palabras.</h2>
+      <p className="mt-4 text-sm font-semibold uppercase tracking-[0.22em] text-clay">Opiniones de nuestros clientes</p>
       {googleReviews.length === 0 ? (
         <p className="mt-6 max-w-xl text-base leading-7 text-secondary/68">Pronto mostraremos aquí las reseñas verificadas de Google.</p>
       ) : (

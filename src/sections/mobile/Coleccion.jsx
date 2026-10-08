@@ -6,9 +6,9 @@ export function MobileColeccion() {
   const tray = categories[1];
   const taps = categories[2];
   return (
-    <MobileSectionShell id="coleccion" titleId="mobile-coleccion-title" ariaLabel="Colección" className="py-14 sm:py-16">
-      <h2 id="mobile-coleccion-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Tres decisiones, una lectura.</h2>
-      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">La tienda ordena vidrio, superficie y metal para que el baño tenga una sola dirección visual.</p>
+    <MobileSectionShell id="coleccion" titleId="mobile-coleccion-title" ariaLabel="Servicios" className="py-14 sm:py-16">
+      <h2 id="mobile-coleccion-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Soluciones para transformar tu espacio.</h2>
+      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Desde una reforma completa hasta la renovación de una estancia, adaptamos los trabajos a las necesidades de tu proyecto.</p>
       <div className="mt-10 overflow-hidden border-l-2 border-clay/35 pl-5">
         <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.4rem] object-cover" loading="lazy" />
         <p className="mt-6 text-sm font-semibold text-clay">{featured.label}</p>
@@ -27,7 +27,7 @@ export function MobileColeccion() {
           <p className="mt-2 text-base leading-7 text-secondary/72">{taps.copy}</p>
         </div>
       </div>
-      <p className="mt-10 max-w-xl border-l-2 border-clay/15 pl-5 text-base leading-7 text-secondary/65">El criterio es sencillo: si una pieza pide protagonismo, las demás bajan el volumen. Por eso el conjunto se decide antes que el objeto.</p>
+      <p className="mt-10 max-w-xl border-l-2 border-clay/15 pl-5 text-base leading-7 text-secondary/65">También realizamos proyectos de arquitectura y tramitaciones de local a vivienda. En nuestra tienda de exposición puedes conocer productos y acabados para tu reforma.</p>
     </MobileSectionShell>
   );
 }

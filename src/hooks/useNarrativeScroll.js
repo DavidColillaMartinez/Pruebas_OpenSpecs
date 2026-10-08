@@ -10,7 +10,7 @@ const labelIndex = (label) => chapterLabels.indexOf(label);
 // Chapters whose cascade must wait for an external ready signal (logo draw, boceto video).
 const INITIAL_HELD_LABELS = ['Inicio', 'Visión'];
 // These chapters re-run their cascade on every re-entry, like Visión's headline beat.
-const REPLAY_ON_ENTRY_LABELS = ['Quiénes somos', 'Colección', 'Visión'];
+const REPLAY_ON_ENTRY_LABELS = ['Quiénes somos', 'Servicios', 'Visión'];
 
 function getDesktopGate() {
   if (typeof window === 'undefined') return false;

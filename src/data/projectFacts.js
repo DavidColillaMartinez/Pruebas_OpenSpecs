@@ -1,6 +1,6 @@
 export const projectFacts = [
-  'Baño principal, Madrid.',
-  'Mampara fija a medida, plato mineral enrasado y grifería mural.',
-  'El vidrio libera luz, el plato continuo reduce cortes visuales.',
-  'Satisfacción del cliente: 9.6 / 10.',
+  'Estudiamos tu espacio para ofrecerte una solución integral.',
+  'Definimos la distribución, los materiales y el equipamiento.',
+  'Coordinamos los distintos oficios durante la ejecución.',
+  'Cuidamos los acabados para conseguir un resultado funcional y de calidad.',
 ];

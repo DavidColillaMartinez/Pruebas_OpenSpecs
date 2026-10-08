@@ -50,8 +50,8 @@ export function MobileVision({ reducedMotion: _reducedMotion }) {
 
   return (
     <MobileSectionShell id="vision" titleId="mobile-vision-title" ariaLabel="Visión" className="py-14 sm:py-16">
-      <h2 id="mobile-vision-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Del boceto al baño.</h2>
-      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Antes de elegir una pieza, vemos proporción, paso de luz y continuidad.</p>
+      <h2 id="mobile-vision-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-ink sm:text-5xl text-wrap-balance">Del boceto a tu nuevo baño.</h2>
+      <p className="mt-4 text-base leading-7 text-ink/72 sm:text-lg sm:leading-8">Renovamos tu baño para conseguir un espacio funcional, cómodo y actual. El boceto nos ayuda a visualizar la distribución antes de llevarla a la obra.</p>
       <div
         ref={sliderRef}
         role={state === 'compare' ? 'slider' : undefined}

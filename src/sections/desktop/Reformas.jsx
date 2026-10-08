@@ -20,8 +20,8 @@ export function Reformas({ smoothProgress, isActive }) {
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.55fr_0.75fr] lg:items-center">
         <video ref={videoRef} src={LRMQ_ASSETS.renovationVideo} muted playsInline preload="auto" onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.2rem]" aria-label="Video stopmotion de reforma de baño completo" />
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Proyecto real</p>
-          <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary text-wrap-balance">Reforma en 21 días.</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Reforma de un baño</p>
+          <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary text-wrap-balance">Tu proyecto, paso a paso.</h2>
           <ProjectFacts facts={projectFacts} />
           <div className="mt-7 h-1.5 w-full rounded-full bg-hairline/8"><div className="h-full rounded-full bg-clay transition-[width] duration-150 ease-linear" style={{ width: `${videoProgress * 100}%` }} /></div>
           <p className="mt-3 text-xs font-medium uppercase tracking-wider text-secondary/40">{videoProgress >= 1 ? 'Proyecto completo. Gira para continuar.' : `Avance de obra ${Math.round(videoProgress * 100)}%`}</p>

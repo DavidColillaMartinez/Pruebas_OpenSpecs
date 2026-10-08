@@ -20,7 +20,7 @@ export function ContactForm({ form, setForm, minimal = false }) {
         </label>
         <label className="block" htmlFor="contact-msg">
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Mensaje</span>
-          <textarea id="contact-msg" required aria-label="Mensaje" aria-required="true" placeholder="Medidas, estilo y plazo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none border-b border-hairline/15 bg-transparent py-3 text-base text-primary placeholder:text-secondary/45 focus:border-hairline/40 focus:outline-none" />
+          <textarea id="contact-msg" required aria-label="Mensaje" aria-required="true" placeholder="Qué quieres reformar, dónde y cuándo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none border-b border-hairline/15 bg-transparent py-3 text-base text-primary placeholder:text-secondary/45 focus:border-hairline/40 focus:outline-none" />
         </label>
         <button type="submit" className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Enviar por WhatsApp</button>
       </form>
@@ -39,7 +39,7 @@ export function ContactForm({ form, setForm, minimal = false }) {
       </label>
       <label className="block" htmlFor="contact-msg-card">
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Mensaje</span>
-        <textarea id="contact-msg-card" required aria-label="Mensaje" aria-required="true" placeholder="Medidas, estilo y plazo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none rounded-2xl border border-hairline/10 bg-surface-elevated/75 px-5 py-3.5 text-primary placeholder:text-secondary/45 focus:border-hairline/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
+        <textarea id="contact-msg-card" required aria-label="Mensaje" aria-required="true" placeholder="Qué quieres reformar, dónde y cuándo..." rows={3} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} className="mt-2 w-full resize-none rounded-2xl border border-hairline/10 bg-surface-elevated/75 px-5 py-3.5 text-primary placeholder:text-secondary/45 focus:border-hairline/30 focus:outline-none focus:ring-2 focus:ring-clay/20" />
       </label>
       <button type="submit" className="block w-full rounded-full bg-ink px-6 py-3.5 text-center font-semibold text-white shadow-lift transition hover:-translate-y-0.5 hover:bg-graphite">Enviar por WhatsApp</button>
     </form>

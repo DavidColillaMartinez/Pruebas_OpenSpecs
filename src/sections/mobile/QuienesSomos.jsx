@@ -4,8 +4,8 @@ import { MobileSectionShell } from '../../components/MobileSectionShell';
 export function MobileQuienesSomos() {
   return (
     <MobileSectionShell id="quienes-somos" titleId="mobile-quienes-somos-title" ariaLabel="Quiénes somos" className="py-14 sm:py-16">
-      <h2 id="mobile-quienes-somos-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Qué hay detrás de cada baño.</h2>
-      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Un estudio que mide, compone y prepara antes de instalar.</p>
+      <h2 id="mobile-quienes-somos-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Experiencia y oficio en cada reforma.</h2>
+      <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Un equipo de profesionales con más de 20 años de experiencia en el sector de las reformas.</p>
       <div className="mt-10 space-y-10">
         {aboutBlocks.map((block) => (
           <div key={block.title} className="border-l-2 border-clay/25 pl-5">

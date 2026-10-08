@@ -12,8 +12,8 @@ export function Contacto({ step, isActive }) {
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-6xl items-start gap-8 lg:grid-cols-[1fr_0.9fr]">
         <div>
-          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Hablemos de tu baño.</h2>
-          <p className="mt-4 text-lg leading-8 text-secondary/72">Envía medidas, estilo y plazo. Te devolvemos una selección inicial.</p>
+          <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Cuéntanos tu proyecto.</h2>
+          <p className="mt-4 text-lg leading-8 text-secondary/72">¿Quieres reformar tu vivienda, renovar una estancia o transformar un local? Cuéntanos qué necesitas y te ayudaremos a plantear el siguiente paso.</p>
           <ContactForm form={form} setForm={setForm} minimal />
         </div>
         <div className={`space-y-10 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>

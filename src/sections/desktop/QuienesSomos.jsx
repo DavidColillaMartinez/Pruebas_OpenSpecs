@@ -17,8 +17,8 @@ export function QuienesSomos({ step, isActive }) {
     <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-8 md:pt-32">
       <div className="mx-auto w-full max-w-5xl">
         <div className="mb-8 text-center">
-          <h2 className="font-display text-4xl leading-[0.96] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Qué hay detrás de cada baño.</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-secondary/74 sm:text-lg sm:leading-8">Un estudio que mide, compone y prepara antes de instalar.</p>
+          <h2 className="font-display text-4xl leading-[0.96] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Experiencia y oficio en cada reforma.</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-secondary/74 sm:text-lg sm:leading-8">Un equipo de profesionales con más de 20 años de experiencia en el sector de las reformas.</p>
         </div>
         <div className="space-y-7">
           {aboutBlocks.map((block, index) => {

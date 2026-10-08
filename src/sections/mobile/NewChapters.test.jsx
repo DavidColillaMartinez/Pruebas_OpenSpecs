@@ -11,7 +11,7 @@ describe('mobile new chapters', () => {
         <MobileQuienesSomos />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('region', { name: 'Qué hay detrás de cada baño.' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Experiencia y oficio en cada reforma.' })).toBeInTheDocument();
     expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(3);
     expect(screen.getAllByRole('img').length).toBeGreaterThanOrEqual(3);
   });
@@ -22,8 +22,8 @@ describe('mobile new chapters', () => {
         <MobileOpiniones />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('region', { name: 'Juzga tú mismo.' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Juzga tú mismo.' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Su experiencia, en sus palabras.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Su experiencia, en sus palabras.' })).toBeInTheDocument();
     expect(screen.queryByText(/Pronto mostraremos aquí las reseñas verificadas de Google/)).not.toBeInTheDocument();
     expect(screen.getAllByText('Ver en Google')).toHaveLength(13);
     expect(screen.getByText('Raul Parra')).toBeInTheDocument();
