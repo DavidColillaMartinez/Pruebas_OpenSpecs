@@ -106,7 +106,7 @@ describe('CatalogPage', () => {
     expect(screen.queryByRole('button', { name: 'Colección' })).not.toBeInTheDocument();
   });
 
-  it('activates the Mamparas profile for category or GME supplier context', async () => {
+  it('activates family filters by category and keeps supplier-only queries generic', async () => {
     const response = JSON.stringify({
       items: [],
       pagination: { limit: 24, offset: 0, total: 0 },
@@ -124,7 +124,27 @@ describe('CatalogPage', () => {
     });
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(response, { status: 200 })));
 
-    render(<MemoryRouter initialEntries={['/productos?supplier=gme']}><CatalogPage /></MemoryRouter>);
+  });
+
+  it('activates the Mamparas profile from its category and GME supplier context', async () => {
+    const response = JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0 },
+      facets: {
+        category: [{ value: 'mamparas', label: 'Mamparas', count: 21 }],
+        supplier: [{ value: 'gme', label: 'GME', count: 21 }],
+        subcategory: [{ value: 'Mamparas de ducha', label: 'Mamparas de ducha', count: 17 }],
+        collection: [{ value: 'Open', label: 'Open', count: 1 }],
+        distribution: [{ value: '2 abatibles', label: '2 abatibles', count: 1 }],
+        finish: [{ value: 'Cromo', label: 'Cromo', count: 1 }],
+        measure: [{ value: '1200', label: '1200', count: 1 }],
+        product_kind: [{ value: 'simple_product', label: 'Producto', count: 1 }],
+      },
+      sort: { supported: ['relevance'] },
+    });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(response, { status: 200 })));
+
+    render(<MemoryRouter initialEntries={['/productos?supplier=gme&category=mamparas']}><CatalogPage /></MemoryRouter>);
     expect(await screen.findByRole('button', { name: 'Tipo' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Modelo' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Distribución' })).toBeInTheDocument();

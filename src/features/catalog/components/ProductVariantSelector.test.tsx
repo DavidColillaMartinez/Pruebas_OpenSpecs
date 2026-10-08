@@ -152,7 +152,7 @@ describe('ProductVariantSelector', () => {
       const onSelectionChange = vi.fn();
       render(<ProductVariantSelector product={product} onSelectionChange={onSelectionChange} />);
       fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
-      expect(screen.getByRole('button', { name: 'bide' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Bidé' })).toBeDisabled();
       expect(onSelectionChange.mock.lastCall?.[1].changedKey).toBe('finish');
     });
   });

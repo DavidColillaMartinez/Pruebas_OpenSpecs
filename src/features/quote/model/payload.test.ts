@@ -196,3 +196,58 @@ describe('duplach quote payload', () => {
     expect(errors['items.0.variantId']).toBeTruthy();
   });
 });
+
+describe('GME IO quote integration', () => {
+  const ioProductFixture = {
+    id: 'gme-persio',
+    name: 'Persio',
+    slug: 'gme-persio',
+    supplier_name: 'GME',
+    supplier_id: 'gme',
+    category_id: 'griferia',
+    category_name: 'Grifería',
+    model: 'Persio',
+    main_image_url: 'https://assets.test/covers/persio/cover-candidate.webp',
+    specs: { gme_io_2026: true },
+    images: [{ url: 'https://assets.test/covers/persio/cover-candidate.webp' }],
+    variants: [
+      { id: 'gme-persio-v1', attributes: { tap_type: 'lavabo_alto', finish: 'Níquel' }, images: [{ url: 'https://assets.test/gallery/faucets/persio/niquel.webp' }] },
+      { id: 'gme-persio-v2', attributes: { tap_type: 'lavabajo_x', finish: 'Acero cepillado', selector_image_url: 'https://assets.test/faucets/persio/acero.webp' } },
+    ],
+  };
+
+  it('keeps product, variant identity and full commercial attributes without prices', () => {
+    const product = normalizeProductDetail(ioProductFixture);
+    const units = getSelectableUnits(product);
+    const item = buildQuoteRequestItem(product, units[0], 2);
+    expect(item.productId).toBe('gme-persio');
+    expect(item.variantId).toBe('gme-persio-v1');
+    expect(item.productName).toBe('Persio');
+    expect(item.quantity).toBe(2);
+    expect(item.variantSnapshot).toEqual(expect.objectContaining({
+      tap_type: 'lavabo_alto',
+      finish: 'Níquel',
+      supplier: 'GME',
+      supplier_id: 'gme',
+      category: 'Grifería',
+      category_id: 'griferia',
+      model: 'Persio',
+      image: 'https://assets.test/gallery/faucets/persio/niquel.webp',
+    }));
+    expect(Object.values(item.variantSnapshot ?? {}).some((value) => typeof value === 'number')).toBe(false);
+    expect(JSON.stringify(item)).not.toMatch(/precio|price|importe|puntos|Points/i);
+    expect(item.variantSnapshot).not.toHaveProperty('selector_image_url');
+  });
+
+  it('never uses the Duplach compact mode for GME selections', () => {
+    const product = normalizeProductDetail(ioProductFixture);
+    const units = getSelectableUnits(product);
+    const item = buildQuoteRequestItem(product, units[0], 1);
+    const errors = validateQuoteRequest({
+      customerName: 'Prueba', consentPrivacy: true,
+      items: [{ ...item, productId: 'gme-persio-without-variant', variantId: undefined } as never, item],
+    } as never);
+    expect(errors['items.0.variantId']).toContain('obligatoria');
+    expect(errors['items.1']).toBeUndefined();
+  });
+});

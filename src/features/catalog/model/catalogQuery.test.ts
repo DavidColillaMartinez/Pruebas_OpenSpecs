@@ -15,12 +15,12 @@ describe('catalog query state', () => {
   it('resolves root and developed dependent filter profiles', () => {
     expect(getCatalogFilterProfile({ filters: {} })).toBe('root');
     expect(getCatalogFilterProfile({ filters: { category: ['mamparas'] } })).toBe('mamparas');
-    expect(getCatalogFilterProfile({ filters: { supplier: ['gme'] } })).toBe('mamparas');
+    expect(getCatalogFilterProfile({ filters: { supplier: ['gme'] } })).toBe('root');
     expect(getCatalogFilterProfile({ filters: { category: ['espejos'] } })).toBe('espejos');
     expect(getCatalogFilterProfile({ filters: { supplier: ['manillons-torrent'] } })).toBe('espejos');
     expect(getCatalogFilterProfile({ filters: { category: ['muebles-y-lavabos'] } })).toBe('royo');
     expect(getCatalogFilterProfile({ filters: { category: ['muebles-y-lavabos'], supplier: ['royo'] } })).toBe('royo');
-    expect(getCatalogFilterProfile({ filters: { category: ['muebles-y-lavabos'], supplier: ['royo', 'gme'] } })).toBe('mamparas');
+    expect(getCatalogFilterProfile({ filters: { category: ['muebles-y-lavabos'], supplier: ['royo', 'gme'] } })).toBe('root');
     expect(getCatalogFilterKeys('royo')[0]).toBe('modularity');
     expect(getCatalogFilterKeys('royo')).toEqual([
       'modularity', 'collection', 'subcategory', 'finish', 'measure', 'product_kind', 'category', 'supplier',
@@ -86,7 +86,7 @@ describe('catalog query state', () => {
     expect(catalogQueryToRequest(otherQuery, true)).not.toHaveProperty('modularity');
 
     const unrelatedQuery = parseCatalogQuery('category=muebles-y-lavabos&supplier=gme&modularity=modular');
-    expect(getCatalogFilterProfile(unrelatedQuery)).toBe('mamparas');
+    expect(getCatalogFilterProfile(unrelatedQuery)).toBe('root');
     expect(unrelatedQuery.filters.modularity).toBeUndefined();
     expect(catalogQueryToRequest(unrelatedQuery, true)).not.toHaveProperty('modularity');
   });
@@ -103,7 +103,7 @@ describe('catalog query state', () => {
     const changed = withCatalogQueryChange(royoQuery, {
       filters: { category: ['muebles-y-lavabos'], supplier: ['gme'], modularity: ['normal'], measure: ['100'], finish: ['Cromo'] },
     });
-    expect(changed.filters).toEqual({ category: ['muebles-y-lavabos'], supplier: ['gme'], finish: ['Cromo'] });
+    expect(changed.filters).toEqual({ category: ['muebles-y-lavabos'], supplier: ['gme'] });
 
     const clearedCategory = withCatalogQueryChange(royoQuery, { filters: { supplier: ['royo'], modularity: ['normal'] } });
     expect(clearedCategory.filters).toEqual({ supplier: ['royo'] });
@@ -160,7 +160,7 @@ describe('catalog query state', () => {
   });
 
   it('unions family profiles and keeps a shared dependent filter while one owner remains', () => {
-    expect(getCatalogFilterProfile({ filters: { supplier: ['gme', 'manillons-torrent'] } })).toBe('mixed');
+    expect(getCatalogFilterProfile({ filters: { supplier: ['gme', 'manillons-torrent'] } })).toBe('espejos');
     const query = parseCatalogQuery('supplier=gme&supplier=manillons-torrent&finish=Negro+mate&shape=Semicircular');
     expect(query.filters.finish).toEqual(['Negro mate']);
     expect(query.filters.shape).toEqual(['Semicircular']);
@@ -174,11 +174,13 @@ describe('catalog query state', () => {
     expect(catalogQueryKey(query)).toBe(catalogQueryKey({ ...query, page: 1 }));
   });
   describe('gme io catalog scope', () => {
-    it('activates the IO profile only for GME + griferia and keeps families isolated', () => {
-      expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['grifera'] } })).toBe('mamparas');
+    it('follows the chosen category: griferia shows IO filters, mamparas its own, GME alone none', () => {
+      expect(getCatalogFilterProfile({ filters: { supplier: ['gme'] } })).toBe('root');
+      expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['grifera'] } })).toBe('root');
       expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['griferia'] } })).toBe('gme-io');
-      expect(getCatalogFilterProfile({ filters: { category: ['griferia'] } })).toBe('root');
+      expect(getCatalogFilterProfile({ filters: { category: ['griferia'] } })).toBe('gme-io');
       expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['mamparas'] } })).toBe('mamparas');
+      expect(getCatalogFilterProfile({ filters: { category: ['mamparas'] } })).toBe('mamparas');
       expect(getCatalogFilterKeys('gme-io')).toEqual([
         'category', 'supplier', 'catalog_section', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish',
       ]);

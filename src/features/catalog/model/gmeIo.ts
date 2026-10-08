@@ -134,7 +134,8 @@ export function buildGmeIoGallery(product: ProductDetail, assetBaseUrl?: string 
 
 // Large photo for a manually selected finish: the selected variant's own photo
 // first, then any other variant photo of the same finish, then the API's
-// per-finish fallback. Never a selector swatch; undefined keeps current image.
+// per-finish fallback keyed by the exact finish name. Never a selector swatch;
+// undefined keeps the current image.
 export function getGmeIoFinishImageUrl(product: ProductDetail, finish: string | undefined, assetBaseUrl?: string | null): string | undefined {
   const finishName = ioAttributeValue(finish)?.toLocaleLowerCase();
   if (!finishName) return undefined;
@@ -144,8 +145,34 @@ export function getGmeIoFinishImageUrl(product: ProductDetail, finish: string | 
     .flatMap((variant) => variant.images ?? []);
   const fromVariant = candidates.find((image) => !selectorUrls.has(image.url))?.url;
   if (fromVariant) return fromVariant;
-  const fallback = collectProductImages(product.specs?.finish_image_urls, product.name, assetBaseUrl);
-  return fallback.find((image) => !selectorUrls.has(image.url))?.url;
+  const fallbackMap = product.specs?.finish_image_urls;
+  if (fallbackMap && typeof fallbackMap === 'object' && !Array.isArray(fallbackMap)) {
+    const entry = Object.entries(fallbackMap as Record<string, unknown>).find(([key]) => key.toLocaleLowerCase() === finishName)
+      ?? Object.entries(fallbackMap as Record<string, unknown>).find(([key]) => key.toLocaleLowerCase().replace(/_/g, ' ') === finishName.replace(/_/g, ' '));
+    if (entry) {
+      const image = selectorImageFrom(entry[1], product.name, assetBaseUrl);
+      if (image && !selectorUrls.has(image.url)) return image.url;
+    }
+  }
+  return undefined;
+}
+
+const IO_VALUE_LABELS: Record<string, string> = {
+  lavabo_bajo: 'Grifo bajo',
+  lavabo_alto: 'Grifo alto',
+  bide: 'Bidé',
+  vista: 'Vista',
+  empotrable: 'Empotrable',
+  columna: 'Columna',
+  monomando: 'Monomando',
+  termostatico: 'Termostático',
+};
+
+// Buttons show friendly names for technical API values; finish names arrive
+// commercial already ("Níquel", "Oro") and pass through unchanged.
+export function getGmeIoValueLabel(key: string, value: string): string {
+  if (key === 'finish') return value;
+  return IO_VALUE_LABELS[value.toLocaleLowerCase()] ?? value.replace(/_/g, ' ').replace(/^./, (first) => first.toLocaleUpperCase());
 }
 
 export type GmeIoFact = { key: GmeIoSelectionKey; label: string; value: string };

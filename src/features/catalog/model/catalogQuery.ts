@@ -168,15 +168,16 @@ export function getCatalogFilterProfile(query: Pick<CatalogQueryState, 'filters'
 export function getActiveCatalogFamilies(query: Pick<CatalogQueryState, 'filters'>): CatalogFamilyId[] {
   const categoryValues = (query.filters.category || []).map((value) => value.toLocaleLowerCase());
   const supplierValues = (query.filters.supplier || []).map((value) => value.toLocaleLowerCase());
-  const gmeIoActive = supplierValues.includes('gme') && categoryValues.includes('griferia');
+  // The filter panel follows the chosen category: griferia always shows the IO
+  // filters and mamparas its own, with or without GME. Selecting GME alone
+  // activates no family: the user must pick mamparas or griferia first.
   return CATALOG_FAMILY_PROFILES
-    .filter((profile) => profile.id === 'royo'
-      ? isCatalogRoyoFurnitureScope({ supplier: supplierValues, category: categoryValues })
-      : profile.id === 'mamparas'
-        ? !gmeIoActive && (profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)))
-        : gmeIoActive === (profile.id === 'gme-io')
-          ? profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value)) || (gmeIoActive && profile.id === 'gme-io')
-          : false)
+    .filter((profile) => {
+      if (profile.id === 'royo') return isCatalogRoyoFurnitureScope({ supplier: supplierValues, category: categoryValues });
+      if (profile.id === 'gme-io') return categoryValues.includes('griferia');
+      if (profile.id === 'mamparas') return categoryValues.includes('mamparas');
+      return profile.categories.some((value) => categoryValues.includes(value)) || profile.suppliers.some((value) => supplierValues.includes(value));
+    })
     .map((profile) => profile.id);
 }
 

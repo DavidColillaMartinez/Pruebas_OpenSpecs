@@ -118,15 +118,17 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   }, [isDuplach, isIo, isRoyo]);
   const duplachModel = useMemo(() => isDuplach ? getDuplachSelectorModel(product) : null, [isDuplach, product]);
   const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
-  const galleryImages = isIo
-    ? buildGmeIoGallery(product, assetBaseUrl)
-    : isDuplach
+  // IO gallery must keep a stable identity across renders: rebuilding it on
+  // every selection change would reset the active photo to the cover.
+  const ioGalleryImages = useMemo(() => isIo ? buildGmeIoGallery(product, assetBaseUrl) : null, [isIo, product, assetBaseUrl]);
+  const galleryImages = ioGalleryImages
+    ?? (isDuplach
     ? (duplachFamily && duplachModel
       ? getDuplachFamilyImages(product, duplachModel, duplachFamily, assetBaseUrl)
       : buildDuplachProductGallery(product, hasManualDuplachSelection ? selectedUnit : null, { manualSelection: hasManualDuplachSelection, assetBaseUrl }))
     : isRoyo
     ? buildRoyoProductGallery(product, galleryUnit)
-    : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images;
+    : isManillonsMirrorProduct(product) ? product.images : selectedUnit?.images?.length ? selectedUnit.images : product.images);
   const selectedSnapshot = buildVariantSnapshot(selectedUnit);
   const variantLabel = selectedUnit?.variantSnapshot && Object.entries(selectedUnit.variantSnapshot).filter(([key, value]) => !['reference', 'measure', 'dimension'].includes(key) && value !== undefined && value !== '').slice(0, 5).map(([, value]) => typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)).join(' · ');
   const ioActivation = isIo && manualFinish

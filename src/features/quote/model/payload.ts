@@ -1,8 +1,34 @@
 import { buildVariantSnapshot, type SelectableUnit } from '../../catalog/model/selection';
+import { isGmeIoProduct } from '../../catalog/model/gmeIo';
 import type { ProductDetail } from '../../catalog/model/types';
 import type { QuoteRequestItem, QuoteRequestPayload } from './types';
 
 const IDENTIFIER_PATTERN = /^[A-Za-z0-9._:-]+$/;
+// Server validator (server/catalog/quoteBody.js) caps snapshot string values;
+// longer API asset URLs stay in the top-level imageUrl field only.
+const SNAPSHOT_MAX_VALUE_LENGTH = 300;
+
+function ioSnapshotAttributes(product: ProductDetail, unit: SelectableUnit | null): Record<string, string | number | boolean> {
+  const attributes: Record<string, string | number | boolean> = {};
+  const put = (key: string, value: unknown) => {
+    if (typeof value === 'string' && value.trim().length > 0 && value.length <= SNAPSHOT_MAX_VALUE_LENGTH) attributes[key] = value;
+    else if (typeof value === 'number' || typeof value === 'boolean') attributes[key] = value;
+  };
+  put('supplier', product.supplierName || product.supplierId);
+  put('supplier_id', product.supplierId);
+  put('category', product.categoryName || product.categoryId);
+  put('category_id', product.categoryId);
+  put('model', product.model);
+  put('collection', product.collection);
+  const specFields = ['tap_type', 'installation', 'mechanism'] as const;
+  specFields.forEach((field) => {
+    const fromUnit = unit?.attributes?.[field];
+    put(field, fromUnit ?? (typeof product.specs?.[field] === 'string' ? product.specs[field] : undefined));
+  });
+  const imageUrl = unit?.images?.[0]?.url || product.images[0]?.url;
+  put('image', imageUrl);
+  return attributes;
+}
 
 function isCompactDuplachSelection(item: QuoteRequestItem): boolean {
   return item.productId.toLocaleLowerCase().startsWith('duplach-')
@@ -18,6 +44,11 @@ export function buildQuoteRequestItem(product: ProductDetail, unit: SelectableUn
       ...Object.entries(snapshot).filter(([key]) => key !== 'reference'),
     ]) as Record<string, string | number | boolean>
     : product.shape ? { shape: product.shape } : undefined;
+  // IO keeps every commercial attribute inside variantSnapshot so the n8n
+  // workflow preserves supplier, model, finish and the product photo.
+  const ioSnapshot = snapshot && isGmeIoProduct(product)
+    ? Object.fromEntries(Object.entries({ ...snapshot, ...ioSnapshotAttributes(product, unit) }).filter(([, value]) => value !== undefined && value !== '')) as Record<string, string | number | boolean>
+    : snapshot;
 
   return {
     productId: product.id,
@@ -30,7 +61,7 @@ export function buildQuoteRequestItem(product: ProductDetail, unit: SelectableUn
     ...((product.categoryName || product.categoryId) ? { category: product.categoryName || product.categoryId } : {}),
     ...(unit?.images?.[0]?.url || product.images[0]?.url ? { imageUrl: unit?.images?.[0]?.url || product.images[0]?.url } : {}),
     ...(selectedAttributes && Object.keys(selectedAttributes).length > 0 ? { selectedAttributes } : {}),
-    ...(snapshot && Object.keys(snapshot).length > 0 ? { variantSnapshot: snapshot } : {}),
+    ...(ioSnapshot && Object.keys(ioSnapshot).length > 0 ? { variantSnapshot: ioSnapshot } : {}),
     ...(notes?.trim() ? { notes: notes.trim() } : {}),
   };
 }
