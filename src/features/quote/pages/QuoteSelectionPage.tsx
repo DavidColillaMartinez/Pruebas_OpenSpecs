@@ -5,47 +5,20 @@ import { applyRouteMeta } from '../../../routes/routeMeta';
 import { CatalogApiError, createQuoteRequest } from '../../catalog/api/client';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { getQuoteSelectionKey, useQuoteSelection } from '../model/selectionStore';
+import { getQuoteSummaryAttributes, formatQuoteLineReference } from '../model/summary';
 import { validateQuoteRequest } from '../model/payload';
 import type { QuoteRequestPayload } from '../model/types';
 
-const attributeLabels: Record<string, string> = {
-  dimension: 'Medida',
-  measure: 'Medida',
-  finish: 'Acabado',
-  version: 'Versión',
-  has_led: 'LED',
-  lighting_type: 'Tipo de iluminación',
-  lighting_technology: 'Tecnología LED',
-  light_temp: 'Temperatura de luz',
-  distribution: 'Distribución',
-  glass: 'Vidrio',
-  opening: 'Apertura',
-  orientation: 'Orientación',
-  offer: 'Oferta',
-  furniture_finish: 'Acabado del mueble',
-  handle_finish: 'Acabado del tirador',
-  countertop_finish: 'Acabado de encimera',
-  presentation_type: 'Tipo de presentación',
-  furniture_type: 'Tipo de mueble',
-  module_type: 'Tipo de módulo',
-  type: 'Tipo',
-};
-
-function displayValue(value: string | number | boolean): string {
-  return typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value);
-}
-
-function formatReference(line: { reference?: string }): string {
-  return line.reference ? `Referencia ${line.reference}` : 'Referencia no publicada';
-}
-
 export function QuoteSelectionPage() {
-  const { lines, updateQuantity, removeLine, clear } = useQuoteSelection();
+  const { lines, updateQuantity, removeLine, clear, removeLines } = useQuoteSelection();
   const [form, setForm] = useState({ customerName: '', email: '', phone: '', message: '', consent: false });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [error, setError] = useState('');
+  const [lineErrors, setLineErrors] = useState<Record<number, string>>({});
+  const [confirmedId, setConfirmedId] = useState<string | null>(null);
 
   const updateField = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
+  const submitting = status === 'submitting';
 
   useEffect(() => applyRouteMeta({
     title: 'Mi presupuesto · AREA LRMQ',
@@ -56,7 +29,10 @@ export function QuoteSelectionPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === 'submitting') return;
+    if (submitting) return;
+    // Capture exactly the lines being sent BEFORE any cleanup: the confirmation
+    // must be validated against them (id, success status, item_count).
+    const sentLines = [...lines];
     const payload: QuoteRequestPayload = {
       customerName: form.customerName.trim(),
       ...(form.email.trim() ? { email: form.email.trim() } : {}),
@@ -64,11 +40,11 @@ export function QuoteSelectionPage() {
       ...(form.message.trim() ? { message: form.message.trim() } : {}),
       sourcePage: window.location.pathname,
       consentPrivacy: true,
-      items: lines,
+      items: sentLines,
     };
     const errors = validateQuoteRequest(payload);
     if (!form.email.trim() && !form.phone.trim()) errors.contact = 'Indica un email o un teléfono.';
-    if (lines.length === 0) errors.items = 'Añade al menos una variante.';
+    if (sentLines.length === 0) errors.items = 'Añade al menos una variante.';
     if (!form.consent) errors.consentPrivacy = 'Debes aceptar la política de privacidad.';
     if (Object.keys(errors).length > 0) {
       setError(Object.values(errors)[0]);
@@ -78,13 +54,19 @@ export function QuoteSelectionPage() {
 
     setStatus('submitting');
     setError('');
+    setLineErrors({});
     try {
-      await createQuoteRequest(payload);
-      clear();
+      const confirmation = await createQuoteRequest(payload);
+      // Only the sent lines leave the basket; anything changed after the
+      // submit (despite the controls being blocked) stays for the user.
+      removeLines(sentLines.map(getQuoteSelectionKey));
+      setConfirmedId(confirmation.id);
       setStatus('success');
       setForm({ customerName: '', email: '', phone: '', message: '', consent: false });
     } catch (requestError) {
       setStatus('error');
+      setConfirmedId(null);
+      setLineErrors(collectLineErrors(requestError));
       setError(requestError instanceof CatalogApiError ? requestError.message : 'No se pudo enviar la solicitud. Inténtalo de nuevo.');
     }
   }
@@ -103,24 +85,25 @@ export function QuoteSelectionPage() {
 
         {lines.length === 0 ? (
           <section className="py-20 text-center" aria-labelledby="empty-selection-heading">
-            {status === 'success' ? <p role="status" className="text-green-800">Solicitud enviada correctamente.</p> : <><h2 id="empty-selection-heading" className="font-display text-3xl">Aún no hay selecciones</h2><p className="mx-auto mt-3 max-w-md text-secondary">Añade una variante desde su ficha para construir tu presupuesto.</p></>}
+            {status === 'success' ? <p role="status" className="text-green-800">Solicitud registrada con el identificador {confirmedId ?? '—'}.</p> : <><h2 id="empty-selection-heading" className="font-display text-3xl">Aún no hay selecciones</h2><p className="mx-auto mt-3 max-w-md text-secondary">Añade una variante desde su ficha para construir tu presupuesto.</p></>}
             <Link to="/productos" className="mt-7 inline-flex min-h-11 items-center rounded-full bg-ink px-5 text-sm font-semibold text-white">Explorar catálogo</Link>
           </section>
         ) : (
           <div className="grid gap-14 py-10 lg:grid-cols-[1.1fr_0.9fr]">
             <section aria-labelledby="selection-lines-heading">
-              <div className="flex items-baseline justify-between gap-4"><h2 id="selection-lines-heading" className="font-display text-3xl">Variantes elegidas</h2><button type="button" onClick={clear} className="text-sm text-secondary underline-offset-4 hover:underline">Vaciar</button></div>
+              <div className="flex items-baseline justify-between gap-4"><h2 id="selection-lines-heading" className="font-display text-3xl">Variantes elegidas</h2><button type="button" onClick={clear} disabled={submitting} className="text-sm text-secondary underline-offset-4 hover:underline disabled:opacity-50">Vaciar</button></div>
               <ul className="mt-6 divide-y divide-ink/10 border-y border-border-hairline/10">
-                {lines.map((line) => {
+                {lines.map((line, index) => {
                   const key = getQuoteSelectionKey(line);
                   return (
                     <li key={key} className="py-6">
                       <div className="flex items-start gap-4">
                         {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-24 w-20 lrmq-soften-quote shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-24 w-20 shrink-0 place-items-center border border-border-hairline/10 text-center text-xs text-secondary">Sin imagen</span>}
                         <div className="min-w-0 flex-1">
-                           <div className="flex items-start justify-between gap-5"><div><h3 className="text-lg font-semibold">{line.productName}</h3><p className="mt-1 text-sm text-secondary">{line.supplier || line.category || 'Producto'} · {formatReference(line)}</p></div><button type="button" onClick={() => removeLine(key)} aria-label={`Eliminar ${line.productName}${line.reference ? ` ${line.reference}` : ''}`} className="shrink-0 text-sm text-secondary underline-offset-4 hover:text-primary hover:underline">Eliminar</button></div>
-                          <dl className="mt-4 grid gap-x-5 gap-y-2 text-sm sm:grid-cols-2">{Object.entries(line.selectedAttributes || {}).map(([attribute, value]) => <div key={attribute}><dt className="text-secondary">{attributeLabels[attribute] || attribute}</dt><dd className="font-semibold">{displayValue(value)}</dd></div>)}</dl>
-                          <div className="mt-5 flex items-center gap-3"><label htmlFor={`quantity-${key}`} className="text-sm font-semibold">Cantidad</label><input id={`quantity-${key}`} type="number" min="1" max="999" value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-10 w-20 border-b border-border-hairline/30 bg-transparent px-1 text-center focus:border-ink focus:outline-none" /></div>
+                           <div className="flex items-start justify-between gap-5"><div><h3 className="text-lg font-semibold">{line.productName}</h3><p className="mt-1 text-sm text-secondary">{line.supplier || line.category || 'Producto'} · {formatQuoteLineReference(line.reference)}</p></div><button type="button" onClick={() => removeLine(key)} disabled={submitting} aria-label={`Eliminar ${line.productName}${line.reference ? ` ${line.reference}` : ''}`} className="shrink-0 text-sm text-secondary underline-offset-4 hover:text-primary hover:underline disabled:opacity-50">Eliminar</button></div>
+                          <dl className="mt-4 grid gap-x-5 gap-y-2 text-sm sm:grid-cols-2">{getQuoteSummaryAttributes(line).map((attribute, attributeIndex) => <div key={`${attribute.label}-${attributeIndex}`}><dt className="text-secondary">{attribute.label}</dt><dd className="font-semibold">{attribute.value}</dd></div>)}</dl>
+                          {lineErrors[index] && <p role="alert" className="mt-2 text-sm text-red-700">Esta línea: {lineErrors[index]}</p>}
+                          <div className="mt-5 flex items-center gap-3"><label htmlFor={`quantity-${key}`} className="text-sm font-semibold">Cantidad</label><input id={`quantity-${key}`} type="number" min="1" max="999" disabled={submitting} value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-10 w-20 border-b border-border-hairline/30 bg-transparent px-1 text-center focus:border-ink focus:outline-none disabled:opacity-60" /></div>
                         </div>
                       </div>
                     </li>
@@ -131,13 +114,13 @@ export function QuoteSelectionPage() {
             <section aria-labelledby="joint-quote-heading">
               <h2 id="joint-quote-heading" className="font-display text-3xl">Solicitar presupuesto</h2>
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                <div><label htmlFor="joint-name" className="text-sm font-semibold">Nombre</label><input id="joint-name" value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none" /></div>
-                <div className="grid gap-4 sm:grid-cols-2"><div><label htmlFor="joint-email" className="text-sm font-semibold">Email</label><input id="joint-email" type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none" /></div><div><label htmlFor="joint-phone" className="text-sm font-semibold">Teléfono</label><input id="joint-phone" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none" /></div></div>
-                <div><label htmlFor="joint-message" className="text-sm font-semibold">Mensaje</label><textarea id="joint-message" rows={4} value={form.message} onChange={(event) => updateField('message', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none" /></div>
-                <label className="flex items-start gap-2 text-sm text-secondary"><input type="checkbox" checked={form.consent} onChange={(event) => updateField('consent', event.target.checked)} className="mt-1" />Acepto la política de privacidad.</label>
+                <div><label htmlFor="joint-name" className="text-sm font-semibold">Nombre</label><input id="joint-name" disabled={submitting} value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div>
+                <div className="grid gap-4 sm:grid-cols-2"><div><label htmlFor="joint-email" className="text-sm font-semibold">Email</label><input id="joint-email" type="email" disabled={submitting} value={form.email} onChange={(event) => updateField('email', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div><div><label htmlFor="joint-phone" className="text-sm font-semibold">Teléfono</label><input id="joint-phone" disabled={submitting} value={form.phone} onChange={(event) => updateField('phone', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div></div>
+                <div><label htmlFor="joint-message" className="text-sm font-semibold">Mensaje</label><textarea id="joint-message" rows={4} disabled={submitting} value={form.message} onChange={(event) => updateField('message', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div>
+                <label className="flex items-start gap-2 text-sm text-secondary"><input type="checkbox" disabled={submitting} checked={form.consent} onChange={(event) => updateField('consent', event.target.checked)} className="mt-1" />Acepto la política de privacidad.</label>
                 {status === 'error' && <p role="alert" className="text-sm text-red-700">{error}</p>}
-                {status === 'success' && <p role="status" className="text-sm text-green-800">Solicitud enviada correctamente.</p>}
-                <button type="submit" disabled={status === 'submitting'} className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-graphite disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">{status === 'submitting' ? 'Enviando…' : `Enviar ${lines.length} ${lines.length === 1 ? 'selección' : 'selecciones'}`}</button>
+                {status === 'success' && <p role="status" className="text-sm text-green-800">Solicitud registrada con el identificador {confirmedId ?? '—'}.</p>}
+                <button type="submit" disabled={submitting} className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-graphite disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">{submitting ? 'Enviando…' : `Enviar ${lines.length} ${lines.length === 1 ? 'selección' : 'selecciones'}`}</button>
               </form>
             </section>
           </div>
@@ -145,4 +128,29 @@ export function QuoteSelectionPage() {
       </div>
     </main>
   );
+}
+
+function collectLineErrors(requestError: unknown): Record<number, string> {
+  if (!(requestError instanceof CatalogApiError) || !requestError.details || typeof requestError.details !== 'object') return {};
+  const record = requestError.details as Record<string, unknown>;
+  const lineErrors: Record<number, string> = {};
+  const mapField = (field: string, message: string) => {
+    const match = /^items\.(\d+)(?:\.([A-Za-z0-9_]+))?$/.exec(field);
+    if (!match) return;
+    lineErrors[Number(match[1])] = message || (match[2] ? `Revisa ${match[2].replaceAll('_', ' ')} de esta línea.` : 'Revisa esta línea.');
+  };
+  if (Array.isArray(record.errors)) {
+    record.errors.forEach((item) => {
+      if (item && typeof item === 'object') {
+        const entry = item as Record<string, unknown>;
+        if (typeof entry.field === 'string') mapField(entry.field, typeof entry.message === 'string' ? entry.message : '');
+      }
+    });
+  }
+  if (Array.isArray(record.fields)) {
+    record.fields.forEach((field) => {
+      if (typeof field === 'string') mapField(field, '');
+    });
+  }
+  return lineErrors;
 }

@@ -155,6 +155,24 @@ describe('ProductVariantSelector', () => {
       expect(screen.getByRole('button', { name: 'Bidé' })).toBeDisabled();
       expect(onSelectionChange.mock.lastCall?.[1].changedKey).toBe('finish');
     });
+
+    it('shows translated fixed configuration for a single-variant IO shower', () => {
+      const product = normalizeProductDetail({
+        id: 'gme-columna-niagara', name: 'Niagara', slug: 'gme-columna-niagara', supplier_id: 'gme', category_id: 'griferia',
+        specs: { gme_io_2026: true },
+        variants: [
+          { id: 'niagara-vista', attributes: { tap_type: 'columna', installation: 'empotrable', mechanism: 'monomando', finish: 'Cromo' }, reference: 'NI223CL' },
+        ],
+      });
+      render(<ProductVariantSelector product={product} onSelectionChange={vi.fn()} />);
+
+      expect(screen.getByText(/Tipo de grifo: Columna/)).toBeInTheDocument();
+      expect(screen.getByText(/Instalación: Empotrable/)).toBeInTheDocument();
+      expect(screen.getByText(/Mecanismo: Monomando/)).toBeInTheDocument();
+      expect(screen.getByText(/Acabado: Cromo/)).toBeInTheDocument();
+      expect(screen.queryByRole('group')).not.toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Configuración del grifo' })).toBeInTheDocument();
+    });
   });
 
   it('supports API-backed normal presentation types and resolves their real variants', () => {

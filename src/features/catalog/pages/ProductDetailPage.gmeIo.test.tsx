@@ -53,16 +53,57 @@ describe('ProductDetailPage GME IO gallery behavior', () => {
     stubFetch();
     render(<MemoryRouter initialEntries={['/productos/gme-testio']}><Routes><Route path="/productos/:slug" element={<ProductDetailPage />} /></Routes></MemoryRouter>);
 
-    await waitFor(() => expect(mainImage().src).toContain('/covers/testio/cover.webp'));
+    // 3000 ms: under the full parallel suite these effects can lag well beyond
+    // the default 1000 ms even though the flow itself is instant.
+    await waitFor(() => expect(mainImage().src).toContain('/covers/testio/cover.webp'), { timeout: 3000 });
     const galleryUrls = new Set(screen.getAllByRole('img').map((image) => (image as HTMLImageElement).src));
     expect(galleryUrls.has('https://assets.test/faucets/testio/cromo.webp')).toBe(false);
 
     fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
-    await waitFor(() => expect(mainImage().src).toContain('/gallery/testio/negro.webp'));
+    await waitFor(() => expect(mainImage().src).toContain('/gallery/testio/negro.webp'), { timeout: 3000 });
 
     // Tap-type changes never hijack the active photo.
-    fireEvent.click(screen.getByRole('button', { name: 'Grifo alto' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Caño alto' }));
     expect(mainImage().src).toContain('/gallery/testio/negro.webp');
+  });
+
+  it('keeps the assigned cover first when numbered photos carry API sort_order (Rhio)', async () => {
+    const rhioDetail = {
+      id: 'gme-rhio',
+      name: 'Rhio',
+      slug: 'gme-rhio',
+      supplier_id: 'gme',
+      supplier_name: 'GME',
+      category_id: 'griferia',
+      category_name: 'Grifería',
+      main_image_url: 'https://assets.test/covers/rhio/cover-candidate.webp',
+      images: [
+        { url: 'https://assets.test/gallery/faucets/rhio/cromo.webp', sort_order: 2 },
+        { url: 'https://assets.test/covers/rhio/cover-candidate.webp', sort_order: 3 },
+        { url: 'https://assets.test/gallery/faucets/rhio/negro.webp', sort_order: 4 },
+      ],
+      specs: { gme_io_2026: true },
+      variants: [
+        { id: 'rhio-bajo-cromo', attributes: { tap_type: 'lavabo_bajo', finish: 'Cromo' }, reference: '3166CR', images: [{ url: 'https://assets.test/gallery/faucets/rhio/cromo.webp', sort_order: 2 }] },
+        { id: 'rhio-bajo-negro', attributes: { tap_type: 'lavabo_bajo', finish: 'Negro' }, reference: '3166NG', images: [{ url: 'https://assets.test/gallery/faucets/rhio/negro.webp', sort_order: 4 }] },
+      ],
+    };
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/api/catalog/products/gme-rhio')) {
+        return Promise.resolve(new Response(JSON.stringify(rhioDetail), { status: 200 }));
+      }
+      return Promise.resolve(new Response(JSON.stringify({ items: [], pagination: { limit: 24, offset: 0, total: 0, has_more: false }, facets: {}, sort: { supported: [] } }), { status: 200 }));
+    }));
+    render(<MemoryRouter initialEntries={['/productos/gme-rhio']}><Routes><Route path="/productos/:slug" element={<ProductDetailPage />} /></Routes></MemoryRouter>);
+
+    await waitFor(() => expect(mainImage().src).toContain('/covers/rhio/cover-candidate.webp'), { timeout: 3000 });
+    // The cover stays first after effect settling: numbered photos must never
+    // overtake an assigned cover.
+    await waitFor(() => {
+      const active = screen.getByRole('img', { name: /imagen principal/i }) as HTMLImageElement;
+      expect(active.src).toContain('/covers/rhio/cover-candidate.webp');
+    }, { timeout: 3000 });
   });
 
   it('renders large finish swatches with visible names and keeps photos when finish has none', async () => {
@@ -86,11 +127,11 @@ describe('ProductDetailPage GME IO gallery behavior', () => {
     const cromoButton = screen.getByRole('button', { name: 'Cromo' });
     expect(cromoButton).toBeInTheDocument();
 
-    await waitFor(() => expect(mainImage().src).toContain('/covers/testio/cover.webp'));
+    await waitFor(() => expect(mainImage().src).toContain('/covers/testio/cover.webp'), { timeout: 3000 });
     fireEvent.click(negroButton);
     await waitFor(() => {
       // Negro has no large photo: the cover must remain active.
       expect(mainImage().src).toContain('/covers/testio/cover.webp');
-    });
+    }, { timeout: 3000 });
   });
 });

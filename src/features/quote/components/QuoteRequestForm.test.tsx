@@ -39,11 +39,14 @@ describe('QuoteRequestForm', () => {
     fillRequiredFields();
     fireEvent.click(screen.getByRole('button', { name: 'Solicitar presupuesto' }));
 
-    expect(await screen.findByText('Solicitud enviada correctamente.')).toBeInTheDocument();
+    expect(await screen.findByText('Solicitud registrada con el identificador quote-1.')).toBeInTheDocument();
     const [url, options] = fetchMock.mock.calls[0];
     expect(url).toBe('/api/catalog/quote-requests');
     expect(url).not.toContain('webhook');
-    expect(JSON.parse(options.body)).toMatchObject({ customerName: 'Ana', email: 'ana@example.com', consentPrivacy: true, website: '' });
+    const body = JSON.parse(options.body);
+    expect(body).toMatchObject({ customerName: 'Ana', email: 'ana@example.com', consentPrivacy: true });
+    // The honeypot never travels: `website` is outside the server contract.
+    expect(body).not.toHaveProperty('website');
     expect(JSON.parse(options.body).items[0]).toMatchObject({ productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0001', quantity: 1 });
     await waitFor(() => expect(screen.getByLabelText('Nombre')).toHaveValue(''));
   });
@@ -102,7 +105,7 @@ describe('QuoteRequestForm', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: 'Enviando…' })).toBeDisabled();
-    resolveRequest(new Response(JSON.stringify({ id: 'quote-1', status: 'received' }), { status: 201 }));
-    await waitFor(() => expect(screen.getByText('Solicitud enviada correctamente.')).toBeInTheDocument());
+    resolveRequest(new Response(JSON.stringify({ id: 'quote-1', status: 'received', item_count: 1 }), { status: 201 }));
+    await waitFor(() => expect(screen.getByText('Solicitud registrada con el identificador quote-1.')).toBeInTheDocument());
   });
 });

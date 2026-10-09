@@ -199,4 +199,34 @@ describe('chat server endpoint', () => {
     expect(response.result.body.error.code).toBe('CHAT_UNAVAILABLE');
     expect(response.result.body.error.retryable).toBe(true);
   });
+
+  it('transports the GME catalog filters (including underscore values and the series alias) to the upstream', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    const gmeBody = {
+      ...VALID_BODY,
+      context: {
+        pagePath: '/productos',
+        productSlug: null,
+        filters: {
+          category: 'griferia',
+          supplier: 'gme',
+          catalog_section: 'duchas',
+          installation: 'empotrable',
+          mechanism: 'termostatico',
+          series: 'Persio',
+          tap_type: 'lavabo_alto',
+          finish: 'Níquel',
+        },
+        locale: 'es',
+      },
+    };
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ version: 1, conversationId: 's', requestId: gmeBody.requestId, message: 'ok', products: [], actions: [] }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await chatHandler({ method: 'POST', headers: { 'content-type': 'application/json' }, body: gmeBody }, response);
+
+    expect(response.result.statusCode).toBe(200);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).context.filters).toEqual(gmeBody.context.filters);
+  });
 });

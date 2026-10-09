@@ -5,13 +5,16 @@ import type { ChatContext } from '../transport/types';
 
 export const PRODUCT_ROUTE_PATTERN = /^\/productos\/([^/?]+)\/?$/;
 
-const ALLOWED_FILTER_KEYS = new Set<string>([...CATALOG_FILTER_KEYS, 'search']);
+// The chat backend also understands the `series` alias used by the catalog list
+// request; the underscore-bearing IO values (lavabo_alto, termostatico, ...)
+// are API keys, so they must survive this bounded whitelist.
+const ALLOWED_FILTER_KEYS = new Set<string>([...CATALOG_FILTER_KEYS, 'series', 'search']);
 
 function readCatalogFilters(searchParams: URLSearchParams): Record<string, string> {
   const filters: Record<string, string> = {};
   searchParams.forEach((value, key) => {
     if (!value || !ALLOWED_FILTER_KEYS.has(key) || value.length > 80) return;
-    if (!/^[A-Za-z0-9 .,%:\-ñáéíóúÁÉÍÓÚÑ]{1,80}$/.test(value)) return;
+    if (!/^[A-Za-z0-9_ .,%:\-ñáéíóúÁÉÍÓÚÑ]{1,80}$/.test(value)) return;
     filters[key] = value;
   });
   return filters;

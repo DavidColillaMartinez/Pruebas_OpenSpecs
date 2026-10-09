@@ -1,10 +1,13 @@
 import { parseChatResponse, type ChatMessagePayload, type ChatSendResult } from './types';
 
 export const CHAT_API_ENDPOINT = '/api/chat/messages';
-export const CHAT_FIRST_REQUEST_TIMEOUT_MS = 15000;
-export const CHAT_CONTINUED_REQUEST_TIMEOUT_MS = 19000;
-export const CHAT_DEEP_CONVERSATION_TIMEOUT_MS = 23000;
-export const CHAT_MAX_REQUEST_TIMEOUT_MS = 30000;
+// The browser allows client timeouts with margin over the chat proxy
+// (17/21/25/28) so the proxy's controlled error is never cut by the page.
+// vercel.json caps the function at 35 s.
+export const CHAT_FIRST_REQUEST_TIMEOUT_MS = 20000;
+export const CHAT_CONTINUED_REQUEST_TIMEOUT_MS = 24000;
+export const CHAT_DEEP_CONVERSATION_TIMEOUT_MS = 28000;
+export const CHAT_MAX_REQUEST_TIMEOUT_MS = 31000;
 
 export function getChatRequestTimeoutMs(payload: Pick<ChatMessagePayload, 'conversationTurn'>): number {
   if (payload.conversationTurn <= 0) return CHAT_FIRST_REQUEST_TIMEOUT_MS;

@@ -153,7 +153,10 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   return (
     <>
       <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo || isDuplach} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} activation={ioActivation} />
+        {/* IO gallery order comes already deduplicated and cover-first from
+            the builder; re-sorting here would demote a cover without a
+            numbered sort_order behind the gallery photos. */}
+        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo || isDuplach || isIo} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} activation={ioActivation} />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>

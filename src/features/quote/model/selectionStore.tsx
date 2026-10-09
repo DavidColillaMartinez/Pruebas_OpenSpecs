@@ -15,6 +15,7 @@ type QuoteSelectionContextValue = {
   addLine: (line: QuoteSelectionLine) => boolean;
   updateQuantity: (key: string, quantity: number) => void;
   removeLine: (key: string) => void;
+  removeLines: (keys: string[]) => void;
   clear: () => void;
 };
 
@@ -24,6 +25,7 @@ const emptyContext: QuoteSelectionContextValue = {
   addLine: () => false,
   updateQuantity: () => undefined,
   removeLine: () => undefined,
+  removeLines: () => undefined,
   clear: () => undefined,
 };
 
@@ -132,9 +134,13 @@ export function QuoteSelectionProvider({ children }: { children: ReactNode }) {
   };
 
   const removeLine = (key: string) => setLines((current) => current.filter((line) => lineKey(line) !== key));
+  const removeLines = (keys: string[]) => {
+    const keysToRemove = new Set(keys);
+    setLines((current) => current.filter((line) => !keysToRemove.has(lineKey(line))));
+  };
   const clear = () => setLines([]);
 
-  return <QuoteSelectionContext.Provider value={{ lines, count: lines.length, addLine, updateQuantity, removeLine, clear }}>{children}</QuoteSelectionContext.Provider>;
+  return <QuoteSelectionContext.Provider value={{ lines, count: lines.length, addLine, updateQuantity, removeLine, removeLines, clear }}>{children}</QuoteSelectionContext.Provider>;
 }
 
 export function useQuoteSelection(): QuoteSelectionContextValue {

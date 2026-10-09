@@ -78,7 +78,9 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
             : (product.collection || product.subcategory)) && (
             <p className="mt-1 text-sm text-secondary">{product.collection || product.subcategory}</p>
           )}
-          {modularityLabel && <p className="mt-1 text-sm text-secondary">Modularidad: {modularityLabel}</p>}
+          {/* The modularity badge belongs to the Royo scope: stale cached cards
+              from other families must never render it. */}
+          {isRoyo && modularityLabel && <p className="mt-1 text-sm text-secondary">Modularidad: {modularityLabel}</p>}
         </div>
       </Link>
     </article>

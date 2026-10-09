@@ -228,9 +228,35 @@ export function prefetchCatalogLocation(pathname: string, search: string): void 
 }
 
 export async function createQuoteRequest(payload: QuoteRequestPayload, options?: RequestOptions): Promise<QuoteRequestCreated> {
-  const data = await request('/quote-requests', { ...options, method: 'POST', body: payload });
-  if (!data || typeof data !== 'object' || !('id' in data) || !('status' in data)) {
-    throw new CatalogApiError('CONTRACT_ERROR', 'La confirmación del presupuesto no es válida.');
-  }
+  const data = await request('/quote-requests', { ...options, method: 'POST', body: payload, timeoutMs: options?.timeoutMs ?? QUOTE_CONFIRM_TIMEOUT_MS });
+  validateQuoteConfirmation(data, payload);
   return data as QuoteRequestCreated;
+}
+
+// The POST needs margin over the proxy's own upstream timeout (10 s) without
+// touching the GET budgets; no transport layer retries the quote POST.
+export const QUOTE_CONFIRM_TIMEOUT_MS = 15000;
+
+// Success statuses observed from the deployed quote workflow; anything else is
+// reported as an invalid confirmation instead of cleaning the basket.
+const QUOTE_CONFIRM_SUCCESS_STATUSES = new Set(['received', 'created', 'accepted']);
+
+function validateQuoteConfirmation(data: unknown, payload: QuoteRequestPayload): void {
+  if (!data || typeof data !== 'object') {
+    throw quoteConfirmationError(data);
+  }
+  const record = data as Record<string, unknown>;
+  const id = typeof record.id === 'string' && record.id.trim() ? record.id : undefined;
+  const status = typeof record.status === 'string' && record.status.trim() ? record.status : undefined;
+  const itemCount = typeof record.item_count === 'number' && Number.isInteger(record.item_count) ? record.item_count : undefined;
+  const sentCount = Array.isArray(payload.items) ? payload.items.length : undefined;
+  const complete = Boolean(id) && Boolean(status && QUOTE_CONFIRM_SUCCESS_STATUSES.has(status))
+    && (sentCount === undefined || itemCount === sentCount);
+  if (!complete) {
+    throw quoteConfirmationError(data);
+  }
+}
+
+function quoteConfirmationError(data: unknown): CatalogApiError {
+  return new CatalogApiError('CONTRACT_ERROR', 'La confirmación del presupuesto no es válida.', 0, data);
 }

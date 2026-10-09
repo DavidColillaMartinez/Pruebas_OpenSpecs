@@ -76,6 +76,12 @@ describe('CatalogProductCard', () => {
     expect(screen.queryByRole('heading', { name: 'Logika' })).not.toBeInTheDocument();
   });
 
+  it('never shows the modularity badge outside the Royo scope, even on stale cached cards', () => {
+    render(<MemoryRouter><CatalogProductCard product={{ ...product, modularity: 'modular' }} /></MemoryRouter>);
+
+    expect(screen.queryByText(/Modularidad:/)).not.toBeInTheDocument();
+  });
+
   it('maps Royo normal modularity to Normal without leaking it into the title', () => {
     render(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Nombre interno', collection: 'Logika', supplierId: 'royo', categoryId: 'muebles-y-lavabos', modularity: 'normal' }} /></MemoryRouter>);
 

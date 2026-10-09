@@ -123,6 +123,38 @@ describe('quote request payload', () => {
     expect(JSON.stringify(item)).not.toMatch(/price|precio|coste|importe/i);
   });
 
+  it('never sends variantId and commercialOfferVariantId together', () => {
+    const product = normalizeProductDetail(alba);
+    const initial = selectInitialUnit(getSelectableUnits(product));
+    if (!initial) throw new Error('fixture without selectable units');
+    const unit = { ...initial, commercialOfferVariantId: 'offer-v9' };
+    const item = buildQuoteRequestItem(product, unit, 1);
+    expect(item.commercialOfferVariantId).toBe('offer-v9');
+    expect(item.variantId).toBeUndefined();
+  });
+
+  it('rejects payloads over 64 KiB measured in UTF-8 bytes, never truncating content', () => {
+    const items = Array.from({ length: 20 }, (_, index) => ({
+      productId: `gme-byte-demo-${index}`,
+      variantId: `v-${index}`,
+      quantity: 1,
+      productName: 'Multibyte',
+      supplier: 'GME',
+      category: 'Grifería',
+      notes: '\u00d7'.repeat(2000),
+    }));
+    const payload = { customerName: 'Ana', email: 'ana@example.test', consentPrivacy: true as const, items };
+    const serialized = JSON.stringify(payload);
+    // Character count stays under the old 65536-character check while the
+    // UTF-8 byte count crosses the 64 KiB limit (× is two bytes).
+    expect(serialized.length).toBeLessThanOrEqual(65536);
+    expect(new TextEncoder().encode(serialized).length).toBeGreaterThan(65536);
+    const errors = validateQuoteRequest(payload);
+    expect(errors.payload).toBeTruthy();
+    // Content was measured, not truncated.
+    expect(items[19]?.notes).toHaveLength(2000);
+  });
+
   it('rejects missing contact, invalid quantity and oversized fields', () => {
     const errors = validateQuoteRequest({
       customerName: '',

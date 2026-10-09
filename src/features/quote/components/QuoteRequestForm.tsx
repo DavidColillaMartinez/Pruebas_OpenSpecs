@@ -4,6 +4,7 @@ import { CatalogApiError, createQuoteRequest } from '../../catalog/api/client';
 import type { ProductDetail } from '../../catalog/model/types';
 import type { SelectableUnit } from '../../catalog/model/selection';
 import { buildQuoteRequestItem, validateQuoteRequest } from '../model/payload';
+import { formatQuoteLineSummary } from '../model/summary';
 import type { QuoteRequestPayload } from '../model/types';
 
 type QuoteFormState = {
@@ -38,9 +39,17 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [confirmedId, setConfirmedId] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
-  const selectedSummary = unit?.variantSnapshot
-    ? Object.values(unit.variantSnapshot).filter((value) => value !== undefined && value !== '').map(String).join(' · ')
+  // While the POST travels, the form blocks edits so the success cleanup cannot
+  // silently discard text typed after submission.
+  const submitting = status === 'submitting';
+  const selectedSummary = unit
+    ? formatQuoteLineSummary({
+        productName: product.name,
+        reference: typeof unit.variantSnapshot?.reference === 'string' ? unit.variantSnapshot.reference : undefined,
+        variantSnapshot: unit.variantSnapshot,
+      })
     : '';
 
   useEffect(() => {
@@ -91,7 +100,8 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
       ...(form.message.trim() ? { message: form.message.trim() } : {}),
       sourcePage: window.location.pathname,
       consentPrivacy: true,
-      website: '',
+      // The honeypot stays a local check only: `website` is not part of the
+      // server contract and sending it empty would reject the whole POST.
       items: [buildQuoteRequestItem(product, unit, form.quantity, form.message)],
     };
 
@@ -104,10 +114,12 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
     }
 
     try {
-      await createQuoteRequest(payload);
+      const confirmation = await createQuoteRequest(payload);
+      setConfirmedId(confirmation.id);
       setStatus('success');
       setForm(initialForm);
     } catch (error) {
+      setConfirmedId(null);
       setStatus('error');
       if (error instanceof CatalogApiError && error.details && typeof error.details === 'object' && 'errors' in error.details && Array.isArray(error.details.errors)) {
         setFieldErrors(Object.fromEntries(error.details.errors.map((item) => [item.field, item.message])));
@@ -123,35 +135,35 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
       <form className="mt-5 space-y-4" onSubmit={handleSubmit} noValidate>
         <div>
           <label htmlFor="quote-name" className="text-sm font-semibold text-secondary">Nombre</label>
-          <input id="quote-name" value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} aria-invalid={Boolean(fieldErrors.customerName)} aria-describedby={fieldErrors.customerName ? 'quote-name-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+          <input id="quote-name" disabled={submitting} value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} aria-invalid={Boolean(fieldErrors.customerName)} aria-describedby={fieldErrors.customerName ? 'quote-name-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
           {fieldErrors.customerName && <p id="quote-name-error" className="mt-1 text-sm text-red-700">{fieldErrors.customerName}</p>}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="quote-email" className="text-sm font-semibold text-secondary">Email</label>
-            <input id="quote-email" type="email" value={form.email} onChange={(event) => updateField('email', event.target.value)} aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? 'quote-email-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+            <input id="quote-email" type="email" disabled={submitting} value={form.email} onChange={(event) => updateField('email', event.target.value)} aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? 'quote-email-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
             {fieldErrors.email && <p id="quote-email-error" className="mt-1 text-sm text-red-700">{fieldErrors.email}</p>}
           </div>
           <div>
             <label htmlFor="quote-phone" className="text-sm font-semibold text-secondary">Teléfono</label>
-            <input id="quote-phone" value={form.phone} onChange={(event) => updateField('phone', event.target.value)} aria-invalid={Boolean(fieldErrors.phone)} aria-describedby={fieldErrors.phone ? 'quote-phone-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+            <input id="quote-phone" disabled={submitting} value={form.phone} onChange={(event) => updateField('phone', event.target.value)} aria-invalid={Boolean(fieldErrors.phone)} aria-describedby={fieldErrors.phone ? 'quote-phone-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
             {fieldErrors.phone && <p id="quote-phone-error" className="mt-1 text-sm text-red-700">{fieldErrors.phone}</p>}
           </div>
         </div>
         {fieldErrors.contact && <p className="text-sm text-red-700">{fieldErrors.contact}</p>}
         <div>
           <label htmlFor="quote-quantity" className="text-sm font-semibold text-secondary">Cantidad</label>
-          <input id="quote-quantity" type="number" min="1" max="999" value={form.quantity} onChange={(event) => updateField('quantity', Number(event.target.value))} className="mt-1 w-24 rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+          <input id="quote-quantity" type="number" min="1" max="999" disabled={submitting} value={form.quantity} onChange={(event) => updateField('quantity', Number(event.target.value))} className="mt-1 w-24 rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
           {fieldErrors.quantity && <p className="mt-1 text-sm text-red-700">{fieldErrors.quantity}</p>}
         </div>
         <div>
           <label htmlFor="quote-message" className="text-sm font-semibold text-secondary">Mensaje</label>
-          <textarea id="quote-message" rows={4} value={form.message} onChange={(event) => updateField('message', event.target.value)} aria-invalid={Boolean(fieldErrors.message)} aria-describedby={fieldErrors.message ? 'quote-message-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" />
+          <textarea id="quote-message" rows={4} disabled={submitting} value={form.message} onChange={(event) => updateField('message', event.target.value)} aria-invalid={Boolean(fieldErrors.message)} aria-describedby={fieldErrors.message ? 'quote-message-error' : undefined} className="mt-1 w-full rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
           {fieldErrors.message && <p id="quote-message-error" className="mt-1 text-sm text-red-700">{fieldErrors.message}</p>}
         </div>
         {fieldErrors.selection && <p className="text-sm text-red-700">{fieldErrors.selection}</p>}
         <label className="flex items-start gap-2 text-sm text-secondary">
-          <input type="checkbox" checked={form.consentPrivacy} onChange={(event) => updateField('consentPrivacy', event.target.checked)} aria-invalid={Boolean(fieldErrors.consentPrivacy)} aria-describedby={fieldErrors.consentPrivacy ? 'quote-consent-error' : undefined} className="mt-1" />
+          <input type="checkbox" disabled={submitting} checked={form.consentPrivacy} onChange={(event) => updateField('consentPrivacy', event.target.checked)} aria-invalid={Boolean(fieldErrors.consentPrivacy)} aria-describedby={fieldErrors.consentPrivacy ? 'quote-consent-error' : undefined} className="mt-1" />
           Acepto la política de privacidad.
         </label>
         {fieldErrors.consentPrivacy && <p id="quote-consent-error" className="text-sm text-red-700">{fieldErrors.consentPrivacy}</p>}
@@ -160,7 +172,7 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
           {status === 'submitting' ? 'Enviando…' : 'Solicitar presupuesto'}
         </button>
         <div ref={resultRef} tabIndex={-1} aria-live="polite" className="text-sm">
-          {status === 'success' && <p className="text-green-800">Solicitud enviada correctamente.</p>}
+          {status === 'success' && <p className="text-green-800">Solicitud registrada con el identificador {confirmedId ?? '—'}.</p>}
           {status === 'error' && <p className="text-red-700">{errorMessage}</p>}
         </div>
       </form>

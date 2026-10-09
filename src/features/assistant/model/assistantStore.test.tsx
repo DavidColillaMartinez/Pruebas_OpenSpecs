@@ -224,6 +224,20 @@ describe('useChatContext (navigation context)', () => {
     });
     expect(buildChatContext('/productos/mt-espejos-alba').productSlug).toBe('mt-espejos-alba');
   });
+
+  it('keeps GME IO catalog filters, underscore values and the series alias in the context', () => {
+    const context = buildChatContext('/productos', '?category=griferia&supplier=gme&catalog_section=duchas&installation=empotrable&mechanism=termostatico&series=Persio&tap_type=lavabo_alto&finish=N%C3%ADquel');
+    expect(context.filters).toEqual({
+      category: 'griferia',
+      supplier: 'gme',
+      catalog_section: 'duchas',
+      installation: 'empotrable',
+      mechanism: 'termostatico',
+      series: 'Persio',
+      tap_type: 'lavabo_alto',
+      finish: 'Níquel',
+    });
+  });
 });
 
 describe('assistantReducer (envíos duplicados)', () => {

@@ -52,7 +52,9 @@ export function buildQuoteRequestItem(product: ProductDetail, unit: SelectableUn
 
   return {
     productId: product.id,
-    ...(unit?.variantId ? { variantId: unit.variantId } : {}),
+    // A line never carries both identities: commercial offers identify
+    // themselves with commercialOfferVariantId, real variants with variantId.
+    ...(unit?.variantId && !unit?.commercialOfferVariantId ? { variantId: unit.variantId } : {}),
     ...(unit?.commercialOfferVariantId ? { commercialOfferVariantId: unit.commercialOfferVariantId } : {}),
     ...(reference ? { reference } : {}),
     quantity,
@@ -95,6 +97,8 @@ export function validateQuoteRequest(payload: QuoteRequestPayload): Record<strin
     if (item.selectedAttributes && Object.keys(item.selectedAttributes).some((key) => /(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i.test(key))) errors[`${prefix}.selectedAttributes`] = 'La selección contiene campos no públicos.';
   });
 
-  if (JSON.stringify(payload).length > 65536) errors.payload = 'La solicitud supera el tamaño permitido.';
+  // The 64 KiB limit is measured in UTF-8 bytes (TextEncoder), matching the
+  // proxy byte check; text is never truncated.
+  if (new TextEncoder().encode(JSON.stringify(payload)).length > 65536) errors.payload = 'La solicitud supera el tamaño permitido.';
   return errors;
 }

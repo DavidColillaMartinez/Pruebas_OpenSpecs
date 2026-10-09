@@ -57,6 +57,58 @@ describe('GME IO gallery builder', () => {
     expect(new Set(gallery.map((image) => image.url)).size).toBe(gallery.length);
     expect(gallery.some((image) => image.url.includes('/faucets/fiore/lavabo'))).toBe(false);
   });
+
+  it('keeps the assigned cover first with its API metadata even when numbered photos carry sort_order (Rhio)', () => {
+    const rhio = normalizeProductDetail({
+      id: 'gme-rhio',
+      name: 'Rhio',
+      slug: 'gme-rhio',
+      supplier_id: 'gme',
+      category_id: 'griferia',
+      specs: { gme_io_2026: true },
+      main_image_url: 'https://assets.test/covers/rhio/cover-candidate.webp',
+      images: [
+        { url: 'https://assets.test/gallery/faucets/rhio/cromo.webp', sort_order: 2 },
+        { url: 'https://assets.test/covers/rhio/cover-candidate.webp', sort_order: 3 },
+        { url: 'https://assets.test/gallery/faucets/rhio/negro.webp', sort_order: 4 },
+      ],
+      variants: [
+        { id: 'rhio-bajo-cromo', attributes: { tap_type: 'lavabo_bajo', finish: 'Cromo' }, images: [{ url: 'https://assets.test/gallery/faucets/rhio/cromo.webp', sort_order: 2 }] },
+        { id: 'rhio-alto-cromo', attributes: { tap_type: 'lavabo_alto', finish: 'Cromo' }, images: [{ url: 'https://assets.test/gallery/faucets/rhio/titanio.webp', sort_order: 5 }] },
+        { id: 'rhio-bajo-negro', attributes: { tap_type: 'lavabo_bajo', finish: 'Negro' }, images: [{ url: 'https://assets.test/gallery/faucets/rhio/negro.webp', sort_order: 4 }] },
+        { id: 'rhio-bajo-oro', attributes: { tap_type: 'lavabo_bajo', finish: 'Oro' }, images: [{ url: 'https://assets.test/gallery/faucets/rhio/oro.webp', sort_order: 6 }] },
+        { id: 'rhio-bajo-niquel', attributes: { tap_type: 'lavabo_bajo', finish: 'Níquel' }, images: [{ url: 'https://assets.test/gallery/faucets/rhio/niquel.webp', sort_order: 7 }] },
+        { id: 'rhio-bajo-blanco', attributes: { tap_type: 'lavabo_bajo', finish: 'Blanco' }, images: [{ url: 'https://assets.test/gallery/faucets/rhio/blanco.webp', sort_order: 8 }] },
+      ],
+    });
+    const gallery = buildGmeIoGallery(rhio);
+    expect(gallery[0]?.url).toBe('https://assets.test/covers/rhio/cover-candidate.webp');
+    // The matched cover keeps the API metadata instead of a synthetic entry.
+    expect(gallery[0]?.sortOrder).toBe(3);
+    // Remaining product photos follow the API order; the six variant photos are
+    // all present exactly once and never before the cover.
+    expect(gallery.slice(1).map((image) => image.url)).toEqual([
+      'https://assets.test/gallery/faucets/rhio/cromo.webp',
+      'https://assets.test/gallery/faucets/rhio/negro.webp',
+      'https://assets.test/gallery/faucets/rhio/titanio.webp',
+      'https://assets.test/gallery/faucets/rhio/oro.webp',
+      'https://assets.test/gallery/faucets/rhio/niquel.webp',
+      'https://assets.test/gallery/faucets/rhio/blanco.webp',
+    ]);
+  });
+
+  it('keeps a synthesized cover first with sort order zero when the assigned cover is outside the gallery', () => {
+    const product = ioProduct();
+    const gallery = buildGmeIoGallery({
+      ...product,
+      images: product.images.filter((image) => !image.url.includes('covers')),
+      mainImageUrl: 'https://assets.test/covers/catalog/testio/cover.webp',
+      mainImagePath: undefined,
+    });
+    expect(gallery[0]?.url).toBe('https://assets.test/covers/catalog/testio/cover.webp');
+    expect(gallery[0]?.sortOrder).toBe(0);
+    expect(gallery.slice(1).some((image) => image.url.includes('covers'))).toBe(false);
+  });
 });
 
 describe('GME IO finish image lookup', () => {

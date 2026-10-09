@@ -73,13 +73,17 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
     setSelection(initialUnit?.attributes || {});
   }, [currentUnit, initialUnit, onSelectionChange, product.id, selection]);
 
-  if (units.length <= 1 || Object.keys(options).length === 0) return null;
+  // Fixed-configuration IO products (single variant, e.g. Niagara or Suderland)
+  // must still show their translated facts instead of hiding the block.
+  const hasSelectionControls = units.length > 1 && Object.keys(options).length > 0;
+  const showsFixedFacts = isIo && ioFacts.length > 0 && !hasSelectionControls;
+  if (!hasSelectionControls && !showsFixedFacts) return null;
 
   return (
     <section aria-labelledby="variant-selector-heading">
-      <h2 id="variant-selector-heading" className="text-lg font-semibold text-primary">Configura tu producto</h2>
+      <h2 id="variant-selector-heading" className="text-lg font-semibold text-primary">{hasSelectionControls ? 'Configura tu producto' : 'Configuración del grifo'}</h2>
       {ioFacts.length > 0 && (
-        <p className="mt-2 text-sm text-secondary">{ioFacts.map((fact) => `${fact.label}: ${fact.value}`).join(' · ')}</p>
+        <p className="mt-2 text-sm text-secondary">{ioFacts.map((fact) => `${fact.label}: ${getGmeIoValueLabel(fact.key, fact.value)}`).join(' · ')}</p>
       )}
       <div className="mt-4 space-y-4">
         {Object.entries(options).map(([key, values]) => {

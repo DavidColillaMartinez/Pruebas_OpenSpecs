@@ -1,37 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getQuoteSelectionKey, useQuoteSelection, type QuoteSelectionLine } from '../model/selectionStore';
-
-const attributeLabels: Record<string, string> = {
-  dimension: 'Medida',
-  measure: 'Medida',
-  finish: 'Acabado',
-  version: 'Versión',
-  has_led: 'LED',
-  lighting_type: 'Iluminación',
-  lighting_technology: 'Tecnología',
-  light_temp: 'Temperatura',
-  distribution: 'Distribución',
-  glass: 'Vidrio',
-  opening: 'Apertura',
-  orientation: 'Orientación',
-  offer: 'Oferta',
-  furniture_finish: 'Acabado del mueble',
-  handle_finish: 'Acabado del tirador',
-  countertop_finish: 'Acabado de encimera',
-  presentation_type: 'Tipo de presentación',
-  furniture_type: 'Tipo de mueble',
-  module_type: 'Tipo de módulo',
-  type: 'Tipo',
-};
-
-function formatAttributes(line: QuoteSelectionLine): string {
-  return Object.entries(line.selectedAttributes || {})
-    .filter(([key]) => key !== 'reference')
-    .slice(0, 3)
-    .map(([key, value]) => `${attributeLabels[key] || key}: ${typeof value === 'boolean' ? value ? 'Sí' : 'No' : String(value)}`)
-    .join(' · ');
-}
+import { formatQuoteLineSummary } from '../model/summary';
 
 function formatReference(line: QuoteSelectionLine): string {
   return line.reference ? `Referencia ${line.reference}` : 'Variante seleccionada';
@@ -46,7 +16,7 @@ function SelectionLine({ line, compact = false }: { line: QuoteSelectionLine; co
         {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-14 w-11 shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-14 w-11 shrink-0 place-items-center border border-border-hairline/10 text-[10px] text-secondary">Sin imagen</span>}
         <div className="min-w-0 flex-1">
           <p className="font-semibold leading-snug">{line.productName}</p>
-          <p className="mt-1 text-xs text-secondary">{formatAttributes(line) || formatReference(line)}</p>
+          <p className="mt-1 text-xs text-secondary">{formatQuoteLineSummary(line) || formatReference(line)}</p>
           <div className="mt-3 flex items-center gap-2">
             <label htmlFor={`summary-quantity-${key}`} className="sr-only">Cantidad de {line.productName}</label>
             <input id={`summary-quantity-${key}`} type="number" min="1" max="999" value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-8 w-14 border-b border-border-hairline/25 bg-transparent text-center text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-clay" />

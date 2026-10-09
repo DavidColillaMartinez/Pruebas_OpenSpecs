@@ -180,11 +180,18 @@ describe('catalog api cache', () => {
   });
 
   it('does not cache quote submissions', async () => {
-    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse({ id: 'q1', status: 'received' })));
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse({ id: 'q1', status: 'received', item_count: 0 })));
     vi.stubGlobal('fetch', fetchMock);
-    await createQuoteRequest({} as QuoteRequestPayload);
-    await createQuoteRequest({} as QuoteRequestPayload);
+    await createQuoteRequest({ customerName: 'Ana', email: 'ana@example.test', consentPrivacy: true, items: [] } as QuoteRequestPayload);
+    await createQuoteRequest({ customerName: 'Ana', email: 'ana@example.test', consentPrivacy: true, items: [] } as QuoteRequestPayload);
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects an untrustworthy quote confirmation before the basket is cleaned', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 'q1', status: 'received', item_count: 2 }));
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(createQuoteRequest({ customerName: 'Ana', email: 'ana@example.test', consentPrivacy: true, items: [{}] } as QuoteRequestPayload))
+      .rejects.toMatchObject({ code: 'CONTRACT_ERROR' });
   });
 
   it('stops serving stale entries after five minutes past expiry', async () => {

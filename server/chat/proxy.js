@@ -1,10 +1,12 @@
 import { CATALOG_BODY_BYTE_LIMIT, isJsonContentType } from '../catalog/proxy.js';
 import { normalizeCatalogResponseStatus } from '../catalog/response.js';
 
-export const CHAT_FIRST_REQUEST_TIMEOUT_MS = 15000;
-export const CHAT_CONTINUED_REQUEST_TIMEOUT_MS = 19000;
-export const CHAT_DEEP_CONVERSATION_TIMEOUT_MS = 23000;
-export const CHAT_MAX_REQUEST_TIMEOUT_MS = 30000;
+// Turn budgets mirror the n8n model boundaries (15/19/23/26) with margin, so
+// the proxy never races the upstream timers: 17/21/25/28.
+export const CHAT_FIRST_REQUEST_TIMEOUT_MS = 17000;
+export const CHAT_CONTINUED_REQUEST_TIMEOUT_MS = 21000;
+export const CHAT_DEEP_CONVERSATION_TIMEOUT_MS = 25000;
+export const CHAT_MAX_REQUEST_TIMEOUT_MS = 28000;
 export const CHAT_MAX_CONVERSATION_TURN = 20;
 export const CHAT_UPSTREAM_AUTH_HEADER = 'LRMQ_Chat_Inbound';
 

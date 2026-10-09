@@ -119,10 +119,19 @@ export function buildGmeIoGallery(product: ProductDetail, assetBaseUrl?: string 
     ordered.push(image);
   };
 
-  const mainImage = resolveAssetUrl(product.mainImageUrl ?? product.mainImagePath, assetBaseUrl);
-  push(mainImage ? { alt: product.name, url: mainImage, role: 'main' } : product.images[0]);
+  const coverUrl = resolveAssetUrl(product.mainImageUrl ?? product.mainImagePath, assetBaseUrl);
+  // The assigned cover keeps the API metadata of the already-normalized image
+  // when it is not a synthetic entry; a synthesized cover still gets sort order
+  // zero so image sorting layers cannot push it behind numbered photos.
+  const coverFromImages = coverUrl ? product.images.find((image) => image.url === coverUrl) : undefined;
+  push(coverFromImages
+    ?? (coverUrl ? { alt: product.name, url: coverUrl, role: 'main', sortOrder: 0 } : null)
+    ?? product.images[0]
+    ?? null);
+  const skipCoverUrl = (coverFromImages?.url ?? coverUrl) || null;
   product.images.forEach((image) => {
-    if (!mainImage || image.url !== mainImage) push(image);
+    if (!image.url || image.url === skipCoverUrl) return;
+    push(image);
   });
   product.variants.forEach((variant) => (variant.images ?? []).forEach(push));
 
@@ -158,8 +167,8 @@ export function getGmeIoFinishImageUrl(product: ProductDetail, finish: string | 
 }
 
 const IO_VALUE_LABELS: Record<string, string> = {
-  lavabo_bajo: 'Grifo bajo',
-  lavabo_alto: 'Grifo alto',
+  lavabo_bajo: 'Caño bajo',
+  lavabo_alto: 'Caño alto',
   bide: 'Bidé',
   vista: 'Vista',
   empotrable: 'Empotrable',
