@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { ChatLauncher } from './components/ChatLauncher';
 import { ChatWelcomeBubble } from './components/ChatWelcomeBubble';
+import { useFloatingSurface } from './model/useFloatingSurface';
 
 const loadChatPanel = () => import('./components/ChatPanel').then((module) => ({ default: module.ChatPanel }));
 const ChatPanel = lazy(loadChatPanel);
@@ -12,6 +13,7 @@ function preloadChatPanel(): void {
 export function AssistantShell() {
   const [open, setOpen] = useState(false);
   const [activated, setActivated] = useState(false);
+  const { blocked, welcomeBlocked } = useFloatingSurface();
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -33,9 +35,9 @@ export function AssistantShell() {
   };
 
   return (
-    <div aria-label="Asistente de Area LRMQ">
+    <div aria-label="Asistente de Area LRMQ" inert={blocked} style={blocked ? { visibility: 'hidden' } : undefined}>
       <ChatLauncher open={open} onToggle={() => (open ? setOpen(false) : openAssistant())} onPrepare={preloadChatPanel} />
-      {!open && <ChatWelcomeBubble onOpen={openAssistant} onPrepare={preloadChatPanel} />}
+      {!open && <div inert={welcomeBlocked} style={welcomeBlocked ? { visibility: 'hidden' } : undefined}><ChatWelcomeBubble onOpen={openAssistant} onPrepare={preloadChatPanel} /></div>}
       {activated && (
         <Suspense fallback={open ? <p role="status" className="fixed bottom-24 right-5 z-[70] rounded-xl bg-surface-elevated p-3 text-primary">Cargando asistente…</p> : null}>
           <ChatPanel open={open} onClose={() => setOpen(false)} />

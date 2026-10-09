@@ -156,7 +156,7 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
             return (
               <fieldset key={key} disabled={key === 'finish' && !activeFamily}>
                 <legend className="text-sm font-semibold text-secondary">{label}</legend>
-                <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
+                <div className="lrmq-swatch-grid mt-2">
                   {options.map((value) => {
                     const image = swatchImage(key, value);
                     const selected = isSelected(key, value);
@@ -172,7 +172,7 @@ export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChang
                         className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border bg-surface-elevated text-center transition-transform duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay ${selected ? 'border-ink ring-2 ring-ink' : 'border-border-hairline/20 hover:border-border-hairline/50'} ${enlargedActive ? 'z-10 scale-125 shadow-lift' : ''}`}
                       >
                         {image && <img src={image.url} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
-                        <span className={`relative z-[1] mx-1 max-h-full overflow-hidden break-words rounded-full bg-surface-elevated/92 px-1.5 py-1 text-xs font-semibold text-primary shadow-soft transition-opacity duration-150 ${showLabel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'}`}>{displayOption(value)}</span>
+                         <span className={`relative z-[1] mx-1 min-w-0 break-words rounded-full bg-surface-elevated/92 px-1.5 py-1 text-xs font-semibold text-primary shadow-soft transition-opacity duration-150 ${showLabel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'}`}>{displayOption(value)}</span>
                       </button>
                     );
                   })}

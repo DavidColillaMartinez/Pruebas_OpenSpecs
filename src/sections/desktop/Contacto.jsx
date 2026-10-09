@@ -18,7 +18,7 @@ export function Contacto({ step, isActive }) {
         </div>
         <div className={`space-y-10 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0' : 'opacity-100 translate-y-0'}`}>
           <div>
-            <LogoMark className="mb-6 h-[7.5rem] w-[7.5rem]" minimal />
+            <LogoMark className="lrmq-contact-mark mb-6 h-[7.5rem] w-[7.5rem]" minimal />
             <p className="font-display text-3xl leading-tight text-primary">AREA LRMQ Tienda</p>
             <a href={GOOGLE_BUSINESS_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-secondary/65 underline-offset-2 transition hover:text-primary hover:underline">Perfil de Google</a>
           </div>

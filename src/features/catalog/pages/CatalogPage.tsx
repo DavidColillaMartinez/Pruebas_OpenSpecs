@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { applyRouteMeta } from '../../../routes/routeMeta';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
@@ -30,10 +30,10 @@ function ActiveFilters({ query, labels, visibleKeys, onRemove }: { query: Catalo
 
   return (
     <div className="mt-6 flex flex-wrap items-center gap-2" aria-label="Filtros activos">
-      {query.search && <button type="button" onClick={() => onRemove('search', query.search)} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-elevated-hover px-3 text-sm text-primary transition-colors duration-200 ease-out hover:bg-elevated-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Buscar: {query.search}<span aria-hidden="true">×</span><span className="sr-only">Quitar búsqueda</span></button>}
+      {query.search && <button type="button" onClick={() => onRemove('search', query.search)} className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-elevated-hover px-3 py-2 text-sm text-primary transition-colors duration-200 ease-out hover:bg-elevated-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"><span className="min-w-0 break-words text-left">Buscar: {query.search}</span><span aria-hidden="true" className="shrink-0">×</span><span className="sr-only">Quitar búsqueda</span></button>}
       {entries.map(({ key, value }) => (
-        <button key={`${key}-${value}`} type="button" onClick={() => onRemove(key, value)} className="inline-flex min-h-9 items-center gap-2 rounded-full bg-elevated-hover px-3 text-sm text-primary transition-colors duration-200 ease-out hover:bg-elevated-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
-          {labels[`${key}:${value}`] || value}<span aria-hidden="true">×</span><span className="sr-only">Quitar filtro</span>
+        <button key={`${key}-${value}`} type="button" onClick={() => onRemove(key, value)} className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-elevated-hover px-3 py-2 text-sm text-primary transition-colors duration-200 ease-out hover:bg-elevated-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+          <span className="min-w-0 break-words text-left">{labels[`${key}:${value}`] || value}</span><span aria-hidden="true" className="shrink-0">×</span><span className="sr-only">Quitar filtro</span>
         </button>
       ))}
     </div>
@@ -44,6 +44,7 @@ export function CatalogPage() {
   const { query, searchInput, setSearchInput, data, setFilter, removeFilter, clearFilters, setSort, loadMore, retry } = useCatalogDiscovery();
   const location = useLocation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const closeMobileFilters = useCallback(() => setMobileFiltersOpen(false), []);
   const filterProfile = getCatalogFilterProfile(query);
   const visibleFilterKeys = getDisplayCatalogFilterKeys(filterProfile);
   const hasActiveCriteria = Boolean(query.search || Object.values(query.filters).some((values) => values && values.length > 0));
@@ -97,17 +98,17 @@ export function CatalogPage() {
         <p className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-secondary" aria-live="polite">{totalLabel}</p>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16 xl:grid-cols-[15rem_minmax(0,1fr)_18rem]">
-          <CatalogFilterPanel facets={data.facets} filters={query.filters} profile={filterProfile} mobileOpen={mobileFiltersOpen} onMobileClose={() => setMobileFiltersOpen(false)} onToggle={setFilter} />
+          <CatalogFilterPanel facets={data.facets} filters={query.filters} profile={filterProfile} mobileOpen={mobileFiltersOpen} onMobileClose={closeMobileFilters} onToggle={setFilter} />
           <section id="catalog-results" tabIndex={-1} aria-labelledby="catalog-results-heading" aria-busy={data.status === 'loading'} className="min-w-0 scroll-mt-6 focus-visible:outline-none">
-            <div className="flex flex-col gap-4 border-b border-border-hairline/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
-              <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-end gap-4 border-b border-border-hairline/10 pb-6">
+              <div className="min-w-0 flex-1 basis-60">
                 <label htmlFor="catalog-search" className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">Buscar en el catálogo</label>
                 <div className="mt-2 flex gap-2">
                   <input id="catalog-search" type="search" value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder="Nombre, colección o producto" className="min-h-12 min-w-0 flex-1 rounded-lg border border-border-hairline/20 bg-surface-elevated px-4 text-base text-primary outline-none transition-shadow duration-200 ease-out placeholder:text-secondary/60 focus:border-clay focus:ring-2 focus:ring-clay/30" />
                   {searchInput && <button type="button" onClick={() => setSearchInput('')} className="min-h-12 rounded-lg px-3 text-sm font-semibold text-secondary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Limpiar</button>}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex max-w-full flex-wrap items-center gap-3">
                 <button type="button" className="min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated px-4 text-sm font-semibold transition-colors duration-200 ease-out hover:border-border-hairline/40 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" aria-expanded={mobileFiltersOpen} onClick={() => setMobileFiltersOpen(true)}>Filtros</button>
                 <label className="flex min-h-11 min-w-0 items-center gap-2 text-sm text-secondary">
                   <span className="sr-only">Ordenar por</span>
@@ -121,14 +122,14 @@ export function CatalogPage() {
              <ActiveFilters query={query} labels={facetLabels} visibleKeys={visibleFilterKeys} onRemove={(key, value) => key === 'search' ? setSearchInput('') : removeFilter(key, value)} />
             {(hasActiveCriteria || query.sort !== 'relevance') && <button type="button" onClick={clearFilters} className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-secondary underline-offset-4 transition-colors duration-200 ease-out hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Limpiar filtros</button>}
 
-            <div className="mt-10 flex items-end justify-between gap-4">
+            <div className="mt-10 flex flex-wrap items-end justify-between gap-4">
               <h2 id="catalog-results-heading" className="font-display text-3xl">Resultados</h2>
               <p className="text-sm text-secondary">{data.total !== null ? `Mostrando ${showing} de ${data.total}` : showing > 0 ? `Mostrando ${showing} productos` : ''}</p>
             </div>
 
             <div className="sr-only" aria-live="polite" role="status">{data.status === 'success' ? `${showing} productos mostrados` : data.status === 'loading' ? 'Cargando productos' : ''}</div>
             {isLoadingInitial && (
-              <div className="mt-10 grid gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+              <div className="lrmq-results-grid mt-10 grid gap-x-5 gap-y-10" aria-hidden="true">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div key={index} className="animate-pulse rounded-2xl bg-surface-elevated/72 p-3 shadow-soft ring-1 ring-ink/5">
                     <div className="aspect-[4/3] rounded-xl bg-elevated-hover" />
@@ -155,7 +156,7 @@ export function CatalogPage() {
               </div>
             )}
             {showing > 0 && (
-               <div id="catalog-items" className="mt-6 grid gap-x-8 gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
+               <div id="catalog-items" className="lrmq-results-grid mt-6 grid gap-x-8 gap-y-14">
                 {data.items.map((product) => <CatalogProductCard key={product.id} product={product} />)}
               </div>
             )}

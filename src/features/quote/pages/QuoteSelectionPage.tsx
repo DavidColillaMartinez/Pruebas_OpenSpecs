@@ -74,12 +74,12 @@ export function QuoteSelectionPage() {
   return (
     <main className="min-h-screen bg-surface px-5 py-10 text-primary sm:px-8" id="quote-selection-content">
       <div className="mx-auto max-w-5xl">
-        <div className="flex items-center justify-between text-sm text-secondary">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-secondary">
           <nav aria-label="Migas de pan" className="text-secondary"><Link to="/" className="underline-offset-4 hover:underline">Inicio</Link><span aria-hidden="true"> / </span><Link to="/productos" className="underline-offset-4 hover:underline">Catálogo</Link><span aria-hidden="true"> / </span><span aria-current="page">Presupuesto</span></nav>
           <ThemeToggle />
         </div>
         <div className="mt-10 flex flex-col gap-3 border-b border-border-hairline/10 pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div><p className="text-sm font-semibold text-clay">Selección de producto</p><h1 className="mt-3 font-display text-5xl leading-none sm:text-6xl">Mi presupuesto</h1><p className="mt-4 max-w-xl text-secondary">Revisa las variantes elegidas y envía una sola solicitud con todas sus características.</p></div>
+          <div className="min-w-0"><p className="text-sm font-semibold text-clay">Selección de producto</p><h1 className="mt-3 font-display text-[clamp(2rem,6vw,3.75rem)] leading-none">Mi presupuesto</h1><p className="mt-4 max-w-xl text-secondary">Revisa las variantes elegidas y envía una sola solicitud con todas sus características.</p></div>
           <Link to="/productos" className="inline-flex min-h-11 items-center justify-center rounded-full border border-border-hairline/20 px-4 text-sm font-semibold hover:border-border-hairline/50">Volver al catálogo</Link>
         </div>
 
@@ -89,21 +89,21 @@ export function QuoteSelectionPage() {
             <Link to="/productos" className="mt-7 inline-flex min-h-11 items-center rounded-full bg-ink px-5 text-sm font-semibold text-white">Explorar catálogo</Link>
           </section>
         ) : (
-          <div className="grid gap-14 py-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <section aria-labelledby="selection-lines-heading">
-              <div className="flex items-baseline justify-between gap-4"><h2 id="selection-lines-heading" className="font-display text-3xl">Variantes elegidas</h2><button type="button" onClick={clear} disabled={submitting} className="text-sm text-secondary underline-offset-4 hover:underline disabled:opacity-50">Vaciar</button></div>
+          <div className="grid gap-14 py-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <section className="min-w-0" aria-labelledby="selection-lines-heading">
+              <div className="flex flex-wrap items-baseline justify-between gap-4"><h2 id="selection-lines-heading" className="font-display text-3xl">Variantes elegidas</h2><button type="button" onClick={clear} disabled={submitting} className="min-h-11 text-sm text-secondary underline-offset-4 hover:underline disabled:opacity-50">Vaciar</button></div>
               <ul className="mt-6 divide-y divide-ink/10 border-y border-border-hairline/10">
                 {lines.map((line, index) => {
                   const key = getQuoteSelectionKey(line);
                   return (
                     <li key={key} className="py-6">
-                      <div className="flex items-start gap-4">
+                      <div className="flex flex-col items-start gap-4 sm:flex-row">
                         {line.imageUrl ? <img src={line.imageUrl} alt="" className="h-24 w-20 lrmq-soften-quote shrink-0 object-contain" loading="lazy" decoding="async" /> : <span className="grid h-24 w-20 shrink-0 place-items-center border border-border-hairline/10 text-center text-xs text-secondary">Sin imagen</span>}
                         <div className="min-w-0 flex-1">
-                           <div className="flex items-start justify-between gap-5"><div><h3 className="text-lg font-semibold">{line.productName}</h3><p className="mt-1 text-sm text-secondary">{line.supplier || line.category || 'Producto'} · {formatQuoteLineReference(line.reference)}</p></div><button type="button" onClick={() => removeLine(key)} disabled={submitting} aria-label={`Eliminar ${line.productName}${line.reference ? ` ${line.reference}` : ''}`} className="shrink-0 text-sm text-secondary underline-offset-4 hover:text-primary hover:underline disabled:opacity-50">Eliminar</button></div>
+                           <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><h3 className="break-words text-lg font-semibold">{line.productName}</h3><p className="mt-1 break-words text-sm text-secondary">{line.supplier || line.category || 'Producto'} · {formatQuoteLineReference(line.reference)}</p></div><button type="button" onClick={() => removeLine(key)} disabled={submitting} aria-label={`Eliminar ${line.productName}${line.reference ? ` ${line.reference}` : ''}`} className="min-h-11 shrink-0 text-sm text-secondary underline-offset-4 hover:text-primary hover:underline disabled:opacity-50">Eliminar</button></div>
                           <dl className="mt-4 grid gap-x-5 gap-y-2 text-sm sm:grid-cols-2">{getQuoteSummaryAttributes(line).map((attribute, attributeIndex) => <div key={`${attribute.label}-${attributeIndex}`}><dt className="text-secondary">{attribute.label}</dt><dd className="font-semibold">{attribute.value}</dd></div>)}</dl>
                           {lineErrors[index] && <p role="alert" className="mt-2 text-sm text-red-700">Esta línea: {lineErrors[index]}</p>}
-                          <div className="mt-5 flex items-center gap-3"><label htmlFor={`quantity-${key}`} className="text-sm font-semibold">Cantidad</label><input id={`quantity-${key}`} type="number" min="1" max="999" disabled={submitting} value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-10 w-20 border-b border-border-hairline/30 bg-transparent px-1 text-center focus:border-ink focus:outline-none disabled:opacity-60" /></div>
+                          <div className="mt-5 flex flex-wrap items-center gap-3"><label htmlFor={`quantity-${key}`} className="text-sm font-semibold">Cantidad</label><input id={`quantity-${key}`} type="number" min="1" max="999" disabled={submitting} value={line.quantity} onChange={(event) => updateQuantity(key, Number(event.target.value))} className="h-10 w-20 border-b border-border-hairline/30 bg-transparent px-1 text-center focus:border-ink focus:outline-none disabled:opacity-60" /></div>
                         </div>
                       </div>
                     </li>

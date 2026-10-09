@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { sectionIds, chapterLabels, chapterSteps, chapterType, TOTAL_CHAPTERS, DESKTOP_MIN_WIDTH, DESKTOP_MIN_HEIGHT } from '../data/copy';
+import { sectionIds, chapterLabels, chapterSteps, chapterType, TOTAL_CHAPTERS, DESKTOP_MIN_WIDTH, isNarrativeViewport } from '../data/copy';
 
 const CASCADE_INITIAL_DELAY_MS = 1000;
 const CASCADE_STEP_MS = 800;
@@ -14,7 +14,16 @@ const REPLAY_ON_ENTRY_LABELS = ['Quiénes somos', 'Servicios', 'Visión'];
 
 function getDesktopGate() {
   if (typeof window === 'undefined') return false;
-  return window.innerWidth >= DESKTOP_MIN_WIDTH && window.innerHeight >= DESKTOP_MIN_HEIGHT;
+  return isNarrativeViewport(window.innerWidth, window.innerHeight);
+}
+
+function ownsScroll(target) {
+  if (!(target instanceof Element)) return false;
+  if (target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="dialog"]')) return true;
+  for (let element = target; element && element !== document.body; element = element.parentElement) {
+    if (/(auto|scroll)/.test(getComputedStyle(element).overflowY) && element.scrollHeight > element.clientHeight) return true;
+  }
+  return false;
 }
 
 export function useNarrativeScroll() {
@@ -154,6 +163,7 @@ export function useNarrativeScroll() {
     if (!isDesktop) return;
     const isChapterBusy = (index) => chapterType[index] === 'step' && (!completedRef.current[index] || holdsRef.current[index]);
     const onWheel = (e) => {
+      if (e.defaultPrevented || ownsScroll(e.target)) return;
       if (cooldownRef.current) return;
       const direction = e.deltaY > 0 ? 1 : -1;
       const current = activeRef.current;
@@ -198,6 +208,11 @@ export function useNarrativeScroll() {
     if (!isDesktop) return;
     const onKey = (e) => {
       if (!['ArrowDown', 'PageDown', 'ArrowUp', 'PageUp'].includes(e.key)) return;
+      // Editing and dialog navigation own these keys, even while the landing's
+      // chapter listener is mounted on window (contact form and assistant).
+      if (e.defaultPrevented) return;
+      if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="combobox"], [role="spinbutton"], [role="dialog"]')) return;
+      if (ownsScroll(e.target)) return;
       e.preventDefault();
       const current = activeRef.current;
       const direction = e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : -1;

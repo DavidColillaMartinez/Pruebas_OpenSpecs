@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { LandingPage } from './App';
 import { chapterLabels, navItems, sectionIds } from './data/copy';
@@ -49,8 +49,10 @@ describe('LandingPage narrative lifecycle', () => {
     for (const label of chapterLabels) {
       expect(screen.getByRole('button', { name: `Ir a ${label}` })).toBeInTheDocument();
     }
+    // Compact desktop keeps the same destinations in the existing menu.
+    fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
     const navLabels = [...document.querySelectorAll('nav a')].map((link) => link.textContent);
-    expect(navLabels).toEqual(navItems.map((item) => item.label));
+    expect(navLabels).toEqual(['Inicio', ...navItems.map((item) => item.label)]);
     expect(navItems[0].label).toBe('Quiénes somos');
     expect(navItems[navItems.length - 2].label).toBe('Opiniones');
   });

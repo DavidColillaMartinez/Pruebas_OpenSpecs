@@ -89,7 +89,7 @@ export function Opiniones({ step, isActive }) {
                     <span aria-hidden="true" className={`pointer-events-none absolute inset-0 rounded-[inherit] bg-surface-elevated/55 transition-opacity ${GLIDE_MS}ms ${MECHANICAL_EASE} ${active ? 'opacity-0' : 'opacity-100'}`} />
                     <StarRow rating={review.rating} />
                     {review.text ? (
-                      <blockquote className="mt-5 max-h-64 overflow-y-auto text-base leading-7 text-secondary/78">«{review.text}»</blockquote>
+                      <blockquote tabIndex={0} className="mt-5 max-h-64 overflow-y-auto overscroll-contain text-base leading-7 text-secondary/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">«{review.text}»</blockquote>
                     ) : (
                       <p className="mt-5 text-base leading-7 text-secondary/45">Reseña sin comentario de texto.</p>
                     )}

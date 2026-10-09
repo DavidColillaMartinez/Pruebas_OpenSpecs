@@ -25,10 +25,12 @@ function pressKey(key) {
 
 describe('useNarrativeScroll chapter cascade', () => {
   beforeEach(() => {
+    vi.stubGlobal('innerHeight', 960);
     vi.useFakeTimers();
   });
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('holds the initial chapter cascade until the logo ready signal releases it', () => {
@@ -139,6 +141,42 @@ describe('useNarrativeScroll chapter cascade', () => {
     expect(result.current.activeChapter).toBe(REFORMAS);
   });
 
+  it.each(['input', 'textarea', 'select', 'editable', 'dialog'])(
+    'leaves navigation keys in %s controls to the focused control', (kind) => {
+      const { result } = renderHook(() => useNarrativeScroll());
+      act(() => { result.current.navigateTo(OPINIONES); });
+      act(() => { vi.advanceTimersByTime(8000); });
+      const container = document.createElement('div');
+      const control = document.createElement(['editable', 'dialog'].includes(kind) ? 'span' : kind);
+      if (kind === 'editable') container.setAttribute('contenteditable', 'true');
+      if (kind === 'dialog') container.setAttribute('role', 'dialog');
+      container.append(control);
+      document.body.append(container);
+      try {
+        for (const key of ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown']) {
+          const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+          act(() => { control.dispatchEvent(event); });
+          expect(event.defaultPrevented).toBe(false);
+          expect(result.current.activeChapter).toBe(OPINIONES);
+        }
+        pressKey('ArrowUp');
+        expect(result.current.activeChapter).toBe(VISION);
+      } finally {
+        container.remove();
+      }
+    }
+  );
+
+  it('respects a navigation key already handled by a child', () => {
+    const { result } = renderHook(() => useNarrativeScroll());
+    act(() => { result.current.navigateTo(OPINIONES); });
+    act(() => { vi.advanceTimersByTime(8000); });
+    const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true });
+    event.preventDefault();
+    act(() => { window.dispatchEvent(event); });
+    expect(result.current.activeChapter).toBe(OPINIONES);
+  });
+
   it('ignores ready signals for chapters other than the active one', () => {
     const { result } = renderHook(() => useNarrativeScroll());
     act(() => { result.current.navigateTo(COLECCION); });
@@ -168,6 +206,7 @@ describe('useNarrativeScroll reduced motion', () => {
   });
 
   it('reveals chapters instantly without cascade timers or wheel blocking', () => {
+    vi.stubGlobal('innerHeight', 960);
     const original = window.matchMedia;
     window.matchMedia = (query) => ({
       matches: query.includes('prefers-reduced-motion'),
@@ -187,6 +226,7 @@ describe('useNarrativeScroll reduced motion', () => {
     } finally {
       window.matchMedia = original;
       vi.useRealTimers();
+      vi.unstubAllGlobals();
     }
   });
 });

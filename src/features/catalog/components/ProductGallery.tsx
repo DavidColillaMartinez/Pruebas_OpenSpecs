@@ -30,6 +30,8 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
   const [activeIndex, setActiveIndex] = useState(0);
   const [failedUrls, setFailedUrls] = useState<Set<string>>(() => new Set());
   const [zoomOpen, setZoomOpen] = useState(false);
+  const zoomRef = useRef<HTMLDivElement>(null);
+  const zoomCloseRef = useRef<HTMLButtonElement>(null);
   const activeUrlRef = useRef<string | undefined>(undefined);
   const previousImagesRef = useRef<ProductImage[]>([]);
   const lastActivationEventRef = useRef<number>(-1);
@@ -72,11 +74,18 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
   useEffect(() => {
     if (!zoomOpen) return undefined;
     const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = 'hidden';
+    zoomCloseRef.current?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
         setZoomOpen(false);
+      } else if (event.key === 'Tab') {
+        const focusables = [...(zoomRef.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])') || [])];
+        const first = focusables[0], last = focusables.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
         setActiveIndex((current) => Math.max(0, current - 1));
@@ -89,6 +98,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
     };
   }, [orderedImages.length, zoomOpen]);
 
@@ -154,7 +164,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
       </div>
       {orderedImages.length > 1 && (
         <div className="mt-3 flex items-center gap-2" aria-label="Seleccionar imagen">
-          <div className="min-w-0 flex-1 overflow-hidden">
+          <div className="min-w-0 flex-1 overflow-x-auto overscroll-contain" tabIndex={0} aria-label="Miniaturas del producto">
             <div className="flex gap-2">
               {visibleThumbnails.map((image) => {
                 const imageIndex = orderedImages.indexOf(image);
@@ -177,6 +187,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
       )}
       {zoomOpen && activeImage && (
         <div
+          ref={zoomRef}
           className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/82 p-6 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
@@ -184,6 +195,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
           onClick={() => setZoomOpen(false)}
         >
           <button
+            ref={zoomCloseRef}
             type="button"
             onClick={() => setZoomOpen(false)}
             className="absolute right-6 top-6 inline-flex min-h-11 items-center justify-center rounded-full bg-surface-elevated/90 px-4 text-sm font-semibold text-primary shadow-lift transition-transform duration-200 ease-out hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink motion-reduce:transition-none"

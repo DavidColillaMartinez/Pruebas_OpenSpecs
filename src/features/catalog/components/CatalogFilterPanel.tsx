@@ -93,7 +93,7 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
                       onChange={(event) => onToggle(key, option.value, event.target.checked)}
                       className="h-4 w-4 rounded border-border-hairline/20 accent-clay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
                     />
-                    <span className="min-w-0 flex-1">{option.label}</span>
+                    <span className="min-w-0 flex-1 break-words">{option.label}</span>
                     <span aria-hidden="true" className="text-xs tabular-nums text-secondary/70 transition-colors duration-200 ease-out group-hover:text-primary">{option.count}</span>
                     <span id={countId} className="sr-only">{option.count} resultados</span>
                   </label>
@@ -145,6 +145,9 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
 
   useEffect(() => {
     if (!mobileOpen) return undefined;
+    const wide = window.matchMedia('(min-width: 1024px)');
+    const closeOnWide = () => { if (wide.matches) onMobileClose(); };
+    wide.addEventListener('change', closeOnWide);
     restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -174,6 +177,7 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
     document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('keydown', onKeyDown);
+      wide.removeEventListener('change', closeOnWide);
       document.body.style.overflow = previousOverflow;
       restoreFocusRef.current?.focus();
     };
@@ -194,7 +198,7 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
         <div className="fixed inset-0 z-50 lg:hidden" role="presentation">
           <button type="button" aria-label="Cerrar filtros" className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onMobileClose} />
            <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="mobile-filters-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto overscroll-contain border-l border-border-hairline/10 bg-surface p-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface py-2">
               <h2 id="mobile-filters-heading" className="font-display text-2xl">Filtrar</h2>
               <button ref={closeButtonRef} type="button" onClick={onMobileClose} className="min-h-11 rounded-full px-3 text-sm font-semibold text-secondary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>
             </div>

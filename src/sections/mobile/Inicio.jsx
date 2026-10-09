@@ -5,7 +5,7 @@ export function MobileInicio() {
   return (
     <section id="inicio" aria-labelledby="mobile-inicio-title" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-surface-elevated px-6 pt-24 pb-16 sm:pt-32">
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center">
-        <LogoMark className="mb-8 h-28 w-28 sm:h-32 sm:w-32" minimal />
+        <LogoMark className="lrmq-contact-mark mb-8 h-28 w-28 sm:h-32 sm:w-32" minimal />
         <h1 id="mobile-inicio-title" className="font-display text-5xl leading-[0.92] tracking-[0.045em] text-primary sm:text-6xl text-wrap-balance">AREA LRMQ</h1>
         <p className="mt-3 text-base font-semibold tracking-[0.18em] text-clay uppercase sm:text-lg">DESIGN S.L.</p>
         <p className="mt-6 max-w-md text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Reformas integrales, arquitectura y soluciones para tu espacio. Coordinamos los oficios de tu reforma y te asesoramos en nuestra tienda de exposición.</p>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { DESKTOP_MIN_WIDTH, DESKTOP_MIN_HEIGHT } from '../data/copy';
+import { DESKTOP_MIN_WIDTH, isNarrativeViewport } from '../data/copy';
 
 function getDesktopGate() {
   if (typeof window === 'undefined') return false;
-  return window.innerWidth >= DESKTOP_MIN_WIDTH && window.innerHeight >= DESKTOP_MIN_HEIGHT;
+  return isNarrativeViewport(window.innerWidth, window.innerHeight);
 }
 
 export function useMediaGate() {

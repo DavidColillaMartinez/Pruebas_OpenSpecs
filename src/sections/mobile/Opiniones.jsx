@@ -26,7 +26,7 @@ export function MobileOpiniones() {
             <li key={`${review.author}-${index}`} className="w-[85%] max-w-sm shrink-0 snap-center rounded-[1.4rem] border border-hairline/8 bg-surface-elevated/85 px-5 py-6 shadow-soft">
               <StarRow rating={review.rating} />
               {review.text ? (
-                <blockquote className="mt-4 max-h-56 overflow-y-auto text-base leading-7 text-secondary/78">«{review.text}»</blockquote>
+                <blockquote tabIndex={0} className="mt-4 max-h-56 overflow-y-auto overscroll-contain text-base leading-7 text-secondary/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">«{review.text}»</blockquote>
               ) : (
                 <p className="mt-4 text-base leading-7 text-secondary/45">Reseña sin comentario de texto.</p>
               )}

@@ -93,7 +93,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
           <fieldset key={key}>
             <legend className="text-sm font-semibold text-secondary">{labels[key] || key}</legend>
             {hasSwatches ? (
-              <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
+              <div className="lrmq-swatch-grid mt-2">
                 {values.map((value) => {
                   const isSelected = currentUnit?.attributes[key] === value;
                   const isCompatible = isAttributeValueCompatible(units, currentUnit?.attributes || selection, key, value, isIo ? ioOptions : product.configurationFields);
@@ -120,7 +120,7 @@ export function ProductVariantSelector({ product, onSelectionChange }: ProductVa
                       }}
                     >
                       {swatch && <img src={swatch.url} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain p-1" />}
-                      <span className={`relative z-[1] mx-1 max-h-full overflow-hidden break-words rounded-full bg-surface-elevated/92 px-1.5 py-1 text-xs font-semibold text-primary shadow-soft transition-opacity duration-150 ${swatch && !isSelected ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : 'opacity-100'}`}>{display}</span>
+                       <span className={`relative z-[1] mx-1 min-w-0 break-words rounded-full bg-surface-elevated/92 px-1.5 py-1 text-xs font-semibold text-primary shadow-soft transition-opacity duration-150 ${swatch && !isSelected ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : 'opacity-100'}`}>{display}</span>
                     </button>
                   );
                 })}

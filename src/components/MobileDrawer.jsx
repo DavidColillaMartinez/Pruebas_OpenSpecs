@@ -40,8 +40,8 @@ export function MobileDrawer({ activeSectionId, onNavigate, onClose }) {
   return (
     <>
       <div className="fixed inset-0 z-40 bg-hairline/20" onClick={onClose} aria-hidden="true" />
-      <div ref={panelRef} className="relative z-50 mx-auto mt-3 max-w-7xl rounded-[2rem] border border-hairline/8 bg-surface-elevated p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
-        <div className="flex items-center justify-between">
+      <div ref={panelRef} className="lrmq-mobile-menu relative z-50 mx-auto mt-3 max-w-7xl overflow-y-auto overscroll-contain rounded-[2rem] border border-hairline/8 bg-surface-elevated p-6 shadow-lift" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-surface-elevated py-2">
           <span className="font-display text-lg tracking-[0.08em] text-primary">AREA LRMQ</span>
           <button ref={closeButtonRef} type="button" onClick={onClose} className="grid h-11 w-11 min-h-[44px] min-w-[44px] place-items-center rounded-full bg-hairline/8 text-secondary/70 transition hover:bg-ink/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" aria-label="Cerrar menú">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>

@@ -1,5 +1,5 @@
-export const PHONE = '629461032';
-export const PHONE_INTL = '34629461032';
+export const PHONE = '692912180';
+export const PHONE_INTL = '34692912180';
 export const ADDRESS = 'C. de Aquitania, 69, San Blas-Canillejas, 28032 Madrid';
 // Perfil de empresa en Google Maps (cid de la ficha de Area LRMQ Design S.L.).
 export const GOOGLE_BUSINESS_PROFILE_URL = 'https://maps.google.com/?cid=8560142667066455201';

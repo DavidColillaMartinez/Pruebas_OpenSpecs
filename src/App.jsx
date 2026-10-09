@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useNarrativeScroll } from './hooks/useNarrativeScroll';
 import { Header } from './components/Header';
@@ -71,7 +71,7 @@ function ChapterDots({ active, labels, onNavigate }) {
 
 function MobileSections({ reducedMotion }) {
   return (
-    <div className="bg-transparent text-primary">
+    <div className="lrmq-mobile-sections bg-transparent text-primary">
       <MobileInicio />
       <MobileQuienesSomos />
       <MobileColeccion />
@@ -86,6 +86,42 @@ function MobileSections({ reducedMotion }) {
 export function LandingPage() {
   const { activeChapter, step, smoothProgress, setChapterHold, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
+  const previousModeRef = useRef(isDesktop);
+  const nativeSectionRef = useRef('inicio');
+  const resizingRef = useRef(false);
+
+  useEffect(() => {
+    let frame = 0;
+    let releaseFrame = 0;
+    const preserveSection = () => {
+      resizingRef.current = true;
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(releaseFrame);
+      frame = requestAnimationFrame(() => {
+        document.getElementById(nativeSectionRef.current)?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        releaseFrame = requestAnimationFrame(() => { resizingRef.current = false; });
+      });
+    };
+    window.addEventListener('resize', preserveSection);
+    return () => {
+      window.removeEventListener('resize', preserveSection);
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(releaseFrame);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (previousModeRef.current === isDesktop) return;
+    previousModeRef.current = isDesktop;
+    if (isDesktop) {
+      navigateTo(sectionIds.indexOf(nativeSectionRef.current));
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    } else {
+      setMobileActiveSection(activeSectionId);
+      nativeSectionRef.current = activeSectionId;
+      document.getElementById(activeSectionId)?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+  }, [isDesktop, activeSectionId, mobileActiveSection, navigateTo]);
 
   const hashHandledRef = useRef(false);
   useEffect(() => {
@@ -97,18 +133,20 @@ export function LandingPage() {
   }, [navigateTo]);
 
   useEffect(() => {
-    document.body.classList.add('landing-narrative');
+    document.body.classList.toggle('landing-narrative', isDesktop);
     return () => {
       document.body.classList.remove('landing-narrative');
     };
-  }, []);
+  }, [isDesktop]);
 
   useEffect(() => {
     if (isDesktop) return;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (resizingRef.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting) {
+            nativeSectionRef.current = entry.target.id;
             setMobileActiveSection(entry.target.id);
           }
         }
@@ -161,7 +199,7 @@ export function LandingPage() {
         <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
           <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index)} />
           <div className={`absolute inset-0 ease-out ${reducedMotion ? 'transition-none' : 'transition-transform duration-500'}`} style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
-            {chapters.map((chapter, index) => <div key={index} className="w-full" style={{ height: '100svh' }}>{chapter}</div>)}
+            {chapters.map((chapter, index) => <div key={index} data-chapter={sectionIds[index]} className="lrmq-desktop-chapter w-full" style={{ height: '100svh' }}>{chapter}</div>)}
           </div>
         </div>
       ) : <MobileSections reducedMotion={reducedMotion} />}

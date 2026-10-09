@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { getQuoteSelectionKey, useQuoteSelection, type QuoteSelectionLine } from '../model/selectionStore';
 import { formatQuoteLineSummary } from '../model/summary';
@@ -28,16 +29,16 @@ function SelectionLine({ line, compact = false }: { line: QuoteSelectionLine; co
   );
 }
 
-function SummaryContent({ headingId, onClose, drawer = false }: { headingId: string; onClose?: () => void; drawer?: boolean }) {
+function SummaryContent({ headingId, onClose, drawer = false, closeButtonRef }: { headingId: string; onClose?: () => void; drawer?: boolean; closeButtonRef?: RefObject<HTMLButtonElement | null> }) {
   const { lines, count } = useQuoteSelection();
   return (
-    <div className={drawer ? 'flex h-full flex-col' : ''}>
-      <div className="flex items-start justify-between gap-3">
+    <div className={drawer ? 'flex min-h-full flex-col' : ''}>
+      <div className={drawer ? 'sticky top-0 z-10 flex items-start justify-between gap-3 bg-surface py-2' : 'flex items-start justify-between gap-3'}>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">Cesta de presupuesto</p>
           <h2 id={headingId} className="mt-2 font-display text-2xl">Mis selecciones</h2>
         </div>
-        {onClose && <button type="button" onClick={onClose} className="min-h-11 px-2 text-sm font-semibold text-secondary underline-offset-4 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>}
+        {onClose && <button ref={closeButtonRef} type="button" onClick={onClose} className="min-h-11 px-2 text-sm font-semibold text-secondary underline-offset-4 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Cerrar</button>}
       </div>
       {count === 0 ? (
         <p className="mt-5 text-sm leading-relaxed text-secondary">Añade una variante desde cualquier ficha y aparecerá aquí sin abandonar el catálogo.</p>
@@ -58,6 +59,9 @@ export function CatalogSelectionSummary() {
 
   useEffect(() => {
     if (!mobileOpen) return undefined;
+    const wide = window.matchMedia('(min-width: 1280px)');
+    const closeOnWide = () => { if (wide.matches) setMobileOpen(false); };
+    wide.addEventListener('change', closeOnWide);
     restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -84,6 +88,7 @@ export function CatalogSelectionSummary() {
     document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('keydown', onKeyDown);
+      wide.removeEventListener('change', closeOnWide);
       document.body.style.overflow = previousOverflow;
       restoreFocusRef.current?.focus();
     };
@@ -97,7 +102,7 @@ export function CatalogSelectionSummary() {
         </div>
       </aside>
       <div className="xl:hidden">
-        <button type="button" onClick={() => setMobileOpen(true)} aria-label={`Mis selecciones, ${count}`} aria-expanded={mobileOpen} aria-controls="catalog-selection-drawer" className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 right-24 z-40 flex min-h-12 items-center justify-between rounded-full border border-border-hairline/20 bg-surface px-5 text-sm font-semibold text-primary shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
+        <button type="button" onClick={() => setMobileOpen(true)} aria-label={`Mis selecciones, ${count}`} aria-expanded={mobileOpen} aria-controls="catalog-selection-drawer" className="fixed bottom-[max(6rem,env(safe-area-inset-bottom))] right-3 z-40 flex min-h-16 w-20 flex-col items-center justify-center gap-1 rounded-2xl border border-border-hairline/20 bg-surface p-2 text-center text-xs font-semibold text-primary shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
           <span>Mis selecciones</span>
           <span aria-live="polite">{count}</span>
         </button>
@@ -105,8 +110,7 @@ export function CatalogSelectionSummary() {
           <div className="fixed inset-0 z-[70]" role="presentation">
             <button type="button" aria-label="Cerrar resumen de selecciones" className="absolute inset-0 bg-ink/40" onClick={() => setMobileOpen(false)} />
             <div ref={panelRef} id="catalog-selection-drawer" role="dialog" aria-modal="true" aria-labelledby="catalog-selection-drawer-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto bg-surface p-6 shadow-lift">
-              <button ref={closeButtonRef} type="button" className="sr-only" onClick={() => setMobileOpen(false)}>Cerrar resumen</button>
-              <SummaryContent headingId="catalog-selection-drawer-heading" onClose={() => setMobileOpen(false)} drawer />
+              <SummaryContent headingId="catalog-selection-drawer-heading" onClose={() => setMobileOpen(false)} closeButtonRef={closeButtonRef} drawer />
             </div>
           </div>
         )}

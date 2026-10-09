@@ -154,10 +154,14 @@ describe('AssistantProvider state', () => {
     fireEvent.click(screen.getByText('send'));
     await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('actions-1'));
 
-    const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}') as { messages: Array<{ actions?: unknown[] }> };
-    const storedActions = parsed.messages.at(-1)?.actions;
-    expect(storedActions).toHaveLength(1);
-    expect(storedActions?.[0]).toEqual({ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' });
+    // The conversation id can render before the message persistence effect.
+    // Wait for the storage contract itself, not only an earlier UI state.
+    await waitFor(() => {
+      const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}') as { messages: Array<{ actions?: unknown[] }> };
+      const storedActions = parsed.messages.at(-1)?.actions;
+      expect(storedActions).toHaveLength(1);
+      expect(storedActions?.[0]).toEqual({ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' });
+    });
 
     unmount();
     render(<AssistantProvider><Probe /></AssistantProvider>);
