@@ -49,3 +49,7 @@ Tablas: [revisiones](owner-responsive-cases-2026-10-10.md), [regresión geométr
 - Script, auditoría y sección11 del cambio OpenSpec: evidencia/seguimiento de la revisión.
 
 Los resultados de APIs comerciales son mocks explícitos; no acreditan entrega n8n/correo. Persisten las tareas externas de aceptación, Apple/Safari físico, JSON y dominio/hosting del encargo original. Esta ronda no modifica endpoints, consultas, contratos, disponibilidad ni archivos de medios.
+
+## Entrega Git
+
+Correcciones y evidencia publicadas en `3183896` sobre `main`, push confirmado a `origin/main` desde9163d35. El seguimiento de la ronda se cierra en un commit documental posterior; las tres tareas externas de la sección10 permanecen pendientes. Servidor local propio detenido y contextos/datos de navegador de pruebas descartados. Entradas ajenas de skills preservadas y excluidas de los commits.

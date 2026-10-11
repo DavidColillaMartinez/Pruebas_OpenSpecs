@@ -89,4 +89,4 @@
 - [x] 11.5 Suavizar flotantes manteniendo legibilidad/foco y convivencia con controles; verificar hit-testing y diálogos sin excepciones artificiales del verificador.
 - [x] 11.6 Ofrecer acceso móvil a filtros al salir su botón original del viewport; verificar aparición, apertura, cierre, foco y coordinación con cesta/asistente.
 - [x] 11.7 Separar Cantidad e input en ficha; verificar separación y regresión de valor/validación en familias representativas.
-- [ ] 11.8 Ejecutar navegador Chromium/Firefox claro/oscuro y tests/typecheck/lint/build; documentar evidencia actual y entregar commit/push según autorización vigente.
+- [x] 11.8 Ejecutar navegador Chromium/Firefox claro/oscuro y tests/typecheck/lint/build; documentar evidencia actual y entregar commit/push según autorización vigente.
