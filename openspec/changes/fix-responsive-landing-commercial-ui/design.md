@@ -95,6 +95,14 @@ Alternativa descartada: usar únicamente `scrollWidth`, Vitest, lectura CSS o ap
 
 ### Decisiones adoptadas tras reproducción local
 
+### Revisión del propietario posterior a 9163d35
+
+El propietario rechaza el lateral reservado en móvil. Esa decisión sustituye la reserva móvil descrita en el primer lote: landing en scroll y superficies comerciales <1024px recuperan márgenes naturales/simétricos. En desktop se conserva el espacio existente. Los flotantes móviles buscan huecos libres en los bordes, conservan una posición previa cuando sigue siendo segura y comparten prioridad de diálogos; no se añaden excepciones al diagnóstico geométrico. Opacidad de reposo0.72, plena al interactuar, y target del asistente44px mínimo.
+
+Logo/Tienda de Inicio pasan a filas independientes centradas. La superficie de landing usa el mismo token elevated en todos los modos, con cleanup al abandonar la ruta. Los puntos y etiqueta dependen únicamente del capítulo activo, manteniendo anillo de foco independiente. Un segundo acceso a filtros aparece solo cuando el original ha pasado por encima del viewport; ambos abren el mismo drawer y restauran foco. Cantidad conserva valor/validación y usa gap16px.
+
+### Antecedentes del primer lote (reserva móvil sustituida por la revisión anterior)
+
 - Gate compartido: narrativa desde 1024 px de ancho con al menos 940 px de alto en columnas compactas (<1280); desde 1280 px, mínimo 880 px. A 1024×720 se medían Servicios hasta y≈780, Quiénes somos hasta y≈740 y controles de Opiniones hasta y≈724, con títulos bajo cabecera. Los nuevos umbrales se verifican también a ±1 px; 719/720 permanece como regresión obligatoria.
 - Reserva lateral real para launcher/volver arriba y cesta compacta, porque padding inferior no evita solapes a mitad del scroll. Inicio desktop conserva foto a ancho completo, centrado y navegación inicial; las superficies restantes reservan el extremo de interacción. Bienvenida cede temporalmente si tapa contenido; launcher conserva acceso y diálogos externos tienen prioridad mediante inert/visibility, sin cambiar sus z-index por separado.
 - Swatches con tracks acotados, gap y espacio de ampliación: a 1363×936 se reprodujo Olivo ampliado x≈784.3–894.2 contra Roble x≈699.4–787.3 (cruce≈3 px). Se mantiene scale-125 aprobado, reservando espacio alrededor.

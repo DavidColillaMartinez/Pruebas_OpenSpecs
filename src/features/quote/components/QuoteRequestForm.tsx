@@ -151,9 +151,9 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
           </div>
         </div>
         {fieldErrors.contact && <p className="text-sm text-red-700">{fieldErrors.contact}</p>}
-        <div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <label htmlFor="quote-quantity" className="text-sm font-semibold text-secondary">Cantidad</label>
-          <input id="quote-quantity" type="number" min="1" max="999" disabled={submitting} value={form.quantity} onChange={(event) => updateField('quantity', Number(event.target.value))} className="mt-1 w-24 rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
+          <input id="quote-quantity" type="number" min="1" max="999" disabled={submitting} value={form.quantity} onChange={(event) => updateField('quantity', Number(event.target.value))} className="w-24 rounded-lg border border-border-hairline/20 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay disabled:opacity-60" />
           {fieldErrors.quantity && <p className="mt-1 text-sm text-red-700">{fieldErrors.quantity}</p>}
         </div>
         <div>

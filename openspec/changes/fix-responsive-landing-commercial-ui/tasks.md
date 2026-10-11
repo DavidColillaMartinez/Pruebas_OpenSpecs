@@ -79,3 +79,14 @@
 - [ ] 10.1 Obtener revisión visual posterior del propietario y ChatGPT sobre SHA publicado; verificar evidencia explícita antes de marcar aceptación, sin sustituirla por mediciones automáticas.
 - [ ] 10.2 Registrar pruebas físicas Safari/macOS/iPhone, safe-area/teclado físico y medidas CSS reales de equipos del propietario como externas; verificar evidencia aportada antes de cerrar, sin identificar viewport por pulgadas/nombre.
 - [ ] 10.3 Registrar configuración/entrega n8n a arealrmqtienda@gmail.com, JSON y dominio/DNS/hosting como tareas externas o separadas; verificar evidencia del responsable antes de cerrar, sin ejecutarlas ni inferir éxito desde mocks.
+
+## 11. Revisión del propietario de la entrega 9163d35
+
+- [x] 11.1 Centrar logo, Tienda y título en filas independientes; verificar centros y separación con navegador en tiempos normales y reduced motion.
+- [x] 11.2 Recuperar anchura natural y márgenes simétricos móviles en landing, catálogo, fichas y presupuesto; verificar cajas y campos durante scroll sin lateral reservado.
+- [x] 11.3 Igualar fondos de landing móvil/desktop por tema; verificar estilos calculados en ambas presentaciones y cleanup al navegar al catálogo.
+- [x] 11.4 Resaltar únicamente capítulo activo y hacer su etiqueta coherente; verificar clic seguido de rueda/teclado con foco conservado.
+- [x] 11.5 Suavizar flotantes manteniendo legibilidad/foco y convivencia con controles; verificar hit-testing y diálogos sin excepciones artificiales del verificador.
+- [x] 11.6 Ofrecer acceso móvil a filtros al salir su botón original del viewport; verificar aparición, apertura, cierre, foco y coordinación con cesta/asistente.
+- [x] 11.7 Separar Cantidad e input en ficha; verificar separación y regresión de valor/validación en familias representativas.
+- [ ] 11.8 Ejecutar navegador Chromium/Firefox claro/oscuro y tests/typecheck/lint/build; documentar evidencia actual y entregar commit/push según autorización vigente.

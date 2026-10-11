@@ -23,10 +23,11 @@
   padding: .5rem;
 }
 
-/* A real end gutter keeps the floating tools out of content at every scroll
- * position (bottom padding alone cannot protect a field halfway down a page). */
-#catalog-content, #product-content, #quote-selection-content { padding-inline-end: max(6rem, env(safe-area-inset-right)); }
-.lrmq-mobile-sections { padding-inline-end: 4.75rem; }
+/* Wide layouts retain their end gutter. Mobile uses natural, balanced margins
+ * and floating controls choose free edge space as content scrolls. */
+@media (min-width: 1024px) {
+  #catalog-content, #product-content, #quote-selection-content { padding-inline-end: max(6rem, env(safe-area-inset-right)); }
+}
 .lrmq-mobile-sections section { scroll-margin-top: 5.5rem; }
 .lrmq-desktop-chapter { padding-inline-end: 5.5rem; }
 .lrmq-desktop-chapter[data-chapter='inicio'] { padding-inline-end: 0; }
@@ -38,6 +39,20 @@ main input, main textarea, main select, main button { scroll-margin-block: 6rem;
   grid-template-columns: repeat(auto-fill, minmax(3.5rem, 4.5rem));
   gap: 1.25rem;
   padding: .75rem;
+}
+.lrmq-float-soft:not(.opacity-0), .assistant-launcher-ring,
+.scroll-top-safe:not(.opacity-0), button[aria-controls='catalog-selection-drawer'] {
+  opacity: .72;
+  box-shadow: 0 4px 16px rgb(0 0 0 / .12);
+  transition: opacity 200ms ease-out, box-shadow 200ms ease-out;
+}
+.lrmq-float-soft:hover, .lrmq-float-soft:focus-visible, .lrmq-float-soft:active,
+.lrmq-float-soft[aria-expanded='true'],
+.assistant-launcher-ring:is(:hover,:focus-visible,:active,[aria-expanded='true']),
+.scroll-top-safe:not(.opacity-0):is(:hover,:focus-visible,:active),
+button[aria-controls='catalog-selection-drawer']:is(:hover,:focus-visible,:active) { opacity: 1; }
+@media (max-width: 1023px) {
+  .assistant-launcher-ring { height: 44px; width: 44px; }
 }
 [data-theme='dark'] .text-green-800 { color: #86efac; }
 [data-theme='dark'] .lrmq-vision-copy h2 { color: rgb(var(--lrmq-primary)); }

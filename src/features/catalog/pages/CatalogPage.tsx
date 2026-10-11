@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { applyRouteMeta } from '../../../routes/routeMeta';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
@@ -44,6 +44,26 @@ export function CatalogPage() {
   const { query, searchInput, setSearchInput, data, setFilter, removeFilter, clearFilters, setSort, loadMore, retry } = useCatalogDiscovery();
   const location = useLocation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const filtersButtonRef = useRef<HTMLButtonElement>(null);
+  const [showFloatingFilters, setShowFloatingFilters] = useState(false);
+  useEffect(() => {
+    const button = filtersButtonRef.current;
+    if (!button) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setShowFloatingFilters(button.getBoundingClientRect().bottom < 0);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    update();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, []);
   const closeMobileFilters = useCallback(() => setMobileFiltersOpen(false), []);
   const filterProfile = getCatalogFilterProfile(query);
   const visibleFilterKeys = getDisplayCatalogFilterKeys(filterProfile);
@@ -109,7 +129,7 @@ export function CatalogPage() {
                 </div>
               </div>
               <div className="flex max-w-full flex-wrap items-center gap-3">
-                <button type="button" className="min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated px-4 text-sm font-semibold transition-colors duration-200 ease-out hover:border-border-hairline/40 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" aria-expanded={mobileFiltersOpen} onClick={() => setMobileFiltersOpen(true)}>Filtros</button>
+                <button ref={filtersButtonRef} type="button" className="min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated px-4 text-sm font-semibold transition-colors duration-200 ease-out hover:border-border-hairline/40 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" aria-expanded={mobileFiltersOpen} onClick={() => setMobileFiltersOpen(true)}>Filtros</button>
                 <label className="flex min-h-11 min-w-0 items-center gap-2 text-sm text-secondary">
                   <span className="sr-only">Ordenar por</span>
                   <select value={query.sort} onChange={(event) => setSort(event.target.value as CatalogSortValue)} className="max-w-full min-h-11 min-w-0 rounded-lg border border-border-hairline/20 bg-surface-elevated px-3 text-sm text-primary outline-none transition-shadow duration-200 ease-out focus:border-clay focus:ring-2 focus:ring-clay/30" aria-label="Ordenar por">
@@ -178,6 +198,7 @@ export function CatalogPage() {
             <p className="mt-12 text-xs text-secondary/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
           </section>
           <CatalogSelectionSummary />
+          {showFloatingFilters && <button type="button" aria-expanded={mobileFiltersOpen} aria-label="Abrir filtros del catálogo" onClick={() => setMobileFiltersOpen(true)} className="lrmq-float-soft lrmq-filters-float fixed bottom-6 left-4 z-40 min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated/90 px-4 text-sm font-semibold text-primary backdrop-blur-sm lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Filtros</button>}
           <ScrollTopButton show={scrollTopVisible} onClick={scrollWindowToTop} />
         </div>
       </div>
