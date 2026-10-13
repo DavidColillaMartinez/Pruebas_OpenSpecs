@@ -63,7 +63,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
         </nav>
         <div className="flex items-center justify-self-end gap-3">
           <ThemeToggle variant={isInicio ? 'floating' : 'solid'} className="shrink-0" />
-          <Link to="/productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className={`lrmq-header-photo-action px-2 text-sm font-semibold underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'text-white hover:text-white/75 hover:underline' : 'text-primary hover:text-secondary hover:underline'}`}>Tienda</Link>
+          <Link to="/productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className={`lrmq-header-tienda-link lrmq-header-photo-action px-2 text-sm font-semibold underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'text-white hover:text-white/75 hover:underline' : 'text-primary hover:text-secondary hover:underline'}`}>Tienda</Link>
           <a className={`lrmq-header-photo-action min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-surface-elevated/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-surface-elevated/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </div>

@@ -365,10 +365,14 @@ button[aria-controls='catalog-selection-drawer']:is(:hover,:focus-visible,:activ
 }
 
 .scroll-top-safe {
-  bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4.75rem));
+  bottom: max(6.5rem, calc(env(safe-area-inset-bottom) + 6.25rem));
 }
-body:has([aria-controls='catalog-selection-drawer']) .scroll-top-safe {
-  bottom: max(11.5rem, calc(env(safe-area-inset-bottom) + 11rem));
+/* Catalog stacks scroll-top above the fixed cart button while it is rendered
+ * (below xl); above xl the cart is hidden and the launcher gap applies. */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  body:has([aria-controls='catalog-selection-drawer']) .scroll-top-safe {
+    bottom: max(11.5rem, calc(env(safe-area-inset-bottom) + 11rem));
+  }
 }
 
 .assistant-panel-in {
@@ -504,5 +508,15 @@ body:has([aria-controls='catalog-selection-drawer']) .scroll-top-safe {
 [data-theme='dark'] .lrmq-mobile-menu nav a { color: rgb(var(--lrmq-primary)); }
 [data-theme='dark'] .lrmq-header-nav-photo { background: #1c1d1f; }
 html[data-theme='dark'][data-lrmq-context='photo'] .lrmq-header-photo-action { background: #1c1d1f; border-radius: 9999px; }
+/* Short desktop viewports (just above the narrative threshold) need a tighter
+ * top padding in the chapters that sit higher than their measured minimum. */
+@media (min-width: 1024px) and (max-height: 899px) {
+  .lrmq-desktop-chapter[data-chapter='coleccion'] > div { padding-top: 7rem; }
+  .lrmq-desktop-chapter[data-chapter='quienes-somos'] > div,
+  .lrmq-desktop-chapter[data-chapter='opiniones'] > div { padding-top: 6.5rem; }
+}
+
+/* Tienda is a plain text link, not a backed action. */
+html[data-theme='dark'][data-lrmq-context='photo'] .lrmq-header-tienda-link { background: transparent; border-radius: 0; }
 [data-theme='dark'] .assistant-panel-in [class~='text-secondary/70'],
 [data-theme='dark'] .assistant-panel-in .assistant-composer-input::placeholder { color: rgb(var(--lrmq-secondary)); }
