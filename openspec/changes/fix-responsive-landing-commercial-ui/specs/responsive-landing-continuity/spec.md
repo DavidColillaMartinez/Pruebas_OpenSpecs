@@ -4,6 +4,13 @@ Garantizar lectura completa y navegación accesible de la landing aprobada al va
 
 ## ADDED Requirements
 
+### Requirement: Menú oscuro habilitado legible en reposo
+Los destinos habilitados del menú oscuro SHALL alcanzar contraste de texto normal mínimo4.5:1 frente al fondo efectivo, componiendo transparencias/opacidad. SHALL conservar presentación clara, textos, tipografía y estado/indicador activo; Inicio fotográfico y capítulos sin fotografía SHALL tener tratamiento localizado adecuado.
+
+#### Scenario: Navegación amplia y compacta
+- **WHEN** se inspeccionan estados normal/activo/hover/foco en Inicio y Contacto, ambos temas
+- **THEN** dark cumple contraste sin depender de interacción y claro conserva sus reglas anteriores
+
 ### Requirement: Inicio reserva espacio para identidad y acciones
 La landing SHALL presentar logo animado, Tienda, AREA LRMQ, DESIGN S.L. y las tres tarjetas sin solapes no intencionales ni pérdida de contenido, manteniendo animación, entrada de tarjetas y enlace Tienda a `/productos`.
 

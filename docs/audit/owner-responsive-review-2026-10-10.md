@@ -1,5 +1,7 @@
 # Revisión del propietario posterior a 9163d35
 
+Nota posterior: la colocación por huecos descrita aquí es histórica. Su sustitución por puestos estables y la nueva matriz se documentan en [reparación de estabilidad](owner-responsive-stability-review-2026-10-13.md); estos resultados del10deoctubre no validan el runtime posterior.
+
 Base: `main` en9163d35, sincronizada conorigin/main. No había cambios de código previos. Se preservaron las entradas ajenas sin seguimiento `.agents/skills/.agents/` y `.agents/skills/skills-lock.json`.
 
 ## Correcciones

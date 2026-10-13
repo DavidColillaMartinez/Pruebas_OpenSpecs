@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { applyRouteMeta } from '../../../routes/routeMeta';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
@@ -7,6 +8,7 @@ import { CatalogProductCard } from '../components/CatalogProductCard';
 import { CatalogSelectionSummary } from '../../quote/components/CatalogSelectionSummary';
 import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from '../../../components/ScrollTopButton';
 import { ThemeToggle } from '../../../components/ThemeToggle';
+import { scrollPageTo } from '../../../components/pageScroll';
 import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterProfile, getDisplayCatalogFilterKeys, type CatalogQueryState } from '../model/catalogQuery';
 import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
@@ -55,12 +57,12 @@ export function CatalogPage() {
       setShowFloatingFilters(button.getBoundingClientRect().bottom < 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('scroll', schedule, { passive: true, capture: true });
     window.addEventListener('resize', schedule, { passive: true });
     update();
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('scroll', schedule, true);
       window.removeEventListener('resize', schedule);
     };
   }, []);
@@ -95,7 +97,7 @@ export function CatalogPage() {
     try {
       const saved = JSON.parse(raw) as { search?: string; scrollY?: number };
       if (saved.search !== location.search || typeof saved.scrollY !== 'number') return undefined;
-      const frame = window.requestAnimationFrame(() => window.scrollTo({ top: saved.scrollY, behavior: 'auto' }));
+      const frame = window.requestAnimationFrame(() => scrollPageTo({ top: saved.scrollY, behavior: 'auto' }));
       sessionStorage.removeItem(CATALOG_RETURN_STORAGE_KEY);
       return () => window.cancelAnimationFrame(frame);
     } catch {
@@ -198,7 +200,7 @@ export function CatalogPage() {
             <p className="mt-12 text-xs text-secondary/70">Página de resultados basada en información pública del catálogo. Los precios y la disponibilidad se confirman en la ficha.</p>
           </section>
           <CatalogSelectionSummary />
-          {showFloatingFilters && <button type="button" aria-expanded={mobileFiltersOpen} aria-label="Abrir filtros del catálogo" onClick={() => setMobileFiltersOpen(true)} className="lrmq-float-soft lrmq-filters-float fixed bottom-6 left-4 z-40 min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated/90 px-4 text-sm font-semibold text-primary backdrop-blur-sm lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Filtros</button>}
+          {showFloatingFilters && createPortal(<button type="button" aria-expanded={mobileFiltersOpen} aria-label="Abrir filtros del catálogo" onClick={() => setMobileFiltersOpen(true)} className="lrmq-float-soft lrmq-filters-float fixed bottom-6 left-4 z-40 min-h-11 rounded-full border border-border-hairline/20 bg-surface-elevated/90 px-4 text-sm font-semibold text-primary backdrop-blur-sm lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Filtros</button>, document.body)}
           <ScrollTopButton show={scrollTopVisible} onClick={scrollWindowToTop} />
         </div>
       </div>

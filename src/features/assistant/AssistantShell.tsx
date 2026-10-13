@@ -17,11 +17,11 @@ export function AssistantShell() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && open) setOpen(false);
+      if (event.key === 'Escape' && open && !blocked && !event.defaultPrevented) setOpen(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
+  }, [open, blocked]);
 
   useEffect(() => {
     // Keep the panel in its own chunk, but fetch it while the launcher is idle

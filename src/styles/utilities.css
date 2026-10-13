@@ -23,16 +23,26 @@
   padding: .5rem;
 }
 
-/* Wide layouts retain their end gutter. Mobile uses natural, balanced margins
- * and floating controls choose free edge space as content scrolls. */
+/* Wide layouts retain their end gutter. Narrow layouts retain balanced margins. */
 @media (min-width: 1024px) {
   #catalog-content, #product-content, #quote-selection-content { padding-inline-end: max(6rem, env(safe-area-inset-right)); }
+  body.landing-surface:not(.landing-narrative) #contenido {
+    position: relative;
+    height: calc(100dvh - 76px);
+    top: 76px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scroll-padding-top: 0;
+  }
+  body.landing-surface:not(.landing-narrative) .lrmq-mobile-sections section { scroll-margin-top: 0; }
 }
 .lrmq-mobile-sections section { scroll-margin-top: 5.5rem; }
 .lrmq-desktop-chapter { padding-inline-end: 5.5rem; }
 .lrmq-desktop-chapter[data-chapter='inicio'] { padding-inline-end: 0; }
 main input, main textarea, main select, main button { scroll-margin-block: 6rem; }
 #contenido, #catalog-content, #product-content, #quote-selection-content { overflow-wrap: break-word; }
+[role='dialog'][aria-modal='true'] { overflow-wrap: break-word; }
 .lrmq-results-grid { grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr)); }
 .lrmq-swatch-grid {
   display: grid;
@@ -407,3 +417,92 @@ body:has([aria-controls='catalog-selection-drawer']) .scroll-top-safe {
     animation: none;
   }
 }
+
+/* Stable narrow tool dock. Four permanent slots; absent controls leave holes.
+ * The scrollport ends above the dock, so even intermediate fields cannot pass
+ * behind it. No side gutter, document scan or content-dependent coordinates. */
+@media (max-width: 1023px) {
+  body {
+    --lrmq-tool-row: calc(64px + env(safe-area-inset-bottom));
+    --lrmq-tool-region: var(--lrmq-tool-row);
+    --lrmq-tool-left: max(16px, env(safe-area-inset-left));
+    --lrmq-tool-right: max(16px, env(safe-area-inset-right));
+    --lrmq-tool-width: calc(100vw - var(--lrmq-tool-left) - var(--lrmq-tool-right));
+    --lrmq-filter-width: clamp(44px, calc(var(--lrmq-tool-width) - 216px), 72px);
+    --lrmq-tool-gap: max(4px, calc((var(--lrmq-tool-width) - var(--lrmq-filter-width) - 168px) / 3));
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: auto 0 0;
+    height: var(--lrmq-tool-region);
+    background: rgb(var(--lrmq-elevated));
+    border-top: 1px solid rgb(var(--lrmq-hairline) / .15);
+    mask-image: none;
+    -webkit-mask-image: none;
+    pointer-events: none;
+    z-index: 30;
+  }
+  main#contenido, main#catalog-content, main#product-content, main#quote-selection-content {
+    position: relative;
+    height: calc(100dvh - var(--lrmq-tool-region));
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scroll-padding-block: 6rem 1rem;
+  }
+  body[style*='overflow: hidden'] > #root main { overflow-y: hidden; }
+  main#contenido { height: calc(100dvh - var(--lrmq-tool-region) - 76px); top: 76px; scroll-padding-top: 0; }
+  .lrmq-mobile-sections section { scroll-margin-top: 0; }
+  .assistant-launcher-ring, .scroll-top-safe,
+  body:has([aria-controls='catalog-selection-drawer']) .scroll-top-safe,
+  button[aria-controls='catalog-selection-drawer'], .lrmq-filters-float {
+    top: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    height: 44px;
+    min-height: 44px;
+    margin: 0;
+    transform: none;
+  }
+  .assistant-launcher-ring { left: auto; right: var(--lrmq-tool-right); width: 44px; }
+  .scroll-top-safe { left: calc(var(--lrmq-tool-left) + var(--lrmq-filter-width) + 80px + var(--lrmq-tool-gap) + var(--lrmq-tool-gap)); right: auto; width: 44px; }
+  button[aria-controls='catalog-selection-drawer'] {
+    left: calc(var(--lrmq-tool-left) + var(--lrmq-filter-width) + var(--lrmq-tool-gap)); right: auto; width: 80px;
+    flex-direction: row; gap: 4px; padding: 4px; font-size: 10px;
+  }
+  .lrmq-filters-float { left: var(--lrmq-tool-left); right: auto; width: var(--lrmq-filter-width); padding-inline: 0; }
+  .scroll-top-safe.opacity-0,
+  body:has([aria-controls='catalog-selection-drawer']) .scroll-top-safe.opacity-0 { opacity: 0; }
+  .assistant-panel-in {
+    bottom: var(--lrmq-tool-row);
+    max-height: calc(100dvh - var(--lrmq-tool-row) - 8px - env(safe-area-inset-top));
+  }
+  .assistant-panel-in > header, .assistant-panel-in > form { flex-shrink: 0; }
+  .assistant-welcome {
+    bottom: calc(var(--lrmq-tool-row) + 8px);
+    right: max(16px, env(safe-area-inset-right));
+    width: calc(100% - max(16px, env(safe-area-inset-left)) - max(16px, env(safe-area-inset-right)));
+    max-width: 360px;
+    max-height: 164px;
+    overflow-y: auto;
+  }
+  html[data-lrmq-context='photo'] .assistant-welcome {
+    background: rgb(var(--lrmq-elevated));
+  }
+  html[data-lrmq-context='photo'] .assistant-welcome :is(button, span) { color: rgb(var(--lrmq-primary)); }
+}
+@media (max-width: 1023px) and (min-height: 600px) {
+  body:has(.assistant-welcome) { --lrmq-tool-region: calc(var(--lrmq-tool-row) + 180px); }
+}
+@media (max-width: 1023px) and (max-height: 599px) {
+  .assistant-welcome { display: none; }
+}
+
+/* Enabled dark navigation is legible at rest. Light and active indicator stay
+ * unchanged. Photo has its own opaque backing, not the chapter surface. */
+[data-theme='dark'] .lrmq-header-nav a,
+[data-theme='dark'] .lrmq-mobile-menu nav a { color: rgb(var(--lrmq-primary)); }
+[data-theme='dark'] .lrmq-header-nav-photo { background: #1c1d1f; }
+html[data-theme='dark'][data-lrmq-context='photo'] .lrmq-header-photo-action { background: #1c1d1f; border-radius: 9999px; }
+[data-theme='dark'] .assistant-panel-in [class~='text-secondary/70'],
+[data-theme='dark'] .assistant-panel-in .assistant-composer-input::placeholder { color: rgb(var(--lrmq-secondary)); }

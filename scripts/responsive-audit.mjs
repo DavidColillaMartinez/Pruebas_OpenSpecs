@@ -24,6 +24,8 @@ export const viewports = [
   ...[639,640,641,767,768,769,1023,1024,1025,1279,1280,1281].map(w=>[w,768]),
   [1024,721],[1535,864],[1536,864],[1537,864],
   [1024,939],[1024,940],[1024,941],[1280,879],[1280,880],[1280,881],[1279,880],[1281,880],
+  [820,1180],[1180,820],[834,1194],[1194,834],[1024,1366],[1366,1024],
+  [390,599],[390,600],[390,601],
 ].filter((v,i,all)=>all.findIndex(other=>String(v)===String(other))===i);
 const sizes = option('size','') ? [option('size','').split('x').map(Number)] : args.has('--quick') ? [[1363,936],[320,568],[844,390],[1024,720],[1280,768]] : viewports;
 const results = args.has('--resume') ? JSON.parse(await readFile(option('out','/tmp/opencode/responsive-matrix.json'),'utf8')) : [];
@@ -55,10 +57,14 @@ export async function measure(page, selector, desktop = false) {
     const name=e => e.getAttribute('aria-label') || e.id || (e.textContent||'').trim().slice(0,75) || e.tagName;
     const inScrollport = (e,r) => {
       let box={...r};
+      if(getComputedStyle(e).position==='fixed')return box;
       for(let p=e.parentElement;p;p=p.parentElement) {
         const s=getComputedStyle(p),pr=rect(p);
         if(s.overflowX==='auto'||s.overflowX==='scroll') {const right=Math.min(box.x+box.w,pr.x+pr.w);box.x=Math.max(box.x,pr.x);box.w=Math.max(0,right-box.x);}
-        if(s.overflowY==='auto'||s.overflowY==='scroll') {const bottom=Math.min(box.y+box.h,pr.y+pr.h);box.y=Math.max(box.y,pr.y);box.h=Math.max(0,bottom-box.y);}
+         if(s.overflowY==='auto'||s.overflowY==='scroll') {const bottom=Math.min(box.y+box.h,pr.y+pr.h);box.y=Math.max(box.y,pr.y);box.h=Math.max(0,bottom-box.y);}
+         // Fixed navigation belongs to the viewport, not the main scrollport
+         // that follows it in the DOM. Inner menu scrollports still clip first.
+         if(s.position==='fixed')break;
       }
       return box;
     };
@@ -75,10 +81,13 @@ export async function measure(page, selector, desktop = false) {
     const add=(kind,a,b,extra)=>issues.push({kind,a:name(a),b:typeof b==='string'?b:name(b),rect:rect(a),...extra});
     const elements=[...root.querySelectorAll('h1,h2,h3,p,label,input,textarea,select,button,a,blockquote,.animated-logo')].filter(visible);
     const header=document.querySelector('main#contenido > header');
-    const blockers=[...document.querySelectorAll('.assistant-launcher-ring,.assistant-welcome,.scroll-top-safe,[aria-controls="catalog-selection-drawer"]')].filter(visible);
+    const blockers=[...document.querySelectorAll('.assistant-launcher-ring,.assistant-welcome,.scroll-top-safe,.lrmq-filters-float,[aria-controls="catalog-selection-drawer"]')].filter(visible);
     for (const e of elements) {
       if (e.classList.contains('sr-only') || e.closest('.sr-only') || e.getAttribute('aria-hidden')==='true') continue;
-      const r=inScrollport(e,rect(e));
+       const r=inScrollport(e,rect(e));
+       // Completely outside a real scrolling ancestor is not hidden content.
+       // Partial visibility still undergoes overlap and center hit-testing.
+       if(r.w===0 || r.h===0) continue;
       if(r.x < -1 || r.x+r.w > innerWidth+1) add('horizontal',e,'viewport');
       // Text/actions hidden by clipping ancestors, not merely below scrollable document.
       for(let p=e.parentElement;p && p!==document.body;p=p.parentElement) {
@@ -102,10 +111,26 @@ export async function measure(page, selector, desktop = false) {
         if(e.matches('p,h1,h2,h3,blockquote,label')) {const range=document.createRange();range.selectNodeContents(e);boxes=[...range.getClientRects()].map(t=>({x:t.x,y:t.y,w:t.width,h:t.height}));}
         const o=boxes.map(box=>overlap(inScrollport(e,box),rect(b))).find(o=>o.w>2&&o.h>2); if(o) add('fixed-overlap',e,b,{intersection:o});
       }
-      if(onScreen && e.matches('input,textarea,select,button,a') && !e.disabled && r.y>=0 && r.y+r.h<=innerHeight) {
-        const x=r.x+r.w/2,y=r.y+r.h/2, hit=document.elementFromPoint(x,y);
+       if(onScreen && e.matches('input,textarea,select,button,a') && !e.disabled && r.y>=0 && r.y+r.h<=innerHeight) {
+         const actual=rect(e),x=actual.x+actual.w/2,y=actual.y+actual.h/2;
+         if(x<r.x || x>r.x+r.w || y<r.y || y>r.y+r.h) continue;
+         const hit=document.elementFromPoint(x,y);
         if(hit && !e.contains(hit) && !hit.contains(e) && !hit.closest('[aria-hidden="true"]')) add('hit-test',e,hit);
       }
+    }
+    for(const control of blockers.filter(e=>e.matches('button'))) {
+      const r=rect(control),hit=document.elementFromPoint(r.x+r.w/2,r.y+r.h/2);
+      if(r.x<0||r.x+r.w>innerWidth+1||r.y<0||r.y+r.h>innerHeight+1)add('tool-containment',control,'viewport');
+      if(!hit||!control.contains(hit))add('tool-hit-test',control,hit||'no hit');
+      if(innerWidth<1024 && root.matches('main')) {
+        const port=rect(root);
+        if(r.y<port.y+port.h-1)add('dock-content-boundary',control,root);
+      }
+    }
+    for(let i=0;i<blockers.length;i++)for(let j=i+1;j<blockers.length;j++) {
+      const a=blockers[i],b=blockers[j];if(a.contains(b)||b.contains(a))continue;
+      const intersection=overlap(rect(a),rect(b));
+      if(intersection.w>1&&intersection.h>1)add('tool-tool-overlap',a,b,{intersection});
     }
     const logo=root.querySelector('.animated-logo'), title=root.querySelector('h1');
     if(logo&&title) {
@@ -171,7 +196,7 @@ async function review(browser, browserName, size, theme) {
         await page.goto(`${base}${route}`,{waitUntil:'domcontentloaded'});await page.locator('main h1').waitFor();await settle(page);
         const data=await measure(page,'main');
         // Review bottom content as well: fixed controls can obstruct only after scrolling.
-        await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:'instant'}));await settle(page);
+         await page.evaluate(()=>{const port=innerWidth<1024?document.querySelector('main'):document.scrollingElement;port.scrollTo({top:port.scrollHeight,behavior:'instant'});});await settle(page);
         const bottom=await measure(page,'main');
         return {...data,issues:[...data.issues,...bottom.issues],bottom:bottom.viewport};
       });

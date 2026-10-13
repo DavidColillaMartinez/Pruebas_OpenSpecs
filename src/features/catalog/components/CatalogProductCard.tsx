@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { pageScrollY } from '../../../components/pageScroll';
 import { prefetchProductBySlug } from '../api/client';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { isRoyoFurnitureScope } from '../model/royo';
@@ -46,7 +47,7 @@ export function CatalogProductCard({ product }: { product: ProductCard }) {
     <article className="group min-w-0 border-b border-border-hairline/10 pb-8">
       <Link
         to={`/productos/${encodeURIComponent(product.slug)}`}
-        onClick={() => sessionStorage.setItem(CATALOG_RETURN_STORAGE_KEY, JSON.stringify({ search: location.search, scrollY: window.scrollY }))}
+        onClick={() => sessionStorage.setItem(CATALOG_RETURN_STORAGE_KEY, JSON.stringify({ search: location.search, scrollY: pageScrollY() }))}
         onMouseEnter={() => prefetchProductBySlug(product.slug)}
         onFocus={() => prefetchProductBySlug(product.slug)}
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-4 focus-visible:ring-offset-surface"

@@ -21,6 +21,7 @@ import { BusinessJsonLd } from './components/BusinessJsonLd';
 import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from './components/ScrollTopButton';
 import { QuoteSelectionProvider } from './features/quote/model/selectionStore';
 import { AssistantProvider } from './features/assistant/model/assistantStore';
+import { pageScrollY, scrollPageTo } from './components/pageScroll';
 
 const AssistantShell = lazy(() => import('./features/assistant/AssistantShell').then((module) => ({ default: module.AssistantShell })));
 
@@ -105,7 +106,7 @@ export function LandingPage() {
     previousModeRef.current = isDesktop;
     if (isDesktop) {
       navigateTo(sectionIds.indexOf(nativeSectionRef.current));
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      scrollPageTo({ top: 0, behavior: 'instant' });
     } else {
       setMobileActiveSection(activeSectionId);
       nativeSectionRef.current = activeSectionId;
@@ -143,6 +144,8 @@ export function LandingPage() {
           }
         }
       },
+      // The viewport root also clips against the narrow main scrollport. It
+      // remains valid when width crosses1024 without changing narrative mode.
       { threshold: 0, rootMargin: '-40% 0px -40% 0px' }
     );
     for (const id of sectionIds) {
@@ -157,9 +160,9 @@ export function LandingPage() {
 
   useEffect(() => {
     // Context for translucent assistant surfaces: photo behind Inicio, surfaces elsewhere.
-    document.documentElement.setAttribute('data-lrmq-context', isInicio ? 'photo' : 'surface');
+    document.documentElement.setAttribute('data-lrmq-context', isInicio && isDesktop ? 'photo' : 'surface');
     return () => document.documentElement.removeAttribute('data-lrmq-context');
-  }, [isInicio]);
+  }, [isInicio, isDesktop]);
   const mobileScrollTopVisible = useScrollTopVisibility(!isDesktop);
   const showScrollTop = isDesktop ? activeChapter > 0 : mobileScrollTopVisible;
 
@@ -200,6 +203,22 @@ export function LandingPage() {
 }
 
 export default function App() {
+  useEffect(() => {
+    let narrow = window.innerWidth < 1024;
+    let position = pageScrollY();
+    const remember = (event) => {
+      if (event.target === document || event.target?.matches?.('main')) position = pageScrollY();
+    };
+    const resize = () => {
+      const next = window.innerWidth < 1024;
+      if (next === narrow) return;
+      narrow = next;
+      scrollPageTo({ top: position, behavior: 'instant' });
+    };
+    window.addEventListener('scroll', remember, { passive: true, capture: true });
+    window.addEventListener('resize', resize);
+    return () => { window.removeEventListener('scroll', remember, true); window.removeEventListener('resize', resize); };
+  }, []);
   return (
     <BrowserRouter>
       <QuoteSelectionProvider>

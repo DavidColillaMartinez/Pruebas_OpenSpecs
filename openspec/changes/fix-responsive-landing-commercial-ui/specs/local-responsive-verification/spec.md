@@ -4,6 +4,13 @@ Producir evidencia textual reproducible de geometría e interacción responsive 
 
 ## ADDED Requirements
 
+### Requirement: Estabilidad medible y matriz vigente
+La ronda posterior a5e2978c SHALL repetir la matriz completa sobre su runtime final, añadiendo tablets únicas y las fronteras nuevas hasta53tamaños. SHALL registrar coordenadas viewport en scroll descendente/ascendente y foco, distinguir aparición de desplazamiento y exigir tolerancia máxima1CSSpx por herramienta visible. SHALL detectar también cruces herramienta/herramienta, comprobar límites de región propia y componer alpha/opacidad antes de medir contraste del menú oscuro. El zoom real SHALL usar un mecanismo real del navegador o quedar NO PROBADO con causa.
+
+#### Scenario: Herramienta estable frente a nuevo acceso visible
+- **WHEN** aparece el filtro flotante o volver arriba durante el recorrido
+- **THEN** sus puestos no desplazan las demás herramientas y no existen cruces entre herramientas ni centros tapados de campos visibles
+
 ### Requirement: Cobertura de matriz local explícita
 La verificación SHALL ejecutar la matriz completa enumerada en `design.md` en Chromium y Firefox locales, en claro/oscuro, para las siete secciones, catálogo, fichas representativas y presupuesto, incluyendo fronteras de breakpoints, umbral de altura y resize en ambos sentidos. Estados y drawers SHALL cubrir al menos tamaños críticos del layout. Cada caso SHALL registrar viewport efectivo, navegador/versión, DPR, tema, ruta/estado, origen de datos y PASA/FALLA/NO PROBADO.
 

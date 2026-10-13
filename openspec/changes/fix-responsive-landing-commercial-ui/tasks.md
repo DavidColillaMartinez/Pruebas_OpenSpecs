@@ -79,6 +79,7 @@
 - [ ] 10.1 Obtener revisión visual posterior del propietario y ChatGPT sobre SHA publicado; verificar evidencia explícita antes de marcar aceptación, sin sustituirla por mediciones automáticas.
 - [ ] 10.2 Registrar pruebas físicas Safari/macOS/iPhone, safe-area/teclado físico y medidas CSS reales de equipos del propietario como externas; verificar evidencia aportada antes de cerrar, sin identificar viewport por pulgadas/nombre.
 - [ ] 10.3 Registrar configuración/entrega n8n a arealrmqtienda@gmail.com, JSON y dominio/DNS/hosting como tareas externas o separadas; verificar evidencia del responsable antes de cerrar, sin ejecutarlas ni inferir éxito desde mocks.
+- [ ] 10.4 Obtener datos legales y URLs de políticas/privacidad aprobados por el responsable antes de cerrar las páginas legales/consentimiento; no inventar NIF, textos, URLs ni evidencia de aceptación. JSON continúa separado.
 
 ## 11. Revisión del propietario de la entrega 9163d35
 
@@ -90,3 +91,15 @@
 - [x] 11.6 Ofrecer acceso móvil a filtros al salir su botón original del viewport; verificar aparición, apertura, cierre, foco y coordinación con cesta/asistente.
 - [x] 11.7 Separar Cantidad e input en ficha; verificar separación y regresión de valor/validación en familias representativas.
 - [x] 11.8 Ejecutar navegador Chromium/Firefox claro/oscuro y tests/typecheck/lint/build; documentar evidencia actual y entregar commit/push según autorización vigente.
+
+## 12. Reparación de estabilidad posterior a 5e2978c (2026-10-12)
+
+- [x] 12.1 Comprobar HEAD/status/diff, leer instrucciones, informes y verificadores; preservar skills ajenas y base actual.
+- [x] 12.2 Sustituir colocación por huecos por puestos CSS estables y región propia móvil/tablet; adaptar scroll/listeners/restauración, preservar desktop y limpiar coordenadas residuales.
+- [x] 12.3 Verificar diálogos, foco, Escape/Tab, scroll interior, chat largo/borrador, galería y cleanup de ruta/breakpoint con mocks.
+- [x] 12.4 Reparar exclusivamente contraste oscuro del menú, medir alpha compuesto y conservar presentación clara/activo.
+- [x] 12.5 Ejecutar coordenadas durante scroll descendente/ascendente, campos intermedios/foco, bienvenida y cesta vacía/poblada; tolerancia máxima 1 CSS px.
+- [x] 12.6 Ejecutar matriz geométrica completa de 44 tamaños más tablets únicas y frontera de bienvenida599/600/601 (53 tamaños), Chromium/Firefox claro/oscuro y medios/animación normal en modos críticos.
+- [x] 12.7 Ejecutar gates finales, documentar medidas/resultados/datos/limitaciones y revisión local de navegador; mantener aceptación y comprobaciones externas pendientes.
+- [ ] 12.8 Revisar diff/stage propios, crear commit y push autorizado a origin/main; entregar SHA sin promoción manual.
+- [ ] 12.9 Verificar externamente zoom real125/200% en Firefox: en este entorno las ventanas X11/aceleradores no cambiaron el viewport (ratio1), y el contexto oscuro no expuso ventana visible. No sustituirlo por DPR/CSS zoom.

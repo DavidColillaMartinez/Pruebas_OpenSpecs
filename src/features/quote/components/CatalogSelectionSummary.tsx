@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { getQuoteSelectionKey, useQuoteSelection, type QuoteSelectionLine } from '../model/selectionStore';
@@ -101,7 +102,7 @@ export function CatalogSelectionSummary() {
           <SummaryContent headingId="catalog-selection-summary-heading" />
         </div>
       </aside>
-      <div className="xl:hidden">
+      {createPortal(<div className="xl:hidden">
         <button type="button" onClick={() => setMobileOpen(true)} aria-label={`Mis selecciones, ${count}`} aria-expanded={mobileOpen} aria-controls="catalog-selection-drawer" className="fixed bottom-[max(6rem,env(safe-area-inset-bottom))] right-3 z-40 flex min-h-16 w-20 flex-col items-center justify-center gap-1 rounded-2xl border border-border-hairline/20 bg-surface p-2 text-center text-xs font-semibold text-primary shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
           <span>Mis selecciones</span>
           <span aria-live="polite">{count}</span>
@@ -114,7 +115,7 @@ export function CatalogSelectionSummary() {
             </div>
           </div>
         )}
-      </div>
+      </div>, document.body)}
     </>
   );
 }

@@ -31,7 +31,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
             <LogoMark className="lrmq-contact-mark h-10 w-10 shrink-0" minimal />
             <span className="hidden font-display text-lg tracking-[0.08em] md:block">AREA LRMQ DESIGN S.L.</span>
           </a>
-          <div className="flex items-center gap-2"><ThemeToggle variant="solid" /><Link to="/productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="px-2 text-sm font-semibold text-primary underline-offset-4 transition-colors hover:text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Tienda</Link><button className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-full bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú" aria-expanded={mobileOpen}>
+          <div className="flex items-center gap-2"><ThemeToggle variant="solid" /><Link to="/productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="lrmq-header-photo-action px-2 text-sm font-semibold text-primary underline-offset-4 transition-colors hover:text-secondary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Tienda</Link><button className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-full bg-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú" aria-expanded={mobileOpen}>
             <span className={`block h-px w-4 bg-surface-elevated transition ${mobileOpen ? 'translate-y-[3px] rotate-45' : ''}`} />
             <span className={`block h-px w-4 bg-surface-elevated transition ${mobileOpen ? '-translate-y-[3px] -rotate-45' : ''}`} />
           </button></div>
@@ -50,7 +50,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
             <span className="font-display text-lg tracking-[0.08em] whitespace-nowrap">AREA LRMQ DESIGN S.L.</span>
           </a>
         </div>
-        <nav className={`justify-self-center rounded-full transition-all duration-500 ease-out ${isInicio ? 'border border-white/60 px-6 py-3' : 'lrmq-nav-pill rounded-full border border-white/70 bg-elevated-hover/90 shadow-lift px-4 py-3'}`}>
+        <nav className={`lrmq-header-nav justify-self-center rounded-full transition-all duration-500 ease-out ${isInicio ? 'lrmq-header-nav-photo border border-white/60 px-6 py-3' : 'lrmq-nav-pill rounded-full border border-white/70 bg-elevated-hover/90 shadow-lift px-4 py-3'}`}>
           <div className={`flex items-center text-sm font-medium ${isInicio ? 'gap-7' : 'gap-4 2xl:gap-7'}`}>
             {navItems.map((item) => {
               const id = item.href.slice(1);
@@ -63,8 +63,8 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
         </nav>
         <div className="flex items-center justify-self-end gap-3">
           <ThemeToggle variant={isInicio ? 'floating' : 'solid'} className="shrink-0" />
-          <Link to="/productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className={`px-2 text-sm font-semibold underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'text-white hover:text-white/75 hover:underline' : 'text-primary hover:text-secondary hover:underline'}`}>Tienda</Link>
-          <a className={`min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-surface-elevated/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-surface-elevated/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
+          <Link to="/productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className={`lrmq-header-photo-action px-2 text-sm font-semibold underline-offset-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'text-white hover:text-white/75 hover:underline' : 'text-primary hover:text-secondary hover:underline'}`}>Tienda</Link>
+          <a className={`lrmq-header-photo-action min-h-[44px] rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 ${isInicio ? 'bg-surface-elevated/14 text-white shadow-lift hover:-translate-y-0.5 hover:bg-surface-elevated/22' : 'bg-ink text-white shadow-lift hover:-translate-y-0.5 hover:bg-graphite'}`} href={`https://wa.me/${PHONE_INTL}`} target="_blank" rel="noopener noreferrer">Pedir asesoría</a>
         </div>
       </div>
     </header>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { CatalogFacetKey, CatalogFacets } from '../model/types';
 import { getCatalogFacetLabel, getDisplayCatalogFilterKeys, type CatalogFilterProfile, type CatalogFilters } from '../model/catalogQuery';
 
@@ -194,7 +195,7 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
           </div>
         </div>
       </aside>
-      {mobileOpen && (
+      {mobileOpen && createPortal(
         <div className="fixed inset-0 z-50 lg:hidden" role="presentation">
           <button type="button" aria-label="Cerrar filtros" className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onMobileClose} />
            <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="mobile-filters-heading" className="absolute inset-y-0 right-0 w-[min(92vw,26rem)] overflow-y-auto overscroll-contain border-l border-border-hairline/10 bg-surface p-6">
@@ -206,7 +207,7 @@ export function CatalogFilterPanel({ facets, filters, profile, mobileOpen, onMob
               <FilterGroups facets={facets} filters={filters} profile={profile} onToggle={onToggle} openGroups={openGroups} expandedGroups={expandedGroups} onToggleGroup={onToggleGroup} onToggleExpanded={onToggleExpanded} idPrefix="mobile" />
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </>
   );

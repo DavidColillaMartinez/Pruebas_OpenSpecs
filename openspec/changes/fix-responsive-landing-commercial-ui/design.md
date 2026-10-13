@@ -93,6 +93,22 @@ Alternativa descartada: usar únicamente `scrollWidth`, Vitest, lectura CSS o ap
 
 ## Migration Plan
 
+### Reparación de estabilidad posterior a 5e2978c (2026-10-12)
+
+Base real comprobada: `5e2978cf49fede7647b43fac666bd09398e2170a`, main. Se conservan las dos entradas ajenas de skills. La búsqueda de huecos de la sección siguiente queda sustituida: producía coordenadas dependientes del texto durante scroll/foco/fuentes.
+
+Por debajo de1024px cuatro puestos CSS permanentes en una franja inferior de64px más safe-area: filtros (izquierda), cesta (centro), volver arriba (tercer puesto), asistente (derecha). La ausencia/aparición de uno deja su puesto libre, sin mover los demás. Targets mínimos44px. No se reserva una columna lateral. Las superficies conservan ancho/padding simétricos y tienen scroll propio con límite inferior real encima de la franja; padding al final por sí solo no protegería campos intermedios. Listeners capturan el scroll del main; helpers comparten lectura/restauración y volver arriba. Resize transfiere posición entre main/window, sin modificar el gate narrativo.
+
+Bienvenida móvil: fila propia adicional180px cuando existe y altura≥600px, con máximo164px y scroll interior; en ventanas bajas se suprime temporalmente su presentación, conservando launcher. Panel del chat anclado a la fila inferior, altura máxima100dvh menos herramientas/safe-area. Diálogos existentes conservan locks, foco y prioridad; el lock corporal también bloquea el main móvil. Desktop mantiene coordenadas/layout anteriores; bienvenida cede fuera de la foto sin buscar huecos en el documento.
+
+Contraste: reglas solo dark para enlaces habilitados; Inicio amplio tiene respaldo oscuro opaco independiente de los capítulos sin fotografía. Claro y el indicador activo conservan sus reglas. La prueba compone alpha y opacidades y exige≥4.5:1 en dark.
+
+El main final es relativo con alto acotado, evitando un stacking context extra y manteniendo cabecera/skip-link en su orden DOM aprobado. Los overlays comerciales se portalan al body con sus niveles originales. Filtros y galería ampliada conservan medios/opciones y tienen prioridad global; la prueba verifica toda la región de herramientas bajo cada modal. Bienvenida desktop solo mide la ranura controlada de la última tarjeta de Inicio (destino final de sus transiciones); no recorre textos ni se actualiza por scroll. Contexto fotográfico corresponde únicamente al Inicio narrativo con foto real. Texto/placeholder del chat dark y acciones habilitadas de cabecera dark sobre foto tienen contraste localizado sin cambiar claro.
+
+La landing nativa≥1024px también reserva76px de cabecera mediante scrollport relativo: se reprodujo un centro de WhatsApp a y≈40 bajo el header en scroll intermedio. Se preservan ancho/gutter comercial desktop, distribución de herramientas desktop y gate narrativo; solo la landing nativa limita su región efectiva. El helper reconoce ese scrollport por CSS. El modo narrativo conserva su viewport/composición anteriores.
+
+Matriz actual:44 tamaños existentes más820×1180,1180×820,834×1194,1194×834,1024×1366,1366×1024, y390×599/600/601 para la nueva frontera de bienvenida. Total53 tamaños únicos;768×1024 y1024×768 ya estaban presentes. Geometría estricta recorta por scrollports reales, respetando navegación fija anclada al viewport, y no considera ocultación permanente un elemento que está fuera de una región desplazable; puntos visibles, límites de región, herramientas y centros interactivos conservan hit-testing y detección de solapes.
+
 ### Decisiones adoptadas tras reproducción local
 
 ### Revisión del propietario posterior a 9163d35

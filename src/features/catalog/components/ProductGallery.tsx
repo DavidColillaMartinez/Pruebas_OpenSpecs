@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { ProductImage } from '../model/types';
 
 type ProductGalleryActivation = {
@@ -185,7 +186,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
           </div>
         </div>
       )}
-      {zoomOpen && activeImage && (
+      {zoomOpen && activeImage && createPortal(
         <div
           ref={zoomRef}
           className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/82 p-6 backdrop-blur-sm"
@@ -215,7 +216,7 @@ export function ProductGallery({ images, productName, variantLabel, preserveInpu
             onClick={(event) => event.stopPropagation()}
             onError={() => markImageFailed(activeImage.url)}
           />
-        </div>
+        </div>, document.body
       )}
     </section>
   );

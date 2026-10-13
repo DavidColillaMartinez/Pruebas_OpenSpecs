@@ -4,6 +4,17 @@ Coordinar navegación, controles flotantes, diálogos y edición para evitar int
 
 ## ADDED Requirements
 
+### Requirement: Herramientas estables y contenido fuera de su región
+En móvil/tablet bajo1024px las herramientas SHALL usar puestos CSS compartidos, sin buscar huecos entre textos ni escribir coordenadas durante scroll ordinario. Aparición de filtros/volver arriba SHALL dejar las demás herramientas en su puesto. Una región propia SHALL impedir que campos y acciones visibles queden debajo, conservando ancho y márgenes simétricos. El cambio de breakpoint SHALL aplicar exclusivamente el layout correspondiente y conservar scroll/foco.
+
+#### Scenario: Recorrido ascendente y descendente
+- **WHEN** se recorre landing, catálogo, ficha o presupuesto en varios puntos de scroll con cesta/bienvenida en distintos estados
+- **THEN** cada herramienta visible conserva coordenadas viewport con tolerancia máxima1CSSpx y campos intermedios/con foco y acciones finales son alcanzables
+
+#### Scenario: Cambio de superficie y diálogo
+- **WHEN** se abre/cierra un diálogo o se cruza1024px en ambos sentidos
+- **THEN** no hay coordenadas inline residuales, el diálogo conserva prioridad/foco/scroll y el asistente vuelve a su puesto sin locks residuales
+
 ### Requirement: Controles externos no interfieren con diálogos ni formularios
 Cabecera, navegación lateral, volver arriba, asistente/bienvenida y cesta móvil SHALL convivir sin tapar campos, etiquetas, acciones o puntos de interacción. Un diálogo activo SHALL tener cierre, opciones y acciones accesibles sin controles flotantes externos que lo obstruyan; el acceso al asistente SHALL conservarse según su funcionamiento aprobado fuera de estados incompatibles.
 

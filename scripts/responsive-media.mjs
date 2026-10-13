@@ -2,13 +2,13 @@
  * synthetic ended events or screenshots. Seek/play is a real player operation. */
 import assert from 'node:assert/strict';
 import { chromium, firefox } from 'playwright';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { measure, settle } from './responsive-audit.mjs';
 import { installMocks } from './responsive-fixtures.mjs';
 const option=(name,fallback)=>process.argv.find(a=>a.startsWith(`--${name}=`))?.split('=').slice(1).join('=')||fallback;
 const base=option('base','http://127.0.0.1:4173');
 if(!['localhost','127.0.0.1'].includes(new URL(base).hostname))throw new Error('Local server only');
-const results=[];
+const results=process.argv.includes('--resume')?JSON.parse(await readFile(option('out','/tmp/opencode/responsive-media.json'),'utf8')):[];
 async function review(browser,name,size,theme) {
   const context=await browser.newContext({viewport:{width:size[0],height:size[1]},colorScheme:theme,reducedMotion:'no-preference',deviceScaleFactor:1});
   context.setDefaultTimeout(10000);await installMocks(context);
@@ -56,7 +56,9 @@ async function review(browser,name,size,theme) {
       const initial=await measure(page,selector,desktop);assert.equal(initial.issues.length,0,JSON.stringify(initial.issues));
       if(!desktop) {await root.getByRole('button',{name:'Reproducir boceto'}).click();await page.waitForTimeout(100);}
       await video.evaluate(async e=>{e.currentTime=Math.max(0,e.duration-.2);await e.play();});
-      const slider=root.getByRole('slider',{name:'Comparar boceto con imagen final'});await slider.waitFor();await settle(page,true);
+       const slider=root.getByRole('slider',{name:'Comparar boceto con imagen final'});await slider.waitFor();await settle(page,true);
+       await slider.evaluate(e=>e.scrollIntoView({block:'center',behavior:'instant'}));await settle(page);
+       assert(await slider.evaluate(e=>{const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),'Comparison interaction center is outside effective content or covered');
       const r=await slider.boundingBox();await page.mouse.move(r.x+r.width*.2,r.y+r.height*.5);await page.mouse.down();await page.mouse.move(r.x+r.width*.8,r.y+r.height*.5,{steps:6});await page.mouse.up();assert(Number(await slider.getAttribute('aria-valuenow'))>=75);
       await slider.focus();await page.keyboard.press('ArrowLeft');assert(Number(await slider.getAttribute('aria-valuenow'))<80);
       const data=await measure(page,selector,desktop);assert.equal(data.issues.length,0,JSON.stringify(data.issues));
@@ -85,9 +87,12 @@ async function review(browser,name,size,theme) {
 for(const [name,type] of Object.entries({chromium,firefox})) {
   if(option('browser','all')!=='all' && option('browser','all')!==name)continue;
   const browser=await type.launch();try {
-    const sizes=option('size','')?[option('size','').split('x').map(Number)]:[[320,568],[844,390],[1024,940],[1363,936],[1440,900]];
-    const jobs=sizes.flatMap(size=>['light','dark'].map(theme=>({size,theme})));let next=0;
-    await Promise.all(Array.from({length:2},async()=>{while(next<jobs.length){const j=jobs[next++];await review(browser,name,j.size,j.theme);console.log(`${name} ${j.size} ${j.theme}: original media reviewed`);}}));
+    const sizes=option('size','')?[option('size','').split('x').map(Number)]:[[320,568],[390,600],[844,390],[768,1024],[820,1180],[1024,768],[1024,940],[1363,936],[1440,900]];
+    const jobs=sizes.flatMap(size=>['light','dark'].map(theme=>({size,theme}))).filter(job=>{
+      const previous=results.filter(r=>r.browser===name&&String(r.size)===String(job.size)&&r.theme===job.theme);
+      return previous.length!==6||previous.some(r=>r.status!=='PASA');
+    });let next=0;
+    await Promise.all(Array.from({length:Number(option('workers','2'))},async()=>{while(next<jobs.length){const j=jobs[next++];for(let i=results.length-1;i>=0;i--)if(results[i].browser===name&&String(results[i].size)===String(j.size)&&results[i].theme===j.theme)results.splice(i,1);await review(browser,name,j.size,j.theme);console.log(`${name} ${j.size} ${j.theme}: original media reviewed`);}}));
   } finally {await browser.close();}
 }
 console.log(results.reduce((c,r)=>({...c,[r.status]:(c[r.status]||0)+1}),{}));
