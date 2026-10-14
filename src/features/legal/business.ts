@@ -18,7 +18,7 @@ export const PRIVACY_READ_LABEL = 'He leído la información sobre protección d
 export const PRIVACY_READ_ERROR = 'Confirma que has leído la información sobre protección de datos.';
 
 export const PRIVACY_SUMMARIES = {
-  quote: `Responsable: ${LEGAL_BUSINESS.company}. Usamos tu contacto, mensaje y selección para atender tu presupuesto gratuito y su seguimiento, como medidas precontractuales. Vercel y nuestra infraestructura con n8n tramitan el envío; Resend lo transporta a Gmail. Puedes ejercer tus derechos en ${LEGAL_BUSINESS.email}. No usamos estos contactos para promociones.`,
+  quote: `Responsable: ${LEGAL_BUSINESS.company}. Usamos tu contacto, mensaje y selección para atender tu presupuesto gratuito y su seguimiento, como medidas precontractuales. La empresa responderá mediante los datos de contacto que facilites. Puedes ejercer tus derechos en ${LEGAL_BUSINESS.email}. No usamos estos contactos para promociones.`,
   whatsapp: `Responsable: ${LEGAL_BUSINESS.company}. Atendemos tu consulta o presupuesto; medidas precontractuales para tu proyecto e interés legítimo para consultas generales. Al abrir WhatsApp, el texto preparado se transmite a ese servicio; tú decides enviarlo a la empresa. Derechos: ${LEGAL_BUSINESS.email}.`,
-  assistant: `${LEGAL_BUSINESS.company} usa tu mensaje y contexto para orientarte mediante IA (Vercel/n8n). Interés legítimo: atender consultas. Evita datos sensibles. Derechos: ${LEGAL_BUSINESS.email}.`,
+  assistant: `${LEGAL_BUSINESS.company} usa tu mensaje y el contexto de navegación para orientarte mediante inteligencia artificial. Interés legítimo: atender consultas. Las respuestas son orientativas. Evita datos sensibles. Derechos: ${LEGAL_BUSINESS.email}.`,
 } as const;

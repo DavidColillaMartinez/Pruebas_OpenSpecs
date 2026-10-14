@@ -83,8 +83,8 @@ function StorageTable() {
     <div className="mt-6 overflow-x-auto rounded-lg border border-border-hairline/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay" tabIndex={0} role="region" aria-label="Tabla de almacenamiento, desplazable horizontalmente">
       <table className="w-full min-w-[38rem] text-left text-sm leading-6 text-secondary">
         <caption className="px-4 py-3 text-left font-semibold text-primary">Almacenamiento propio de AREA LRMQ en este navegador</caption>
-        <thead><tr className="border-y border-border-hairline/20 bg-surface-elevated"><th scope="col" className="p-4">Clave y tecnología</th><th scope="col" className="p-4">Titular y finalidad</th><th scope="col" className="p-4">Duración</th></tr></thead>
-        <tbody>{BROWSER_STORAGE.map(({ key, type, purpose, duration }) => <tr key={key} className="border-b border-border-hairline/10 last:border-0"><th scope="row" className="p-4 align-top font-normal"><code className="break-all">{key}</code><br />{type}</th><td className="p-4 align-top">{LEGAL_BUSINESS.brand}. {purpose}</td><td className="p-4 align-top">{duration}</td></tr>)}</tbody>
+        <thead><tr className="border-y border-border-hairline/20 bg-surface-elevated"><th scope="col" className="p-4">Función y tecnología</th><th scope="col" className="p-4">Titular y finalidad</th><th scope="col" className="p-4">Duración</th></tr></thead>
+        <tbody>{BROWSER_STORAGE.map(({ key, type, purpose, duration }) => <tr key={key} className="border-b border-border-hairline/10 last:border-0"><th scope="row" className="p-4 align-top font-normal">{key}<br />{type}</th><td className="p-4 align-top">{LEGAL_BUSINESS.brand}. {purpose}</td><td className="p-4 align-top">{duration}</td></tr>)}</tbody>
       </table>
     </div>
   );

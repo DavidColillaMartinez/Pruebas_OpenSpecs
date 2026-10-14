@@ -136,3 +136,43 @@ La recarga local no verifica por sí sola el servicio Vercel publicado. Sin disp
 Tras recibir la entrega local, el propietario solicita expresamente «haz commit push». Esta instrucción autoriza crear un commit centrado en el cambio legal y subirlo a origin/main. Se excluyen los documentos responsive y las entradas de skills ajenos. Los ajustes del otro agente ya presentes en HEAD se conservan.
 
 Esta autorización no se registra como aprobación del cumplimiento legal ni cierra las tareas 4.1–4.4. No se ejecuta promoción manual de Vercel; el push puede activar la integración automática Git del proyecto si está configurada. Su estado y el resultado publicado requieren comprobación separada.
+
+## 10. Revisión de textos públicos del commit 997f60a
+
+El propietario solicita simplificar el contenido público sobre la versión local actual. Tras aclarar la contradicción entre «No hagas push» y «commit y push», confirma **Commit y push**, con conocimiento de la posible integración automática de despliegue. No se solicita despliegue manual ni se acredita aprobación legal.
+
+Alcance: cinco archivos, exclusivamente contenido legal, presentación de la tabla, pruebas de contenido y este informe. Se conservan los cambios ajenos en el informe responsive, sus tareas y las entradas de skills. No se modifican endpoints, payloads, almacenamiento efectivo, configuración o funcionamiento comercial.
+
+### Retirado del contenido público
+
+- Inventario de Vercel, n8n, Neon, Resend, Hostalia y Gmail como herramienta; se conserva íntegro el correo empresarial confirmado.
+- Rutas API, host de medios, identificadores de solicitudes, configuración, recorrido de servicios, consultas de catálogo, colas, reintentos y explicaciones de entrega técnica.
+- Remitente técnico y Reply-To; se indica respuesta mediante los datos facilitados.
+- Claves/versiones exactas del navegador y referencias a migraciones de historial; las claves funcionales reales permanecen intactas en la aplicación y en este inventario interno.
+- Enlaces de inventario de proveedores internos y de recursos; se conserva la política de WhatsApp, servicio abierto voluntariamente.
+- Referencias a revisión local y bases «propuestas» en las páginas. No se transforma documentación pública de proveedores en una garantía contractual de la empresa.
+
+### Conservado
+
+Identidad y contacto confirmados; actividad y catálogo informativo; datos, finalidades y bases de cada canal; ausencia de marketing; casilla de lectura; derechos y contacto; IA orientativa y opcional; apertura voluntaria de servicios externos. Las categorías de destinatarios distinguen alojamiento, gestión de solicitudes, comunicaciones, recepción de correo, IA y recursos multimedia.
+
+Se mantiene explícito el posible tratamiento fuera del EEE, incluido Estados Unidos, y el almacenamiento de datos asociados al envío de correo en Estados Unidos. No se promete residencia europea ni se afirma la existencia de contratos o garantías acreditadas. La tabla presenta preferencia de tema, selección de productos, bienvenida y retorno al catálogo, con localStorage/sessionStorage y duraciones efectivas sin cambios.
+
+### Información necesaria pendiente, sin subsanar mediante redacción
+
+1. **Conservación:** faltan criterios/plazos aprobados para presupuestos, correo empresarial, comunicaciones de WhatsApp y datos recibidos por servicios de chat y alojamiento. Se conserva la práctica confirmada de presupuestos sin borrado programado; no se inventa un plazo ni se presenta conservación indefinida como jurídicamente validada.
+2. **Transferencias:** faltan países concretos cuando no estén acreditados, destinatarios efectivos y garantías aplicables por cuenta/servicio, contratos y forma de obtener copia. El contacto público para consultar no sustituye esta acreditación ni completa por sí solo el deber de información. No se atribuyen CCT/DPF contratadas a la empresa.
+3. **IA:** confirmar proveedor, alcance real del tratamiento, países y retención. El mensaje público sobre posible tratamiento fuera del EEE no acredita un destino concreto.
+4. **Bases jurídicas:** la redacción mantiene los intereses ya identificados (responder comunicaciones, facilitar información y proteger disponibilidad), sin inventar consentimiento ni bases nuevas. La ponderación y aprobación efectiva del responsable para art. 6.1.f siguen pendientes; quitar «propuesta» del texto público no las acredita ni cierra la tarea.
+5. **Datos registrales, derechos y producción:** siguen abiertos inscripción mercantil, procedimiento interno de derechos y contraste del inventario funcional con producción. No se convierte la captura local en una afirmación de ausencia universal de cookies/analítica.
+
+Los pendientes del apartado 6 y las tareas OpenSpec 4.1–4.4 permanecen abiertos. Se preservan documentación técnica, SQL, backups e historial Git para la coordinación posterior del repositorio privado.
+
+### Coordinación y resultados de esta corrección
+
+- La sesión se pausó a petición del propietario cuando aparecieron cambios concurrentes en App, Inicio y utilities. Al recibir «continua», esos ajustes ya estaban confirmados en `d9528d6`; se verifica sobre ese HEAD y se excluyen todos los documentos/skills ajenos del commit legal.
+- Tests pertinentes: ocho archivos, **64 passed / 1 skipped preexistente**. Las nuevas pruebas comprueban módulos de contenido, las tres páginas renderizadas y los tres avisos reutilizados, datos necesarios, información internacional y tabla funcional. El detector se ajustó para no confundir «independientes» ni «AREA LRMQ:» con pendientes o claves técnicas.
+- Typecheck y build: PASS. Lint: **0 errores / 11 warnings** en archivos fuera del diff de esta corrección (incluye FIT_BIAS de App en el HEAD actual). No se corrigen dentro de este alcance.
+- `node scripts/legal-review.mjs`: PASS en Chromium 153.0.8010.12, 1366×768 y 390×844, claro y oscuro; rutas y recargas, metadatos/restauración, foco, desplazamiento de tabla, apertura de política sin perder borrador/selección, cierre del chat y comprobación de interacción de Visión/vídeo desktop. Cero POST. El primer intento concurrente falló al volver a Inicio; la ejecución completa sobre el estado coordinado pasa sin cambios de lógica ni del runner.
+- Búsqueda adicional en navegador mediante `/tmp/opencode/legal-public-text-review.mjs`: **14 comprobaciones PASS**, tres legales, Contacto, ficha, presupuesto y chat en ambos tamaños; sin menciones técnicas retiradas en texto y enlaces legales. GET de catálogo con fixtures, POST bloqueados. Las menciones en código funcional y documentación técnica se conservan.
+- Revisadas capturas claras desktop/móvil de Contacto frente a las previas: estructura y presentación preservadas. Revisadas privacidad desktop, tabla móvil y chat móvil oscuro; el texto ocupa su espacio y conserva desplazamiento/foco. No se atribuye el ajuste responsive ajeno a esta corrección. Evidencias en `/tmp/opencode/legal-*.png`, `/tmp/opencode/legal-browser-review.json` y `/tmp/opencode/legal-public-chat-{1366,390}.png`, fuera del repositorio. No se verifica despliegue ni dispositivo Safari físico.
