@@ -1,0 +1,12 @@
+- [x] Replace persistent workflow with authenticated transient send and read-only catalog lookup.
+- [x] Return 201 only after Resend accepts the email with an ID; no background retries.
+- [x] Publish workflow and verify graph/settings through MCP.
+- [x] Remove quote tables/functions in primary and existing test branch; verify catalog remains intact.
+- [x] Prepare proxy/client wait adjustment for provider acceptance.
+- [x] Prepare browser transcript removal and persistence of selections without free-text notes.
+- [x] Run affected tests, typecheck, build and lint (existing warnings only).
+- [ ] Owner applies repository patch and pushes; Vercel deploys the new waits/browser behavior.
+- [ ] Verify sender domain and real acceptance/delivery to company Gmail.
+- [ ] Disable chat error/manual/progress retention and delete historical execution data using an available permitted interface; current MCP lacks those operations.
+- [ ] Review Neon historical retention and provider data policies before claiming no remaining copies.
+- [ ] Owner/gestoría validate legal text, registry data and company's own retention criteria.

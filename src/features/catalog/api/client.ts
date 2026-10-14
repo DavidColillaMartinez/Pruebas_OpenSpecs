@@ -233,9 +233,9 @@ export async function createQuoteRequest(payload: QuoteRequestPayload, options?:
   return data as QuoteRequestCreated;
 }
 
-// The POST needs margin over the proxy's own upstream timeout (10 s) without
+// The POST waits for read-only validation and Resend acceptance (25 s) without
 // touching the GET budgets; no transport layer retries the quote POST.
-export const QUOTE_CONFIRM_TIMEOUT_MS = 15000;
+export const QUOTE_CONFIRM_TIMEOUT_MS = 30000;
 
 // Success statuses observed from the deployed quote workflow; anything else is
 // reported as an invalid confirmation instead of cleaning the basket.

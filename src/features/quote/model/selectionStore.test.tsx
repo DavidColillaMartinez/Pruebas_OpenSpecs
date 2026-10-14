@@ -39,6 +39,13 @@ afterEach(() => {
 });
 
 describe('quote selection store', () => {
+  it('removes legacy free-text notes from persisted selections', () => {
+    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify([{ ...firstLine, notes: 'Datos de contacto privados' }]));
+    window.localStorage.setItem('lrmq:quote-selection:v1', JSON.stringify([{ ...firstLine, notes: 'Datos de contacto privados' }]));
+    render(<QuoteSelectionProvider><Harness /></QuoteSelectionProvider>);
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).not.toContain('Datos de contacto privados');
+    expect(window.localStorage.getItem('lrmq:quote-selection:v1')).toBeNull();
+  });
   it('deduplicates the same variant and keeps another variant independent', () => {
     render(<QuoteSelectionProvider><Harness /></QuoteSelectionProvider>);
     fireEvent.click(screen.getByRole('button', { name: 'Añadir primera' }));

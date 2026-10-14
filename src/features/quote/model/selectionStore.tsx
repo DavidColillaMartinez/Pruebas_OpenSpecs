@@ -111,7 +111,9 @@ export function QuoteSelectionProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<QuoteSelectionLine[]>(readStoredLines);
 
   useEffect(() => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify({ version: QUOTE_SELECTION_STORAGE_VERSION, lines }));
+    const storedLines = lines.map(line => { const stored = { ...line }; delete stored.notes; return stored; });
+    window.localStorage.removeItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY);
+    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify({ version: QUOTE_SELECTION_STORAGE_VERSION, lines: storedLines }));
   }, [lines]);
 
   const addLine = (line: QuoteSelectionLine): boolean => {

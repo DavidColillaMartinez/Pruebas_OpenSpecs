@@ -26,8 +26,8 @@ function digest(secret, purpose, value) {
   return `v1:${createHmac('sha256', secret).update(`${purpose}\n${value}`).digest('hex')}`;
 }
 
-// This fast local burst guard is additive. The authoritative, cross-instance
-// rate limit is enforced transactionally in PostgreSQL by the authenticated flow.
+// Ephemeral per-instance guard: no database buckets or customer records.
+// It cannot enforce a cross-instance limit; platform rate limiting is separate.
 function admitBurst(key, now) {
   for (const [client, bucket] of bursts) {
     if (bucket.until <= now) bursts.delete(client);

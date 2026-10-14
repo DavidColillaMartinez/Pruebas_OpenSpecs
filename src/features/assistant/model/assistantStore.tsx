@@ -4,8 +4,6 @@ import { sendHttpChatMessage } from '../transport/httpAdapter';
 import { sendDemoChatMessage, isDemoModeEnabled } from '../transport/demoAdapter';
 import {
   DEFAULT_CHAT_ERROR_TEXT,
-  isChatAction,
-  isChatRecommendedProduct,
   type ChatAction,
   type ChatErrorKind,
   type ChatMessagePayload,
@@ -65,50 +63,8 @@ const initialState: AssistantState = {
   status: 'idle',
 };
 
-function toSerializable(state: AssistantState): SerializableState {
-  return {
-    version: ASSISTANT_STORAGE_VERSION,
-    conversationId: state.conversationId,
-    messages: state.messages.filter((message) => message.id !== 'pending-user' && message.errorKind === undefined),
-  };
-}
-
 function settlePending(messages: AssistantChatMessage[]): AssistantChatMessage[] {
   return messages.map((message) => (message.id === 'pending-user' ? { ...message, id: nextMessageId() } : message));
-}
-
-function readStoredState(): SerializableState | null {
-  try {
-    const raw = sessionStorage.getItem(ASSISTANT_STORAGE_KEY);
-    if (!raw) return null;
-    const record = JSON.parse(raw) as Record<string, unknown> | null;
-    if (!record || record.version !== ASSISTANT_STORAGE_VERSION || typeof record.conversationId !== 'string') return null;
-    if (!Array.isArray(record.messages)) return null;
-    for (const item of record.messages.slice(1)) {
-      const message = item as AssistantChatMessage;
-      if (!message || typeof message.id !== 'string' || typeof message.text !== 'string') return null;
-      if (message.role !== 'assistant' && message.role !== 'user') return null;
-      if (message.text.length > MAX_STORED_MESSAGE_LENGTH) return null;
-    }
-    const messages = (record.messages as AssistantChatMessage[])
-      .slice(-MAX_STORED_MESSAGES)
-      .map((message) => ({
-        id: message.id,
-        role: message.role,
-        text: message.text,
-        ...(Array.isArray(message.products) && message.products.filter(isChatRecommendedProduct).length > 0
-          ? { products: message.products.filter(isChatRecommendedProduct) }
-          : {}),
-        ...(Array.isArray(message.actions) && message.actions.filter(isChatAction).length > 0
-          ? { actions: message.actions.filter(isChatAction) }
-          : {}),
-      }));
-    if (!messages.length || messages[0].role !== 'assistant') return null;
-    if (messages.length === 1 && messages[0].text !== INITIAL_ASSISTANT_MESSAGE) return null;
-    return { version: ASSISTANT_STORAGE_VERSION, conversationId: String(record.conversationId), messages };
-  } catch {
-    return null;
-  }
 }
 
 export function assistantReducer(state: AssistantState, action: AssistantAction): AssistantState {
@@ -188,21 +144,11 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   const mountedRef = useRef(false);
 
   useEffect(() => {
-    const stored = readStoredState();
-    if (stored) dispatch({ type: 'restore', state: stored });
+    // Remove legacy browser copies; conversations now live only in React memory.
+    try { sessionStorage.removeItem(ASSISTANT_STORAGE_KEY); } catch { /* storage may be disabled */ }
     demoModeRef.current = isDemoModeEnabled();
     mountedRef.current = true;
   }, []);
-
-  useEffect(() => {
-    if (!mountedRef.current) return undefined;
-    try {
-      sessionStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify(toSerializable(state)));
-    } catch {
-      /* ignore storage quota errors */
-    }
-    return undefined;
-  }, [state]);
 
   const sendMessage = (text: string) => {
     const trimmed = text.trim();

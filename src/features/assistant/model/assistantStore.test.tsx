@@ -115,22 +115,16 @@ describe('AssistantProvider state', () => {
     expect(screen.getByTestId('count').textContent).toBe('1');
   });
 
-  it('persists history and conversationId to sessionStorage and restores on reload', async () => {
-        (sendHttpChatMessage as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ kind: 'success' as const, conversationId: 'persist-1', message: 'Hola', products: [], actions: [] });
-
+  it('keeps the conversation in memory and starts fresh after remount', async () => {
+    (sendHttpChatMessage as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ kind: 'success' as const, conversationId: 'memory-1', message: 'Hola', products: [], actions: [] });
     const { unmount } = render(<AssistantProvider><Probe /></AssistantProvider>);
     fireEvent.click(screen.getByText('send'));
-    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('persist-1'));
-
+    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('memory-1'));
+    expect(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY)).toBeNull();
     unmount();
-
     render(<AssistantProvider><Probe /></AssistantProvider>);
-    await waitFor(() => {
-      const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}');
-      expect(parsed.conversationId).toBe('persist-1');
-      expect(screen.getByTestId('conversation').textContent).toBe('persist-1');
-      expect((parsed.messages as Array<{ text: string }>).some((message) => message.text === 'Hola')).toBe(true);
-    });
+    expect(screen.getByTestId('count').textContent).toBe('1');
+    expect(screen.getByTestId('conversation').textContent).not.toBe('memory-1');
   });
 
   it('stores nothing in localStorage', async () => {
@@ -141,34 +135,7 @@ describe('AssistantProvider state', () => {
     expect(window.localStorage.getItem(ASSISTANT_STORAGE_KEY)).toBeNull();
   });
 
-  it('persists validated official actions and restores them on reload', async () => {
-    (sendHttpChatMessage as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-      kind: 'success' as const,
-      conversationId: 'actions-1',
-      message: 'Contacta por WhatsApp:',
-      products: [],
-      actions: [{ type: 'contact_official' as const, label: 'WhatsApp', target: 'whatsapp' }],
-    });
-
-    const { unmount } = render(<AssistantProvider><Probe /></AssistantProvider>);
-    fireEvent.click(screen.getByText('send'));
-    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('actions-1'));
-
-    // The conversation id can render before the message persistence effect.
-    // Wait for the storage contract itself, not only an earlier UI state.
-    await waitFor(() => {
-      const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}') as { messages: Array<{ actions?: unknown[] }> };
-      const storedActions = parsed.messages.at(-1)?.actions;
-      expect(storedActions).toHaveLength(1);
-      expect(storedActions?.[0]).toEqual({ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' });
-    });
-
-    unmount();
-    render(<AssistantProvider><Probe /></AssistantProvider>);
-    await waitFor(() => expect(screen.getByTestId('conversation').textContent).toBe('actions-1'));
-  });
-
-  it('drops manipulated product data and oversized texts when restoring', () => {
+  it('removes legacy stored conversations without restoring their content', () => {
     window.sessionStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify({
       version: 1,
       conversationId: 'session-manipulated',
@@ -187,8 +154,8 @@ describe('AssistantProvider state', () => {
 
     render(<AssistantProvider><Probe /></AssistantProvider>);
 
-    const parsed = JSON.parse(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY) ?? '{}') as { conversationId: string | null; messages: Array<Record<string, unknown>> };
-    expect(parsed.conversationId).toBeNull();
+    expect(window.sessionStorage.getItem(ASSISTANT_STORAGE_KEY)).toBeNull();
+    expect(screen.getByTestId('count').textContent).toBe('1');
   });
 });
 

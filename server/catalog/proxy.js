@@ -140,7 +140,7 @@ function safeErrorLabel(value) {
 
 async function fetchUpstream(upstreamUrl, options, context) {
   const maxAttempts = options.method === 'GET' ? CATALOG_UPSTREAM_MAX_GET_ATTEMPTS : 1;
-  const signal = AbortSignal.timeout(options.method === 'GET' ? CATALOG_UPSTREAM_GET_TIMEOUT_MS : 10000);
+  const signal = AbortSignal.timeout(options.method === 'GET' ? CATALOG_UPSTREAM_GET_TIMEOUT_MS : 25000);
   let lastError;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

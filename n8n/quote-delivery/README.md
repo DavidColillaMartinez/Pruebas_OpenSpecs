@@ -1,3 +1,9 @@
+# Estado vigente — presupuestos sin almacenamiento, 14/10/2026
+
+El propietario ha pedido retirar todas las solicitudes de nuestra base. El flujo activo ahora es el descrito en `TRANSIENT-SETUP.md` y `transient-workflow.json`. SQL 004 consulta solo catálogo; SQL 005 ya se aplicó en principal y pruebas. No volver a ejecutar las migraciones 001/002 ni importar el SDK histórico: restaurarían la arquitectura retirada.
+
+El texto que sigue conserva únicamente evidencia histórica y no son instrucciones de instalación actuales.
+
 ## Migración a arealrmq.es — 2026-10-14
 
 Vercel: dominios arealrmq.es y www.arealrmq.es añadidos al proyecto pruebas-open-specs; www redirige 308 al principal. DNS aún NXDOMAIN en comprobación pública. Recomendaciones de get_domain_config: apex A 76.76.21.21; www CNAME cname.vercel-dns.com. Nameservers del proveedor actual se conservan; configurar en su zona DNS.

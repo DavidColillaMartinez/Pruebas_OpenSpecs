@@ -31,7 +31,7 @@ export function formatQuoteMail(job) {
   const rows = [
     'NUEVA SOLICITUD DE PRESUPUESTO · AREA LRMQ',
     `Referencia de solicitud: ${job.quoteId}`,
-    `Recibida: ${receivedDate(job.createdAt)}`,
+    ...(job.createdAt ? [`Recibida: ${receivedDate(job.createdAt)}`] : []),
     '', 'CONTACTO',
     `Nombre: ${plain(job.customerName, 200)}`,
     `Email: ${plain(job.email, 320) || 'No indicado'}`,

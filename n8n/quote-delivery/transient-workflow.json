@@ -1,0 +1,405 @@
+{
+  "name": "LRMQ Presupuestos Resend v2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lrmq/catalog/quote-delivery-v2/quote-requests",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a4cfc92f-f975-4d9c-b99b-2f2c77670d9a",
+      "name": "POST presupuesto seguro v2",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "991fe443-b90c-4ae0-96f2-4f7d6633c4e9"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const IDENTIFIER_PATTERN = /^[A-Za-z0-9._:-]+$/;\nconst REQUEST_BODY_KEYS = Object.freeze([\n  'customerName', 'phone', 'email', 'renovationType', 'message', 'sourcePage', 'consentPrivacy', 'items',\n]);\nconst FORBIDDEN_ATTRIBUTE_KEY_PATTERN = /(?:price|precio|importe|cost|coste|source_page|source_price|quality|hash|publication|raw_data|internal)/i;\nconst MAX_ATTRIBUTE_VALUE_LENGTH = 300;\n\nfunction isPlanObject(value) {\n  return typeof value === 'object' && value !== null && !Array.isArray(value);\n}\n\nfunction isJsonContentType(contentType) {\n  return typeof contentType === 'string' && /^(?:application\\/(?:[\\w.+-]+\\+)?json)\\s*(?:;|$)/.test(contentType.trim());\n}\n\nfunction checkItem(item, index, errors) {\n  const prefix = `items.${index}`;\n  if (!item || typeof item !== 'object' || Array.isArray(item)) {\n    errors.push(`${prefix}.productId`);\n    return;\n  }\n  const allowedKeys = [\n    'productId', 'variantId', 'commercialOfferVariantId', 'reference', 'quantity', 'productName',\n    'supplier', 'category', 'imageUrl', 'selectedAttributes', 'variantSnapshot', 'notes',\n  ];\n  if (Object.keys(item).some((key) => !allowedKeys.includes(key))) errors.push(`${prefix}.productId`);\n\n  if (typeof item.productId !== 'string' || item.productId.length === 0 || item.productId.length > 128 || !IDENTIFIER_PATTERN.test(item.productId)) errors.push(`${prefix}.productId`);\n  if (item.variantId !== undefined && (typeof item.variantId !== 'string' || item.variantId.length === 0 || item.variantId.length > 128 || !IDENTIFIER_PATTERN.test(item.variantId))) errors.push(`${prefix}.variantId`);\n  if (item.commercialOfferVariantId !== undefined && (typeof item.commercialOfferVariantId !== 'string' || item.commercialOfferVariantId.length === 0 || item.commercialOfferVariantId.length > 128 || !IDENTIFIER_PATTERN.test(item.commercialOfferVariantId))) errors.push(`${prefix}.commercialOfferVariantId`);\n  if (item.reference !== undefined && (typeof item.reference !== 'string' || item.reference.length > 128 || !IDENTIFIER_PATTERN.test(item.reference))) errors.push(`${prefix}.reference`);\n\n  const compactDuplach = typeof item.productId === 'string'\n    && item.productId.toLocaleLowerCase().startsWith('duplach-')\n    && item.variantSnapshot && Object.keys(item.variantSnapshot).length > 0;\n  if (!compactDuplach && item.variantId === undefined && item.commercialOfferVariantId === undefined) errors.push(`${prefix}.variantId`);\n\n  if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 999) errors.push(`${prefix}.quantity`);\n  if (typeof item.productName !== 'string' || item.productName.trim().length === 0 || item.productName.length > 300) errors.push(`${prefix}.productName`);\n  if (typeof item.supplier !== 'string' || item.supplier.trim().length === 0 || item.supplier.length > 300) errors.push(`${prefix}.supplier`);\n  if (typeof item.category !== 'string' || item.category.trim().length === 0 || item.category.length > 300) errors.push(`${prefix}.category`);\n  if (item.notes !== undefined && (typeof item.notes !== 'string' || item.notes.length > 2000)) errors.push(`${prefix}.notes`);\n  if (item.imageUrl !== undefined && (typeof item.imageUrl !== 'string' || item.imageUrl.length > 2048)) errors.push(`${prefix}.imageUrl`);\n\n  for (const attributeName of ['selectedAttributes', 'variantSnapshot']) {\n    const attributeRecord = item[attributeName];\n    if (attributeRecord === undefined) continue;\n    if (!isPlanObject(attributeRecord)) {\n      errors.push(`${prefix}.${attributeName}`);\n      continue;\n    }\n    for (const [key, value] of Object.entries(attributeRecord)) {\n      if (/[^a-zA-Z0-9_ ]/.test(key) || key.length > 40 || FORBIDDEN_ATTRIBUTE_KEY_PATTERN.test(key)) {\n        errors.push(`${prefix}.${attributeName}`);\n        break;\n      }\n      const valueType = typeof value;\n      if (valueType !== 'string' && valueType !== 'number' && valueType !== 'boolean') {\n        errors.push(`${prefix}.${attributeName}`);\n        break;\n      }\n      if (valueType === 'string' && value.length > MAX_ATTRIBUTE_VALUE_LENGTH) {\n        errors.push(`${prefix}.${attributeName}`);\n        break;\n      }\n    }\n  }\n}\n\nfunction quoteValidationErrors(body) {\n  const errors = [];\n  if (!body || typeof body !== 'object' || Array.isArray(body)) {\n    errors.push('payload');\n    return errors;\n  }\n  if (Object.keys(body).some((key) => !REQUEST_BODY_KEYS.includes(key))) errors.push('payload');\n  if (typeof body.customerName !== 'string' || body.customerName.trim().length === 0 || body.customerName.length > 200) errors.push('customerName');\n  if (body.phone !== undefined && (typeof body.phone !== 'string' || body.phone.length > 80)) errors.push('phone');\n  if (body.email !== undefined && (typeof body.email !== 'string' || body.email.length > 320)) errors.push('email');\n  const email = typeof body.email === 'string' ? body.email.trim() : '';\n  const phone = typeof body.phone === 'string' ? body.phone.trim() : '';\n  if (!email && !phone) errors.push('contact');\n  if (email && (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || /[\\r\\n\\0]/.test(email))) errors.push('email');\n  if (phone && (!/^[+()\\d .-]+$/.test(phone) || phone.replace(/\\D/g, '').length < 6 || phone.replace(/\\D/g, '').length > 20)) errors.push('phone');\n  if (typeof body.customerName === 'string' && /[\\r\\n\\0]/.test(body.customerName)) errors.push('customerName');\n  if (body.renovationType !== undefined && (typeof body.renovationType !== 'string' || body.renovationType.length > 120)) errors.push('renovationType');\n  if (body.message !== undefined && (typeof body.message !== 'string' || body.message.length > 5000)) errors.push('message');\n  if (body.sourcePage !== undefined && (typeof body.sourcePage !== 'string' || body.sourcePage.length > 500)) errors.push('sourcePage');\n  if (body.consentPrivacy !== true) errors.push('consentPrivacy');\n  if (!Array.isArray(body.items) || body.items.length < 1 || body.items.length > 50) errors.push('items');\n  else body.items.forEach((item, index) => checkItem(item, index, errors));\n  return errors;\n}\n\n\nconst input=$json.body;\nconst headers=$json.headers||{};\nconst fingerprint=headers['x-lrmq-quote-fingerprint'];\nconst clientKey=headers['x-lrmq-quote-client'];\nconst ingressErrors=quoteValidationErrors(input);\nif(!/^v1:[a-f0-9]{64}$/.test(fingerprint||'')||!/^v1:[a-f0-9]{64}$/.test(clientKey||'')) ingressErrors.push('payload');\nif(ingressErrors.length) return [{json:{valid:'false',status:400,body:{error:'VALIDATION_ERROR',errors:[...new Set(ingressErrors)].map(field=>({field,message:'El campo no es válido.'}))}}}];\nif(typeof input!=='object'||Array.isArray(input))return[{json:{valid:'false',status:400,body:{error:'VALIDATION_ERROR',errors:[{field:'body',message:'El cuerpo debe ser un objeto.'}]}}}];\nconst pick=(...keys)=>{for(const key of keys)if(input[key]!==undefined&&input[key]!==null)return input[key];return'';};\nconst clean=(value,max)=>String(value??'').trim().slice(0,max);\nconst safeId=/^[A-Za-z0-9._:-]+$/;\nconst errors=[];\nlet serialized='';try{serialized=JSON.stringify(input);}catch{errors.push({field:'body',message:'El cuerpo no es válido.'});}\nif(Buffer.byteLength(serialized,'utf8')>65536)errors.push({field:'body',message:'La solicitud es demasiado grande.'});\nif(clean(pick('website','company_website','_gotcha'),500))errors.push({field:'form',message:'La solicitud no es válida.'});\nconst customerName=clean(pick('customer_name','customerName','name'),200);\nconst phone=clean(pick('phone','telephone'),80);\nconst email=clean(pick('email'),320).toLowerCase();\nconst renovationType=clean(pick('renovation_type','renovationType'),120);\nconst message=clean(pick('message','notes'),5000);\nconst sourcePage=clean(pick('source_page','sourcePage','page'),500);\nconst consent=input.consent_privacy===true||input.consentPrivacy===true;\nconst rawItems=Array.isArray(input.items)?input.items:input.productId||input.product_id?[{productId:input.productId||input.product_id,variantId:input.variantId||input.variant_id,productName:input.productName||input.product_name,variantSnapshot:input.variantSnapshot||input.variant_snapshot,quantity:input.quantity,notes:input.itemNotes||input.item_notes}]:[];\nif(!customerName)errors.push({field:'customerName',message:'El nombre es obligatorio.'});\nif(!email&&!phone)errors.push({field:'contact',message:'Debes indicar email o teléfono.'});\nif(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))errors.push({field:'email',message:'El email no es válido.'});\nif(!consent)errors.push({field:'consentPrivacy',message:'Debes aceptar la política de privacidad.'});\nif(rawItems.length<1)errors.push({field:'items',message:'Debes incluir al menos un artículo.'});\nif(rawItems.length>50)errors.push({field:'items',message:'No se pueden enviar más de 50 artículos.'});\nconst publicKeys=new Set([\"reference\",\"measure\",\"dimension\",\"finish\",\"version\",\"has_led\",\"lighting_type\",\"lighting_technology\",\"light_temp\",\"distribution\",\"glass\",\"opening\",\"orientation\",\"shape\",\"furniture_finish\",\"handle_finish\",\"countertop_finish\",\"presentation_type\",\"furniture_type\",\"module_type\",\"type\",\"configuration\",\"tap_type\",\"installation\",\"mechanism\",\"color\",\"texture\",\"grille\",\"valve\",\"finish_family\",\"length_cm\",\"width_cm\",\"offer\",\"finishCode\"]);\nconst cleanSnapshot=(value,index)=>{\n if(!value||typeof value!=='object'||Array.isArray(value))return{};\n return Object.fromEntries(Object.entries(value).filter(([key,value])=>{\n  if(!publicKeys.has(key)||value===null||value===undefined||value==='')return false;\n  if(!['string','number','boolean'].includes(typeof value)){errors.push({field:'items['+index+'].variantSnapshot',message:'Las características deben ser valores simples.'});return false;}\n  if(typeof value==='string'&&(value.length>300||/https?:\\/\\//i.test(value))){errors.push({field:'items['+index+'].variantSnapshot',message:'Una característica no es válida.'});return false;}\n  if(typeof value==='number'&&!Number.isFinite(value)){errors.push({field:'items['+index+'].variantSnapshot',message:'Una característica no es válida.'});return false;}\n  return true;\n }));\n};\nconst items=rawItems.slice(0,50).map((item,index)=>{\n if(!item||typeof item!=='object'||Array.isArray(item)){errors.push({field:'items['+index+']',message:'El artículo debe ser un objeto.'});return{};}\n const productId=clean(item.product_id||item.productId,200);\n const variantId=clean(item.variant_id||item.variantId,200);\n const commercialOfferVariantId=clean(item.commercial_offer_variant_id||item.commercialOfferVariantId,200);\n const productName=clean(item.product_name_snapshot||item.productNameSnapshot||item.productName||item.name,300);\n const quantity=Number(item.quantity??1);\n if(!Number.isInteger(quantity)||quantity<1||quantity>999)errors.push({field:'items['+index+'].quantity',message:'La cantidad debe ser un entero entre 1 y 999.'});\n const notes=clean(item.notes,2000);\n const variantSnapshot={...cleanSnapshot(item.selected_attributes||item.selectedAttributes,index),...cleanSnapshot(item.variant_snapshot||item.variantSnapshot,index)};\n if(item.reference&&!variantSnapshot.reference)variantSnapshot.reference=clean(item.reference,128);\n const compactDuplachSelection=!variantId&&!commercialOfferVariantId&&productId.toLowerCase().startsWith('duplach-')&&Object.keys(variantSnapshot).length>0;\n if(!productId||!safeId.test(productId))errors.push({field:'items['+index+'].productId',message:'El producto no es válido.'});\n if(variantId&&!safeId.test(variantId))errors.push({field:'items['+index+'].variantId',message:'La variante no es válida.'});\n if(commercialOfferVariantId&&!safeId.test(commercialOfferVariantId))errors.push({field:'items['+index+'].commercialOfferVariantId',message:'La oferta no es válida.'});\n if(!variantId&&!commercialOfferVariantId&&!compactDuplachSelection)errors.push({field:'items['+index+'].variantId',message:'La variante completa es obligatoria.'});\n if(!productName)errors.push({field:'items['+index+'].productName',message:'El nombre del producto es obligatorio.'});\n return{product_id:productId,variant_id:variantId,commercial_offer_variant_id:commercialOfferVariantId,quantity,product_name_snapshot:productName,variant_snapshot:variantSnapshot,notes};\n});\nif(errors.length)return[{json:{valid:'false',status:400,body:{error:'VALIDATION_ERROR',errors}}}];\nconst catalogItems=items.map(({product_id,variant_id,commercial_offer_variant_id})=>({product_id,variant_id,commercial_offer_variant_id}));\nconst queryParams=Buffer.from(JSON.stringify(catalogItems),'utf8').toString('base64');\nconst quoteId='q-'+fingerprint.slice(3);\nreturn [{json:{valid:'true',queryParams,quoteId,contact:{customerName,phone,email,renovationType,message,sourcePage},items}}];"
+      },
+      "id": "37407f5e-7be2-4ee5-af70-1f12bc00c420",
+      "name": "Validar solicitud y metadatos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "42acbd44-9693-4fd8-a286-e09c9e39d74e",
+      "name": "Solicitud válida",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Read-only catalog lookup. Receives identifiers only, never contact, message or notes.\nWITH requested AS (\n SELECT item, ordinality::integer AS position,\n NULLIF(item->>'product_id','') AS product_id,\n NULLIF(item->>'variant_id','') AS variant_id,\n NULLIF(item->>'commercial_offer_variant_id','') AS offer_variant_id,\n '{}'::jsonb AS snapshot\n FROM jsonb_array_elements(convert_from(decode($1,'base64'),'UTF8')::jsonb)\n WITH ORDINALITY q(item,ordinality)\n), resolved AS (\n SELECT r.*,p.id AS public_product_id,p.name AS public_name,p.collection,\n p.supplier_id,p.supplier_name,p.category_id,p.category_name,p.main_image_url,\n p.specs,p.configuration_fields,v.id AS matched_variant_id,\n ov.id AS matched_offer_variant_id,\n v.reference AS variant_reference,ov.reference AS offer_reference,\n COALESCE(v.attributes,'{}'::jsonb) || jsonb_build_object(\n  'reference',v.reference,'measure',v.measure,'dimension',v.dimension,'finish',v.finish,\n  'version',COALESCE(v.attributes->>'version',v.raw_data->>'fixed_version'),\n  'has_led',COALESCE(v.raw_data->'has_led',CASE lower(p.specs->>'LED') WHEN 'sí' THEN 'true'::jsonb WHEN 'si' THEN 'true'::jsonb WHEN 'no' THEN 'false'::jsonb ELSE NULL END),\n  'lighting_type',COALESCE(v.attributes->>'lighting_type',v.raw_data->>'lighting_type',p.specs->>'Tipo de iluminación'),\n  'lighting_technology',COALESCE(v.attributes->>'lighting_technology',v.raw_data->>'lighting_technology',p.specs->>'Tecnología de iluminación'),\n  'light_temp',COALESCE(v.raw_data->>'light_temp',v.light_temp,p.specs->>'Temperatura de luz'),\n  'shape',COALESCE(p.specs->>'Forma',p.specs->>'shape')\n ) AS variant_facts,\n jsonb_build_object('reference',ov.reference,'finish',ov.finish_name,'finishCode',ov.finish_code,'offer',o.offer_type) AS offer_facts\n FROM requested r\n LEFT JOIN LATERAL (\n  SELECT p.* FROM catalog.v_product_cards_grouped p\n  WHERE p.publication_status='publishable'\n    AND (p.id=r.product_id OR r.product_id=ANY(p.grouped_product_ids))\n  ORDER BY (p.id=r.product_id) DESC LIMIT 1\n ) p ON true\n LEFT JOIN catalog.product_variants v\n  ON v.id=r.variant_id AND v.product_id=ANY(p.grouped_product_ids) AND v.is_active\n LEFT JOIN catalog.commercial_offers o\n  ON o.product_id=ANY(p.grouped_product_ids) AND EXISTS(SELECT 1 FROM catalog.commercial_offer_variants selected_offer WHERE selected_offer.id=r.offer_variant_id AND selected_offer.offer_id=o.id)\n LEFT JOIN catalog.commercial_offer_variants ov\n  ON ov.id=r.offer_variant_id AND ov.offer_id=o.id\n WHERE o.id IS NULL OR r.offer_variant_id IS NULL OR ov.id IS NOT NULL\n\n)\nSELECT position,public_product_id,public_name,supplier_id,category_id,configuration_fields,specs,\n matched_variant_id,matched_offer_variant_id,variant_facts,offer_facts\nFROM resolved ORDER BY position;\n",
+        "options": {
+          "queryBatching": "single",
+          "queryReplacement": "={{ $json.queryParams }}"
+        }
+      },
+      "id": "dc7e097c-d1ca-402d-ab67-ede3d7db6f16",
+      "name": "Validar artículos sin guardar",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        912,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.body }}",
+        "options": {
+          "responseCode": "={{ $json.status }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b20c6e8c-7bba-4f2e-8c19-3490c71744cd",
+      "name": "Responder resultado de envío",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f7616b65-8873-49d8-931a-6ae268e44845",
+      "name": "Artículos disponibles",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const PUBLIC_KEYS = new Set(['reference','measure','dimension','finish','version','has_led','lighting_type','lighting_technology','light_temp','distribution','glass','opening','orientation','shape','furniture_finish','handle_finish','countertop_finish','presentation_type','furniture_type','module_type','type','configuration','tap_type','installation','mechanism','color','texture','grille','valve','finish_family','length_cm','width_cm','offer','finishCode']);\n\nfunction resolveTransientQuote(input, rows) {\n  const errors = [];\n  const items = input.items.map((item, index) => {\n    const row = rows.find(value => value.position === index + 1);\n    const snapshot = item.variant_snapshot;\n    let error = '';\n    if (!row?.public_product_id) error = 'El producto ya no está disponible.';\n    else if (item.variant_id && item.commercial_offer_variant_id) error = 'Selecciona una variante o una oferta, no ambas.';\n    else if (item.variant_id && !row.matched_variant_id) error = 'La variante no pertenece al producto o ya no está disponible.';\n    else if (item.commercial_offer_variant_id && !row.matched_offer_variant_id) error = 'La oferta no pertenece al producto o ya no está disponible.';\n    else if (!item.variant_id && !item.commercial_offer_variant_id) {\n      const specs = row.specs || {};\n      if (row.supplier_id !== 'duplach' || row.category_id !== 'platos-de-ducha') error = 'La variante completa es obligatoria.';\n      else if ((row.configuration_fields || []).some(key => !String(snapshot[key] ?? '').trim())) error = 'Completa todas las opciones del plato de ducha.';\n      else if (!(specs.size_options || []).some(size => `${size.length_cm}x${size.width_cm}` === snapshot.measure)) error = 'La medida del plato de ducha no está disponible.';\n      else if ('texture' in snapshot && !(specs.texture_options || []).includes(snapshot.texture)) error = 'La textura no está disponible.';\n      else if ('color' in snapshot && !(specs.color_options || []).some(value => value.name === snapshot.color)) error = 'El color no está disponible.';\n      else if ('grille' in snapshot && !(specs.grille_options || []).includes(snapshot.grille)) error = 'La rejilla no está disponible.';\n      else if ('orientation' in snapshot && !(specs.orientation_options || []).includes(snapshot.orientation)) error = 'La orientación no está disponible.';\n      else if ('valve' in snapshot && specs.valve?.type !== snapshot.valve) error = 'La válvula no está disponible.';\n      else if ('finish_family' in snapshot && !(specs.finish_families || []).some(value => value.key === snapshot.finish_family)) error = 'La familia de acabado no está disponible.';\n      else if ('finish' in snapshot && !(specs.finish_options || []).some(value => value.name === snapshot.finish && value.family_key === snapshot.finish_family)) error = 'El acabado no pertenece a la familia seleccionada.';\n    }\n    if (error) errors.push({ field: `items[${index}].variantId`, message: error });\n    const facts = item.variant_id ? row?.variant_facts : item.commercial_offer_variant_id ? row?.offer_facts : {};\n    const attributes = Object.fromEntries(Object.entries({ ...snapshot, ...facts })\n      .filter(([key, value]) => PUBLIC_KEYS.has(key) && ['string', 'number', 'boolean'].includes(typeof value) && value !== ''));\n    return { productName: row?.public_name, quantity: item.quantity, attributes, notes: item.notes };\n  });\n  if (errors.length) return { valid: 'false', status: 400, body: { error: 'VALIDATION_ERROR', errors } };\n  // Dates are provided by Resend. Keeping the mail payload deterministic means\n  // an explicit retry uses the same body and idempotency key, without a stored job.\n  return { valid: 'true', job: { quoteId: input.quoteId, ...input.contact, items } };\n}\n\nfunction transientConfirmation(result, prepared, now = new Date().toISOString()) {\n  const code = Number(result?.statusCode);\n  if (code >= 200 && code < 300 && typeof result?.body?.id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(result.body.id)) {\n    return { status: 201, body: { id: prepared.job.quoteId, status: 'received', created_at: now, item_count: prepared.job.items.length } };\n  }\n  if (code === 429) return { status: 429, body: { error: 'RATE_LIMITED', message: 'No se pudo enviar el correo. Inténtalo más tarde.' } };\n  return { status: 503, body: { error: 'QUOTE_UNAVAILABLE', message: 'No se pudo confirmar el envío. La web no guarda una copia. Contacta con la empresa antes de repetirlo.' } };\n}\n\nconst COMPANY_QUOTE_EMAIL = 'arealrmqtienda@gmail.com';\nconst QUOTE_FROM = 'AREA LRMQ · Presupuestos <presupuestos@avisos.arealrmq.es>';\n\nfunction plain(value, max = 5000) {\n  return String(value ?? '').replace(/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f\\u202a-\\u202e\\u2066-\\u2069]/g, '').slice(0, max);\n}\n\nconst ATTRIBUTE_LABELS = {\n  reference: 'Referencia del fabricante', measure: 'Medida', dimension: 'Dimensiones',\n  finish: 'Acabado', finishCode: 'Código de acabado', distribution: 'Distribución',\n  version: 'Versión', glass: 'Vidrio', opening: 'Apertura', orientation: 'Orientación',\n  has_led: 'LED', lighting_type: 'Tipo de iluminación', lighting_technology: 'Tecnología de iluminación',\n  light_temp: 'Temperatura de luz', shape: 'Forma', furniture_finish: 'Acabado del mueble',\n  handle_finish: 'Acabado del tirador', countertop_finish: 'Acabado de encimera',\n  presentation_type: 'Tipo de presentación', furniture_type: 'Tipo de mueble', module_type: 'Tipo de módulo',\n  type: 'Tipo', configuration: 'Configuración', tap_type: 'Tipo de grifo', installation: 'Instalación',\n  mechanism: 'Mecanismo', color: 'Color', texture: 'Textura', grille: 'Rejilla', valve: 'Válvula',\n  finish_family: 'Familia de acabado', length_cm: 'Largo (cm)', width_cm: 'Ancho (cm)', offer: 'Oferta',\n};\n\nfunction receivedDate(value) {\n  const date = new Date(value);\n  if (!value || !Number.isFinite(date.getTime())) return 'No indicada';\n  return new Intl.DateTimeFormat('es-ES', {\n    timeZone: 'Europe/Madrid', dateStyle: 'short', timeStyle: 'short',\n  }).format(date) + ' (hora de Madrid)';\n}\n\nfunction formatQuoteMail(job) {\n  if (!job || !/^[A-Za-z0-9._:-]{1,128}$/.test(job.quoteId || '') || !Array.isArray(job.items) || !job.items.length || job.items.length > 50) throw new Error('INVALID_MAIL_JOB');\n  const rows = [\n    'NUEVA SOLICITUD DE PRESUPUESTO · AREA LRMQ',\n    `Referencia de solicitud: ${job.quoteId}`,\n    ...(job.createdAt ? [`Recibida: ${receivedDate(job.createdAt)}`] : []),\n    '', 'CONTACTO',\n    `Nombre: ${plain(job.customerName, 200)}`,\n    `Email: ${plain(job.email, 320) || 'No indicado'}`,\n    `Teléfono: ${plain(job.phone, 80) || 'No indicado'}`,\n    `Tipo de reforma: ${plain(job.renovationType, 120) || 'No indicado'}`,\n    '', 'MENSAJE DEL CLIENTE', plain(job.message) || 'Sin mensaje adicional.',\n    '', `ARTÍCULOS SOLICITADOS (${job.items.length})`,\n  ];\n  job.items.forEach((item, index) => {\n    rows.push('', `${index + 1}. ${plain(item.productName, 300)}`, `Cantidad: ${plain(item.quantity, 10)}`);\n    for (const [key, value] of Object.entries(item.attributes || {})) {\n      if (!['string', 'number', 'boolean'].includes(typeof value) || value === '') continue;\n      const label = ATTRIBUTE_LABELS[key] || plain(key, 40).replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());\n      const text = typeof value === 'boolean' ? (value ? 'Sí' : 'No') : plain(value, 300);\n      rows.push(`  ${label}: ${text}`);\n    }\n    if (item.notes) rows.push(`Observaciones del artículo: ${plain(item.notes, 2000)}`);\n  });\n  if (job.sourcePage) rows.push('', `Página de origen: ${plain(job.sourcePage, 500)}`);\n  return { sendTo: COMPANY_QUOTE_EMAIL, subject: `[AREA LRMQ] Solicitud de presupuesto · ${job.quoteId}`, message: rows.join('\\n') };\n}\n\nfunction resendRequest(job) {\n  const mail = formatQuoteMail(job);\n  const email = typeof job.email === 'string' ? job.email.trim() : '';\n  const replyTo = email.length <= 320 && /^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(email) && !/[\\r\\n\\0]/.test(email) ? email : '';\n  return {\n    idempotencyKey: `quote-lrmq-v1/${job.quoteId}`,\n    body: { from: QUOTE_FROM, to: [mail.sendTo], subject: mail.subject, text: mail.message,\n      ...(replyTo ? { reply_to: replyTo } : {}),\n    },\n  };\n}\n\nfunction classifyMailResult(result) {\n  const code = Number(result?.statusCode);\n  const body = result?.body;\n  if (code >= 200 && code < 300 && typeof body?.id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(body.id))\n    return { state: 'sent', providerId: body.id, errorClass: '' };\n  if (code === 429) return { state: 'retry', providerId: '', errorClass: 'provider_rate_limited' };\n  if ([400, 401, 403, 404, 422].includes(code)) return { state: 'failed', providerId: '', errorClass: 'provider_rejected' };\n  // No automatic retry after ambiguous acceptance, even with idempotency:\n  // keys expire in 24h and the job could be recovered later.\n  return { state: 'uncertain', providerId: '', errorClass: 'provider_result_uncertain' };\n}\n\nconst input=$('Validar solicitud y metadatos').first().json;\nconst resolved=resolveTransientQuote(input,$input.all().map(item=>item.json));\nif(resolved.valid!=='true')return[{json:resolved}];\nreturn[{json:{...resolved,...resendRequest(resolved.job)}}];"
+      },
+      "id": "63cbed5a-e4e4-4e5e-8763-534e64e1b72e",
+      "name": "Preparar correo seguro",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const PUBLIC_KEYS = new Set(['reference','measure','dimension','finish','version','has_led','lighting_type','lighting_technology','light_temp','distribution','glass','opening','orientation','shape','furniture_finish','handle_finish','countertop_finish','presentation_type','furniture_type','module_type','type','configuration','tap_type','installation','mechanism','color','texture','grille','valve','finish_family','length_cm','width_cm','offer','finishCode']);\n\nfunction resolveTransientQuote(input, rows) {\n  const errors = [];\n  const items = input.items.map((item, index) => {\n    const row = rows.find(value => value.position === index + 1);\n    const snapshot = item.variant_snapshot;\n    let error = '';\n    if (!row?.public_product_id) error = 'El producto ya no está disponible.';\n    else if (item.variant_id && item.commercial_offer_variant_id) error = 'Selecciona una variante o una oferta, no ambas.';\n    else if (item.variant_id && !row.matched_variant_id) error = 'La variante no pertenece al producto o ya no está disponible.';\n    else if (item.commercial_offer_variant_id && !row.matched_offer_variant_id) error = 'La oferta no pertenece al producto o ya no está disponible.';\n    else if (!item.variant_id && !item.commercial_offer_variant_id) {\n      const specs = row.specs || {};\n      if (row.supplier_id !== 'duplach' || row.category_id !== 'platos-de-ducha') error = 'La variante completa es obligatoria.';\n      else if ((row.configuration_fields || []).some(key => !String(snapshot[key] ?? '').trim())) error = 'Completa todas las opciones del plato de ducha.';\n      else if (!(specs.size_options || []).some(size => `${size.length_cm}x${size.width_cm}` === snapshot.measure)) error = 'La medida del plato de ducha no está disponible.';\n      else if ('texture' in snapshot && !(specs.texture_options || []).includes(snapshot.texture)) error = 'La textura no está disponible.';\n      else if ('color' in snapshot && !(specs.color_options || []).some(value => value.name === snapshot.color)) error = 'El color no está disponible.';\n      else if ('grille' in snapshot && !(specs.grille_options || []).includes(snapshot.grille)) error = 'La rejilla no está disponible.';\n      else if ('orientation' in snapshot && !(specs.orientation_options || []).includes(snapshot.orientation)) error = 'La orientación no está disponible.';\n      else if ('valve' in snapshot && specs.valve?.type !== snapshot.valve) error = 'La válvula no está disponible.';\n      else if ('finish_family' in snapshot && !(specs.finish_families || []).some(value => value.key === snapshot.finish_family)) error = 'La familia de acabado no está disponible.';\n      else if ('finish' in snapshot && !(specs.finish_options || []).some(value => value.name === snapshot.finish && value.family_key === snapshot.finish_family)) error = 'El acabado no pertenece a la familia seleccionada.';\n    }\n    if (error) errors.push({ field: `items[${index}].variantId`, message: error });\n    const facts = item.variant_id ? row?.variant_facts : item.commercial_offer_variant_id ? row?.offer_facts : {};\n    const attributes = Object.fromEntries(Object.entries({ ...snapshot, ...facts })\n      .filter(([key, value]) => PUBLIC_KEYS.has(key) && ['string', 'number', 'boolean'].includes(typeof value) && value !== ''));\n    return { productName: row?.public_name, quantity: item.quantity, attributes, notes: item.notes };\n  });\n  if (errors.length) return { valid: 'false', status: 400, body: { error: 'VALIDATION_ERROR', errors } };\n  // Dates are provided by Resend. Keeping the mail payload deterministic means\n  // an explicit retry uses the same body and idempotency key, without a stored job.\n  return { valid: 'true', job: { quoteId: input.quoteId, ...input.contact, items } };\n}\n\nfunction transientConfirmation(result, prepared, now = new Date().toISOString()) {\n  const code = Number(result?.statusCode);\n  if (code >= 200 && code < 300 && typeof result?.body?.id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(result.body.id)) {\n    return { status: 201, body: { id: prepared.job.quoteId, status: 'received', created_at: now, item_count: prepared.job.items.length } };\n  }\n  if (code === 429) return { status: 429, body: { error: 'RATE_LIMITED', message: 'No se pudo enviar el correo. Inténtalo más tarde.' } };\n  return { status: 503, body: { error: 'QUOTE_UNAVAILABLE', message: 'No se pudo confirmar el envío. La web no guarda una copia. Contacta con la empresa antes de repetirlo.' } };\n}\n\nconst prepared=$('Preparar correo seguro').first().json;\nreturn[{json:transientConfirmation($input.first().json,prepared)}];"
+      },
+      "id": "de226a9a-7fbf-48c3-bf58-0fc9713a2fef",
+      "name": "Clasificar acuse o incertidumbre",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.body }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "id": "eba88080-4879-4dd6-bb98-385920889e0f",
+      "name": "Responder validación rechazada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"error\":\"QUOTE_UNAVAILABLE\",\"message\":\"No se pudo enviar la solicitud. Inténtalo más tarde.\"}",
+        "options": {
+          "responseCode": 503,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "id": "7c384e43-90d5-4c6e-b750-1478444afbdb",
+      "name": "Responder fallo de registro sin datos privados",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        304,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## ENVÍO SIN COPIA DE SOLICITUDES\nPostgreSQL: solo consulta de identificadores del catálogo.\nContacto, mensaje y notas: memoria transitoria → Resend → Gmail de empresa.\nSin INSERT, cola, worker ni reintentos programados.\n201 solo tras aceptación de Resend.\nRemitente: presupuestos@avisos.arealrmq.es\nDestino: arealrmqtienda@gmail.com\nCredencial seleccionada por el propietario: AREA LRMQ — Resend.\nRequiere dominio verificado. No guardar ejecuciones ni progreso.",
+        "width": 380
+      },
+      "id": "46d91b49-bd0f-4e15-aa75-e6f8c785b590",
+      "name": "Sticky Note 2687180a",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        784,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.idempotencyKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "id": "31dfe89c-a3ce-4da5-9f12-9fcacfd4b104",
+      "name": "Enviar aviso con Resend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        608,
+        608
+      ],
+      "retryOnFail": false,
+      "onError": "continueRegularOutput",
+      "notes": "Seleccionar Bearer Auth Webs — pruebas Resend. Deshabilitado hasta conectar credencial y verificar DNS."
+    }
+  ],
+  "connections": {
+    "POST presupuesto seguro v2": {
+      "main": [
+        [
+          {
+            "node": "Validar solicitud y metadatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar solicitud y metadatos": {
+      "main": [
+        [
+          {
+            "node": "Solicitud válida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solicitud válida": {
+      "main": [
+        [
+          {
+            "node": "Validar artículos sin guardar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder validación rechazada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar artículos sin guardar": {
+      "main": [
+        [
+          {
+            "node": "Preparar correo seguro",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder fallo de registro sin datos privados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar correo seguro": {
+      "main": [
+        [
+          {
+            "node": "Artículos disponibles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Artículos disponibles": {
+      "main": [
+        [
+          {
+            "node": "Enviar aviso con Resend",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder validación rechazada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar aviso con Resend": {
+      "main": [
+        [
+          {
+            "node": "Clasificar acuse o incertidumbre",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificar acuse o incertidumbre": {
+      "main": [
+        [
+          {
+            "node": "Responder resultado de envío",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

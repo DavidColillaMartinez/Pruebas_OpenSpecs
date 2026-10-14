@@ -342,7 +342,7 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(JSON.stringify(events)).not.toMatch(/secret@example|private-search|products\.example|private-url/);
   });
 
-  it('allows ten seconds for POST and never retries a failed response body', async () => {
+  it('allows 25 seconds for mail acceptance and never retries a failed response body', async () => {
     Object.assign(process.env, RESOURCE_ENV);
     vi.spyOn(console, 'info').mockImplementation(() => {});
     const timeout = vi.spyOn(AbortSignal, 'timeout');
@@ -352,7 +352,7 @@ describe('explicit Vercel catalog entrypoints', () => {
     vi.stubGlobal('fetch', fetchMock);
     const response = createResponse();
     await quoteRequestsHandler({ method: 'POST', query: {}, headers: { 'content-type': 'application/json' }, body: VALID_QUOTE_BODY }, response);
-    expect(timeout).toHaveBeenCalledWith(10000);
+    expect(timeout).toHaveBeenCalledWith(25000);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(response.result.statusCode).toBe(502);
   });

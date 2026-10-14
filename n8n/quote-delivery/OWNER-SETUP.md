@@ -1,3 +1,7 @@
+# Sustituido el 14/10/2026
+
+Seguir `TRANSIENT-SETUP.md`. No reinstalar outbox, solicitudes ni worker. Las instrucciones que siguen son históricas.
+
 # Configuración del propietario: presupuestos
 
 Estado: código preparado en rama local; borrador n8n inactivo. No enviar una solicitud todavía. No se ha desplegado el endpoint nuevo ni aplicado SQL a producción.
