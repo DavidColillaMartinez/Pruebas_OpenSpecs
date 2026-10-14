@@ -9,7 +9,7 @@ export function Inicio({ step, isActive, onLogoDone }) {
     <div className="lrmq-desktop-inicio relative flex h-full flex-col items-center justify-center">
       <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 text-center sm:px-6">
+      <div className="lrmq-inicio-fit relative z-10 mx-auto w-full max-w-6xl px-4 text-center sm:px-6">
         <div className="flex justify-center"><AnimatedLogoMark className="lrmq-inicio-logo relative z-10 opacity-90" onAnimationEnd={onLogoDone} /></div>
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="inline-block rounded-lg bg-hairline/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>
         <h1 className="font-display text-5xl leading-[0.9] tracking-[0.045em] text-white sm:text-7xl lg:text-8xl text-wrap-balance">AREA LRMQ</h1>

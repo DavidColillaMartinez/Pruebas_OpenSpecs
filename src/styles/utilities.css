@@ -48,14 +48,21 @@
   justify-self: center;
 }
 /* JS measures real content height per chapter and shrinks the wrapper only
- * when it would overflow the available viewport height (proportional fit). */
-.lrmq-desktop-chapter > div > :first-child {
+ * when it would overflow the available viewport height (proportional fit).
+ * Inicio is excluded here: its full-bleed photo uses its own content rule. */
+.lrmq-desktop-chapter:not([data-chapter='inicio']) > div > :first-child {
+  transform: scale(var(--lrmq-fit-scale, 1));
+  transform-origin: center;
+  transition: transform 240ms ease-out;
+}
+.lrmq-desktop-chapter[data-chapter='inicio'] .lrmq-inicio-fit {
   transform: scale(var(--lrmq-fit-scale, 1));
   transform-origin: center;
   transition: transform 240ms ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .lrmq-desktop-chapter > div > :first-child { transition: none; }
+  .lrmq-desktop-chapter:not([data-chapter='inicio']) > div > :first-child,
+  .lrmq-desktop-chapter[data-chapter='inicio'] .lrmq-inicio-fit { transition: none; }
 }
 main input, main textarea, main select, main button { scroll-margin-block: 6rem; }
 #contenido, #catalog-content, #product-content, #quote-selection-content { overflow-wrap: break-word; }

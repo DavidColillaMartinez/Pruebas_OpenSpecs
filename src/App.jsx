@@ -169,9 +169,12 @@ export function LandingPage() {
 
   // Proportional vertical fit: when a chapter's content is taller than the
   // available viewport height, scale that chapter's content wrapper down
-  // (uniformly, never below 70%) so everything stays inside the screen.
-  // Content that already fits keeps scale 1, so tall screens render exactly
-  // as before. Inicio is excluded: its full-bleed photo must keep covering.
+  // (uniformly) so everything stays inside the screen. Content that already
+  // fits keeps the measured scale 1, but a per-chapter visual bias shrinks
+  // chapters that still read oversized on short laptop screens; tall screens
+  // (>= 850px) are untouched. Inicio has its own content wrapper: the
+  // full-bleed photo must never be scaled, only the centered column.
+  const FIT_BIAS = { inicio: 1.6, 'quienes-somos': 0.45, coleccion: 0.45, reformas: 1.5, vision: 0, opiniones: 0.35, contacto: 0.35 };
   useEffect(() => {
     if (!isDesktop) return;
     let frame = 0;
@@ -188,18 +191,21 @@ export function LandingPage() {
         const reserve = ultraShort ? 40 : 104;
         const floor = ultraShort ? 0.62 : 0.7;
         const available = vh - reserve;
+        // Compact short viewports a step further; nothing changes above 850px.
+        const biasBase = Math.max(0, 1 - Math.min(1, vh / 850));
         for (const chapter of document.querySelectorAll('.lrmq-desktop-chapter')) {
           const id = chapter.getAttribute('data-chapter');
-          if (id === 'inicio') continue;
-          const wrapper = chapter.firstElementChild?.firstElementChild;
-          if (!(wrapper instanceof HTMLElement)) continue;
           const panel = chapter.firstElementChild;
           if (!(panel instanceof HTMLElement)) continue;
+          const wrapper = id === 'inicio' ? panel.querySelector('.lrmq-inicio-fit') : panel.firstElementChild;
+          if (!(wrapper instanceof HTMLElement)) continue;
           const panelStyle = getComputedStyle(panel);
           const padding = parseFloat(panelStyle.paddingTop) + parseFloat(panelStyle.paddingBottom);
           // offsetHeight ignores the reveal transforms of the inner elements.
           const needed = wrapper.offsetHeight + padding;
-          const scale = needed > available ? Math.max(floor, Math.min(1, available / needed)) : 1;
+          const fitScale = needed > available ? Math.max(floor, Math.min(1, available / needed)) : 1;
+          const bias = Math.max(1 - (FIT_BIAS[id] ?? 0) * biasBase, ultraShort ? floor : 0.72);
+          const scale = Math.max(floor, Math.min(fitScale, fitScale * bias));
           chapter.style.setProperty('--lrmq-fit-scale', `${scale.toFixed(3)}`);
         }
       });
@@ -207,9 +213,10 @@ export function LandingPage() {
     update();
     ro = new ResizeObserver(update);
     for (const chapter of document.querySelectorAll('.lrmq-desktop-chapter')) {
-      if (chapter.getAttribute('data-chapter') === 'inicio') continue;
-      if (chapter.firstElementChild) ro.observe(chapter.firstElementChild);
-      const wrapper = chapter.firstElementChild?.firstElementChild;
+      if (!chapter.firstElementChild) continue;
+      ro.observe(chapter.firstElementChild);
+      const id = chapter.getAttribute('data-chapter');
+      const wrapper = id === 'inicio' ? chapter.firstElementChild.querySelector('.lrmq-inicio-fit') : chapter.firstElementChild.firstElementChild;
       if (wrapper instanceof HTMLElement) ro.observe(wrapper);
     }
     window.addEventListener('resize', update);
