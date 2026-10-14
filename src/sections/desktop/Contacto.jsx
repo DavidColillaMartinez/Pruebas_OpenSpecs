@@ -9,7 +9,7 @@ export function Contacto({ step, isActive }) {
   const [form, setForm] = useState({ nombre: '', telefono: '', mensaje: '' });
 
   return (
-    <div className="flex h-full items-center bg-transparent px-6">
+    <div className="flex h-full items-center bg-transparent px-6 py-24 md:pb-8 md:pt-32">
       <div className="mx-auto grid w-full max-w-6xl items-start gap-8 lg:grid-cols-[1fr_0.9fr]">
         <div>
           <h2 className="font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary sm:text-6xl text-wrap-balance">Cuéntanos tu proyecto.</h2>

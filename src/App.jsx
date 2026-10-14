@@ -178,7 +178,15 @@ export function LandingPage() {
     const update = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const available = window.innerHeight - 12;
+        const vh = window.innerHeight;
+        // Reserve room for the fixed header (~76px) plus breathing margin so
+        // top-aligned content never collides with the nav or logo. Very short
+        // heights keep a smaller reserve and a lower floor: fitting content
+        // wins over the shrink limit there.
+        const ultraShort = vh <= 640;
+        const reserve = ultraShort ? 40 : 104;
+        const floor = ultraShort ? 0.62 : 0.7;
+        const available = vh - reserve;
         for (const chapter of document.querySelectorAll('.lrmq-desktop-chapter')) {
           const id = chapter.getAttribute('data-chapter');
           if (id === 'inicio') continue;
@@ -190,7 +198,7 @@ export function LandingPage() {
           const padding = parseFloat(panelStyle.paddingTop) + parseFloat(panelStyle.paddingBottom);
           // offsetHeight ignores the reveal transforms of the inner elements.
           const needed = wrapper.offsetHeight + padding;
-          const scale = needed > available ? Math.max(0.7, Math.min(1, available / needed)) : 1;
+          const scale = needed > available ? Math.max(floor, Math.min(1, available / needed)) : 1;
           chapter.style.setProperty('--lrmq-fit-scale', `${scale.toFixed(3)}`);
         }
       });

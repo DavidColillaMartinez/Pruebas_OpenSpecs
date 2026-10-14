@@ -40,6 +40,13 @@
 .lrmq-mobile-sections section { scroll-margin-top: 5.5rem; }
 .lrmq-desktop-chapter { padding-inline-end: 5.5rem; }
 .lrmq-desktop-chapter[data-chapter='inicio'] { padding-inline-end: 0; }
+/* Cap the Vision compare slider by viewport height (its aspect ratio would
+ * otherwise make it oversized on short laptop screens). Explicit width keeps
+ * the grid stretch intact; max-width would collapse it to zero. */
+.lrmq-vision-layout > div:first-child {
+  width: min(100%, 74svh);
+  justify-self: center;
+}
 /* JS measures real content height per chapter and shrinks the wrapper only
  * when it would overflow the available viewport height (proportional fit). */
 .lrmq-desktop-chapter > div > :first-child {
@@ -531,6 +538,7 @@ html[data-theme='dark'][data-lrmq-context='photo'] .lrmq-header-photo-action { b
   .lrmq-desktop-chapter[data-chapter='coleccion'] > div { padding-top: 4rem; }
   .lrmq-desktop-chapter[data-chapter='quienes-somos'] > div,
   .lrmq-desktop-chapter[data-chapter='opiniones'] > div { padding-top: 5rem; }
+  .lrmq-desktop-chapter[data-chapter='contacto'] > div { padding-top: 4rem; }
 }
 
 /* Tienda is a plain text link, not a backed action. */
