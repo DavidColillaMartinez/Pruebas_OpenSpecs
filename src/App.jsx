@@ -166,6 +166,47 @@ export function LandingPage() {
   const mobileScrollTopVisible = useScrollTopVisibility(!isDesktop);
   const showScrollTop = isDesktop ? activeChapter > 0 : mobileScrollTopVisible;
 
+  // Proportional vertical fit: when a chapter's content is taller than the
+  // available viewport height, scale that chapter's content wrapper down
+  // (uniformly, never below 70%) so everything stays inside the screen.
+  // Content that already fits keeps scale 1, so tall screens render exactly
+  // as before. Inicio is excluded: its full-bleed photo must keep covering.
+  useEffect(() => {
+    if (!isDesktop) return;
+    let frame = 0;
+    let ro = null;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const available = window.innerHeight - 12;
+        for (const chapter of document.querySelectorAll('.lrmq-desktop-chapter')) {
+          const id = chapter.getAttribute('data-chapter');
+          if (id === 'inicio') continue;
+          const wrapper = chapter.firstElementChild?.firstElementChild;
+          if (!(wrapper instanceof HTMLElement)) continue;
+          const panel = chapter.firstElementChild;
+          if (!(panel instanceof HTMLElement)) continue;
+          const panelStyle = getComputedStyle(panel);
+          const padding = parseFloat(panelStyle.paddingTop) + parseFloat(panelStyle.paddingBottom);
+          // offsetHeight ignores the reveal transforms of the inner elements.
+          const needed = wrapper.offsetHeight + padding;
+          const scale = needed > available ? Math.max(0.7, Math.min(1, available / needed)) : 1;
+          chapter.style.setProperty('--lrmq-fit-scale', `${scale.toFixed(3)}`);
+        }
+      });
+    };
+    update();
+    ro = new ResizeObserver(update);
+    for (const chapter of document.querySelectorAll('.lrmq-desktop-chapter')) {
+      if (chapter.getAttribute('data-chapter') === 'inicio') continue;
+      if (chapter.firstElementChild) ro.observe(chapter.firstElementChild);
+      const wrapper = chapter.firstElementChild?.firstElementChild;
+      if (wrapper instanceof HTMLElement) ro.observe(wrapper);
+    }
+    window.addEventListener('resize', update);
+    return () => { ro?.disconnect(); window.removeEventListener('resize', update); cancelAnimationFrame(frame); };
+  }, [isDesktop]);
+
   const chapters = [
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} onLogoDone={() => setChapterHold(sectionIds.indexOf('inicio'), false)} />,
     <QuienesSomos key="quienes-somos" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,

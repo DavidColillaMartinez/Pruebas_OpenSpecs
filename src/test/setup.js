@@ -16,6 +16,14 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
   });
 }
 
+if (typeof window !== 'undefined' && typeof window.ResizeObserver !== 'function') {
+  window.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 afterEach(() => {
   cleanup();
   resetCatalogApiCacheForTests();

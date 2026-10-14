@@ -40,6 +40,16 @@
 .lrmq-mobile-sections section { scroll-margin-top: 5.5rem; }
 .lrmq-desktop-chapter { padding-inline-end: 5.5rem; }
 .lrmq-desktop-chapter[data-chapter='inicio'] { padding-inline-end: 0; }
+/* JS measures real content height per chapter and shrinks the wrapper only
+ * when it would overflow the available viewport height (proportional fit). */
+.lrmq-desktop-chapter > div > :first-child {
+  transform: scale(var(--lrmq-fit-scale, 1));
+  transform-origin: center;
+  transition: transform 240ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lrmq-desktop-chapter > div > :first-child { transition: none; }
+}
 main input, main textarea, main select, main button { scroll-margin-block: 6rem; }
 #contenido, #catalog-content, #product-content, #quote-selection-content { overflow-wrap: break-word; }
 [role='dialog'][aria-modal='true'] { overflow-wrap: break-word; }
@@ -514,6 +524,13 @@ html[data-theme='dark'][data-lrmq-context='photo'] .lrmq-header-photo-action { b
   .lrmq-desktop-chapter[data-chapter='coleccion'] > div { padding-top: 7rem; }
   .lrmq-desktop-chapter[data-chapter='quienes-somos'] > div,
   .lrmq-desktop-chapter[data-chapter='opiniones'] > div { padding-top: 6.5rem; }
+}
+/* Ultra-short laptop heights (the new 560px floor) clear the fixed header
+ * first so the proportional scale does not compensate for empty padding. */
+@media (min-width: 1024px) and (max-height: 649px) {
+  .lrmq-desktop-chapter[data-chapter='coleccion'] > div { padding-top: 4rem; }
+  .lrmq-desktop-chapter[data-chapter='quienes-somos'] > div,
+  .lrmq-desktop-chapter[data-chapter='opiniones'] > div { padding-top: 5rem; }
 }
 
 /* Tienda is a plain text link, not a backed action. */
