@@ -28,6 +28,7 @@ const AssistantShell = lazy(() => import('./features/assistant/AssistantShell').
 const CatalogPage = lazy(() => import('./features/catalog/pages/CatalogPage').then((module) => ({ default: module.CatalogPage })));
 const ProductDetailPage = lazy(() => import('./features/catalog/pages/ProductDetailPage').then((module) => ({ default: module.ProductDetailPage })));
 const QuoteSelectionPage = lazy(() => import('./features/quote/pages/QuoteSelectionPage').then((module) => ({ default: module.QuoteSelectionPage })));
+const LegalPage = lazy(() => import('./features/legal/LegalPage').then((module) => ({ default: module.LegalPage })));
 const NotFoundPage = lazy(() => import('./routes/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
 
 const RouteFallback = () => <div className="min-h-svh" aria-hidden="true" />;
@@ -277,6 +278,9 @@ export default function App() {
             <Route path="/productos" element={<Suspense fallback={<RouteFallback />}><CatalogPage /></Suspense>} />
             <Route path="/productos/:slug" element={<Suspense fallback={<RouteFallback />}><ProductDetailPage /></Suspense>} />
             <Route path="/presupuesto" element={<Suspense fallback={<RouteFallback />}><QuoteSelectionPage /></Suspense>} />
+            <Route path="/aviso-legal" element={<Suspense fallback={<RouteFallback />}><LegalPage kind="notice" /></Suspense>} />
+            <Route path="/privacidad" element={<Suspense fallback={<RouteFallback />}><LegalPage kind="privacy" /></Suspense>} />
+            <Route path="/cookies" element={<Suspense fallback={<RouteFallback />}><LegalPage kind="cookies" /></Suspense>} />
             <Route path="*" element={<Suspense fallback={<RouteFallback />}><NotFoundPage /></Suspense>} />
           </Routes>
           <Suspense fallback={null}>

@@ -146,7 +146,7 @@ describe('ChatPanel actions', () => {
 
     render(<MemoryRouter><ChatPanel open onClose={vi.fn()} /></MemoryRouter>);
 
-    const link = screen.getByRole('link');
+    const link = screen.getByRole('link', { name: /WhatsApp/ });
     expect(link).toHaveAttribute('href', expect.stringContaining('https://wa.me/'));
   });
 

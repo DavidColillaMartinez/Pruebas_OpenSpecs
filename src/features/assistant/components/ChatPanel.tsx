@@ -3,6 +3,7 @@ import { useAssistantChat } from '../model/assistantStore';
 import type { AssistantChatMessage } from '../model/assistantStore';
 import { AssistantProductCard } from './AssistantProductCard';
 import { AssistantActions } from './AssistantActions';
+import { PrivacyNotice } from '../../legal/PrivacyNotice';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, [tabindex]:not([tabindex="-1"])';
 const CHAT_BOTTOM_THRESHOLD_PX = 96;
@@ -236,6 +237,9 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         </ul>
       </div>
 
+      <div id="assistant-privacy-information" className="max-h-36 shrink-0 overflow-y-auto px-5 pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay" tabIndex={0} role="region" aria-label="Privacidad del asistente">
+        <PrivacyNotice flow="assistant" />
+      </div>
       <form
         className="mx-3 mb-3 mt-2 flex items-end gap-2 rounded-[1.5rem] border border-border-hairline/10 bg-surface-elevated/85 p-1.5 shadow-soft"
         onSubmit={(event) => {
@@ -246,6 +250,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         <label className="sr-only" htmlFor="assistant-input">Escribe tu mensaje para el asistente</label>
         <textarea
           id="assistant-input"
+          aria-describedby="assistant-privacy-information"
           ref={inputRef}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}

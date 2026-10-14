@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { QuoteSelectionLink } from '../../quote/components/QuoteSelectionLink';
 import { LRMQ_ASSETS } from '../../../config/mediaAssets';
+import { LegalLinks } from '../../legal/LegalLinks';
 
 const mastheadImage = 'https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90';
 
@@ -28,6 +29,7 @@ export function CatalogMasthead() {
             <span aria-hidden="true"> / </span>
             <span aria-current="page" className="text-white">Tienda</span>
           </nav>
+          <LegalLinks inverse />
         </div>
         <figure className="relative min-h-64 overflow-hidden lg:min-h-full">
           <img

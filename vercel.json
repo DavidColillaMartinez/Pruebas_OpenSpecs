@@ -6,6 +6,9 @@
     }
   },
   "rewrites": [
+    { "source": "/aviso-legal", "destination": "/index.html" },
+    { "source": "/privacidad", "destination": "/index.html" },
+    { "source": "/cookies", "destination": "/index.html" },
     { "source": "/presupuesto", "destination": "/index.html" },
     { "source": "/productos", "destination": "/index.html" },
     { "source": "/productos/:slug", "destination": "/index.html" }

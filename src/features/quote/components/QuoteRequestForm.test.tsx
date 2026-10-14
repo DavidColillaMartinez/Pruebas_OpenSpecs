@@ -5,6 +5,7 @@ import alba from '../../catalog/api/fixtures/product-detail.mt-espejos-alba.json
 import { normalizeProductDetail } from '../../catalog/model/normalize';
 import { getSelectableUnits, selectInitialUnit } from '../../catalog/model/selection';
 import { QuoteRequestForm } from './QuoteRequestForm';
+import { PRIVACY_READ_ERROR } from '../../legal/business';
 
 const product = normalizeProductDetail(alba);
 const unit = selectInitialUnit(getSelectableUnits(product));
@@ -22,13 +23,28 @@ function fillRequiredFields() {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('QuoteRequestForm', () => {
+  it('offers a separate privacy tab without clearing contact, message or quantity', () => {
+    renderForm();
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Prueba local' } });
+    fireEvent.change(screen.getByLabelText('Mensaje'), { target: { value: 'Borrador local' } });
+    fireEvent.change(screen.getByLabelText('Cantidad'), { target: { value: '2' } });
+    const links = screen.getAllByRole('link', { name: /Política de privacidad/ });
+    const link = links.find((item) => item.getAttribute('href') === '/privacidad')!;
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    fireEvent.click(link);
+    expect(screen.getByLabelText('Nombre')).toHaveValue('Prueba local');
+    expect(screen.getByLabelText('Mensaje')).toHaveValue('Borrador local');
+    expect(screen.getByLabelText('Cantidad')).toHaveValue(2);
+    expect(screen.getByRole('checkbox')).not.toBeChecked();
+  });
   it('blocks submission without contact or privacy consent', async () => {
     renderForm();
     fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
     fireEvent.click(screen.getByRole('button', { name: 'Solicitar presupuesto' }));
 
     expect(await screen.findByText('Indica un email o un teléfono.')).toBeInTheDocument();
-    expect(screen.getByText('Debes aceptar la política de privacidad.')).toBeInTheDocument();
+    expect(screen.getByText(PRIVACY_READ_ERROR)).toBeInTheDocument();
   });
 
   it('sends the canonical public payload and clears fields only after 201', async () => {

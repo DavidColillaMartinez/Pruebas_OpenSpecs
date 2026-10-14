@@ -45,7 +45,7 @@ export function Coleccion({ step, isActive }) {
               style={{ transitionDelay: rightVisible ? '320ms' : '0ms' }}
               className={`border-l-2 border-clay/20 pl-4 transition-all duration-500 ease-out ${rightVisible ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-7 blur-[1px]'}`}
             >
-              <p className="text-base leading-7 text-secondary/68">También realizamos proyectos de arquitectura y tramitaciones de local a vivienda. En nuestra tienda de exposición puedes conocer productos y acabados para tu reforma.</p>
+              <p className="text-base leading-7 text-secondary/68">Para proyectos de arquitectura y tramitaciones de local a vivienda, facilitamos el contacto de profesionales independientes, con contratación separada. En nuestra tienda de exposición puedes conocer productos y acabados para tu reforma.</p>
             </aside>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { QuoteSelectionPage } from './QuoteSelectionPage';
 import { QuoteSelectionProvider, QUOTE_SELECTION_STORAGE_KEY } from '../model/selectionStore';
+import { PRIVACY_READ_ERROR } from '../../legal/business';
 
 const lines = [
   { productId: 'mt-espejos-alba', variantId: 'mt-espejos-alba--v0001', reference: '7195', quantity: 1, productName: 'Alba', supplier: 'Manillons Torrent', category: 'Espejos', imageUrl: 'https://assets.example/alba.webp', selectedAttributes: { dimension: 'Ø 60', finish: 'Terracota', has_led: false } },
@@ -17,6 +18,26 @@ afterEach(() => {
 });
 
 describe('QuoteSelectionPage', () => {
+  it('keeps the draft and selection when privacy is opened, and still requires the checkbox', () => {
+    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
+    fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Prueba local' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'local@example.com' } });
+    fireEvent.change(screen.getByLabelText('Mensaje'), { target: { value: 'Borrador local' } });
+    const stored = window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY);
+    const link = screen.getAllByRole('link', { name: /Política de privacidad/ }).find((item) => item.getAttribute('href') === '/privacidad')!;
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    fireEvent.click(link);
+    expect(screen.getByLabelText('Nombre')).toHaveValue('Prueba local');
+    expect(screen.getByLabelText('Mensaje')).toHaveValue('Borrador local');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBe(stored);
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar 2 selecciones' }));
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(PRIVACY_READ_ERROR);
+  });
   it('reviews two complete variants and submits both items', async () => {
     window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'quote-1', status: 'received', item_count: 2 }), { status: 201 }));

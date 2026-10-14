@@ -27,7 +27,7 @@ export function MobileColeccion() {
           <p className="mt-2 text-base leading-7 text-secondary/72">{taps.copy}</p>
         </div>
       </div>
-      <p className="mt-10 max-w-xl border-l-2 border-clay/15 pl-5 text-base leading-7 text-secondary/65">También realizamos proyectos de arquitectura y tramitaciones de local a vivienda. En nuestra tienda de exposición puedes conocer productos y acabados para tu reforma.</p>
+      <p className="mt-10 max-w-xl border-l-2 border-clay/15 pl-5 text-base leading-7 text-secondary/65">Para proyectos de arquitectura y tramitaciones de local a vivienda, facilitamos el contacto de profesionales independientes, con contratación separada. En nuestra tienda de exposición puedes conocer productos y acabados para tu reforma.</p>
     </MobileSectionShell>
   );
 }

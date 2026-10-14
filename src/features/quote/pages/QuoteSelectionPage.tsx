@@ -8,6 +8,9 @@ import { getQuoteSelectionKey, useQuoteSelection } from '../model/selectionStore
 import { getQuoteSummaryAttributes, formatQuoteLineReference } from '../model/summary';
 import { validateQuoteRequest } from '../model/payload';
 import type { QuoteRequestPayload } from '../model/types';
+import { PrivacyLink, PrivacyNotice } from '../../legal/PrivacyNotice';
+import { PRIVACY_READ_ERROR, PRIVACY_READ_LABEL } from '../../legal/business';
+import { LegalLinks } from '../../legal/LegalLinks';
 
 export function QuoteSelectionPage() {
   const { lines, updateQuantity, removeLine, clear, removeLines } = useQuoteSelection();
@@ -45,7 +48,7 @@ export function QuoteSelectionPage() {
     const errors = validateQuoteRequest(payload);
     if (!form.email.trim() && !form.phone.trim()) errors.contact = 'Indica un email o un teléfono.';
     if (sentLines.length === 0) errors.items = 'Añade al menos una variante.';
-    if (!form.consent) errors.consentPrivacy = 'Debes aceptar la política de privacidad.';
+    if (!form.consent) errors.consentPrivacy = PRIVACY_READ_ERROR;
     if (Object.keys(errors).length > 0) {
       setError(Object.values(errors)[0]);
       setStatus('error');
@@ -117,7 +120,8 @@ export function QuoteSelectionPage() {
                 <div><label htmlFor="joint-name" className="text-sm font-semibold">Nombre</label><input id="joint-name" disabled={submitting} value={form.customerName} onChange={(event) => updateField('customerName', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div>
                 <div className="grid gap-4 sm:grid-cols-2"><div><label htmlFor="joint-email" className="text-sm font-semibold">Email</label><input id="joint-email" type="email" disabled={submitting} value={form.email} onChange={(event) => updateField('email', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div><div><label htmlFor="joint-phone" className="text-sm font-semibold">Teléfono</label><input id="joint-phone" disabled={submitting} value={form.phone} onChange={(event) => updateField('phone', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div></div>
                 <div><label htmlFor="joint-message" className="text-sm font-semibold">Mensaje</label><textarea id="joint-message" rows={4} disabled={submitting} value={form.message} onChange={(event) => updateField('message', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div>
-                <label className="flex items-start gap-2 text-sm text-secondary"><input type="checkbox" disabled={submitting} checked={form.consent} onChange={(event) => updateField('consent', event.target.checked)} className="mt-1" />Acepto la política de privacidad.</label>
+                <PrivacyNotice flow="quote" />
+                <label className="flex items-start gap-2 text-sm text-secondary"><input type="checkbox" disabled={submitting} checked={form.consent} onChange={(event) => updateField('consent', event.target.checked)} className="mt-1" /><span>{PRIVACY_READ_LABEL}. <PrivacyLink /></span></label>
                 {status === 'error' && <p role="alert" className="text-sm text-red-700">{error}</p>}
                 {status === 'success' && <p role="status" className="text-sm text-green-800">Solicitud registrada con el identificador {confirmedId ?? '—'}.</p>}
                 <button type="submit" disabled={submitting} className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-graphite disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">{submitting ? 'Enviando…' : `Enviar ${lines.length} ${lines.length === 1 ? 'selección' : 'selecciones'}`}</button>
@@ -125,6 +129,7 @@ export function QuoteSelectionPage() {
             </section>
           </div>
         )}
+        <footer className="mt-8 border-t border-border-hairline/10 pt-4"><LegalLinks /></footer>
       </div>
     </main>
   );

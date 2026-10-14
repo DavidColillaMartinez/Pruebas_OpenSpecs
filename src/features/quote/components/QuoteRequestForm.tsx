@@ -6,6 +6,8 @@ import type { SelectableUnit } from '../../catalog/model/selection';
 import { buildQuoteRequestItem, validateQuoteRequest } from '../model/payload';
 import { formatQuoteLineSummary } from '../model/summary';
 import type { QuoteRequestPayload } from '../model/types';
+import { PrivacyLink, PrivacyNotice } from '../../legal/PrivacyNotice';
+import { PRIVACY_READ_ERROR, PRIVACY_READ_LABEL } from '../../legal/business';
 
 type QuoteFormState = {
   customerName: string;
@@ -70,7 +72,7 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
     if (form.phone.length > 80) errors.phone = 'El teléfono no puede superar 80 caracteres.';
     if (form.message.length > 5000) errors.message = 'El mensaje no puede superar 5000 caracteres.';
     if (form.quantity < 1 || form.quantity > 999 || !Number.isInteger(form.quantity)) errors.quantity = 'La cantidad debe estar entre 1 y 999.';
-    if (!form.consentPrivacy) errors.consentPrivacy = 'Debes aceptar la política de privacidad.';
+    if (!form.consentPrivacy) errors.consentPrivacy = PRIVACY_READ_ERROR;
     if (!unit) errors.selection = 'Selecciona una variante completa antes de solicitar presupuesto.';
     return errors;
   }
@@ -162,9 +164,10 @@ export function QuoteRequestForm({ product, unit }: QuoteRequestFormProps) {
           {fieldErrors.message && <p id="quote-message-error" className="mt-1 text-sm text-red-700">{fieldErrors.message}</p>}
         </div>
         {fieldErrors.selection && <p className="text-sm text-red-700">{fieldErrors.selection}</p>}
+        <PrivacyNotice flow="quote" />
         <label className="flex items-start gap-2 text-sm text-secondary">
           <input type="checkbox" disabled={submitting} checked={form.consentPrivacy} onChange={(event) => updateField('consentPrivacy', event.target.checked)} aria-invalid={Boolean(fieldErrors.consentPrivacy)} aria-describedby={fieldErrors.consentPrivacy ? 'quote-consent-error' : undefined} className="mt-1" />
-          Acepto la política de privacidad.
+          <span>{PRIVACY_READ_LABEL}. <PrivacyLink /></span>
         </label>
         {fieldErrors.consentPrivacy && <p id="quote-consent-error" className="text-sm text-red-700">{fieldErrors.consentPrivacy}</p>}
         <input value={form.website} onChange={(event) => updateField('website', event.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-px w-px" />
