@@ -13,6 +13,7 @@ coverage/
 *.sqlite3
 *.db
 *.sql
+!n8n/quote-delivery/sql/*.sql
 *.dump
 *.zip
 web.zip

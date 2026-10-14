@@ -1,0 +1,226 @@
+{
+  "id": "6Pdmj19Ko6zdMrzI",
+  "name": "LRMQ Crear Solicitud Presupuesto",
+  "activeVersionId": "df1c35d3-bf98-4981-8d8e-6aa4d18b8194",
+  "updatedAt": "2026-10-08T16:54:30.238Z",
+  "nodes": [
+    {
+      "id": "0507f4c1-c645-47e0-aacc-66259c00c39b",
+      "name": "POST /lrmq/catalog/quote-requests",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lrmq/catalog/quote-requests",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "webhookId": "8885b4a5-9643-4e96-89f4-22474835f906"
+    },
+    {
+      "id": "92236813-91af-4f43-8bc7-1fdba7b1c123",
+      "name": "Validar solicitud de presupuesto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input=$json.body||{};\nif(typeof input!=='object'||Array.isArray(input))return[{json:{valid:'false',status:400,body:{error:'VALIDATION_ERROR',errors:[{field:'body',message:'El cuerpo debe ser un objeto.'}]}}}];\nconst pick=(...keys)=>{for(const key of keys)if(input[key]!==undefined&&input[key]!==null)return input[key];return'';};\nconst clean=(value,max)=>String(value??'').trim().slice(0,max);\nconst safeId=/^[A-Za-z0-9._:-]+$/;\nconst errors=[];\nlet serialized='';try{serialized=JSON.stringify(input);}catch{errors.push({field:'body',message:'El cuerpo no es válido.'});}\nif(Buffer.byteLength(serialized,'utf8')>65536)errors.push({field:'body',message:'La solicitud es demasiado grande.'});\nif(clean(pick('website','company_website','_gotcha'),500))errors.push({field:'form',message:'La solicitud no es válida.'});\nconst customerName=clean(pick('customer_name','customerName','name'),200);\nconst phone=clean(pick('phone','telephone'),80);\nconst email=clean(pick('email'),320).toLowerCase();\nconst renovationType=clean(pick('renovation_type','renovationType'),120);\nconst message=clean(pick('message','notes'),5000);\nconst sourcePage=clean(pick('source_page','sourcePage','page'),500);\nconst consent=input.consent_privacy===true||input.consentPrivacy===true;\nconst rawItems=Array.isArray(input.items)?input.items:input.productId||input.product_id?[{productId:input.productId||input.product_id,variantId:input.variantId||input.variant_id,productName:input.productName||input.product_name,variantSnapshot:input.variantSnapshot||input.variant_snapshot,quantity:input.quantity,notes:input.itemNotes||input.item_notes}]:[];\nif(!customerName)errors.push({field:'customerName',message:'El nombre es obligatorio.'});\nif(!email&&!phone)errors.push({field:'contact',message:'Debes indicar email o teléfono.'});\nif(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))errors.push({field:'email',message:'El email no es válido.'});\nif(!consent)errors.push({field:'consentPrivacy',message:'Debes aceptar la política de privacidad.'});\nif(rawItems.length<1)errors.push({field:'items',message:'Debes incluir al menos un artículo.'});\nif(rawItems.length>50)errors.push({field:'items',message:'No se pueden enviar más de 50 artículos.'});\nconst publicKeys=new Set([\"reference\",\"measure\",\"dimension\",\"finish\",\"version\",\"has_led\",\"lighting_type\",\"lighting_technology\",\"light_temp\",\"distribution\",\"glass\",\"opening\",\"orientation\",\"shape\",\"furniture_finish\",\"handle_finish\",\"countertop_finish\",\"presentation_type\",\"furniture_type\",\"module_type\",\"type\",\"configuration\",\"tap_type\",\"installation\",\"mechanism\",\"color\",\"texture\",\"grille\",\"valve\",\"finish_family\",\"length_cm\",\"width_cm\",\"offer\",\"finishCode\"]);\nconst cleanSnapshot=(value,index)=>{\n if(!value||typeof value!=='object'||Array.isArray(value))return{};\n return Object.fromEntries(Object.entries(value).filter(([key,value])=>{\n  if(!publicKeys.has(key)||value===null||value===undefined||value==='')return false;\n  if(!['string','number','boolean'].includes(typeof value)){errors.push({field:'items['+index+'].variantSnapshot',message:'Las características deben ser valores simples.'});return false;}\n  if(typeof value==='string'&&(value.length>300||/https?:\\/\\//i.test(value))){errors.push({field:'items['+index+'].variantSnapshot',message:'Una característica no es válida.'});return false;}\n  if(typeof value==='number'&&!Number.isFinite(value)){errors.push({field:'items['+index+'].variantSnapshot',message:'Una característica no es válida.'});return false;}\n  return true;\n }));\n};\nconst items=rawItems.slice(0,50).map((item,index)=>{\n if(!item||typeof item!=='object'||Array.isArray(item)){errors.push({field:'items['+index+']',message:'El artículo debe ser un objeto.'});return{};}\n const productId=clean(item.product_id||item.productId,200);\n const variantId=clean(item.variant_id||item.variantId,200);\n const commercialOfferVariantId=clean(item.commercial_offer_variant_id||item.commercialOfferVariantId,200);\n const productName=clean(item.product_name_snapshot||item.productNameSnapshot||item.productName||item.name,300);\n const quantity=Number(item.quantity??1);\n if(!Number.isInteger(quantity)||quantity<1||quantity>999)errors.push({field:'items['+index+'].quantity',message:'La cantidad debe ser un entero entre 1 y 999.'});\n const notes=clean(item.notes,2000);\n const variantSnapshot={...cleanSnapshot(item.selected_attributes||item.selectedAttributes,index),...cleanSnapshot(item.variant_snapshot||item.variantSnapshot,index)};\n if(item.reference&&!variantSnapshot.reference)variantSnapshot.reference=clean(item.reference,128);\n const compactDuplachSelection=!variantId&&!commercialOfferVariantId&&productId.toLowerCase().startsWith('duplach-')&&Object.keys(variantSnapshot).length>0;\n if(!productId||!safeId.test(productId))errors.push({field:'items['+index+'].productId',message:'El producto no es válido.'});\n if(variantId&&!safeId.test(variantId))errors.push({field:'items['+index+'].variantId',message:'La variante no es válida.'});\n if(commercialOfferVariantId&&!safeId.test(commercialOfferVariantId))errors.push({field:'items['+index+'].commercialOfferVariantId',message:'La oferta no es válida.'});\n if(!variantId&&!commercialOfferVariantId&&!compactDuplachSelection)errors.push({field:'items['+index+'].variantId',message:'La variante completa es obligatoria.'});\n if(!productName)errors.push({field:'items['+index+'].productName',message:'El nombre del producto es obligatorio.'});\n return{product_id:productId,variant_id:variantId,commercial_offer_variant_id:commercialOfferVariantId,quantity,product_name_snapshot:productName,variant_snapshot:variantSnapshot,notes};\n});\nif(errors.length)return[{json:{valid:'false',status:400,body:{error:'VALIDATION_ERROR',errors}}}];\nconst values=[customerName,phone,email,renovationType,message,sourcePage,JSON.stringify(items),JSON.stringify({source:'website',api_contract_version:'catalog-api-v1',quote_validation_version:'2026-10-08'})];\nconst queryParams=values.map(value=>Buffer.from('v:'+value,'utf8').toString('base64')).join(',');\nreturn[{json:{valid:'true',queryParams}}];"
+      }
+    },
+    {
+      "id": "51f18082-23ae-49f8-b538-68edceae65af",
+      "name": "¿Solicitud válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        700,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "rightValue": "true"
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "f3122313-37e5-4856-9dab-72613d7215c6",
+      "name": "Guardar solicitud de presupuesto",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        940,
+        220
+      ],
+      "parameters": {
+        "resource": "database",
+        "operation": "executeQuery",
+        "query": "WITH rate_limit_lock AS MATERIALIZED (\n SELECT pg_advisory_xact_lock(hashtext('lrmq:quote-rate-limit')) AS acquired\n), params AS (\n SELECT substr(convert_from(decode($1,'base64'),'UTF8'),3) AS customer_name,\n substr(convert_from(decode($2,'base64'),'UTF8'),3) AS phone,\n substr(convert_from(decode($3,'base64'),'UTF8'),3) AS email,\n substr(convert_from(decode($4,'base64'),'UTF8'),3) AS renovation_type,\n substr(convert_from(decode($5,'base64'),'UTF8'),3) AS message,\n substr(convert_from(decode($6,'base64'),'UTF8'),3) AS source_page,\n substr(convert_from(decode($7,'base64'),'UTF8'),3)::jsonb AS items,\n substr(convert_from(decode($8,'base64'),'UTF8'),3)::jsonb AS metadata\n), requested AS (\n SELECT item,ordinality::integer AS position,\n NULLIF(item->>'product_id','') AS product_id,\n NULLIF(item->>'variant_id','') AS variant_id,\n NULLIF(item->>'commercial_offer_variant_id','') AS offer_variant_id,\n COALESCE(item->'variant_snapshot','{}'::jsonb) AS snapshot\n FROM params CROSS JOIN LATERAL jsonb_array_elements(items) WITH ORDINALITY q(item,ordinality)\n), resolved AS (\n SELECT r.*,p.id AS public_product_id,p.name AS public_name,p.collection,\n p.supplier_id,p.supplier_name,p.category_id,p.category_name,p.main_image_url,\n p.specs,p.configuration_fields,v.id AS matched_variant_id,\n ov.id AS matched_offer_variant_id,\n v.reference AS variant_reference,ov.reference AS offer_reference,\n COALESCE(v.attributes,'{}'::jsonb) || jsonb_build_object(\n  'reference',v.reference,'measure',v.measure,'dimension',v.dimension,'finish',v.finish,\n  'version',COALESCE(v.attributes->>'version',v.raw_data->>'fixed_version'),\n  'has_led',COALESCE(v.raw_data->'has_led',CASE lower(p.specs->>'LED') WHEN 'sí' THEN 'true'::jsonb WHEN 'si' THEN 'true'::jsonb WHEN 'no' THEN 'false'::jsonb ELSE NULL END),\n  'lighting_type',COALESCE(v.attributes->>'lighting_type',v.raw_data->>'lighting_type',p.specs->>'Tipo de iluminación'),\n  'lighting_technology',COALESCE(v.attributes->>'lighting_technology',v.raw_data->>'lighting_technology',p.specs->>'Tecnología de iluminación'),\n  'light_temp',COALESCE(v.raw_data->>'light_temp',v.light_temp,p.specs->>'Temperatura de luz'),\n  'shape',COALESCE(p.specs->>'Forma',p.specs->>'shape')\n ) AS variant_facts,\n jsonb_build_object('reference',ov.reference,'finish',ov.finish_name,'finishCode',ov.finish_code,'offer',o.offer_type) AS offer_facts\n FROM requested r\n LEFT JOIN LATERAL (\n  SELECT p.* FROM catalog.v_product_cards_grouped p\n  WHERE p.publication_status='publishable'\n    AND (p.id=r.product_id OR r.product_id=ANY(p.grouped_product_ids))\n  ORDER BY (p.id=r.product_id) DESC LIMIT 1\n ) p ON true\n LEFT JOIN catalog.product_variants v\n  ON v.id=r.variant_id AND v.product_id=ANY(p.grouped_product_ids) AND v.is_active\n LEFT JOIN catalog.commercial_offers o\n  ON o.product_id=ANY(p.grouped_product_ids) AND EXISTS(SELECT 1 FROM catalog.commercial_offer_variants selected_offer WHERE selected_offer.id=r.offer_variant_id AND selected_offer.offer_id=o.id)\n LEFT JOIN catalog.commercial_offer_variants ov\n  ON ov.id=r.offer_variant_id AND ov.offer_id=o.id\n WHERE o.id IS NULL OR r.offer_variant_id IS NULL OR ov.id IS NOT NULL\n), checked AS (\n SELECT r.*,\n CASE\n  WHEN public_product_id IS NULL THEN 'El producto ya no está disponible.'\n  WHEN variant_id IS NOT NULL AND offer_variant_id IS NOT NULL THEN 'Selecciona una variante o una oferta, no ambas.'\n  WHEN variant_id IS NOT NULL AND matched_variant_id IS NULL THEN 'La variante no pertenece al producto o ya no está disponible.'\n  WHEN offer_variant_id IS NOT NULL AND matched_offer_variant_id IS NULL THEN 'La oferta no pertenece al producto o ya no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND NOT (supplier_id='duplach' AND category_id='platos-de-ducha') THEN 'La variante completa es obligatoria.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND EXISTS(\n   SELECT 1 FROM unnest(COALESCE(configuration_fields,ARRAY[]::text[])) key\n   WHERE NULLIF(snapshot->>key,'') IS NULL\n  ) THEN 'Completa todas las opciones del plato de ducha.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements(COALESCE(specs->'size_options','[]'::jsonb)) size\n   WHERE concat(size->>'length_cm','x',size->>'width_cm')=snapshot->>'measure'\n  ) THEN 'La medida del plato de ducha no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'texture' AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements_text(COALESCE(specs->'texture_options','[]'::jsonb)) value WHERE value=snapshot->>'texture'\n  ) THEN 'La textura del plato de ducha no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'color' AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements(COALESCE(specs->'color_options','[]'::jsonb)) value WHERE value->>'name'=snapshot->>'color'\n  ) THEN 'El color del plato de ducha no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'grille' AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements_text(COALESCE(specs->'grille_options','[]'::jsonb)) value WHERE value=snapshot->>'grille'\n  ) THEN 'La rejilla del plato de ducha no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'orientation' AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements_text(COALESCE(specs->'orientation_options','[]'::jsonb)) value WHERE value=snapshot->>'orientation'\n  ) THEN 'La orientación del plato de ducha no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'valve' AND COALESCE(specs->'valve'->>'type','')<>snapshot->>'valve' THEN 'La válvula del plato de ducha no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'finish_family' AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements(COALESCE(specs->'finish_families','[]'::jsonb)) value WHERE value->>'key'=snapshot->>'finish_family'\n  ) THEN 'La familia de acabado no está disponible.'\n  WHEN variant_id IS NULL AND offer_variant_id IS NULL AND snapshot ? 'finish' AND NOT EXISTS (\n   SELECT 1 FROM jsonb_array_elements(COALESCE(specs->'finish_options','[]'::jsonb)) value\n   WHERE value->>'name'=snapshot->>'finish' AND value->>'family_key'=snapshot->>'finish_family'\n  ) THEN 'El acabado no pertenece a la familia seleccionada.'\n  ELSE NULL\n END AS validation_error\n FROM resolved r\n), prepared AS (\n SELECT c.*,\n COALESCE((\n  SELECT jsonb_object_agg(key,value) FROM jsonb_each(\n   CASE WHEN variant_id IS NOT NULL THEN snapshot||variant_facts\n        WHEN offer_variant_id IS NOT NULL THEN snapshot||offer_facts\n        ELSE snapshot END\n  ) e(key,value)\n  WHERE key IN ('reference','measure','dimension','finish','version','has_led','lighting_type','lighting_technology','light_temp','distribution','glass','opening','orientation','shape','furniture_finish','handle_finish','countertop_finish','presentation_type','furniture_type','module_type','type','configuration','tap_type','installation','mechanism','color','texture','grille','valve','finish_family','length_cm','width_cm','offer','finishCode') AND value<>'null'::jsonb AND value<>'\"\"'::jsonb\n ),'{}'::jsonb) AS clean_snapshot\n FROM checked c\n), decision AS (\n SELECT\n (SELECT count(*) FROM prepared)=(SELECT count(*) FROM requested)\n AND NOT EXISTS(SELECT 1 FROM prepared WHERE validation_error IS NOT NULL) AS valid,\n NOT EXISTS(\n  SELECT 1 FROM catalog.quote_requests q CROSS JOIN params x\n  WHERE q.created_at>=now()-interval '2 minutes'\n   AND ((x.email<>'' AND lower(q.email)=lower(x.email)) OR (x.phone<>'' AND q.phone=x.phone))\n ) AND (SELECT count(*)<30 FROM catalog.quote_requests WHERE created_at>=now()-interval '1 minute') AS can_insert\n FROM params CROSS JOIN rate_limit_lock\n), new_request AS (\n INSERT INTO catalog.quote_requests(customer_name,phone,email,renovation_type,message,source_page,consent_privacy,metadata)\n SELECT x.customer_name,NULLIF(x.phone,''),NULLIF(x.email,''),NULLIF(x.renovation_type,''),NULLIF(x.message,''),NULLIF(x.source_page,''),true,\n x.metadata||jsonb_build_object('items_context',(\n  SELECT jsonb_agg(jsonb_strip_nulls(jsonb_build_object(\n   'position',position,'product_id',product_id,'variant_id',variant_id,'commercial_offer_variant_id',offer_variant_id,\n   'supplier_id',supplier_id,'supplier',supplier_name,'category_id',category_id,'category',category_name,\n   'model',COALESCE(collection,public_name),'reference',COALESCE(variant_reference,offer_reference),\n   'image_url',main_image_url\n  )) ORDER BY position) FROM prepared\n ))\n FROM params x CROSS JOIN decision d WHERE d.valid AND d.can_insert\n RETURNING id,status,created_at\n), inserted_items AS (\n INSERT INTO catalog.quote_request_items(quote_request_id,product_id,variant_id,commercial_offer_variant_id,quantity,product_name_snapshot,variant_snapshot,notes)\n SELECT q.id,p.product_id,p.variant_id,p.offer_variant_id,(p.item->>'quantity')::integer,p.public_name,p.clean_snapshot,NULLIF(p.item->>'notes','')\n FROM new_request q CROSS JOIN prepared p\n RETURNING id\n)\nSELECT CASE WHEN NOT d.valid THEN 400 WHEN d.can_insert THEN 201 ELSE 429 END AS status,\n CASE WHEN NOT d.valid THEN jsonb_build_object('error','VALIDATION_ERROR','errors',COALESCE((\n  SELECT jsonb_agg(jsonb_build_object('field','items['||(position-1)||'].variantId','message',validation_error) ORDER BY position)\n  FROM prepared WHERE validation_error IS NOT NULL\n ),jsonb_build_array(jsonb_build_object('field','items','message','Una variante u oferta no pertenece al producto.'))))\n WHEN d.can_insert THEN (\n  SELECT jsonb_build_object('id',q.id::text,'status',q.status,'created_at',q.created_at,'item_count',(SELECT count(*) FROM inserted_items))\n  FROM new_request q\n ) ELSE jsonb_build_object('error','RATE_LIMITED','message','Espera unos minutos antes de enviar otra solicitud.') END AS body\nFROM decision d;",
+        "options": {
+          "queryReplacement": "={{ $json.queryParams }}",
+          "queryBatching": "single"
+        }
+      }
+    },
+    {
+      "id": "9460946d-4e52-46dc-a639-6a5e36bfb5aa",
+      "name": "Responder solicitud creada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1180,
+        220
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.body }}",
+        "options": {
+          "responseCode": "={{ $json.status }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "X-Content-Type-Options",
+                "value": "nosniff"
+              },
+              {
+                "name": "Referrer-Policy",
+                "value": "no-referrer"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "eb1555f9-bfab-4033-9087-834af1fdc2ae",
+      "name": "Responder error de validación",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        940,
+        420
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.body }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              },
+              {
+                "name": "X-Content-Type-Options",
+                "value": "nosniff"
+              },
+              {
+                "name": "Referrer-Policy",
+                "value": "no-referrer"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "POST /lrmq/catalog/quote-requests": {
+      "main": [
+        [
+          {
+            "node": "Validar solicitud de presupuesto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar solicitud de presupuesto": {
+      "main": [
+        [
+          {
+            "node": "¿Solicitud válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Solicitud válida?": {
+      "main": [
+        [
+          {
+            "node": "Guardar solicitud de presupuesto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder error de validación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar solicitud de presupuesto": {
+      "main": [
+        [
+          {
+            "node": "Responder solicitud creada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

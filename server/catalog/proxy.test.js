@@ -51,6 +51,7 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   restoreEnvironment();
 });
 
@@ -167,6 +168,49 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(response.result.statusCode).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toBe('https://quotes.example/catalog/quote-requests');
     expect(fetchMock.mock.calls[0][1].body).toBe(JSON.stringify(VALID_QUOTE_BODY));
+  });
+
+  it('adds server-owned ingress authentication only when the v2 route is enabled', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    vi.stubEnv('N8N_QUOTE_DELIVERY_ENABLED', 'true');
+    vi.stubEnv('N8N_QUOTE_WEBHOOK_SECRET', 'test-only-secret-never-use-in-production-0123456789');
+    vi.stubEnv('QUOTE_ALLOWED_ORIGINS', 'https://web.example');
+    vi.stubEnv('VERCEL', '1');
+    const fetchMock = vi.fn().mockResolvedValue(responseBody({ id: 'quote-1', status: 'received', item_count: 1 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await quoteRequestsHandler({
+      method: 'POST', query: {},
+      headers: { 'content-type': 'application/json', origin: 'https://web.example', 'sec-fetch-site': 'same-origin', 'x-vercel-forwarded-for': '192.0.2.4' },
+      body: VALID_QUOTE_BODY,
+    }, response);
+
+    const upstreamHeaders = fetchMock.mock.calls[0][1].headers;
+    expect(response.result.statusCode).toBe(200);
+    expect(upstreamHeaders['x-lrmq-quote-auth']).toBe(process.env.N8N_QUOTE_WEBHOOK_SECRET);
+    expect(upstreamHeaders['x-lrmq-quote-client']).toMatch(/^v1:[a-f0-9]{64}$/);
+    expect(upstreamHeaders['x-lrmq-quote-fingerprint']).toMatch(/^v1:[a-f0-9]{64}$/);
+    expect(upstreamHeaders['x-vercel-forwarded-for']).toBeUndefined();
+  });
+
+  it('fails closed on a disallowed origin without contacting the upstream', async () => {
+    Object.assign(process.env, RESOURCE_ENV);
+    vi.stubEnv('N8N_QUOTE_DELIVERY_ENABLED', 'true');
+    vi.stubEnv('N8N_QUOTE_WEBHOOK_SECRET', 'test-only-secret-never-use-in-production-0123456789');
+    vi.stubEnv('QUOTE_ALLOWED_ORIGINS', 'https://web.example');
+    vi.stubEnv('VERCEL', '1');
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const response = createResponse();
+
+    await quoteRequestsHandler({ method: 'POST', query: {}, headers: {
+      'content-type': 'application/json', origin: 'https://attacker.example', 'x-vercel-forwarded-for': '192.0.2.4',
+    }, body: VALID_QUOTE_BODY }, response);
+
+    expect(response.result.statusCode).toBe(403);
+    expect(response.result.headers['cache-control']).toBe('no-store');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('rejects methods not allowed without contacting upstream', async () => {

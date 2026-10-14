@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { normalizeCatalogResponseStatus } from './response.js';
 import { isJsonContentType, quoteValidationErrors } from './quoteBody.js';
+import { prepareQuoteIngress } from './quoteIngress.js';
 
 export { isJsonContentType };
 
@@ -174,6 +175,7 @@ async function fetchUpstream(upstreamUrl, options, context) {
 
 export async function handleCatalogRequest(request, response, route) {
   const method = request.method || 'GET';
+  let quoteHeaders = {};
   if (!route.methods.includes(method)) {
     response.setHeader('Allow', route.methods.join(', '));
     return response.status(405).json({ error: 'METHOD_NOT_ALLOWED' });
@@ -198,6 +200,14 @@ export async function handleCatalogRequest(request, response, route) {
     if (fields.length > 0) {
       return response.status(400).json({ error: 'VALIDATION_ERROR', message: 'La solicitud de presupuesto no es válida.', fields });
     }
+    const ingress = prepareQuoteIngress(request, request.body);
+    if (ingress.status) {
+      response.setHeader('cache-control', 'no-store');
+      response.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+      if (ingress.status === 429) response.setHeader('Retry-After', '60');
+      return response.status(ingress.status).json({ error: ingress.error, message: ingress.status === 429 ? 'Espera unos minutos antes de enviar otra solicitud.' : 'No se pudo registrar la solicitud.' });
+    }
+    quoteHeaders = ingress.headers;
   }
 
   const upstreamUrl = getUpstreamUrl(request, route, identifier);
@@ -206,7 +216,7 @@ export async function handleCatalogRequest(request, response, route) {
   }
 
   try {
-    const headers = { accept: 'application/json' };
+    const headers = { accept: 'application/json', ...quoteHeaders };
     const options = { method, headers };
 
     if (method === 'POST') {

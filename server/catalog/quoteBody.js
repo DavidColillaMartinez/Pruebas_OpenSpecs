@@ -77,6 +77,12 @@ export function quoteValidationErrors(body) {
   if (typeof body.customerName !== 'string' || body.customerName.trim().length === 0 || body.customerName.length > 200) errors.push('customerName');
   if (body.phone !== undefined && (typeof body.phone !== 'string' || body.phone.length > 80)) errors.push('phone');
   if (body.email !== undefined && (typeof body.email !== 'string' || body.email.length > 320)) errors.push('email');
+  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
+  if (!email && !phone) errors.push('contact');
+  if (email && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || /[\r\n\0]/.test(email))) errors.push('email');
+  if (phone && (!/^[+()\d .-]+$/.test(phone) || phone.replace(/\D/g, '').length < 6 || phone.replace(/\D/g, '').length > 20)) errors.push('phone');
+  if (typeof body.customerName === 'string' && /[\r\n\0]/.test(body.customerName)) errors.push('customerName');
   if (body.renovationType !== undefined && (typeof body.renovationType !== 'string' || body.renovationType.length > 120)) errors.push('renovationType');
   if (body.message !== undefined && (typeof body.message !== 'string' || body.message.length > 5000)) errors.push('message');
   if (body.sourcePage !== undefined && (typeof body.sourcePage !== 'string' || body.sourcePage.length > 500)) errors.push('sourcePage');

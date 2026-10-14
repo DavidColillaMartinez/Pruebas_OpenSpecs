@@ -37,6 +37,14 @@ describe('quote request server-side validation', () => {
     expect(quoteValidationErrors(VALID_QUOTE_BODY)).toEqual([]);
   });
 
+  it('requires at least one usable contact and rejects header-injection characters', () => {
+    expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, email: undefined })).toContain('contact');
+    expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, email: 'bad\r\nBcc:evil@example.com' })).toContain('email');
+    expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, customerName: 'Ana\r\nBcc:evil@example.com' })).toContain('customerName');
+    expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, phone: '+34 abc 123' })).toContain('phone');
+    expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, email: undefined, phone: '+34 612 345 678' })).toEqual([]);
+  });
+
   it('rejects missing consent, wrong types and forbidden attribute keys', () => {
     expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, consentPrivacy: false })).toContain('consentPrivacy');
     expect(quoteValidationErrors({ ...VALID_QUOTE_BODY, customerName: '' })).toContain('customerName');
