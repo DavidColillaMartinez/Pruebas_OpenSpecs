@@ -80,7 +80,7 @@ export function CatalogPage() {
 
   useEffect(() => applyRouteMeta({
     title: 'Catálogo de baños a medida · AREA LRMQ',
-    description: 'Explora mamparas a medida, platos de ducha minerales, grifería premium y accesorios del catálogo AREA LRMQ en Madrid. Solicita tu presupuesto en 24h.',
+    description: 'Explora mamparas a medida, platos de ducha minerales, grifería premium y accesorios del catálogo AREA LRMQ en Madrid. Solicita información y un presupuesto para tu proyecto.',
     canonicalPath: '/productos/',
   }), []);
   const isLoadingInitial = data.status === 'loading' && showing === 0;
