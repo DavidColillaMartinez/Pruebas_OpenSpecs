@@ -32,6 +32,7 @@ export function WhatsAppPreparation({ draftText, onConfirm, onCancel, originId }
 
   const finalLength = composeFinalMessage(name, message).length;
   const finalOverLimit = finalLength > CHAT_ACTION_DRAFT_MAX_LENGTH;
+  const messageEmpty = message.trim().length === 0;
   // Memory-only state within this floating view: cancel, confirm, closing the
   // panel or starting a new conversation unmounts it and drops name/edits.
   const cancel = () => onCancel();
@@ -88,8 +89,13 @@ export function WhatsAppPreparation({ draftText, onConfirm, onCancel, originId }
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             rows={6}
+            aria-describedby={messageEmpty ? `${messageId}-empty-hint` : undefined}
+            aria-invalid={messageEmpty}
             className="mt-1.5 min-h-[7.5rem] w-full resize-y rounded-2xl border border-hairline/12 bg-surface-elevated/85 px-4 py-3 text-sm leading-6 text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
           />
+          {messageEmpty && (
+            <p id={`${messageId}-empty-hint`} className="mt-1 text-xs text-secondary/75">Escribe el mensaje antes de abrir WhatsApp; el nombre sigue siendo opcional.</p>
+          )}
           {finalOverLimit && (
             <p role="alert" className="mt-1 text-xs text-red-700">El mensaje supera el máximo de {CHAT_ACTION_DRAFT_MAX_LENGTH} caracteres. Redúcelo antes de abrir WhatsApp.</p>
           )}
@@ -110,10 +116,11 @@ export function WhatsAppPreparation({ draftText, onConfirm, onCancel, originId }
           <button
             type="button"
             onClick={() => {
-              if (finalOverLimit) return;
+              if (finalOverLimit || messageEmpty) return;
               onConfirm(composeFinalMessage(name, message));
             }}
-            className="min-h-11 flex-1 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+            disabled={messageEmpty || finalOverLimit}
+            className="min-h-11 flex-1 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-graphite focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Abrir WhatsApp con este mensaje
           </button>

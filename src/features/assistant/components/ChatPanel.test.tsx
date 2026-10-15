@@ -209,6 +209,24 @@ describe('ChatPanel WhatsApp preparation', () => {
     expect(messageField).toHaveValue('Buenas, tengo una duda sobre mamparas');
   });
 
+  it('blocks opening WhatsApp while the message is empty', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => window);
+    try {
+      mockedUseAssistantChat.mockReturnValue(chatValue([initialMessage, actionWithDraft('Hola, quiero valorar un local.')]));
+      render(<MemoryRouter><ChatPanel open onClose={vi.fn()} /></MemoryRouter>);
+      fireEvent.click(screen.getByRole('button', { name: /WhatsApp/ }));
+      const messageField = screen.getByLabelText('Mensaje');
+      fireEvent.change(messageField, { target: { value: '   ' } });
+
+      expect(screen.getByRole('button', { name: 'Abrir WhatsApp con este mensaje' })).toBeDisabled();
+      expect(screen.getByText(/Escribe el mensaje antes de abrir WhatsApp/)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir WhatsApp con este mensaje' }));
+      expect(openSpy).not.toHaveBeenCalled();
+    } finally {
+      openSpy.mockRestore();
+    }
+  });
+
   it('opens the encoded official WhatsApp URL and returns to the conversation', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => window);
     try {

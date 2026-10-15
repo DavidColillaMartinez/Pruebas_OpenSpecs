@@ -39,6 +39,13 @@ const GENERAL_SUMMARY_ORDER: Array<{ key: string; label: string }> = [
   { key: 'opening', label: 'Apertura' },
   { key: 'orientation', label: 'Orientación' },
   { key: 'has_led', label: 'LED' },
+  // Bounded mapping of English API keys: acotado a estas cuatro etiquetas,
+  // sin tocar claves del contrato ni los valores.
+  { key: 'lighting_type', label: 'Tipo de iluminación' },
+  { key: 'lighting_technology', label: 'Tecnología de iluminación' },
+  { key: 'finish_code', label: 'Código de acabado' },
+  { key: 'finishCode', label: 'Código de acabado' },
+  { key: 'shape', label: 'Forma' },
   { key: 'offer', label: 'Oferta' },
   { key: 'furniture_finish', label: 'Acabado del mueble' },
   { key: 'handle_finish', label: 'Acabado del tirador' },

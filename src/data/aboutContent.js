@@ -19,7 +19,7 @@ export const aboutBlocks = [
     title: 'Los oficios, coordinados.',
     copy: 'Contamos con profesionales especializados en los distintos oficios. Coordinamos cada parte del proyecto para conseguir un resultado cuidado y de calidad.',
     photo: { desktop: LRMQ_PHOTOS.quienesEquipo, mobile: LRMQ_PHOTOS.quienesEquipo },
-    imageAlt: 'Proyecto de baño grabado con dos iluminaciones: luz de día y luz cálida sobre el mismo aseo',
+    imageAlt: 'Fotografía del mismo baño con dos iluminaciones: luz de día y luz cálida sobre el aseo',
     mobileObjectPosition: 'center',
   },
   {

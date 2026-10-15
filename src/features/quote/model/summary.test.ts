@@ -77,6 +77,19 @@ describe('quote summary formatter', () => {
     expect(attributes.some((attribute) => attribute.label === 'whatever internal')).toBe(false);
   });
 
+  it('maps the bounding English keys to explicit Spanish labels without touching values', () => {
+    const attributes = getQuoteSummaryAttributes({
+      selectedAttributes: { lighting_type: 'Retroiluminada', lighting_technology: 'LED', finish_code: 'RO5', finishCode: 'RO5', shape: 'Circular' },
+    });
+    expect(Object.fromEntries(attributes.map((attribute) => [attribute.label, attribute.value]))).toMatchObject({
+      'Tipo de iluminación': 'Retroiluminada',
+      'Tecnología de iluminación': 'LED',
+      'Código de acabado': 'RO5',
+      'Forma': 'Circular',
+    });
+    expect(attributes.some((attribute) => /light|finish/i.test(attribute.label))).toBe(false);
+  });
+
   it('falls back honestly when a reference is not published', () => {
     expect(formatQuoteLineReference(undefined)).toBe('Referencia no publicada');
     expect(formatQuoteLineReference('')).toBe('Referencia no publicada');
