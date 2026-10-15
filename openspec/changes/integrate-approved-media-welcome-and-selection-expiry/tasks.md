@@ -25,3 +25,9 @@
   - [x] 6.2 Visual 1366×768, 1270×620, 390×844, 320×740, claro/oscuro (WebKit no disponible por dependencias de sistema; ver informe)
   - [x] 6.3 Red: una descarga por hero, srcSet activo, sin 404; navegación, logo animado, Visión y cesta sin regresiones
   - [x] 6.4 Estado: tests/typecheck/lint/build ejecutados; aprobar/revisar queda para el propietario (sin commit ni despliegue)
+
+- [ ] 7. Ampliación chat (revisión del propietario pendiente)
+- [x] 7.1 Aviso de privacidad plegable con enlace permanente y aria consistentes
+- [x] 7.2 Normalización de draftText opcional (solo WhatsApp, ≤1000, acción compatible)
+- [x] 7.3 Vista de preparación WhatsApp con nombre opcional, mensaje editable y destino codificado
+- [x] 7.4 Pruebas de transport, acciones, panel y preparación; verificación visual clara/oscuro y móvil
