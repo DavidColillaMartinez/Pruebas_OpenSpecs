@@ -111,7 +111,9 @@ function stableSignature(lines: QuoteSelectionLine[]): string {
 }
 
 function isExpired(snapshot: Pick<QuoteSelectionSnapshot, 'remember' | 'expiresAt'>, now: number): boolean {
-  return !snapshot.remember && snapshot.expiresAt !== null && now > snapshot.expiresAt;
+  // The limit itself expires: once the window reaches its end the selection is
+  // over, so reads and mutations agree on the same instant.
+  return !snapshot.remember && snapshot.expiresAt !== null && now >= snapshot.expiresAt;
 }
 
 type ParsedSnapshot = QuoteSelectionSnapshot | 'expired' | 'invalid';
@@ -152,6 +154,11 @@ function parseStoredSnapshot(raw: string | null, sourceVersion: 3 | 2 | 'v1', no
     if (!parsed || typeof parsed !== 'object') return 'invalid';
     if (record.version !== QUOTE_SELECTION_STORAGE_VERSION) return 'invalid';
     const remember = record.remember === true;
+    // A consistent record pairs remember true with expira null and remember
+    // false with a valid finite date. Anything else is corrupt: restoring it
+    // would present an indefinite or unbounded selection.
+    if (remember && record.expiresAt !== null) return 'invalid';
+    if (!remember && record.expiresAt === null) return 'invalid';
     const updatedAt = typeof record.updatedAt === 'number' && Number.isFinite(record.updatedAt) ? record.updatedAt : NaN;
     const expiresAt = record.expiresAt === null
       ? null
@@ -263,53 +270,74 @@ type SelectionAction =
 
 function reducer(state: QuoteSelectionSnapshot, action: SelectionAction): QuoteSelectionSnapshot {
   const now = Date.now();
-  const withChange = (lines: QuoteSelectionLine[], renewTtl = true): QuoteSelectionSnapshot => {
-    // Only a real modification renewals the inactivity window: a write that
-    // produces the same selection keeps the stored timestamps untouched.
-    if (renewTtl && stableSignature(lines) === stableSignature(state.lines) && lines.length === state.lines.length) {
-      return state;
-    }
-    const updatedAt = renewTtl ? now : state.updatedAt;
-    const expiresAt = state.remember || !renewTtl ? state.expiresAt : updatedAt + QUOTE_SELECTION_TTL_MS;
-    return { ...state, lines, updatedAt, expiresAt };
-  };
   switch (action.type) {
     case 'hydrate':
     case 'adopt':
       return action.snapshot;
-    case 'add': {
-      const key = lineKey(action.line);
-      const existing = state.lines.find((item) => lineKey(item) === key);
-      const next = existing
-        ? state.lines.map((item) => item === existing ? { ...item, quantity: Math.min(999, item.quantity + action.line.quantity) } : item)
-        : [...state.lines, action.line];
-      return withChange(next);
-    }
-    case 'quantity': {
-      if (!Number.isInteger(action.quantity) || action.quantity < 1) return state;
-      const next = state.lines.map((line) => lineKey(line) === action.key ? { ...line, quantity: Math.min(999, action.quantity) } : line);
-      return withChange(next);
-    }
-    case 'remove': {
-      const next = state.lines.filter((line) => lineKey(line) !== action.key);
-      return withChange(next);
-    }
-    case 'removeMany': {
-      const keysToRemove = new Set(action.keys);
-      const next = state.lines.filter((line) => !keysToRemove.has(lineKey(line)));
-      // Automatic retirement of sent lines follows the send flow: it preserves
-      // the remaining lines' timestamps instead of renewing the window.
-      return withChange(next, action.renewTtl);
-    }
     case 'clear':
       // «Vaciar selección» removes products AND the stored metadata; the
       // preference returns to the default (no indefinite remember).
       return { ...EMPTY_SNAPSHOT };
+    case 'add':
+    case 'quantity':
+    case 'remove':
+    case 'removeMany':
     case 'remember': {
-      if (action.remember === state.remember) return state;
-      const updatedAt = now;
-      const expiresAt = action.remember ? null : updatedAt + QUOTE_SELECTION_TTL_MS;
-      return { ...state, remember: action.remember, updatedAt, expiresAt };
+      // Pre-mutation expiry check: a selection that expired while the tab was
+      // open (browser suspension) never resuscitates its stale lines. The next
+      // mutation starts a fresh selection carrying only its own change.
+      const base = !state.remember && state.expiresAt !== null && now >= state.expiresAt ? { ...EMPTY_SNAPSHOT } : state;
+      // Explicit remembering requires lines: nothing is kept alive in an empty
+      // basket, so a later selection demands a new decision.
+      if (action.type === 'remember' && base.lines.length === 0) return state;
+      const withChange = (lines: QuoteSelectionLine[], renewTtl = true): QuoteSelectionSnapshot => {
+        // An emptied selection is normalized: remember falls back to false and
+        // no metadata is kept, so the next selection starts a new explicit
+        // seven-day window and the stored record is dropped.
+        if (lines.length === 0) return { ...EMPTY_SNAPSHOT };
+        // Only a real modification renewals the inactivity window: a write that
+        // produces the same selection keeps the stored timestamps untouched.
+        if (renewTtl && stableSignature(lines) === stableSignature(base.lines) && lines.length === base.lines.length) {
+          return state;
+        }
+        const updatedAt = renewTtl ? now : base.updatedAt;
+        const expiresAt = base.remember || !renewTtl ? base.expiresAt : updatedAt + QUOTE_SELECTION_TTL_MS;
+        return { ...base, lines, updatedAt, expiresAt };
+      };
+      if (action.type === 'remember') {
+        if (action.remember === state.remember) return state;
+        const updatedAt = now;
+        const expiresAt = action.remember ? null : updatedAt + QUOTE_SELECTION_TTL_MS;
+        return { ...state, remember: action.remember, updatedAt, expiresAt };
+      }
+      switch (action.type) {
+        case 'add': {
+          const key = lineKey(action.line);
+          const existing = base.lines.find((item) => lineKey(item) === key);
+          const next = existing
+            ? base.lines.map((item) => item === existing ? { ...item, quantity: Math.min(999, item.quantity + action.line.quantity) } : item)
+            : [...base.lines, action.line];
+          return withChange(next);
+        }
+        case 'quantity': {
+          if (!Number.isInteger(action.quantity) || action.quantity < 1) return state;
+          const next = base.lines.map((line) => lineKey(line) === action.key ? { ...line, quantity: Math.min(999, action.quantity) } : line);
+          return withChange(next);
+        }
+        case 'remove': {
+          const next = base.lines.filter((line) => lineKey(line) !== action.key);
+          return withChange(next);
+        }
+        case 'removeMany': {
+          const keysToRemove = new Set(action.keys);
+          const next = base.lines.filter((line) => !keysToRemove.has(lineKey(line)));
+          // Automatic retirement of sent lines follows the send flow: it preserves
+          // the remaining lines' timestamps instead of renewing the window.
+          return withChange(next, action.renewTtl);
+        }
+        default:
+          return state;
+      }
     }
     default:
       return state;
@@ -388,6 +416,19 @@ export function QuoteSelectionProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', onVisible);
     };
   }, []);
+
+  // Single inactivity timer for the current unremembered window: no polling
+  // and no extra dependency. On fire it re-checks the real date and syncs with
+  // storage first, so a renewal (or remember) from another tab survives while
+  // a genuinely expired record is removed and the empty state adopted.
+  useEffect(() => {
+    if (!hydrated || state.remember || state.expiresAt === null) return undefined;
+    const expiresAt = state.expiresAt;
+    const timer = window.setTimeout(() => {
+      if (Date.now() >= expiresAt) adoptFromStorage(stateRef.current, dispatch);
+    }, Math.max(0, expiresAt - Date.now()));
+    return () => window.clearTimeout(timer);
+  }, [hydrated, state]);
 
   const { lines, remember } = state;
 

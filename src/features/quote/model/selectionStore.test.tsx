@@ -307,6 +307,138 @@ describe('quote selection store (v3 persistence)', () => {
   });
 });
 
+describe('empty normalization and inactivity expiry', () => {
+  it('drops remember when removing the last line and starts fresh on the next addition', () => {
+    const harness = visit();
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir primera' }));
+    fireEvent.click(screen.getByTestId('remember-on'));
+    expect(storedRecord()?.remember).toBe(true);
+    expect(storedRecord()?.expiresAt).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Eliminar primera' }));
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('remember')).toHaveTextContent('false');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+
+    vi.setSystemTime(START + DAY);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir primera' }));
+    expect(screen.getByTestId('remember')).toHaveTextContent('false');
+    expect(storedRecord()?.remember).toBe(false);
+    expect(storedRecord()?.updatedAt).toBe(START + DAY);
+    expect(storedRecord()?.expiresAt).toBe(START + DAY + QUOTE_SELECTION_TTL_MS);
+    harness.unmount();
+  });
+
+  it('normalizes the emptied basket when retiring all sent lines without renewal', () => {
+    seedSelection([firstLine, secondLine]);
+    function RetireHarness() {
+      const selection = useQuoteSelection();
+      return <>
+        <button type="button" onClick={() => selection.removeLines(['mt-espejos-alba::mt-espejos-alba--v0001', 'mt-espejos-alba::mt-espejos-alba--v0005'], { renewTtl: false })}>Retirar enviadas</button>
+        <output data-testid="count">{selection.count}</output>
+        <output data-testid="remember">{String(selection.remember)}</output>
+      </>;
+    }
+    render(<QuoteSelectionProvider><RetireHarness /></QuoteSelectionProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Retirar enviadas' }));
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('remember')).toHaveTextContent('false');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+  });
+
+  it('expires via the in-page timer without focus or reload', () => {
+    const harness = visit();
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir primera' }));
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    act(() => {
+      vi.advanceTimersByTime(QUOTE_SELECTION_TTL_MS);
+    });
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+    harness.unmount();
+  });
+
+  it('expires exactly at the boundary instant of the window', () => {
+    seedSelection([firstLine], { expiresAt: START + QUOTE_SELECTION_TTL_MS });
+    const harness = visit();
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    act(() => {
+      vi.advanceTimersByTime(QUOTE_SELECTION_TTL_MS);
+    });
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+    harness.unmount();
+  });
+
+  it('keeps the selection when another tab renewal lands before the timer callback', () => {
+    const harness = visit();
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir primera' }));
+    const renewedRecord = {
+      version: 3,
+      lines: [firstLine].map((line) => { const copy: Record<string, unknown> = { ...line }; delete copy.notes; return copy; }),
+      remember: false,
+      updatedAt: START + QUOTE_SELECTION_TTL_MS - 1000,
+      expiresAt: START + QUOTE_SELECTION_TTL_MS + 5 * DAY,
+    };
+    act(() => {
+      window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(renewedRecord));
+    });
+    act(() => {
+      vi.advanceTimersByTime(QUOTE_SELECTION_TTL_MS);
+    });
+    expect(screen.getByTestId('count')).toHaveTextContent('1');
+    expect(storedRecord()?.expiresAt).toBe(START + QUOTE_SELECTION_TTL_MS + 5 * DAY);
+    harness.unmount();
+  });
+
+  it('does not resuscitate expired lines when adding after system suspension', () => {
+    seedSelection([firstLine]);
+    const harness = visit();
+    vi.setSystemTime(START + 8 * DAY);
+    fireEvent.click(screen.getByRole('button', { name: 'Añadir segunda' }));
+    const lines = JSON.parse(screen.getByTestId('lines').textContent || '[]');
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({ variantId: secondLine.variantId });
+    expect(storedRecord()?.updatedAt).toBe(START + 8 * DAY);
+    expect(storedRecord()?.expiresAt).toBe(START + 8 * DAY + QUOTE_SELECTION_TTL_MS);
+    harness.unmount();
+  });
+
+  it('rejects inconsistent v3 remember/expiresAt pairs without reviving them', () => {
+    seedSelection([firstLine], { remember: true, expiresAt: START + 1000 });
+    const firstVisit = visit();
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+    firstVisit.unmount();
+
+    seedSelection([firstLine], { remember: false, expiresAt: null });
+    visit();
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+  });
+
+  it('cannot activate remember while the selection is empty', () => {
+    visit();
+    fireEvent.click(screen.getByTestId('remember-on'));
+    expect(screen.getByTestId('remember')).toHaveTextContent('false');
+    expect(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY)).toBeNull();
+  });
+
+  it('an empty adoption from another tab also drops the remember preference', () => {
+    seedSelection([firstLine], { remember: true, expiresAt: null });
+    const harness = visit();
+    expect(screen.getByTestId('remember')).toHaveTextContent('true');
+
+    window.localStorage.removeItem(QUOTE_SELECTION_STORAGE_KEY);
+    act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { key: QUOTE_SELECTION_STORAGE_KEY, newValue: null, storageArea: window.localStorage }));
+    });
+    expect(screen.getByTestId('count')).toHaveTextContent('0');
+    expect(screen.getByTestId('remember')).toHaveTextContent('false');
+    harness.unmount();
+  });
+});
+
 describe('cross-tab coordination', () => {
   it('adopts another tab clearing the basket and never resurrects the stale copy', () => {
     seedSelection([firstLine]);
