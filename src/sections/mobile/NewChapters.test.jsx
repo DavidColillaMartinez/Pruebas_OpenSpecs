@@ -11,7 +11,7 @@ describe('mobile new chapters', () => {
         <MobileQuienesSomos />
       </MemoryRouter>,
     );
-    expect(screen.getByRole('region', { name: 'Experiencia y oficio en cada reforma.' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Un equipo de profesionales con más de 20 años de experiencia en el sector de las reformas.' })).toBeInTheDocument();
     expect(screen.getAllByRole('heading', { level: 3 })).toHaveLength(3);
     expect(screen.getAllByRole('img').length).toBeGreaterThanOrEqual(3);
   });

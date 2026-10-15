@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
 import { QuoteSelectionLink } from '../../quote/components/QuoteSelectionLink';
-import { LRMQ_ASSETS } from '../../../config/mediaAssets';
+import { LRMQ_ASSETS, LRMQ_PHOTOS } from '../../../config/mediaAssets';
 import { LegalLinks } from '../../legal/LegalLinks';
-
-const mastheadImage = 'https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90';
 
 export function CatalogMasthead() {
   return (
@@ -33,12 +31,12 @@ export function CatalogMasthead() {
         </div>
         <figure className="relative min-h-64 overflow-hidden lg:min-h-full">
           <img
-            src={mastheadImage}
-            srcSet={[480, 768, 1200, 1600, 2200].map((width) => `${mastheadImage.replace('w=2200', `w=${width}`)} ${width}w`).join(', ')}
-            sizes="(min-width: 1024px) 59vw, 100vw"
-            alt="Ambiente de baño de AREA LRMQ"
+            src={LRMQ_PHOTOS.catalogoFachada.src}
+            srcSet={LRMQ_PHOTOS.catalogoFachada.srcSet}
+            sizes={LRMQ_PHOTOS.catalogoFachada.sizes}
+            alt="Fachada de la tienda de exposición de AREA LRMQ en Madrid, con la puerta y el rótulo del local"
             className="absolute inset-0 h-full w-full object-cover"
-            loading="eager"
+            loading="eager" decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-ink/48 via-ink/10 to-transparent lg:from-ink/38" aria-hidden="true" />
           <figcaption className="absolute bottom-5 right-5 max-w-[calc(100%-2.5rem)] rounded-full bg-ink/55 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">Selección AREA LRMQ</figcaption>

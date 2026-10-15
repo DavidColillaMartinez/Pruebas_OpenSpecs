@@ -17,12 +17,19 @@ export function Coleccion({ step, isActive }) {
         </div>
         <div className="grid gap-10 lg:grid-cols-[1fr_0.76fr]">
           <div className={`transition-all duration-500 ease-out ${leftVisible ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[2px]'}`}>
-            <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.8rem] object-cover" loading="lazy" />
+            <img
+              src={featured.photo.src}
+              srcSet={featured.photo.srcSet}
+              sizes={featured.photo.sizes}
+              alt={featured.imageAlt}
+              className="aspect-[16/10] w-full rounded-[1.8rem] object-cover"
+              loading="lazy" decoding="async"
+            />
             <div
               style={{ transitionDelay: leftVisible ? '180ms' : '0ms' }}
               className={`mt-6 transition-all duration-500 ease-out ${leftVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
             >
-              <p className="mb-2 border-l-2 border-clay/35 pl-4 text-sm font-semibold text-clay">{featured.label}</p>
+              {featured.label !== featured.title && <p className="mb-2 border-l-2 border-clay/35 pl-4 text-sm font-semibold text-clay">{featured.label}</p>}
               <h3 className="font-display text-4xl leading-none tracking-[0.035em] text-primary">{featured.title}</h3>
               <p className="mt-4 max-w-xl text-base leading-7 text-secondary/72">{featured.copy}</p>
             </div>

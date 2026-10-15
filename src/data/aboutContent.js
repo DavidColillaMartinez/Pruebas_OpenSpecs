@@ -1,28 +1,33 @@
-// Contenido del capítulo "Quiénes somos".
-// PENDIENTE DE APROBACIÓN DEL PROPIETARIO: los textos y las imágenes de estas
-// tres entradas deben ser confirmados o sustituidos por la propiedad antes de
-// publicar. Las imágenes reutilizan URLs ya empleadas en la landing para no
-// tocar assets; las fotos definitivas las aportará el propietario.
+import { LRMQ_PHOTOS } from '../config/mediaAssets';
+
+// Contenido del capítulo "Quiénes somos" con las fotos definitivas aprobadas
+// por el propietario (lote media-20261015 alojado en el VPS, consumido por URL).
+// Los dos detalles desktop son adaptaciones generativas autorizadas; en móvil
+// se muestran las fotos originales verticales con más contexto. Equipo es un
+// proyecto con dos iluminaciones del mismo baño, no un antes/después.
 export const aboutBlocks = [
   {
     label: 'Experiencia',
     title: 'Cada espacio tiene sus necesidades.',
     copy: 'Nuestra experiencia nos permite entender lo que quieres cambiar y plantear soluciones para aprovechar mejor tu vivienda o local.',
-    image: 'https://images.unsplash.com/photo-1572742482459-e04d6cfdd6f3?auto=format&fit=crop&w=700&q=85',
-    imageAlt: 'Cabina de ducha con mampara de vidrio',
+    photo: LRMQ_PHOTOS.quienesExperiencia,
+    imageAlt: 'Detalle de un baño reformado: mampara de vidrio, lavabo negro sobre mueble de madera y frente estriado',
+    mobileObjectPosition: 'center 42%',
   },
   {
     label: 'Equipo',
     title: 'Los oficios, coordinados.',
     copy: 'Contamos con profesionales especializados en los distintos oficios. Coordinamos cada parte del proyecto para conseguir un resultado cuidado y de calidad.',
-    image: 'https://images.unsplash.com/photo-1656646523907-97b094c7e63a?auto=format&fit=crop&w=700&q=85',
-    imageAlt: 'Suelo de ducha con baldosas blancas',
+    photo: { desktop: LRMQ_PHOTOS.quienesEquipo, mobile: LRMQ_PHOTOS.quienesEquipo },
+    imageAlt: 'Proyecto de baño grabado con dos iluminaciones: luz de día y luz cálida sobre el mismo aseo',
+    mobileObjectPosition: 'center',
   },
   {
     label: 'Compromiso',
     title: 'Cercanía y atención al detalle.',
     copy: 'Trabajamos con seriedad, cuidando cada espacio y los detalles de la ejecución, con el compromiso de cumplir los plazos acordados.',
-    image: 'https://images.unsplash.com/photo-1623111771733-d3ab4d26ce41?auto=format&fit=crop&w=700&q=85',
-    imageAlt: 'Grifo monomando plateado',
+    photo: LRMQ_PHOTOS.quienesCompromiso,
+    imageAlt: 'Detalle de un baño reformado: lavabo blanco con grifería negra sobre mueble de madera',
+    mobileObjectPosition: 'center 45%',
   },
 ];

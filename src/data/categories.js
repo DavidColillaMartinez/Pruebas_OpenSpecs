@@ -1,5 +1,9 @@
+import { LRMQ_PHOTOS } from '../config/mediaAssets';
+
 export const categories = [
-  { title: 'Una visión del conjunto.', label: 'Reformas integrales', copy: 'Renovamos viviendas y locales, coordinando los oficios para que distribución, instalaciones y acabados respondan a un mismo proyecto.', image: 'https://images.unsplash.com/photo-1572742482459-e04d6cfdd6f3?auto=format&fit=crop&w=700&q=85', imageAlt: 'Cabina de ducha con mampara de vidrio' },
-  { title: 'Espacios para el día a día.', label: 'Cocinas y baños', copy: 'Reformamos cocinas y baños para mejorar su funcionalidad, comodidad y estilo, cuidando la distribución, los materiales y el equipamiento.', image: 'https://images.unsplash.com/photo-1656646523907-97b094c7e63a?auto=format&fit=crop&w=700&q=85', imageAlt: 'Suelo de ducha con baldosas blancas' },
-  { title: 'Nuevas posibilidades.', label: 'Interiores y exteriores', copy: 'Renovamos y redistribuimos espacios para adaptarlos a tus necesidades y mejorar su aprovechamiento.', image: 'https://images.unsplash.com/photo-1623111771733-d3ab4d26ce41?auto=format&fit=crop&w=700&q=85', imageAlt: 'Grifo monomando plateado' },
+  // Título aprobado; su etiqueta coincide con el título y no se renderiza para
+  // evitar la repetición contigua en desktop y móvil.
+  { title: 'Reformas integrales', label: 'Reformas integrales', copy: 'Renovamos viviendas y locales, coordinando los oficios para que distribución, instalaciones y acabados respondan a un mismo proyecto.', photo: LRMQ_PHOTOS.serviciosEscalera, imageAlt: 'Escalera de una reforma antes y después: en obra con fontaneros y terminada con barandilla negra' },
+  { title: 'Espacios para el día a día.', label: 'Cocinas y baños', copy: 'Reformamos cocinas y baños para mejorar su funcionalidad, comodidad y estilo, cuidando la distribución, los materiales y el equipamiento.' },
+  { title: 'Nuevas posibilidades.', label: 'Interiores y exteriores', copy: 'Renovamos y redistribuimos espacios para adaptarlos a tus necesidades y mejorar su aprovechamiento.' },
 ];

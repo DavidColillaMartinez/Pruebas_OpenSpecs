@@ -2,12 +2,20 @@ import { Link } from 'react-router-dom';
 import { prefetchCatalogFirstPage } from '../../features/catalog/api/client';
 import { AnimatedLogoMark } from '../../components/AnimatedLogoMark';
 import { methodSteps } from '../../data/methodSteps';
+import { LRMQ_PHOTOS } from '../../config/mediaAssets';
 
 export function Inicio({ step, isActive, onLogoDone }) {
   const s = isActive ? step : 0;
   return (
     <div className="lrmq-desktop-inicio relative flex h-full flex-col items-center justify-center">
-      <img src="https://images.unsplash.com/photo-1763485956293-873ea83bf095?auto=format&fit=crop&w=2200&q=90" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
+      <img
+        src={LRMQ_PHOTOS.inicioCocina.desktop.src}
+        srcSet={LRMQ_PHOTOS.inicioCocina.desktop.srcSet}
+        sizes={LRMQ_PHOTOS.inicioCocina.desktop.sizes}
+        alt="" aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+        loading="eager" fetchPriority="high" decoding="async"
+      />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
       <div className="lrmq-inicio-fit relative z-10 mx-auto w-full max-w-6xl px-4 text-center sm:px-6">
         <div className="flex justify-center"><AnimatedLogoMark className="lrmq-inicio-logo relative z-10 opacity-90" onAnimationEnd={onLogoDone} /></div>

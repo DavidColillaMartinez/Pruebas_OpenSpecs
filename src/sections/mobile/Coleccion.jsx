@@ -10,9 +10,16 @@ export function MobileColeccion() {
       <h2 id="mobile-coleccion-title" className="font-display text-4xl leading-[1.02] tracking-[0.035em] text-primary sm:text-5xl text-wrap-balance">Soluciones para transformar tu espacio.</h2>
       <p className="mt-4 text-base leading-7 text-secondary/72 sm:text-lg sm:leading-8">Desde una reforma completa hasta la renovación de una estancia, adaptamos los trabajos a las necesidades de tu proyecto.</p>
       <div className="mt-10 overflow-hidden border-l-2 border-clay/35 pl-5">
-        <img src={featured.image} alt={featured.imageAlt} className="aspect-[16/10] w-full rounded-[1.4rem] object-cover" loading="lazy" />
-        <p className="mt-6 text-sm font-semibold text-clay">{featured.label}</p>
-        <h3 className="mt-2 font-display text-3xl leading-none tracking-[0.035em] text-primary sm:text-4xl">{featured.title}</h3>
+        <img
+          src={featured.photo.src}
+          srcSet={featured.photo.srcSet}
+          sizes={featured.photo.sizes}
+          alt={featured.imageAlt}
+          className="aspect-[16/10] w-full rounded-[1.4rem] object-cover"
+          loading="lazy" decoding="async"
+        />
+        {featured.label !== featured.title && <p className="mt-6 text-sm font-semibold text-clay">{featured.label}</p>}
+        <h3 className={`${featured.label !== featured.title ? 'mt-2' : 'mt-6'} font-display text-3xl leading-none tracking-[0.035em] text-primary sm:text-4xl`}>{featured.title}</h3>
         <p className="mt-3 text-base leading-7 text-secondary/72">{featured.copy}</p>
       </div>
       <div className="mt-10 space-y-7">

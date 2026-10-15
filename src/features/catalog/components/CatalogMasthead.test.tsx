@@ -28,7 +28,7 @@ describe('CatalogMasthead', () => {
     render(<MemoryRouter><QuoteSelectionProvider><CatalogMasthead /><AddSelectionButton /></QuoteSelectionProvider></MemoryRouter>);
 
     expect(screen.getByRole('heading', { name: 'Catálogo' })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Ambiente de baño de AREA LRMQ' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Fachada de la tienda de exposición de AREA LRMQ en Madrid, con la puerta y el rótulo del local' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Presupuesto, 0 selecciones' })).toHaveTextContent('Mis selecciones (0)');
 
     fireEvent.click(screen.getByRole('button', { name: 'Añadir prueba' }));

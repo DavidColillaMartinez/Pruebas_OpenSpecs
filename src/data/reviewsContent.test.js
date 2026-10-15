@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { googleReviews } from './reviewsContent';
-import { LRMQ_ASSET_BASE_URL } from '../config/mediaAssets';
+import { LRMQ_MEDIA_BASE_URL } from '../config/mediaAssets';
 
 describe('googleReviews content', () => {
   it('holds the 13 owner-provided Google reviews, all five stars', () => {
@@ -11,7 +11,8 @@ describe('googleReviews content', () => {
       expect(review.author).toBeTruthy();
       expect(review.date).toMatch(/^Hace/);
       expect(review.googleUrl).toContain('google.com/maps');
-      expect(review.image.startsWith(`${LRMQ_ASSET_BASE_URL}/reviews/`)).toBe(true);
+      expect(review.image.startsWith(`${LRMQ_MEDIA_BASE_URL}/reviews/`)).toBe(true);
+      expect(review.image.endsWith('.webp')).toBe(true);
     });
   });
 
