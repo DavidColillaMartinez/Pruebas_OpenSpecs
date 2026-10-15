@@ -11,6 +11,7 @@ import type { QuoteRequestPayload } from '../model/types';
 import { PrivacyLink, PrivacyNotice } from '../../legal/PrivacyNotice';
 import { PRIVACY_READ_ERROR, PRIVACY_READ_LABEL } from '../../legal/business';
 import { LegalLinks } from '../../legal/LegalLinks';
+import { SelectionRememberToggle } from '../components/SelectionRememberToggle';
 
 export function QuoteSelectionPage() {
   const { lines, updateQuantity, removeLine, clear, removeLines } = useQuoteSelection();
@@ -61,8 +62,9 @@ export function QuoteSelectionPage() {
     try {
       const confirmation = await createQuoteRequest(payload);
       // Only the sent lines leave the basket; anything changed after the
-      // submit (despite the controls being blocked) stays for the user.
-      removeLines(sentLines.map(getQuoteSelectionKey));
+      // submit (despite the controls being blocked) stays for the user. The
+      // automatic retirement does not renew the inactivity window.
+      removeLines(sentLines.map(getQuoteSelectionKey), { renewTtl: false });
       setConfirmedId(confirmation.id);
       setStatus('success');
       setForm({ customerName: '', email: '', phone: '', message: '', consent: false });
@@ -113,6 +115,7 @@ export function QuoteSelectionPage() {
                   );
                 })}
               </ul>
+              <SelectionRememberToggle />
             </section>
             <section aria-labelledby="joint-quote-heading">
               <h2 id="joint-quote-heading" className="font-display text-3xl">Solicitar presupuesto</h2>
@@ -121,7 +124,7 @@ export function QuoteSelectionPage() {
                 <div className="grid gap-4 sm:grid-cols-2"><div><label htmlFor="joint-email" className="text-sm font-semibold">Email</label><input id="joint-email" type="email" disabled={submitting} value={form.email} onChange={(event) => updateField('email', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div><div><label htmlFor="joint-phone" className="text-sm font-semibold">Teléfono</label><input id="joint-phone" disabled={submitting} value={form.phone} onChange={(event) => updateField('phone', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div></div>
                 <div><label htmlFor="joint-message" className="text-sm font-semibold">Mensaje</label><textarea id="joint-message" rows={4} disabled={submitting} value={form.message} onChange={(event) => updateField('message', event.target.value)} className="mt-1 w-full border-b border-border-hairline/20 bg-transparent px-1 py-3 focus:border-ink focus:outline-none disabled:opacity-60" /></div>
                 <PrivacyNotice flow="quote" />
-                <label className="flex items-start gap-2 text-sm text-secondary"><input type="checkbox" disabled={submitting} checked={form.consent} onChange={(event) => updateField('consent', event.target.checked)} className="mt-1" /><span>{PRIVACY_READ_LABEL}. <PrivacyLink /></span></label>
+                <label className="flex items-start gap-2 text-sm text-secondary"><input type="checkbox" data-testid="privacy-consent" disabled={submitting} checked={form.consent} onChange={(event) => updateField('consent', event.target.checked)} className="mt-1" /><span>{PRIVACY_READ_LABEL}. <PrivacyLink /></span></label>
                 {status === 'error' && <p role="alert" className="text-sm text-red-700">{error}</p>}
                 {status === 'success' && <p role="status" className="text-sm text-green-800">Solicitud registrada con el identificador {confirmedId ?? '—'}.</p>}
                 <button type="submit" disabled={submitting} className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-graphite disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">{submitting ? 'Enviando…' : `Enviar ${lines.length} ${lines.length === 1 ? 'selección' : 'selecciones'}`}</button>

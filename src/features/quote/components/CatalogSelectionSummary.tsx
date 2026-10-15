@@ -4,6 +4,7 @@ import type { RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { getQuoteSelectionKey, useQuoteSelection, type QuoteSelectionLine } from '../model/selectionStore';
 import { formatQuoteLineSummary } from '../model/summary';
+import { SelectionRememberToggle } from './SelectionRememberToggle';
 
 function formatReference(line: QuoteSelectionLine): string {
   return line.reference ? `Referencia ${line.reference}` : 'Variante seleccionada';
@@ -46,6 +47,7 @@ function SummaryContent({ headingId, onClose, drawer = false, closeButtonRef }: 
       ) : (
         <ul className="mt-4 divide-y divide-ink/10" aria-label={`${count} selecciones`}>{lines.map((line) => <SelectionLine key={getQuoteSelectionKey(line)} line={line} compact />)}</ul>
       )}
+      <SelectionRememberToggle />
       <Link to="/presupuesto" onClick={onClose} className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full border border-border-hairline/25 px-4 text-sm font-semibold transition-colors hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay">Ir a presupuesto{count > 0 ? ` (${count})` : ''}</Link>
     </div>
   );

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { QuoteSelectionPage } from './QuoteSelectionPage';
-import { QuoteSelectionProvider, QUOTE_SELECTION_STORAGE_KEY } from '../model/selectionStore';
+import { QuoteSelectionProvider, QUOTE_SELECTION_STORAGE_KEY, LEGACY_QUOTE_SELECTION_STORAGE_KEY } from '../model/selectionStore';
 import { PRIVACY_READ_ERROR } from '../../legal/business';
 
 const lines = [
@@ -18,8 +18,21 @@ afterEach(() => {
 });
 
 describe('QuoteSelectionPage', () => {
+  it('shares the remember switch with the basket surface', () => {
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
+
+    const toggle = screen.getByTestId('selection-remember-toggle');
+    expect(toggle).not.toBeChecked();
+    fireEvent.click(toggle);
+    expect(toggle).toBeChecked();
+    const record = JSON.parse(window.localStorage.getItem(QUOTE_SELECTION_STORAGE_KEY) || 'null');
+    expect(record.remember).toBe(true);
+    expect(record.expiresAt).toBeNull();
+  });
+
   it('keeps the draft and selection when privacy is opened, and still requires the checkbox', () => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
     render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
@@ -39,7 +52,7 @@ describe('QuoteSelectionPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(PRIVACY_READ_ERROR);
   });
   it('reviews two complete variants and submits both items', async () => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'quote-1', status: 'received', item_count: 2 }), { status: 201 }));
     vi.stubGlobal('fetch', fetchMock);
     render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
@@ -47,7 +60,7 @@ describe('QuoteSelectionPage', () => {
     expect(screen.getAllByText('Alba')).toHaveLength(2);
     fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ana@example.com' } });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByTestId('privacy-consent'));
     fireEvent.click(screen.getByRole('button', { name: 'Enviar 2 selecciones' }));
 
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Solicitud registrada con el identificador quote-1.'));
@@ -59,7 +72,7 @@ describe('QuoteSelectionPage', () => {
   });
 
   it('submits all shared lines, including Royo attributes, without prices', async () => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify([...lines, royoLine]));
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify([...lines, royoLine]));
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'quote-2', status: 'received', item_count: 3 }), { status: 201 }));
     vi.stubGlobal('fetch', fetchMock);
     render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
@@ -67,7 +80,7 @@ describe('QuoteSelectionPage', () => {
     expect(screen.getByRole('button', { name: 'Enviar 3 selecciones' })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ana@example.com' } });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByTestId('privacy-consent'));
     fireEvent.click(screen.getByRole('button', { name: 'Enviar 3 selecciones' }));
 
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Solicitud registrada con el identificador quote-2.'));
@@ -78,14 +91,14 @@ describe('QuoteSelectionPage', () => {
   });
 
   it('stops trusting a partial confirmation: keeps the basket and reports the mismatch', async () => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'quote-3', status: 'received', item_count: 1 }), { status: 201 }));
     vi.stubGlobal('fetch', fetchMock);
     render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
 
     fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ana@example.com' } });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByTestId('privacy-consent'));
     fireEvent.click(screen.getByRole('button', { name: 'Enviar 2 selecciones' }));
 
     expect(await screen.findByText('La confirmación del presupuesto no es válida.')).toBeInTheDocument();
@@ -95,7 +108,7 @@ describe('QuoteSelectionPage', () => {
   });
 
   it('maps per-line server errors next to the offending line and keeps every line', async () => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       error: 'VALIDATION_ERROR',
       message: 'La solicitud de presupuesto no es válida.',
@@ -106,7 +119,7 @@ describe('QuoteSelectionPage', () => {
 
     fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ana@example.com' } });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByTestId('privacy-consent'));
     fireEvent.click(screen.getByRole('button', { name: 'Enviar 2 selecciones' }));
 
     expect(await screen.findByText('Esta línea: Revisa quantity de esta línea.')).toBeInTheDocument();
@@ -114,7 +127,7 @@ describe('QuoteSelectionPage', () => {
   });
 
   it('blocks line and form edits while the POST travels', async () => {
-    window.localStorage.setItem(QUOTE_SELECTION_STORAGE_KEY, JSON.stringify([...lines, royoLine]));
+    window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify([...lines, royoLine]));
     let resolveRequest!: (value: Response) => void;
     const fetchMock = vi.fn().mockReturnValue(new Promise<Response>((resolve) => { resolveRequest = resolve; }));
     vi.stubGlobal('fetch', fetchMock);
@@ -122,7 +135,7 @@ describe('QuoteSelectionPage', () => {
 
     fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'ana@example.com' } });
-    fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.click(screen.getByTestId('privacy-consent'));
     fireEvent.click(screen.getByRole('button', { name: 'Enviar 3 selecciones' }));
 
     expect(screen.getByRole('button', { name: 'Enviando…' })).toBeDisabled();

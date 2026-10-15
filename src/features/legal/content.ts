@@ -60,7 +60,7 @@ export const LEGAL_DOCUMENTS: Record<'notice' | 'privacy' | 'cookies', LegalDocu
         'Para arquitectura, la empresa facilita al interesado el teléfono del profesional independiente. Este contacto no constituye por sí mismo un envío de datos del interesado al arquitecto. La contratación y el tratamiento de datos que realices directamente con ese profesional son separados.',
       ] },
       { id: 'conservacion', title: 'Conservación de los datos', paragraphs: [
-        'Los datos de contacto de los formularios permanecen en memoria durante su uso. La selección de productos se conserva en el navegador sin notas libres ni datos de contacto, con la duración indicada en cookies y almacenamiento. Borrar los datos del navegador no elimina las solicitudes ni los mensajes ya recibidos por la empresa.',
+        'Los datos de contacto de los formularios permanecen en memoria durante su uso. La selección de productos se conserva en el navegador sin notas libres ni datos de contacto, durante siete días sin cambios; con la casilla «Recordar mi selección en este dispositivo hasta que la borre» se conserva hasta que la elimines. Borrar los datos del navegador no elimina las solicitudes ni los mensajes ya recibidos por la empresa.',
         'La empresa conserva los presupuestos con los datos del cliente para recuperar solicitudes cuando vuelve a contactar, incluso después de un año. Actualmente no aplica un plazo de borrado ni una eliminación automática de esos presupuestos. El correo empresarial conserva los mensajes recibidos. Esta práctica no equivale a un plazo legal de conservación.',
         'Reiniciar el chat no elimina los datos ya recibidos por los servicios de asistencia mediante inteligencia artificial. Para solicitar acceso o supresión de tus datos, utiliza el contacto indicado en el siguiente apartado.',
       ] },
@@ -77,7 +77,7 @@ export const LEGAL_DOCUMENTS: Record<'notice' | 'privacy' | 'cookies', LegalDocu
     intro: 'Qué se guarda en tu navegador y qué recursos externos se cargan.',
     sections: [
       { id: 'tecnologias', title: 'Almacenamiento funcional', paragraphs: [
-        'Además de las cookies, un sitio puede guardar información mediante localStorage (almacenamiento local) y sessionStorage (almacenamiento de sesión de una pestaña). AREA LRMQ utiliza estas tecnologías para recordar tu preferencia de tema, conservar la selección de productos, recordar que has cerrado la bienvenida del asistente y facilitar el retorno al catálogo. No se utilizan para publicidad ni para crear perfiles comerciales.',
+        'Además de las cookies, un sitio puede guardar información mediante localStorage (almacenamiento local) y sessionStorage (almacenamiento de sesión de una pestaña). AREA LRMQ utiliza estas tecnologías para recordar tu preferencia de tema, conservar la selección de productos durante siete días sin cambios, recordar que has cerrado la bienvenida del asistente y facilitar el retorno al catálogo. La selección se conserva sin caducidad automática únicamente si activas la casilla «Recordar mi selección en este dispositivo hasta que la borre», disponible en la cesta del catálogo y en «Mi presupuesto». No se utilizan para publicidad ni para crear perfiles comerciales.',
         'El almacenamiento descrito responde a esas funciones de la web. Las conexiones con servicios externos y las tecnologías de los sitios que decidas abrir se distinguen de este almacenamiento del navegador.',
       ] },
       { id: 'externos', title: 'Recursos externos y enlaces', paragraphs: [
@@ -85,7 +85,7 @@ export const LEGAL_DOCUMENTS: Record<'notice' | 'privacy' | 'cookies', LegalDocu
         'WhatsApp, Instagram y Google Maps tienen sus propias tecnologías y políticas cuando los abres. El enlace preparado por el formulario de WhatsApp también contiene los datos que hayas escrito.',
       ] },
       { id: 'control', title: 'Cómo gestionar el almacenamiento', paragraphs: [
-        'Puedes vaciar la selección desde «Mi presupuesto», cambiar el tema con su control y borrar cookies y datos del sitio desde los ajustes de tu navegador. Al borrar esos datos puedes perder la selección, el tema o el estado de retorno al catálogo. El almacenamiento local no tiene caducidad programada: también puede ser eliminado por el propio navegador.',
+        'Puedes vaciar la selección desde «Mi presupuesto», cambiar el tema con su control y borrar cookies y datos del sitio desde los ajustes de tu navegador. Al borrar esos datos puedes perder la selección, el tema o el estado de retorno al catálogo. El registro de la selección caduca por sí solo tras siete días sin cambios, y se elimina igualmente al vaciarla; solo se conserva sin límite de tiempo si activas la casilla «Recordar mi selección en este dispositivo hasta que la borre».',
         'Los formularios y la conversación actual permanecen en memoria, sin guardar los datos de contacto ni el historial del chat en el almacenamiento del navegador. Borrar los datos del sitio no borra los mensajes ya enviados ni los datos recibidos por la empresa o los servicios que atienden tus consultas.',
       ] },
     ],
@@ -94,7 +94,7 @@ export const LEGAL_DOCUMENTS: Record<'notice' | 'privacy' | 'cookies', LegalDocu
 
 export const BROWSER_STORAGE = [
   { key: 'Preferencia de tema', type: 'localStorage', purpose: 'Recordar el tema claro u oscuro elegido.', duration: 'Sin caducidad programada; hasta cambiarlo o borrar los datos del sitio.' },
-  { key: 'Selección de productos', type: 'localStorage', purpose: 'Conservar productos, cantidades y características de tu selección, sin notas libres ni contacto.', duration: 'Sin caducidad programada; se actualiza al eliminar, vaciar o enviar correctamente las líneas seleccionadas.' },
+  { key: 'Selección de productos', type: 'localStorage', purpose: 'Conservar productos, cantidades y características de tu selección, sin notas libres ni contacto.', duration: 'Siete días sin cambios; con la casilla «Recordar mi selección en este dispositivo hasta que la borre» se conserva hasta que la elimines o vacíes.' },
   { key: 'Bienvenida del asistente', type: 'sessionStorage', purpose: 'Recordar que has descartado la bienvenida del asistente.', duration: 'Sesión de la pestaña.' },
   { key: 'Retorno al catálogo', type: 'sessionStorage', purpose: 'Recuperar filtros y posición al volver al catálogo.', duration: 'Sesión de la pestaña; se elimina al recuperar el retorno en el catálogo.' },
 ] as const;
