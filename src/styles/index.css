@@ -63,6 +63,18 @@
   transition: filter 300ms ease;
 }
 
+/* Inicio hero legibility: soften the kitchen photo and darken the center band
+ * behind the text; all glyph colors are untouched. */
+.lrmq-hero-legibility > img {
+  filter: blur(7px) brightness(0.9);
+  transform: scale(1.07);
+}
+.lrmq-hero-legibility-scrim {
+  background:
+    radial-gradient(95% 72% at 50% 44%, rgba(21, 21, 21, 0.42) 0%, rgba(21, 21, 21, 0) 72%),
+    linear-gradient(180deg, rgba(21, 21, 21, 0.3) 0%, rgba(21, 21, 21, 0.26) 45%, rgba(21, 21, 21, 0.45) 100%);
+}
+
 /* Dark-glass nav pill for sections WITHOUT photography behind (not Inicio).
  * Inicio keeps a transparent pill with a hairline border on both themes. */
 [data-theme='dark'] .lrmq-nav-pill {

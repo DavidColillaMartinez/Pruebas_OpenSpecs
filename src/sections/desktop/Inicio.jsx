@@ -7,7 +7,7 @@ import { LRMQ_PHOTOS } from '../../config/mediaAssets';
 export function Inicio({ step, isActive, onLogoDone }) {
   const s = isActive ? step : 0;
   return (
-    <div className="lrmq-desktop-inicio relative flex h-full flex-col items-center justify-center">
+    <div className="lrmq-desktop-inicio lrmq-hero-legibility relative flex h-full flex-col items-center justify-center">
       <img
         src={LRMQ_PHOTOS.inicioCocina.desktop.src}
         srcSet={LRMQ_PHOTOS.inicioCocina.desktop.srcSet}
@@ -17,6 +17,7 @@ export function Inicio({ step, isActive, onLogoDone }) {
         loading="eager" fetchPriority="high" decoding="async"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/48 via-ink/34 to-ink/72" />
+      <div className="lrmq-hero-legibility-scrim absolute inset-0" />
       <div className="lrmq-inicio-fit relative z-10 mx-auto w-full max-w-6xl px-4 text-center sm:px-6">
         <div className="flex justify-center"><AnimatedLogoMark className="lrmq-inicio-logo relative z-10 opacity-90" onAnimationEnd={onLogoDone} /></div>
         <p className="mb-3 inline-block text-sm font-semibold uppercase tracking-[0.34em] text-clay"><Link to="/productos" aria-label="Abrir catálogo de productos" onMouseEnter={prefetchCatalogFirstPage} onFocus={prefetchCatalogFirstPage} className="inline-block rounded-lg bg-hairline/20 px-3 py-1.5 backdrop-blur-sm transition hover:bg-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 focus-visible:ring-offset-ink/20">Tienda</Link></p>

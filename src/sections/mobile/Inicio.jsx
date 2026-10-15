@@ -7,7 +7,7 @@ import { LRMQ_PHOTOS } from '../../config/mediaAssets';
 // top of the photo in both themes.
 export function MobileInicio() {
   return (
-    <section id="inicio" aria-labelledby="mobile-inicio-title" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink px-6 pt-24 pb-16 sm:pt-32">
+    <section id="inicio" aria-labelledby="mobile-inicio-title" className="lrmq-hero-legibility relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-ink px-6 pt-24 pb-16 sm:pt-32">
       <img
         src={LRMQ_PHOTOS.inicioCocina.mobile.src}
         srcSet={LRMQ_PHOTOS.inicioCocina.mobile.srcSet}
@@ -17,6 +17,7 @@ export function MobileInicio() {
         loading="eager" fetchPriority="high" decoding="async"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/50 via-ink/40 to-ink/70" aria-hidden="true" />
+      <div className="lrmq-hero-legibility-scrim absolute inset-0" aria-hidden="true" />
       <div className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center">
         <span className="lrmq-photo-mark mb-8 grid place-items-center"><LogoMark className="h-24 w-24 sm:h-28 sm:w-28" minimal /></span>
         <h1 id="mobile-inicio-title" className="font-display text-5xl leading-[0.92] tracking-[0.045em] text-white sm:text-6xl text-wrap-balance">AREA LRMQ</h1>
