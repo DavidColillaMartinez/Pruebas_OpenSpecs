@@ -2,6 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { COMPANY_QUOTE_EMAIL, formatQuoteMail, classifyMailResult, resendRequest } from './format-mail.mjs';
 
 describe('quote email template', () => {
+  it('translates technical option codes and cabinet configurations without altering finish names', () => {
+    const mail = formatQuoteMail({ quoteId: 'readable', items: [{ productName: 'Fiore', quantity: 1, variantLabel: 'lavabo_alto · Cromo', attributes: { tap_type: 'lavabo_alto', mechanism: 'termostatico', installation: 'empotrable', finish: 'Oro' } }, { productName: 'Urban', quantity: 1, attributes: { presentation_type: 'a_suelo', configuration: '2C1P' } }] });
+    expect(mail.message).toContain('Tipo de grifo: Caño alto');
+    expect(mail.message).toContain('Mecanismo: Termostático');
+    expect(mail.message).toContain('Instalación: Empotrable');
+    expect(mail.message).toContain('Selección de catálogo: Caño alto · Cromo');
+    expect(mail.message).toContain('Tipo de presentación: A suelo');
+    expect(mail.message).toContain('Configuración: 2 cajones + 1 puerta');
+    expect(mail.message).toContain('Acabado: Oro');
+    expect(mail.message).not.toMatch(/lavabo_alto|a_suelo|2C1P/);
+  });
+  it('shows equivalent measurements once and keeps genuinely different dimensions', () => {
+    const mail = formatQuoteMail({ quoteId: 'measure', items: [{ productName: 'Alba', quantity: 1, attributes: { measure: 'Ø 60', dimension: '60 cm' } }, { productName: 'Mueble', quantity: 1, attributes: { measure: '80', dimension: '80 x 45' } }] });
+    expect(mail.message).not.toContain('Dimensiones: 60 cm');
+    expect(mail.message).toContain('Medida: 80');
+    expect(mail.message).toContain('Dimensiones: 80 x 45');
+  });
   it('uses fixed headers and text content rather than interpolating HTML', () => {
     const mail = formatQuoteMail({ quoteId: 'quote-1', customerName: 'Ana', message: '<script>alert(1)</script>', items: [{ productName: 'Akord', quantity: 2, attributes: { finish: 'Cromo' } }] });
     expect(mail.sendTo).toBe(COMPANY_QUOTE_EMAIL);
@@ -22,7 +39,7 @@ describe('quote email template', () => {
     const job = { quoteId: 'quote-1', from: 'evil@example.test', sendTo: 'evil@example.test', items: [{}] };
     const first = resendRequest(job);
     expect(first).toEqual(resendRequest(job));
-    expect(first.idempotencyKey).toBe('quote-lrmq-v1/quote-1');
+    expect(first.idempotencyKey).toBe('quote-lrmq-v2/quote-1');
     expect(first.body.to).toEqual(['arealrmqtienda@gmail.com']);
     expect(first.body.from).toBe('AREA LRMQ · Presupuestos <presupuestos@avisos.arealrmq.es>');
     expect(first.body).not.toHaveProperty('html');

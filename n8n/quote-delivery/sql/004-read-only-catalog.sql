@@ -8,13 +8,32 @@ WITH requested AS (
  FROM jsonb_array_elements(convert_from(decode($1,'base64'),'UTF8')::jsonb)
  WITH ORDINALITY q(item,ordinality)
 ), resolved AS (
- SELECT r.*,p.id AS public_product_id,p.name AS public_name,p.collection,
+ SELECT r.*,p.id AS public_product_id,p.slug AS public_slug,p.name AS public_name,p.collection,
  p.supplier_id,p.supplier_name,p.category_id,p.category_name,p.main_image_url,
  p.specs,p.configuration_fields,v.id AS matched_variant_id,
  ov.id AS matched_offer_variant_id,
+ CASE WHEN v.id IS NOT NULL THEN v.label ELSE concat_ws(' · ',o.offer_type,ov.finish_name) END AS variant_label,
+ jsonb_strip_nulls(jsonb_build_object(
+  'finish',COALESCE(NULLIF(v.attributes->>'furniture_finish',''),NULLIF(v.attributes->>'finish',''),NULLIF(v.raw_data->>'finish','')),
+  'measure',v.attributes->>'measure','dimension',v.attributes->>'dimension'
+ )) AS source_facts,
+ EXISTS (
+  SELECT 1 FROM catalog.product_variants other_variant
+  JOIN catalog.v_product_cards_grouped other_product
+   ON other_variant.product_id=ANY(other_product.grouped_product_ids)
+  WHERE other_variant.is_active AND NULLIF(btrim(v.reference),'') IS NOT NULL
+   AND other_variant.reference=v.reference
+   AND other_product.publication_status='publishable'
+   AND other_product.supplier_id=p.supplier_id AND other_product.id<>p.id
+ ) AS reference_shared,
  v.reference AS variant_reference,ov.reference AS offer_reference,
  COALESCE(v.attributes,'{}'::jsonb) || jsonb_build_object(
-  'reference',v.reference,'measure',v.measure,'dimension',v.dimension,'finish',v.finish,
+  'reference',v.reference,
+  'measure',COALESCE(NULLIF(v.measure,''),v.attributes->>'measure'),
+  'dimension',COALESCE(NULLIF(v.dimension,''),v.attributes->>'dimension'),
+  'finish',COALESCE(NULLIF(v.finish,''),v.attributes->>'finish'),
+  'furniture_finish',CASE WHEN p.category_id='muebles-y-lavabos' THEN COALESCE(NULLIF(v.finish,''),v.attributes->>'furniture_finish',v.attributes->>'finish') ELSE NULL END,
+  'finishCode',COALESCE(NULLIF(v.finish_code,''),NULLIF(v.raw_data->>'finish_code','')),
   'version',COALESCE(v.attributes->>'version',v.raw_data->>'fixed_version'),
   'has_led',COALESCE(v.raw_data->'has_led',CASE lower(p.specs->>'LED') WHEN 'sí' THEN 'true'::jsonb WHEN 'si' THEN 'true'::jsonb WHEN 'no' THEN 'false'::jsonb ELSE NULL END),
   'lighting_type',COALESCE(v.attributes->>'lighting_type',v.raw_data->>'lighting_type',p.specs->>'Tipo de iluminación'),
@@ -39,6 +58,6 @@ WITH requested AS (
  WHERE o.id IS NULL OR r.offer_variant_id IS NULL OR ov.id IS NOT NULL
 
 )
-SELECT position,public_product_id,public_name,supplier_id,category_id,configuration_fields,specs,
- matched_variant_id,matched_offer_variant_id,variant_facts,offer_facts
+SELECT position,public_product_id,public_slug,public_name,collection,supplier_id,supplier_name,category_id,category_name,configuration_fields,specs,
+ matched_variant_id,matched_offer_variant_id,variant_label,source_facts,reference_shared,variant_facts,offer_facts
 FROM resolved ORDER BY position;

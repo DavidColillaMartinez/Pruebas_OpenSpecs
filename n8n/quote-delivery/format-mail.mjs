@@ -18,6 +18,42 @@ const ATTRIBUTE_LABELS = {
   finish_family: 'Familia de acabado', length_cm: 'Largo (cm)', width_cm: 'Ancho (cm)', offer: 'Oferta',
 };
 
+const OPTION_LABELS = {
+  tap_type: { lavabo_bajo: 'Caño bajo', lavabo_alto: 'Caño alto', lavabo: 'Lavabo', bide: 'Bidé' },
+  installation: { vista: 'Vista', empotrable: 'Empotrable', columna: 'Columna' },
+  mechanism: { monomando: 'Monomando', termostatico: 'Termostático' },
+  presentation_type: { a_suelo: 'A suelo', profundidad_reducida: 'Fondo reducido', suspendido: 'Suspendido' },
+};
+
+function configurationText(value) {
+  return value.replace(/\b(?:\d+[CP])+\b/g, code => [...code.matchAll(/(\d+)([CP])/g)]
+    .map(([, count, type]) => `${count} ${type === 'C' ? Number(count) === 1 ? 'cajón' : 'cajones' : Number(count) === 1 ? 'puerta' : 'puertas'}`).join(' + '));
+}
+
+function commercialValue(key, value, item) {
+  if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+  const text = plain(value, 300);
+  const translated = OPTION_LABELS[key]?.[text.toLowerCase()];
+  if (translated) return translated;
+  if (key === 'configuration') return configurationText(text);
+  if (key === 'finish_family') return text.replace(/-/g, ' ').replace(/^./, char => char.toUpperCase());
+  if (key === 'measure' && item.categoryId === 'platos-de-ducha' && /^\d+x\d+$/.test(text)) return text.replace('x', ' × ') + ' cm';
+  return text;
+}
+
+function selectionLabel(value) {
+  let text = plain(value, 500);
+  for (const labels of Object.values(OPTION_LABELS)) {
+    for (const [code, label] of Object.entries(labels)) text = text.replace(new RegExp(`\\b${code}\\b`, 'gi'), label);
+  }
+  return configurationText(text);
+}
+
+function normalizedMeasure(value) {
+  const text = String(value).toLowerCase();
+  return text.replace(/×|\*/g, 'x').replace(/[^0-9x.,]/g, '') + (/\bmm\b/.test(text) ? '|mm' : '|cm');
+}
+
 function receivedDate(value) {
   const date = new Date(value);
   if (!value || !Number.isFinite(date.getTime())) return 'No indicada';
@@ -41,14 +77,34 @@ export function formatQuoteMail(job) {
     '', `ARTÍCULOS SOLICITADOS (${job.items.length})`,
   ];
   job.items.forEach((item, index) => {
-    rows.push('', `${index + 1}. ${plain(item.productName, 300)}`, `Cantidad: ${plain(item.quantity, 10)}`);
-    for (const [key, value] of Object.entries(item.attributes || {})) {
+    const type = plain(item.productType || item.category, 200);
+    rows.push('', `${index + 1}. ${plain(item.productName, 300)}${type ? ' — ' + type : ''}`);
+    if (item.supplier) rows.push(`Proveedor: ${plain(item.supplier, 200)}`);
+    if (item.category) rows.push(`Categoría: ${plain(item.category, 200)}`);
+    rows.push(`Cantidad: ${plain(item.quantity, 10)}`);
+    if (item.variantLabel) rows.push(`Selección de catálogo: ${selectionLabel(item.variantLabel)}`);
+    if (!item.attributes?.reference) rows.push('Referencia del fabricante: No disponible en el catálogo');
+    const attributes = item.attributes || {};
+    const keys = [...new Set([...Object.keys(ATTRIBUTE_LABELS), ...Object.keys(attributes)])];
+    const shownMeasures = new Set();
+    for (const key of keys) {
+      const value = attributes[key];
       if (!['string', 'number', 'boolean'].includes(typeof value) || value === '') continue;
+      if (key === 'finish' && value === attributes.furniture_finish) continue;
+      if (key === 'measure' || key === 'dimension') {
+        const measure = normalizedMeasure(value);
+        if (measure && shownMeasures.has(measure)) continue;
+        if (measure) shownMeasures.add(measure);
+      }
       const label = ATTRIBUTE_LABELS[key] || plain(key, 40).replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
-      const text = typeof value === 'boolean' ? (value ? 'Sí' : 'No') : plain(value, 300);
+      const text = commercialValue(key, value, item);
       rows.push(`  ${label}: ${text}`);
     }
     if (item.notes) rows.push(`Observaciones del artículo: ${plain(item.notes, 2000)}`);
+    for (const confirmation of item.confirmations || []) rows.push(`Antes de presupuestar: ${plain(confirmation, 700)}`);
+    if (item.productId) rows.push(`Identificador de catálogo: ${plain(item.productId, 128)}`);
+    if (item.variantId) rows.push(`Identificador de variante/oferta: ${plain(item.variantId, 128)}`);
+    if (typeof item.productUrl === 'string' && /^https:\/\/arealrmq\.es\/productos\/[A-Za-z0-9%._~-]+$/.test(item.productUrl)) rows.push(`Ficha del producto: ${item.productUrl}`);
   });
   if (job.sourcePage) rows.push('', `Página de origen: ${plain(job.sourcePage, 500)}`);
   return { sendTo: COMPANY_QUOTE_EMAIL, subject: `[AREA LRMQ] Solicitud de presupuesto · ${job.quoteId}`, message: rows.join('\n') };
@@ -59,7 +115,7 @@ export function resendRequest(job) {
   const email = typeof job.email === 'string' ? job.email.trim() : '';
   const replyTo = email.length <= 320 && /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email) && !/[\r\n\0]/.test(email) ? email : '';
   return {
-    idempotencyKey: `quote-lrmq-v1/${job.quoteId}`,
+    idempotencyKey: `quote-lrmq-v2/${job.quoteId}`,
     body: { from: QUOTE_FROM, to: [mail.sendTo], subject: mail.subject, text: mail.message,
       ...(replyTo ? { reply_to: replyTo } : {}),
     },
