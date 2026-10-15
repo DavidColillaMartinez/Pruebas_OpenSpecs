@@ -59,3 +59,79 @@ describe('parseChatResponse actions', () => {
     expect(parsed.actions).toHaveLength(0);
   });
 });
+
+describe('parseChatResponse optional WhatsApp drafts', () => {
+  const draft = 'Hola, quiero valorar la reforma de un local diáfano de unos 50 m² en Torrejón de Ardoz.';
+
+  it('keeps a plain draft for whatsapp actions within the contract size', () => {
+    const parsed = parseChatResponse({
+      ...response,
+      actions: [{ type: 'contact_official', label: 'Hablar por WhatsApp', target: 'whatsapp', draftText: draft }],
+    });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions).toEqual([{ type: 'contact_official', label: 'Hablar por WhatsApp', target: 'whatsapp', draftText: draft }]);
+  });
+
+  it('drops the draft when it exceeds 1000 characters but keeps the action', () => {
+    const parsed = parseChatResponse({
+      ...response,
+      actions: [{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp', draftText: 'x'.repeat(1001) }],
+    });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions).toEqual([{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' }]);
+  });
+
+  it('drops non-string, empty and oversized drafts without dropping the action', () => {
+    const parsed = parseChatResponse({
+      ...response,
+      actions: [
+        { type: 'contact_official', label: 'WA vacío', target: 'whatsapp', draftText: '   ' },
+        { type: 'contact_official', label: 'WA número', target: 'whatsapp', draftText: 42 },
+        { type: 'contact_official', label: 'WA nula', target: 'whatsapp', draftText: null },
+      ],
+    });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions).toHaveLength(3);
+    expect(parsed.actions.every((action) => !('draftText' in action) || action.draftText === undefined)).toBe(true);
+  });
+
+  it('drops the draft for non-whatsapp official targets', () => {
+    const parsed = parseChatResponse({
+      ...response,
+      actions: [
+        { type: 'contact_official', label: 'Llamar', target: 'phone', draftText: draft },
+        { type: 'contact_official', label: 'Instagram', target: 'instagram', draftText: draft },
+      ],
+    });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions.every((action) => !('draftText' in action))).toBe(true);
+  });
+
+  it('accepts responses without any draft field (legacy contract)', () => {
+    const parsed = parseChatResponse({ ...response, actions: [{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' }] });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(parsed.actions).toEqual([{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp' }]);
+  });
+
+  it('never turns model URLs into destinations', () => {
+    const parsed = parseChatResponse({
+      ...response,
+      actions: [{ type: 'contact_official', label: 'WhatsApp', target: 'whatsapp', draftText: draft, targetUrl: 'https://attacker.example/wa' }],
+    });
+
+    expect(parsed.kind).toBe('success');
+    if (parsed.kind !== 'success') return;
+    expect(JSON.stringify(parsed.actions)).not.toContain('attacker');
+    expect(JSON.stringify(parsed)).not.toContain('handoffSummary');
+  });
+});

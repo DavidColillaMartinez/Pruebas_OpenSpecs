@@ -5,7 +5,7 @@ export const ASSISTANT_OFFICIAL_TARGETS = new Set<string>(['whatsapp', 'phone', 
 export function makeOfficialContactHref(target: string): string | null {
   switch (target) {
     case 'whatsapp':
-      return `https://wa.me/${PHONE_INTL}`;
+      return makeWhatsAppHref();
     case 'phone':
       return `tel:+34${PHONE}`;
     case 'instagram':
@@ -15,6 +15,14 @@ export function makeOfficialContactHref(target: string): string | null {
     default:
       return null;
   }
+}
+
+export function makeWhatsAppHref(message?: string): string {
+  const base = `https://wa.me/${PHONE_INTL}`;
+  if (!message) return base;
+  // URLSearchParams encodes accents, `&`, `+` and newlines; the recipient
+  // always stays the official number built from the business data.
+  return `${base}?${new URLSearchParams({ text: message }).toString()}`;
 }
 
 export function officialContactLabel(target: string): string | null {

@@ -2,8 +2,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAssistantChat } from '../model/assistantStore';
 import type { AssistantChatMessage } from '../model/assistantStore';
 import { AssistantProductCard } from './AssistantProductCard';
-import { AssistantActions } from './AssistantActions';
-import { PrivacyNotice } from '../../legal/PrivacyNotice';
+import { AssistantActions, type WhatsAppPreparationRequest } from './AssistantActions';
+import { WhatsAppPreparation } from './WhatsAppPreparation';
+import { makeWhatsAppHref } from '../model/officialChannels';
+import { PrivacyLink, PrivacyNotice } from '../../legal/PrivacyNotice';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, [tabindex]:not([tabindex="-1"])';
 const CHAT_BOTTOM_THRESHOLD_PX = 96;
@@ -12,6 +14,11 @@ const CHAT_INPUT_MAX_HEIGHT_PX = 132;
 type ChatPanelProps = {
   open: boolean;
   onClose: () => void;
+};
+
+type WhatsAppPreparationState = {
+  draftText: string | null;
+  triggerId: string;
 };
 
 function lastAssistantMessage(messages: AssistantChatMessage[]): AssistantChatMessage | null {
@@ -29,6 +36,10 @@ function isCoarsePointer(): boolean {
 export function ChatPanel({ open, onClose }: ChatPanelProps) {
   const { status, demoMode, messages, sendMessage, startNewConversation } = useAssistantChat();
   const [draft, setDraft] = useState('');
+  // Session-scope interface memory (React state): the privacy preference and
+  // the WhatsApp preparation never touch storage and survive re-renders.
+  const [privacyExpanded, setPrivacyExpanded] = useState(true);
+  const [whatsappPreparation, setWhatsAppPreparation] = useState<WhatsAppPreparationState | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -38,6 +49,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
 
   const isSending = status === 'sending';
   const lastReply = lastAssistantMessage(messages);
+  const whatsappActive = whatsappPreparation !== null;
 
   const expired = lastReply?.errorKind === 'SESSION_EXPIRED' || status === 'expired';
 
@@ -52,6 +64,38 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
     shouldFollowLatestRef.current = true;
     return () => restoreFocusRef.current?.focus();
   }, [open]);
+
+  // Closing the panel discards any half-written preparation; the privacy
+  // fold preference survives on purpose (session memory).
+  useEffect(() => {
+    if (!open && whatsappPreparation) setWhatsAppPreparation(null);
+  }, [open, whatsappPreparation]);
+
+  const openWhatsAppPreparation = (request: WhatsAppPreparationRequest) => {
+    setWhatsAppPreparation({ draftText: request.draftText, triggerId: request.triggerId });
+  };
+
+  // Focus the origin control after React commits the preparation removal;
+  // focusing synchronously would hit the unmounted node.
+  const focusWhatsAppTrigger = (triggerId: string) => {
+    window.setTimeout(() => document.getElementById(triggerId)?.focus(), 0);
+  };
+
+  const cancelWhatsAppPreparation = () => {
+    const triggerId = whatsappPreparation?.triggerId;
+    setWhatsAppPreparation(null);
+    if (triggerId) focusWhatsAppTrigger(triggerId);
+  };
+
+  const confirmWhatsAppPreparation = (finalMessage: string) => {
+    const url = makeWhatsAppHref(finalMessage);
+    // Official destination (PHONE_INTL) with URL-encoded text; nothing is sent
+    // by the assistant itself and the chat history stays untouched.
+    window.open(url, '_blank', 'noopener,noreferrer');
+    const triggerId = whatsappPreparation?.triggerId;
+    setWhatsAppPreparation(null);
+    if (triggerId) focusWhatsAppTrigger(triggerId);
+  };
 
   const scrollToLatest = () => {
     const container = messagesRef.current;
@@ -146,7 +190,13 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         <div className="flex items-center">
           <button
             type="button"
-            onClick={startNewConversation}
+            onClick={() => {
+              // A new conversation resets the interface conversation (and any
+              // half-written WhatsApp preparation), never the chat history
+              // storage rules handled by the store.
+              setWhatsAppPreparation(null);
+              startNewConversation();
+            }}
             className="min-h-11 whitespace-nowrap rounded-full px-3 py-2 text-xs font-semibold text-secondary/70 transition hover:bg-elevated-hover hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
           >
             Nueva conversación
@@ -172,13 +222,22 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         </p>
       )}
 
-      <div
-        ref={messagesRef}
-        className="assistant-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4"
-        onScroll={handleMessagesScroll}
-      >
-        <ul className="space-y-3">
-          {messages.map((message) => (
+      {whatsappActive && whatsappPreparation ? (
+        <WhatsAppPreparation
+          draftText={whatsappPreparation.draftText}
+          onCancel={cancelWhatsAppPreparation}
+          onConfirm={confirmWhatsAppPreparation}
+          originId={whatsappPreparation.triggerId}
+        />
+      ) : (
+        <>
+          <div
+            ref={messagesRef}
+            className="assistant-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4"
+            onScroll={handleMessagesScroll}
+          >
+            <ul className="space-y-3">
+              {messages.map((message) => (
             <li key={message.id} className={message.role === 'user' ? 'flex justify-end' : ''}>
               {message.role === 'assistant' ? (
                 message.products?.length ? (
@@ -189,7 +248,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                         <AssistantProductCard key={`${message.id}-${product.internalPath}`} product={product} />
                       ))}
                     </div>
-                    <AssistantActions actions={message.actions ?? []} />
+                    <AssistantActions actions={message.actions ?? []} messageId={message.id} onWhatsAppPrepare={openWhatsAppPreparation} />
                   </div>
                 ) : (
                   message.errorKind ? (
@@ -213,7 +272,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
                       <p className="rounded-2xl rounded-tl-md bg-surface-elevated/85 px-4 py-3 shadow-soft text-sm leading-relaxed text-primary">
                         {message.text}
                       </p>
-                      <AssistantActions actions={message.actions ?? []} />
+                    <AssistantActions actions={message.actions ?? []} messageId={message.id} onWhatsAppPrepare={openWhatsAppPreparation} />
                     </div>
                   )
                 )
@@ -237,8 +296,27 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         </ul>
       </div>
 
-      <div id="assistant-privacy-information" className="max-h-36 shrink-0 overflow-y-auto px-5 pb-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay" tabIndex={0} role="region" aria-label="Privacidad del asistente">
-        <PrivacyNotice flow="assistant" />
+      <div id="assistant-privacy-region" role="region" aria-label="Privacidad del asistente" className="shrink-0 border-t border-border-hairline/8 px-5 pb-1.5 pt-2">
+        <div className="flex items-center justify-between gap-x-3 gap-y-1">
+          <p id="assistant-privacy-summary" className="min-w-0 text-xs leading-5 text-secondary/80">
+            Tu mensaje se usa para atenderte como consulta o presupuesto; sin uso publicitario.{' '}
+            <PrivacyLink section="asistente" />
+          </p>
+          <button
+            type="button"
+            aria-expanded={privacyExpanded}
+            aria-controls="assistant-privacy-details"
+            onClick={() => setPrivacyExpanded((current) => !current)}
+            className="min-h-11 whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-semibold text-secondary/70 transition hover:bg-elevated-hover hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
+          >
+            {privacyExpanded ? 'Ocultar información' : 'Información de privacidad'}
+          </button>
+        </div>
+        {privacyExpanded && (
+          <div id="assistant-privacy-details" className="assistant-scroll mt-1 max-h-36 overflow-y-auto text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-clay" tabIndex={0}>
+            <PrivacyNotice flow="assistant" />
+          </div>
+        )}
       </div>
       <form
         className="mx-3 mb-3 mt-2 flex items-end gap-2 rounded-[1.5rem] border border-border-hairline/10 bg-surface-elevated/85 p-1.5 shadow-soft"
@@ -250,7 +328,7 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
         <label className="sr-only" htmlFor="assistant-input">Escribe tu mensaje para el asistente</label>
         <textarea
           id="assistant-input"
-          aria-describedby="assistant-privacy-information"
+          aria-describedby="assistant-privacy-summary"
           ref={inputRef}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -274,6 +352,8 @@ export function ChatPanel({ open, onClose }: ChatPanelProps) {
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M4.5 12h13M12 5.5l6.5 6.5-6.5 6.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
       </form>
+        </>
+      )}
     </div>
   );
 }

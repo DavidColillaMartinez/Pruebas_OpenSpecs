@@ -28,6 +28,10 @@ export type ChatAction = {
   type: 'navigate_internal' | 'contact_official';
   label: string;
   target: string;
+  /** Optional plain-text draft the backend attached to official WhatsApp
+   * actions (version 1 contract, ≤ 1000 chars). Never accepted for other
+   * targets; a draft for legacy actions is simply absent. */
+  draftText?: string;
 };
 
 export type ChatSuccessPayload = {
@@ -71,6 +75,27 @@ export const DEFAULT_CHAT_ERROR_TEXT: Record<ChatErrorKind, string> = Object.fre
 const KNOWN_ERROR_CODES = new Set<string>(Object.keys(DEFAULT_CHAT_ERROR_TEXT));
 export const CHAT_ACTION_TYPES = new Set<string>(['navigate_internal', 'contact_official']);
 export const APPROVED_IMAGE_ORIGINS = new Set<string>(['https://assets.colilladavid.es']);
+// Backend contract (version 1): an optional plain draft for WhatsApp actions.
+export const CHAT_ACTION_DRAFT_MAX_LENGTH = 1000;
+
+function normalizeChatAction(value: Record<string, unknown>): ChatAction | null {
+  const type = value.type as ChatAction['type'];
+  const label = value.label;
+  if (!isPlainString(label)) return null;
+  const target = value.target;
+  if (type === 'navigate_internal') {
+    if (!isInternalPath(target)) return null;
+    return { type, label, target };
+  }
+  if (!isOfficialContactTarget(target)) return null;
+  const draftText = value.draftText;
+  // Only WhatsApp actions may carry a draft; anything else (including a model
+  // URL or handoff fields) is dropped here while the official action survives.
+  if (typeof draftText === 'string' && draftText.trim().length > 0 && draftText.length <= CHAT_ACTION_DRAFT_MAX_LENGTH) {
+    if (target === 'whatsapp') return { type, label, target, draftText };
+  }
+  return { type, label, target };
+}
 
 export function isPlainString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
@@ -135,9 +160,8 @@ export function isChatRecommendedProduct(value: unknown): value is ChatRecommend
 
 export function isChatAction(value: unknown): value is ChatAction {
   if (!isRecord(value)) return false;
-  if (!CHAT_ACTION_TYPES.has(String(value.type)) || !isPlainString(value.label)) return false;
-  if (value.type === 'navigate_internal') return isInternalPath(value.target);
-  return isOfficialContactTarget(value.target);
+  if (!CHAT_ACTION_TYPES.has(String(value.type))) return false;
+  return normalizeChatAction(value) !== null;
 }
 
 export function parseChatResponse(raw: unknown): ChatSendResult {
@@ -166,6 +190,14 @@ export function parseChatResponse(raw: unknown): ChatSendResult {
   }
 
   const products = Array.isArray(raw.products) ? raw.products.filter(isChatRecommendedProduct) : [];
-  const actions = Array.isArray(raw.actions) ? raw.actions.filter(isChatAction) : [];
+  const actions: ChatAction[] = [];
+  if (Array.isArray(raw.actions)) {
+    for (const candidate of raw.actions) {
+      if (isRecord(candidate) && CHAT_ACTION_TYPES.has(String(candidate.type))) {
+        const normalized = normalizeChatAction(candidate);
+        if (normalized) actions.push(normalized);
+      }
+    }
+  }
   return { kind: 'success', conversationId, message, products, actions };
 }
