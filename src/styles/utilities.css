@@ -538,6 +538,16 @@ button[aria-controls='catalog-selection-drawer']:is(:hover,:focus-visible,:activ
 [data-theme='dark'] .lrmq-mobile-menu nav a { color: rgb(var(--lrmq-primary)); }
 [data-theme='dark'] .lrmq-header-nav-photo { background: #1c1d1f; }
 html[data-theme='dark'][data-lrmq-context='photo'] .lrmq-header-photo-action { background: #1c1d1f; border-radius: 9999px; }
+
+/* Light mode over the Inicio photo only: white navigation text and white
+ * chapter dots. Dark theme and the other chapters keep their own colors. */
+html[data-lrmq-context='photo']:not([data-theme='dark']) .lrmq-header-nav a { color: #fff; }
+html[data-lrmq-context='photo']:not([data-theme='dark']) .lrmq-header-nav a:hover { color: rgba(255, 255, 255, 0.72); }
+html[data-lrmq-context='photo']:not([data-theme='dark']) .lrmq-header-photo-action { color: #fff; }
+html[data-lrmq-context='photo']:not([data-theme='dark']) .lrmq-header-tienda-link:hover { color: rgba(255, 255, 255, 0.72); }
+html[data-lrmq-context='photo']:not([data-theme='dark']) [data-lrmq-chapter-dots] button { background: rgba(255, 255, 255, 0.35); }
+html[data-lrmq-context='photo']:not([data-theme='dark']) [data-lrmq-chapter-dots] button[aria-current='step'] { background: #fff; }
+html[data-lrmq-context='photo']:not([data-theme='dark']) [data-lrmq-chapter-dots] span { color: #fff; }
 /* Short desktop viewports (just above the narrative threshold) need a tighter
  * top padding in the chapters that sit higher than their measured minimum. */
 @media (min-width: 1024px) and (max-height: 899px) {

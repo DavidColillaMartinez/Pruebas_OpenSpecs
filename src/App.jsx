@@ -35,7 +35,7 @@ const RouteFallback = () => <div className="min-h-svh" aria-hidden="true" />;
 
 function ChapterDots({ active, labels, onNavigate }) {
   return (
-    <div className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">
+    <div data-lrmq-chapter-dots className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col items-end gap-3 md:flex">
       {sectionIds.map((id, index) => {
         const isActive = index === active;
         return (
