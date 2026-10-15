@@ -1,0 +1,27 @@
+# Tareas
+
+- [ ] 1. Medios definitivos
+  - [x] 1.1 Actualizar `src/config/mediaAssets.ts`: base `media-20261015`, nombres de logo/mark/Visión/reseñas, `socialLogo` y helper de fotos con anchos reales
+  - [x] 1.2 Inicio desktop y móvil: fondo responsive con `<picture>`/srcset, sin doble descarga del hero
+  - [x] 1.3 Servicios (escalera), Quiénes somos (experiencia, equipo, compromiso con variantes desktop/móvil) y masthead de catálogo (fachada) con srcSet/sizes y alt real
+  - [x] 1.4 Favicon a `logo-marca-512.webp` conservando MIME; PNG de Open Graph/Twitter intacto; JSON-LD con el logo WebP
+  - [x] 1.5 Reseñas: extensión WebP de los 13 archivos, autores/textos/orden intactos
+- [ ] 2. Texto y jerarquía
+  - [x] 2.1 Servicios: título «Reformas integrales» en el dato compartido y ocultar la etiqueta sólo cuando coincida con el título (desktop/móvil)
+  - [x] 2.2 Quiénes somos: nuevo h2 exacto sin duplicado, tipografía local responsive para portátiles, aria-labelledby intacto en móvil
+- [ ] 3. Bienvenida móvil
+  - [x] 3.1 Reproducir el defecto con contexto limpio (móvil, primera entrada) y confirmar la regla responsable
+  - [x] 3.2 Eliminar la reserva de franja para la burbuja sin ocultarla ni parches de fondo general
+  - [x] 3.3 Verificar aparición/desaparición, pulsaciones fuera de la burbuja, dock de catálogo, claro/oscuro
+- [ ] 4. Selección con caducidad
+  - [x] 4.1 Formato v3: TTL de 7 días por defecto, sólo cambio real renueva, migración única v2→v3, storage corrupto/no disponible
+  - [x] 4.2 Casilla compartida «Recordar mi selección en este dispositivo hasta que la borre» en cesta y presupuesto, desmarcada por defecto
+  - [x] 4.3 Comprobar vencimiento al montar y en foco/visibilidad; evento `storage` sin renovar ni resucitar
+  - [x] 4.4 Vaciar/eliminar elimina productos y metadatos; envío exitoso quita sólo las líneas enviadas; error conserva el estado
+  - [ ] 5. Textos legales
+  - [x] 5.1 /cookies y privacidad: 7 días sin cambios por defecto y conservación hasta borrar con Recordar
+- [ ] 6. Verificación local (la revisión del propietario queda pendiente)
+  - [x] 6.1 Pruebas con reloj simulado: antes de 7 días, límite, expirado, Recordar, desactivar, visitas, modificaciones y no-op, migración, vaciado, storage, notas, pestañas
+  - [x] 6.2 Visual 1366×768, 1270×620, 390×844, 320×740, claro/oscuro (WebKit no disponible por dependencias de sistema; ver informe)
+  - [x] 6.3 Red: una descarga por hero, srcSet activo, sin 404; navegación, logo animado, Visión y cesta sin regresiones
+  - [x] 6.4 Estado: tests/typecheck/lint/build ejecutados; aprobar/revisar queda para el propietario (sin commit ni despliegue)
