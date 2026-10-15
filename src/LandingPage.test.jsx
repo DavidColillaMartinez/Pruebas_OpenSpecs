@@ -49,12 +49,14 @@ describe('LandingPage narrative lifecycle', () => {
     for (const label of chapterLabels) {
       expect(screen.getByRole('button', { name: `Ir a ${label}` })).toBeInTheDocument();
     }
-    // Compact desktop keeps the same destinations in the existing menu.
+    // Compact desktop keeps the same destinations in the existing menu; the
+    // legal pages (added in feat(legal)) append after the chapter links.
     fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
     const navLabels = [...document.querySelectorAll('nav a')].map((link) => link.textContent);
-    expect(navLabels).toEqual(['Inicio', ...navItems.map((item) => item.label)]);
+    expect(navLabels.slice(0, 7)).toEqual(['Inicio', ...navItems.map((item) => item.label)]);
     expect(navItems[0].label).toBe('Quiénes somos');
     expect(navItems[navItems.length - 2].label).toBe('Opiniones');
+    expect(navLabels.slice(7)).toEqual(['Aviso legal', 'Política de privacidad', 'Cookies y almacenamiento']);
   });
 
   it('routes a deep link hash to its chapter on mount', () => {
