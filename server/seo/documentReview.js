@@ -117,9 +117,10 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1023, height: 768
   report.browser.push({ resize: viewport, singleMountAndDraftPreserved: true });
 }
 await page.locator('#vision').scrollIntoViewIfNeeded();
+await page.waitForFunction(() => document.querySelector('#vision video').readyState >= 2);
 const play = page.getByRole('button', { name: 'Reproducir boceto', exact: true });
 if (await play.isVisible()) await play.click();
-await page.locator('video[aria-label="Video de boceto dibujándose"]').evaluate((video) => video.dispatchEvent(new Event('ended')));
+await page.waitForFunction(() => document.querySelector('#vision video').ended);
 const slider = page.getByRole('slider', { name: 'Comparar boceto con imagen final' });
 await slider.waitFor();
 const box = await slider.boundingBox();
@@ -131,6 +132,8 @@ assert.ok(Number(await slider.getAttribute('aria-valuenow')) > 70);
 assert.deepEqual(errors, []);
 report.browser.push({ touchCompare: true, hydrationErrors: errors });
 const renovation = page.locator('video[aria-label="Video stopmotion de reforma de baño completo"]');
+await renovation.scrollIntoViewIfNeeded();
+await page.waitForFunction(() => document.querySelector('#reformas video').readyState >= 2);
 assert.equal(await renovation.evaluate((video) => video.controls), true);
 await renovation.evaluate((video) => video.play());
 await page.waitForFunction(() => document.querySelector('video[aria-label="Video stopmotion de reforma de baño completo"]').currentTime > .1);

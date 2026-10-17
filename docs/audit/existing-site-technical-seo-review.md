@@ -424,8 +424,8 @@ Evidencia de la primera corrección desplegada (`4f6c8cc`): las cabeceras de dia
 ### 11.3 Comprobación del empaquetado (representativa del runtime serverless)
 
 `node server/seo/packageCheck.js` tras `npm run build`:
-1. Verifica que el bundle del renderer no referencia ficheros relativos ausentes bajo `dist/server` ni dependencias no instaladas.
-2. Copia `dist/server/**` (el alcance declarado en `includeFiles`) a un sandbox temporal con node_modules, y en ese árbol aislado importa y ejecuta el renderer (estáticas, catálogo 503, ficha 404) y la shell módulo. Resultado: `package-seo ok`.
+1. Verifica que el bundle del renderer es autocontenido, sin imports de dependencias externas salvo módulos nativos de Node.
+2. Copia `dist/server/**` (el alcance declarado en `includeFiles`) a un sandbox temporal **sin node_modules**, y en ese árbol aislado importa y ejecuta el renderer (estáticas, catálogo 503, ficha 404) y la shell módulo. Resultado: `package-seo ok`. `npm run build` ejecuta obligatoriamente esta comprobación al terminar el build; un fallo devuelve estado no cero antes de desplegar.
 3. No equivale a evidencia de Vercel: el empaquetado real (@vercel/node, nft, runtime) solo se confirma con despliegue, logs o las cabeceras `X-LRMQ-Diag` en producción.
 
 ### 11.4 Verificación local ejecutada tras la corrección

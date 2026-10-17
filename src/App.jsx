@@ -215,8 +215,8 @@ export function LandingPage() {
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} onLogoDone={() => setChapterHold(sectionIds.indexOf('inicio'), false)} />,
     <QuienesSomos key="quienes-somos" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
     <Coleccion key="coleccion" step={activeChapter === 2 ? step : 0} isActive={activeChapter === 2} />,
-    <Reformas key="reformas" smoothProgress={activeChapter === 3 ? smoothProgress : 0} isActive={activeChapter === 3} narrative={isDesktop} />,
-    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} narrative={isDesktop} onHold={(held) => setChapterHold(sectionIds.indexOf('vision'), held)} />,
+    <Reformas key="reformas" smoothProgress={activeChapter === 3 ? smoothProgress : 0} isActive={activeChapter === 3} narrative={isDesktop} prepareMedia={Math.abs(activeChapter - 3) <= 1} />,
+    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} narrative={isDesktop} prepareMedia={Math.abs(activeChapter - 4) <= 1} onHold={(held) => setChapterHold(sectionIds.indexOf('vision'), held)} />,
     <Opiniones key="opiniones" step={activeChapter === 5 ? step : 0} isActive={activeChapter === 5} narrative={isDesktop} />,
     <Contacto key="contacto" step={activeChapter === 6 ? step : 0} isActive={activeChapter === 6} />,
   ];

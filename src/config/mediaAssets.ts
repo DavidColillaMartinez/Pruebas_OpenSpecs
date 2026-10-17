@@ -43,11 +43,17 @@ function responsivePhoto(
 
 // Real pixel widths from MANIFIESTO-MEDIOS.json; only the URLs/metadata the
 // code needs are mirrored here.
+// Match the existing max-w-5xl grids before their optional fit-down transform:
+// 88px chapter gutter + 48px panel padding; about gap 28px, 0.8/1.8 column;
+// services gap 40px, 1/1.76 column. Natural flow is one column, also at short
+// desktop heights. Keep conservative upper bounds rather than under-resolving.
+const aboutSizes = '(min-width: 1024px) and (min-height: 560px) min(443px, calc(44.445vw - 73px)), min(1024px, calc(100vw - 48px))';
+const servicesSizes = '(min-width: 1024px) and (min-height: 560px) min(560px, calc(56.819vw - 100px)), min(1024px, calc(100vw - 48px))';
 export const LRMQ_PHOTOS = Object.freeze({
   inicioCocina: responsivePhoto('fotos/inicio-cocina-desktop-{w}.webp', [960, 1440, 1672], 'fotos/inicio-cocina-movil-{w}.webp', [480, 768, 1152], '100vw'),
-  quienesExperiencia: responsivePhoto('fotos/quienes-experiencia-desktop-{w}.webp', [480, 880], 'fotos/quienes-experiencia-movil-{w}.webp', [480, 960], '(min-width: 1024px) 42vw, 100vw'),
-  quienesEquipo: photo('fotos/quienes-equipo-{w}.webp', [480, 960, 1448], '(min-width: 1024px) 42vw, 100vw'),
-  quienesCompromiso: responsivePhoto('fotos/quienes-compromiso-desktop-{w}.webp', [480, 880], 'fotos/quienes-compromiso-movil-{w}.webp', [480, 941], '(min-width: 1024px) 42vw, 100vw'),
-  serviciosEscalera: photo('fotos/servicios-escalera-{w}.webp', [640, 1024, 1536], '(min-width: 1024px) 55vw, 100vw'),
+  quienesExperiencia: responsivePhoto('fotos/quienes-experiencia-desktop-{w}.webp', [480, 880], 'fotos/quienes-experiencia-movil-{w}.webp', [480, 960], aboutSizes),
+  quienesEquipo: photo('fotos/quienes-equipo-{w}.webp', [480, 960, 1448], aboutSizes),
+  quienesCompromiso: responsivePhoto('fotos/quienes-compromiso-desktop-{w}.webp', [480, 880], 'fotos/quienes-compromiso-movil-{w}.webp', [480, 941], aboutSizes),
+  serviciosEscalera: photo('fotos/servicios-escalera-{w}.webp', [640, 1024, 1536], servicesSizes),
   catalogoFachada: photo('fotos/catalogo-fachada-{w}.webp', [640, 1280, 2048], '(min-width: 1024px) 59vw, 100vw'),
 } satisfies Record<string, LrmqResponsivePhoto | LrmqPhotoVariant>);

@@ -1,4 +1,4 @@
-export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onKeyDown, isCompare, videoSrc, poster, finalImage, finalImageAlt, children }) {
+export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onKeyDown, isCompare, videoSrc, videoPreload = 'metadata', poster, finalImage, finalImageAlt, children }) {
   return (
     <div
       ref={sliderRef}
@@ -13,7 +13,7 @@ export function CompareSlider({ videoRef, sliderRef, sliderX, onPointerDown, onK
       className="relative aspect-[4/3] select-none overflow-hidden rounded-[1.2rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-clay/40"
       style={{ touchAction: isCompare ? 'none' : 'auto' }}
     >
-      <video ref={videoRef} src={videoSrc} muted playsInline preload="metadata" poster={poster} className="absolute inset-0 h-full w-full rounded-[1.2rem] bg-white object-cover" aria-label="Video de boceto dibujándose" />
+      <video ref={videoRef} src={videoSrc} muted playsInline preload={videoPreload} poster={poster} className="absolute inset-0 h-full w-full rounded-[1.2rem] bg-white object-cover" aria-label="Video de boceto dibujándose" />
       {isCompare && (
         <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${sliderX * 100}%)` }}>
           <img src={finalImage} alt={finalImageAlt} className="absolute inset-0 h-full w-full rounded-[1.2rem] bg-white object-contain" draggable={false} loading="lazy" />

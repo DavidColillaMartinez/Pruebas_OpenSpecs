@@ -1,7 +1,7 @@
 // Comprobación de empaquetado representativa del runtime serverless, distinta
 // de las pruebas de Vite: valida que los artefactos que las funciones api
 // necesitan son localizables desde un árbol de despliegue aislado con únicamente
-// dist/server y dependencias instaladas. No equivale a evidencia de Vercel; esa
+// dist/server SIN node_modules. No equivale a evidencia de Vercel; esa
 // confirmación requiere los logs o las cabeceras de diagnóstico en producción.
 
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';

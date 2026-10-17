@@ -3,9 +3,11 @@ import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { ProjectFacts } from '../../components/ProjectFacts';
 import { projectFacts } from '../../data/projectFacts';
 import { PHONE_INTL } from '../../data/business';
+import { usePreparedMedia } from '../../hooks/usePreparedMedia';
 
-export function Reformas({ smoothProgress, isActive, narrative = true }) {
+export function Reformas({ smoothProgress, isActive, narrative = true, prepareMedia = isActive }) {
   const videoRef = useRef(null);
+  const prepared = usePreparedMedia(videoRef, narrative, prepareMedia);
   const [duration, setDuration] = useState(13.7);
   const [nativeProgress, setNativeProgress] = useState(0);
   const progress = isActive ? smoothProgress : 0;
@@ -16,13 +18,15 @@ export function Reformas({ smoothProgress, isActive, narrative = true }) {
     videoRef.current.controls = !narrative;
     if (!narrative) return;
     if (!isActive) { videoRef.current.pause(); return; }
-    videoRef.current.currentTime = videoProgress * duration;
-  }, [duration, isActive, videoProgress, narrative]);
+    if (prepared && videoRef.current.readyState >= 1 && Number.isFinite(duration)) {
+      videoRef.current.currentTime = videoProgress * duration;
+    }
+  }, [duration, isActive, videoProgress, narrative, prepared]);
 
   return (
     <div className="flex h-full items-center bg-transparent px-6">
       <div className="mx-auto grid w-full max-w-7xl gap-10 lg:grid-cols-[1.55fr_0.75fr] lg:items-center">
-        <video ref={videoRef} src={LRMQ_ASSETS.renovationVideo} muted playsInline preload="metadata" onTimeUpdate={() => { const video = videoRef.current; if (!narrative && video?.duration) setNativeProgress(video.currentTime / video.duration); }} onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.2rem]" aria-label="Video stopmotion de reforma de baño completo" />
+        <video ref={videoRef} src={prepared ? LRMQ_ASSETS.renovationVideo : undefined} width="768" height="432" muted playsInline preload={prepared ? 'auto' : 'none'} onTimeUpdate={() => { const video = videoRef.current; if (!narrative && video?.duration) setNativeProgress(video.currentTime / video.duration); }} onLoadedMetadata={() => { if (videoRef.current && Number.isFinite(videoRef.current.duration)) setDuration(videoRef.current.duration); }} className="w-full rounded-[1.2rem]" aria-label="Video stopmotion de reforma de baño completo" />
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">Reforma de un baño</p>
           <h2 className="mt-3 font-display text-5xl leading-[0.96] tracking-[0.035em] text-primary text-wrap-balance">Tu proyecto, paso a paso.</h2>

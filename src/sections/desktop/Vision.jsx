@@ -1,15 +1,17 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { LogoMark } from '../../components/LogoMark';
 import { CompareSlider } from '../../components/CompareSlider';
+import { usePreparedMedia } from '../../hooks/usePreparedMedia';
 
 // Browser-session playback memory, as before. Server rendering never reads or
 // writes this flag: it is used only by playback events and effects.
 const visionSeenRef = { current: false };
 
-export function Vision({ step, isActive, onHold, narrative = true }) {
+export function Vision({ step, isActive, onHold, narrative = true, prepareMedia = isActive }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
+  const prepared = usePreparedMedia(sliderRef, narrative, prepareMedia);
   const draggingRef = useRef(false);
   const activeRef = useRef(false);
   const [videoDone, setVideoDone] = useState(false);
@@ -19,14 +21,14 @@ export function Vision({ step, isActive, onHold, narrative = true }) {
   holdRef.current = onHold;
   const s = isActive ? step : 0;
 
-  const finishPlayback = () => {
-    if (!activeRef.current) return;
+  const finishPlayback = useCallback(() => {
+    if (!prepared || !activeRef.current || !videoRef.current?.getAttribute('src') || videoRef.current.readyState < 2) return;
     videoRef.current?.pause();
     setVideoDone(true);
     setPlaying(false);
     holdRef.current?.(false);
     visionSeenRef.current = true;
-  };
+  }, [prepared]);
 
   useEffect(() => {
     activeRef.current = !narrative || isActive;
@@ -35,15 +37,26 @@ export function Vision({ step, isActive, onHold, narrative = true }) {
       const video = videoRef.current;
       return () => { activeRef.current = false; video?.pause(); };
     }
-    if (!videoRef.current) return;
+    if (!prepared || !videoRef.current) return;
     const video = videoRef.current;
     const done = () => finishPlayback();
+    const failed = () => {
+      if (!activeRef.current) return;
+      setPlaying(false);
+      holdRef.current?.(false);
+    };
+    let loadingTimer;
+    const started = () => {
+      clearTimeout(loadingTimer);
+      if (narrative && activeRef.current) holdRef.current?.(true);
+    };
     video.addEventListener('ended', done);
-    video.addEventListener('error', done);
+    video.addEventListener('error', failed);
+    video.addEventListener('playing', started);
     if (!narrative) {
       video.pause();
       setPlaying(false);
-      return () => { video.removeEventListener('ended', done); video.removeEventListener('error', done); video.pause(); };
+      return () => { video.removeEventListener('ended', done); video.removeEventListener('error', failed); video.removeEventListener('playing', started); video.pause(); };
     }
     if (visionSeenRef.current) {
       video.pause();
@@ -51,7 +64,8 @@ export function Vision({ step, isActive, onHold, narrative = true }) {
       holdRef.current?.(false);
       return () => {
         video.removeEventListener('ended', done);
-        video.removeEventListener('error', done);
+        video.removeEventListener('error', failed);
+        video.removeEventListener('playing', started);
         activeRef.current = false;
         video.pause();
       };
@@ -60,24 +74,38 @@ export function Vision({ step, isActive, onHold, narrative = true }) {
     setVideoDone(false);
     setPlaying(true);
     video.currentTime = 0;
-    video.play().catch(done);
+    // A stalled, not-yet-playable source must not trap narrative navigation or
+    // be remembered as completed. Late playback may still start normally.
+    loadingTimer = setTimeout(() => {
+      if (activeRef.current && video.readyState < 2) {
+        setPlaying(false);
+        holdRef.current?.(false);
+      }
+    }, 8000);
+    video.play().catch(error => { if (error.name !== 'AbortError') failed(); });
     return () => {
+      clearTimeout(loadingTimer);
       video.removeEventListener('ended', done);
-      video.removeEventListener('error', done);
+      video.removeEventListener('error', failed);
+      video.removeEventListener('playing', started);
       activeRef.current = false;
       video.pause();
     };
-  }, [isActive, narrative]);
+  }, [isActive, narrative, prepared, finishPlayback]);
 
   const handleReplay = () => {
-    if (!videoRef.current) return;
-    visionSeenRef.current = true;
-    if (narrative) holdRef.current?.(true);
+    if (!prepared || !videoRef.current) return;
+    if (narrative) holdRef.current?.(videoRef.current.readyState >= 2);
     setVideoDone(false);
     setPlaying(true);
     setSliderX(0.5);
     videoRef.current.currentTime = 0;
-    videoRef.current.play().catch(finishPlayback);
+    videoRef.current.play().catch(error => {
+      if (error.name !== 'AbortError' && activeRef.current) {
+        setPlaying(false);
+        holdRef.current?.(false);
+      }
+    });
   };
 
   const setFromClientX = (clientX) => {
@@ -105,8 +133,9 @@ export function Vision({ step, isActive, onHold, narrative = true }) {
           onPointerDown={onPointerDown}
           onKeyDown={(e) => { if (!videoDone) return; if (e.key === 'ArrowRight') setSliderX((v) => Math.min(1, v + 0.05)); if (e.key === 'ArrowLeft') setSliderX((v) => Math.max(0, v - 0.05)); }}
           isCompare={videoDone}
-          videoSrc={LRMQ_ASSETS.sketchVideo}
-          poster={LRMQ_ASSETS.sketchPoster}
+          videoSrc={prepared ? LRMQ_ASSETS.sketchVideo : undefined}
+          videoPreload={prepared ? 'auto' : 'none'}
+          poster={prepared ? LRMQ_ASSETS.sketchPoster : undefined}
           finalImage={LRMQ_ASSETS.sketchFinal}
           finalImageAlt="Imagen final del proyecto"
         >

@@ -16,6 +16,7 @@ describe('desktop Vision video compare flow', () => {
     const onHold = vi.fn();
     const { container } = render(<Vision step={0} isActive onHold={onHold} />);
     const video = container.querySelector('video');
+    Object.defineProperty(video, 'readyState', { configurable: true, value: 4 });
 
     expect(chapterSteps[sectionIds.indexOf('vision')]).toBe(1);
     expect(play).toHaveBeenCalledTimes(1);
@@ -33,6 +34,7 @@ describe('desktop Vision video compare flow', () => {
     const onHold = vi.fn();
     const { container, rerender } = render(<Vision step={0} isActive onHold={onHold} />);
     const video = container.querySelector('video');
+    Object.defineProperty(video, 'readyState', { configurable: true, value: 4 });
 
     expect(onHold).toHaveBeenLastCalledWith(false);
     fireEvent(video, new Event('ended'));
