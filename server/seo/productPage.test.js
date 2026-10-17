@@ -178,7 +178,7 @@ describe('handleProductPageRequest', () => {
       env: ENV,
     });
     expect(res.statusCode).toBe(503);
-    expect(res.headers['x-lrmq-diag']).toBe('shell-missing');
+    expect(res.headers['x-lrmq-diag']).toBe('shell-missing:ENOENT');
     expect(res.headers['retry-after']).toBe('300');
     expect(res.body).not.toContain('content="noindex');
     expect(res.body).not.toContain('hidden path');

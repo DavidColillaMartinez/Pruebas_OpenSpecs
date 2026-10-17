@@ -4,7 +4,7 @@
 // dist/server y dependencias instaladas. No equivale a evidencia de Vercel; esa
 // confirmación requiere los logs o las cabeceras de diagnóstico en producción.
 
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile, symlink } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -18,26 +18,28 @@ if (!existsSync(distServer)) {
 }
 
 const renderer = await readFile(join(distServer, 'entry-product-server.js'), 'utf8');
-const relativeSpecifiers = new Set([...renderer.matchAll(/(?:from\s*|import\()\s*["'](\.[^"']+)["']/g)]
-  .map((match) => match[1]));
-const bareSpecifiers = new Set([...renderer.matchAll(/(?:from\s*|import\()\s*["']([^.]["'][^"']*)["']/g)]
-  .map((match) => match[1].replace(/["'].+$/, '')));
-for (const specifier of relativeSpecifiers) {
-  const target = resolve(distServer, specifier);
-  await readFile(join(target), 'utf8');
+// Rollup ESM resumes with module-level statements only: scan import/export
+// statements anchored at line starts, ignoring code embedded strings.
+const statementSpecifiers = [
+  ...renderer.matchAll(/^import\s[^;]*?["']([^"']+)["'](?:\s*;)?$/gm),
+  ...renderer.matchAll(/^export\s*(?:\*|\{[^}]*\})\s*from\s*["']([^"']+)["']/gm),
+].map((match) => match[1]);
+const bareImports = statementSpecifiers.filter((specifier) => !specifier.startsWith('node:'));
+if (bareImports.length > 0) {
+  throw new Error(`renderer bundle is not self-contained, bare imports present: ${[...new Set(bareImports)].sort().join(', ')}`);
 }
-for (const specifier of bareSpecifiers) {
-  if (!existsSync(resolve(root, 'node_modules', specifier.split('/')[0]))) {
-    throw new Error(`bare dependency not installed: ${specifier.split('/')[0]}`);
-  }
+const relativeImports = statementSpecifiers.filter((specifier) => specifier.startsWith('.'));
+if (relativeImports.length > 0) {
+  throw new Error(`renderer bundle still imports sibling files: ${[...new Set(relativeImports)].sort().join(', ')}`);
 }
 
 const sandbox = await mkdtemp(join(tmpdir(), 'lrmq-page-package-'));
 const missing = [];
 try {
   await mkdir(join(sandbox, 'dist'));
+  // Sin node_modules a propósito: el bundle debe bastarse solo, igual que la
+  // función en producción.
   await cp(distServer, join(sandbox, 'dist/server'), { recursive: true });
-  await symlink(resolve(root, 'node_modules'), join(sandbox, 'node_modules'), 'dir');
   // The api functions resolve these relative to the deployed module layout.
   for (const relative of ['dist/server/shell.js', 'dist/server/shell.html']) {
     if (!existsSync(join(sandbox, relative))) missing.push(relative);

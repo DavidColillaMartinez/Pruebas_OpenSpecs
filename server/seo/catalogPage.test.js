@@ -85,7 +85,7 @@ describe('catalog document public data loading', () => {
       loadRenderer: async () => renderer, env,
     });
     expect(res.statusCode).toBe(503);
-    expect(res.headers['X-LRMQ-Diag']).toBe('shell-missing');
+    expect(res.headers['X-LRMQ-Diag']).toBe('shell-missing:ENOENT');
     expect(res.headers['Retry-After']).toBe('300');
     expect(res.body).toContain('Reintentar');
     expect(res.body).not.toContain('hidden path');
@@ -99,6 +99,6 @@ describe('catalog document public data loading', () => {
       env,
     });
     expect(res.statusCode).toBe(503);
-    expect(res.headers['X-LRMQ-Diag']).toBe('renderer-import');
+    expect(res.headers['X-LRMQ-Diag']).toBe('renderer-import:ERR_MODULE_NOT_FOUND');
   });
 });

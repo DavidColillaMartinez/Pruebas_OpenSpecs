@@ -411,13 +411,15 @@ Síntoma reportado y reproducido por lectura pública: `https://arealrmq.es/prod
 
 ### 11.2 Corrección
 
-- `server/seo/build.js`: escribe la shell también como módulo ESM trazable `dist/server/shell.js` (además del `shell.html` existente, que queda como reserva de lectura).
+- `server/seo/build.js`: escribe la shell también como módulo ESM trazable `dist/server/shell.js` (además del `shell.html` existente, que queda como reserva de lectura) y compila el renderer como bundle ESM autocontenido de un solo fichero (`ssr.noExternal` + `inlineDynamicImports`): sin chunks hermanos ni imports de react en runtime del sandbox. Validado por `package:seo` en un sandbox sin node_modules.
 - `server/seo/artifacts.js` (nuevo): `loadShellArtifact` importa primero el módulo trazado y, como reserva, lee `dist/server/shell.html` en dos ubicaciones (URL módulo y cwd); `loadRendererArtifact` importa el bundle dinámicamente y valida sus exports. Todo fallo se clasifica en fases cerradas `shell-missing | shell-io | shell-invalid | renderer-import | renderer-contract`, con clase de error pública (código/nombre), nunca rutas ni mensajes del intérprete.
-- `api/product-page.js` y `api/catalog-page.js`: usan los cargadores clasificados; cada 503 añade cabecera `X-LRMQ-Diag` (fase cerrada) y consolida en el log el evento `*_page.diagnostic`. Los status, Retry-After, no-store, robots y cuerpos quedan idénticos; no se devuelve nunca 200 a cambio de ocultar el fallo.
+- `api/product-page.js` y `api/catalog-page.js`: usan los cargadores clasificados; cada 503 añade cabecera `X-LRMQ-Diag` con el valor `fase` o `fase:clase` y consolida en el log el evento `*_page.diagnostic`. Los status, Retry-After, no-store, robots y cuerpos quedan idénticos; no se devuelve nunca 200 a cambio de ocultar el fallo.
 - `server/seo/catalogPage.js`: separa etapas (shell → renderer → normalización/render → upstream). La indisponibilidad del servicio sigue sirviendo la vista hidratable del renderer con botón «Reintentar» (igual que antes del despliegue);
  `loadCatalogPages` devuelve `reason` clasificada (`not-configured | request-limit | timeout | network | upstream-status | response-limit | invalid-body | contract | inventory`) que alimenta `X-LRMQ-Diag`. El documento de emergencia sin estilos queda reservado a fallos de pipeline.
 - `vercel.json`, rutas, rewrites, sitemap y robots: sin cambios.
 - `package.json`: añade `npm run package:seo` (`server/seo/packageCheck.js`).
+
+Evidencia de la primera corrección desplegada (`4f6c8cc`): las cabeceras de diagnóstico señalaron en producción `X-LRMQ-Diag: renderer-import` en `/productos` y en la ficha, con `/presupuesto` en 200. Es decir: la shell sí se cargaba y el paso fallido era el `import` del bundle del renderer dentro del sandbox, consistente con dependencias/chunks que el empaquetado no entregaba; no se dispuso de logs remotos. La segunda iteración elimina esa dependencia: bundle autocontenido de un fichero y fase/clase en la cabecera.
 
 ### 11.3 Comprobación del empaquetado (representativa del runtime serverless)
 

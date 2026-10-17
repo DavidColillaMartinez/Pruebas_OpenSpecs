@@ -2,8 +2,17 @@ import { build } from 'vite';
 import { copyFile, readFile, writeFile } from 'node:fs/promises';
 import { renderInitialDocument } from './head.js';
 
+// The server must be able to load the renderer even if the sandbox's traced
+// node_modules or sibling chunks are incomplete: react and all relative
+// chunks are inlined into one self-contained ESM file.
 await build({
-  build: { ssr: 'src/entry-product-server.jsx', outDir: 'dist/server', emptyOutDir: true },
+  build: {
+    ssr: 'src/entry-product-server.jsx',
+    outDir: 'dist/server',
+    emptyOutDir: true,
+    rollupOptions: { output: { inlineDynamicImports: true } },
+  },
+  ssr: { noExternal: true },
 });
 // Keep an empty root for per-request rendering, independent of future landing
 // prerendering. The shell is written twice: as a traced ESM module the api

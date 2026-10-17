@@ -124,10 +124,15 @@ export async function handleCatalogPageRequest(request, response, deps = {}) {
 
 // Closed diagnostic vocabulary; never logs or exposes URLs, slugs, query
 // strings, product names or upstream messages.
+function diagValue(phase, errorClass) {
+  if (errorClass === null || errorClass === undefined) return phase;
+  return /^[A-Za-z0-9_-]{1,64}$/.test(String(errorClass)) ? `${phase}:${String(errorClass)}` : `${phase}:unknown`;
+}
+
 function classifyFailure(error, fallbackPhase) {
   const phase = typeof error?.seoPhase === 'string' && /^[a-z-]{3,48}$/.test(error.seoPhase)
     ? error.seoPhase
     : fallbackPhase;
   console.info(JSON.stringify({ event: 'catalog_page.diagnostic', phase, errorClass: typeof error?.seoErrorClass === 'string' ? error.seoErrorClass : error?.name ?? 'unknown' }));
-  return phase;
+  return diagValue(phase, error?.seoErrorClass);
 }

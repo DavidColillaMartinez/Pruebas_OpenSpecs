@@ -143,10 +143,16 @@ function sendDocument(response, method, status, html, headers, diag = null) {
   response.status(status);
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   for (const [name, value] of Object.entries(headers)) response.setHeader(name, value);
-  // Every 503 carries a closed diagnostic phase in X-LRMQ-Diag: no slugs or
-  // visitor data, and only for recoverable failures.
+  // Every 503 carries a closed diagnostic phase:phase-class in X-LRMQ-Diag; no
+  // slugs or visitor data, and only for recoverable failures.
   if (diag) response.setHeader('X-LRMQ-Diag', diag);
   return method === 'HEAD' ? response.end() : response.send(html);
+}
+
+// Closed vocabulary only; unknown classes collapse to 'unknown'.
+function diagValue(phase, errorClass) {
+  if (errorClass === null || errorClass === undefined) return phase;
+  return /^[A-Za-z0-9_-]{1,64}$/.test(String(errorClass)) ? `${phase}:${String(errorClass)}` : `${phase}:unknown`;
 }
 
 export async function handleProductPageRequest(request, response, deps = {}) {
@@ -165,7 +171,7 @@ export async function handleProductPageRequest(request, response, deps = {}) {
     const phase = typeof error?.seoPhase === 'string' && /^[a-z-]{3,48}$/.test(error.seoPhase) ? error.seoPhase : 'shell-unavailable';
     logDiagnostic(phase, typeof error?.seoErrorClass === 'string' ? error.seoErrorClass : error?.name ?? 'unknown');
     logResult('unavailable', 'shell-unavailable');
-    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable, phase);
+    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable, diagValue(phase, error?.seoErrorClass));
   }
 
   const slug = decodeSlug(request.query?.slug);
@@ -185,7 +191,7 @@ export async function handleProductPageRequest(request, response, deps = {}) {
     const phase = typeof error?.seoPhase === 'string' && /^[a-z-]{3,48}$/.test(error.seoPhase) ? error.seoPhase : 'render';
     logDiagnostic(phase, typeof error?.seoErrorClass === 'string' ? error.seoErrorClass : error?.name ?? 'unknown');
     logResult('unavailable', 'template-invalid');
-    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable, phase);
+    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable, diagValue(phase, error?.seoErrorClass));
   }
 
   if (result.status === 'found') return sendDocument(response, method, 200, html, HEADERS.found);
