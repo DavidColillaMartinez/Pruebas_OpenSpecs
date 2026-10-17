@@ -433,11 +433,20 @@ Evidencia de la primera corrección desplegada (`4f6c8cc`): las cabeceras de dia
 - Suite completa: 64 archivos, 582 pruebas pasan, 1 omitida preexistente. Lint 0 errores/10 avisos conocidos; typecheck OK; `git diff --check` limpio.
 - Batería HTTP/no-JS (`documentReview.js`, informe `/tmp/opencode/seo-document-review-incident-fix.json`): 11 documentos correctos, canonical/robots/sitemap, alias y 308; 503 con upstream caído en `/productos` y ficha (Retry-After 300, no-store, `X-LRMQ-Diag: network`), recuperación al reintentar sin errores de página; sitemap 153 URLs.
 - Flujos de navegador completos a 1440 y 390 (`browserFlows.js`): 14 y 15 flujos sin errores, apertura directa, recarga, navegación cliente, hidratación sin petición duplicada, 1 POST de chat y 4 POST de presupuesto controlados, sin entrega externa.
-- Empaquetado (`npm run package:seo`): correcto.
+- Empaquetado (`npm run package:seo`): correcto; sandbox sin node_modules.
 - Sitemap: sin cambios; verificación externa vigente (200, application/xml, 153 URLs). El error de Search Console al leerlo no se atribuye al 503 de las fichas ni a ningún cambio del sitemap: se desconoce el detalle y sigue pendiente de la Vista al detalle de Search Console.
 
-### 11.5 Pendientes en producción (no verificable desde este entorno)
+### 11.5 Verificación en producción tras desplegar `1067d56` (2026-10-17)
 
-- Desplegar y comprobar: 200 con contenido y metadatos en `/productos` y fichas, 404/503 con sus cabeceras, y `X-LRMQ-Diag` si reapareciera algún 503.
-- Lectura de logs de Vercel de las funciones para correlacionar fases si persistiera.
+- `/productos`: 200 con HTML inicial (título `Catálogo de baños a medida · AREA LRMQ`), canonical propio y `index, follow`; recargas idénticas entre sí; `?page=2` 200 indexable.
+- `/productos/mt-espejos-alba`: 200, canonical de ficha, bootstrap `lrmq-page-data` presente.
+- Ficha inexistente `/productos/zz-inexistente-seo-review`: 404, `X-Robots-Tag: noindex, follow`, sin canonical.
+- `/presupuesto`: 200 prerrenderizado. `/sitemap.xml`: 200, `application/xml`, 153 URLs.
+- Smoke de hidratación en producción (solo lecturas GET, sin envíos): catálogo hidratado con 24 artículos, ficha con encabezado `Alba`, cero errores de página o consola.
+- Segundo 503 observado ya no reproducible; si se repitiera, `X-LRMQ-Diag` debe distinguir `fase:clase` sin logs.
+
+### 11.6 Pendientes en producción (no verificable desde este entorno)
+
+- Lectura de logs de Vercel de las funciones para correlacionar fases si reapareciera algún 503.
 - Vista al detalle de Search Console sobre sitemap.xml (pendiente; sin atribución de causa).
+- Habilidad de retry del 503 bajo carga de CDN: las respuestas 503 son no-store; elyty la CDN puede servir snapshots prerenderizados solo para rutas estáticas, no para las funciones.
