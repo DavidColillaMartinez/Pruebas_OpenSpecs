@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { sectionIds, chapterLabels, chapterSteps, chapterType, TOTAL_CHAPTERS, DESKTOP_MIN_WIDTH, isNarrativeViewport } from '../data/copy';
 
 const CASCADE_INITIAL_DELAY_MS = 1000;
@@ -17,6 +17,14 @@ function getDesktopGate() {
   return isNarrativeViewport(window.innerWidth, window.innerHeight);
 }
 
+function subscribeViewport(notify) {
+  window.addEventListener('resize', notify);
+  const media = window.matchMedia(`(min-width: ${DESKTOP_MIN_WIDTH}px)`);
+  media.addEventListener('change', notify);
+  return () => { window.removeEventListener('resize', notify); media.removeEventListener('change', notify); };
+}
+const serverViewport = () => false;
+
 function ownsScroll(target) {
   if (!(target instanceof Element)) return false;
   if (target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="dialog"]')) return true;
@@ -30,8 +38,8 @@ export function useNarrativeScroll() {
   const [activeChapter, setActiveChapter] = useState(0);
   const [step, setStep] = useState(0);
   const [smoothProgress, setSmoothProgress] = useState(0);
-  const [isDesktop, setIsDesktop] = useState(getDesktopGate);
-  const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false);
+  const isDesktop = useSyncExternalStore(subscribeViewport, getDesktopGate, serverViewport);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const activeRef = useRef(0);
   const stepRef = useRef(0);
   const cooldownRef = useRef(false);
@@ -122,15 +130,6 @@ export function useNarrativeScroll() {
       beginCascade(index);
     }
   }, [beginCascade]);
-
-  useEffect(() => {
-    const onResize = () => setIsDesktop(getDesktopGate());
-    window.addEventListener('resize', onResize);
-    const m = window.matchMedia(`(min-width: ${DESKTOP_MIN_WIDTH}px)`);
-    const h = () => setIsDesktop(getDesktopGate());
-    m.addEventListener('change', h);
-    return () => { window.removeEventListener('resize', onResize); m.removeEventListener('change', h); };
-  }, []);
 
   useEffect(() => {
     const m = window.matchMedia('(prefers-reduced-motion: reduce)');

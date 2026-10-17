@@ -18,6 +18,15 @@ afterEach(() => {
 });
 
 describe('QuoteSelectionPage', () => {
+  it('declares a canonical without trailing slash and noindex from the first render', () => {
+    document.head.innerHTML = '<link rel="canonical" href="https://arealrmq.es/">';
+    render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);
+
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://arealrmq.es/presupuesto');
+    expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
+    document.head.innerHTML = '';
+  });
+
   it('shares the remember switch with the basket surface', () => {
     window.localStorage.setItem(LEGACY_QUOTE_SELECTION_STORAGE_KEY, JSON.stringify(lines));
     render(<MemoryRouter><QuoteSelectionProvider><QuoteSelectionPage /></QuoteSelectionProvider></MemoryRouter>);

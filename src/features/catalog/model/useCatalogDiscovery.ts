@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CatalogApiError, getProducts } from '../api/client';
 import { deriveCatalogFacets } from './normalize';
 import { isRoyoFurnitureScope } from './royo';
-import type { CatalogFacetKey, CatalogFacets, CatalogSortMetadata, ProductCard } from './types';
+import type { CatalogFacetKey, CatalogFacets, CatalogSortMetadata, ProductCard, ProductListResponse } from './types';
 import {
   catalogQueryKey,
   catalogQueryToRequest,
@@ -20,7 +20,7 @@ import {
 
 type DiscoveryStatus = 'loading' | 'success' | 'error';
 
-type DiscoveryData = {
+export type DiscoveryData = {
   status: DiscoveryStatus;
   items: ProductCard[];
   total: number | null;
@@ -31,7 +31,10 @@ type DiscoveryData = {
   error?: string;
   additionalError?: string;
   loadingMore: boolean;
+  statusCode?: number;
 };
+
+export type InitialCatalogPage = { search: string; data: DiscoveryData };
 
 type ItemCache = {
   key: string;
@@ -115,16 +118,53 @@ function toDiscoveryData(cache: ItemCache, query: CatalogQueryState): DiscoveryD
   };
 }
 
-export function useCatalogDiscovery() {
+export function createInitialCatalogPage(pages: ProductListResponse[], search: string, statusCode = 200): InitialCatalogPage {
+  const query = parseCatalogQuery(search);
+  const cache = createItemCache(catalogQueryKey(query));
+  pages.forEach((response, index) => {
+    response.items.forEach((item) => cache.items.set(item.id, item));
+    cache.pages.add(index + 1);
+    cache.total = response.pagination.total;
+    cache.hasMore = response.pagination.has_more;
+    if (response.sort.supported.length || response.sort.applied) cache.sort = response.sort;
+    if (hasFacets(response.facets)) cache.serverFacets = response.facets;
+  });
+  return { search, data: statusCode === 200 ? toDiscoveryData(cache, query) : {
+    ...emptyData, status: 'error', statusCode,
+    error: statusCode === 404 ? 'No existe esta página de resultados. Vuelve al catálogo o modifica los filtros.' : 'El catálogo no está disponible temporalmente.',
+  } };
+}
+
+// Populated only by client effects, not by request rendering.
+const consumedInitialPages = new WeakSet<InitialCatalogPage>();
+
+export function useCatalogDiscovery(bootstrapPage?: InitialCatalogPage) {
+  const [initialPage] = useState(() => bootstrapPage && !consumedInitialPages.has(bootstrapPage) ? bootstrapPage : undefined);
+  useEffect(() => { if (initialPage) consumedInitialPages.add(initialPage); }, [initialPage]);
   const [searchParams, setSearchParams] = useSearchParams();
   const query = parseCatalogQuery(searchParams);
   const queryString = searchParams.toString();
   const queryKey = catalogQueryKey(query);
   const [searchInput, setSearchInput] = useState(query.search);
   const [retry, setRetry] = useState(0);
-  const [data, setData] = useState<DiscoveryData>(emptyData);
-  const cacheRef = useRef<ItemCache>(createItemCache(queryKey));
-  const facetsRequestedRef = useRef<string | null>(null);
+  const initialMatch = initialPage?.search === serializeCatalogQuery(query).toString();
+  const [data, setData] = useState<DiscoveryData>(() => initialMatch ? initialPage.data : emptyData);
+  const cacheRef = useRef<ItemCache | null>(null);
+  if (!cacheRef.current) {
+    const cache = createItemCache(queryKey);
+    if (initialMatch && initialPage.data.status === 'success') {
+      const initial = initialPage.data;
+      initial.items.forEach((item) => cache.items.set(item.id, item));
+      for (let page = 1; page <= initial.loadedPage; page += 1) cache.pages.add(page);
+      cache.total = initial.total;
+      cache.hasMore = initial.hasMore;
+      cache.sort = initial.sort;
+      cache.serverFacets = initial.facets;
+    }
+    cacheRef.current = cache;
+  }
+  const facetsRequestedRef = useRef<string | null>(initialMatch && hasFacets(initialPage.data.facets) ? queryKey : null);
+  const initialQueryValid = useRef(true);
 
   useEffect(() => {
     setSearchInput(query.search);
@@ -140,7 +180,7 @@ export function useCatalogDiscovery() {
   }, [queryString, searchInput, setSearchParams]);
 
   useEffect(() => {
-    if (cacheRef.current.key === queryKey) return;
+    if (cacheRef.current?.key === queryKey) return;
     cacheRef.current = createItemCache(queryKey);
     setData(emptyData);
   }, [queryKey]);
@@ -149,8 +189,15 @@ export function useCatalogDiscovery() {
     let cancelled = false;
     const controller = new AbortController();
     const cache = cacheRef.current;
+    if (!cache) return;
+    if (!initialMatch) initialQueryValid.current = false;
+    if (initialQueryValid.current && initialMatch && initialPage?.data.status === 'error' && retry === 0) return;
     const currentQuery = parseCatalogQuery(queryString);
     const targetPage = currentQuery.page;
+    if (!Number.isSafeInteger(targetPage) || targetPage > 100) {
+      setData({ ...emptyData, status: 'error', statusCode: 503, error: 'No se pudo cargar el catálogo. Prueba con una página anterior.' });
+      return;
+    }
     const missingPages = Array.from({ length: targetPage }, (_, index) => index + 1).filter((page) => !cache.pages.has(page));
     const isInitial = cache.items.size === 0;
 
@@ -166,6 +213,10 @@ export function useCatalogDiscovery() {
           const pageQuery: CatalogQueryState = { ...currentQuery, page };
           const response = await getProducts(catalogQueryToRequest(pageQuery, false), null, { signal: controller.signal });
           if (cancelled) return;
+          if ((!response.pagination.has_more && page < targetPage) || (page > 1 && response.items.length === 0)) {
+            setData({ ...emptyData, status: 'error', statusCode: 404, error: 'No existe esta página de resultados. Vuelve al catálogo o modifica los filtros.' });
+            return;
+          }
           response.items.forEach((item) => cache.items.set(item.id, item));
           cache.pages.add(page);
           cache.total = response.pagination.total;
@@ -203,10 +254,11 @@ export function useCatalogDiscovery() {
       cancelled = true;
       controller.abort();
     };
-  }, [queryKey, queryString, retry]);
+  }, [queryKey, queryString, retry, initialMatch, initialPage]);
 
   useEffect(() => {
     const cache = cacheRef.current;
+    if (!cache) return;
     // Facets also arrive for empty result sets, so zero items must not skip the request.
     if (data.status !== 'success' || cache.key !== queryKey) return undefined;
     const facetsQuery = parseCatalogQuery(queryKey);

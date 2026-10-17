@@ -65,7 +65,8 @@
 
 /* Inicio hero legibility: soften the kitchen photo and darken the center band
  * behind the text; all glyph colors are untouched. */
-.lrmq-hero-legibility > img {
+.lrmq-hero-legibility > img,
+.lrmq-hero-legibility > picture > img {
   filter: blur(7px) brightness(0.9);
   transform: scale(1.07);
 }

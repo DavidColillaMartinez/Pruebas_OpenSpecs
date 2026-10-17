@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { applyRouteMeta } from '../../../routes/routeMeta';
+import { getProductMeta } from '../../../routes/pageMeta';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { Link, useParams } from 'react-router-dom';
 import { CatalogApiError, getCatalogConfig, getProductBySlug } from '../api/client';
 import type { CatalogPublicConfig, ProductDetail } from '../model/types';
-import { buildVariantSnapshot, isManillonsMirrorProduct, type SelectableUnit } from '../model/selection';
+import { buildVariantSnapshot, getSelectableUnits, isManillonsMirrorProduct, selectInitialUnit, type SelectableUnit } from '../model/selection';
+import { getInitialDuplachSelection } from '../model/initialDuplachSelection';
 import { isGmeIoProduct, buildGmeIoGallery, getGmeIoFinishImageUrl } from '../model/gmeIo';
 import { isRoyoFurnitureScope } from '../model/royo';
 import { buildDuplachProductGallery, getDuplachFamilyImages, getDuplachSelectorModel, isDuplachShowerTrayProduct } from '../model/duplach';
@@ -17,7 +19,7 @@ import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { buildQuoteRequestItem } from '../../quote/model/payload';
 import { useQuoteSelection } from '../../quote/model/selectionStore';
 
-type DetailState =
+export type DetailState =
   | { status: 'loading' }
   | { status: 'success'; product: ProductDetail }
   | { status: 'not-found' }
@@ -93,7 +95,8 @@ function RoyoConfiguration({ product }: { product: ProductDetail }) {
 }
 
 function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; assetBaseUrl?: string | null }) {
-  const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<SelectableUnit | null>(() => isDuplachShowerTrayProduct(product)
+    ? getInitialDuplachSelection(product).unit : selectInitialUnit(getSelectableUnits(product)));
   const [hasManualRoyoSelection, setHasManualRoyoSelection] = useState(false);
   const [hasManualDuplachSelection, setHasManualDuplachSelection] = useState(false);
   const [addedMessage, setAddedMessage] = useState('');
@@ -237,14 +240,34 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   );
 }
 
-export function ProductDetailPage() {
+export type InitialProductPage = { slug: string; state: DetailState };
+
+// Effects write this browser-only activation memory. A later SPA remount must
+// use the existing GET/cache/revalidation contract instead of replaying HTML
+// bootstrap data indefinitely. Server rendering never consumes an entry.
+const consumedInitialPages = new WeakSet<InitialProductPage>();
+
+export function ProductDetailPage({ initialPage: bootstrapPage }: { initialPage?: InitialProductPage } = {}) {
+  const [initialPage] = useState(() => bootstrapPage && !consumedInitialPages.has(bootstrapPage) ? bootstrapPage : undefined);
   const { slug = '' } = useParams();
-  const [state, setState] = useState<DetailState>({ status: 'loading' });
+  const [state, setState] = useState<DetailState>(() => initialPage?.slug === slug ? initialPage.state : { status: 'loading' });
   const [config, setConfig] = useState<CatalogPublicConfig | null>(null);
   const [retry, setRetry] = useState(0);
+  const initialDataValid = useRef(true);
   useEffect(() => {
+    if (initialPage) consumedInitialPages.add(initialPage);
     const controller = new AbortController();
     let cancelled = false;
+    if (initialPage?.slug !== slug) initialDataValid.current = false;
+    if (retry === 0 && initialDataValid.current && initialPage?.slug === slug) {
+      setState(initialPage.state);
+      if (initialPage.state.status === 'success' && isDuplachShowerTrayProduct(initialPage.state.product)) {
+        getCatalogConfig({ signal: controller.signal }).then((next) => {
+          if (!cancelled) setConfig(next);
+        }).catch(() => undefined);
+      }
+      return () => { cancelled = true; controller.abort(); };
+    }
     setConfig(null);
     setState({ status: 'loading' });
     getProductBySlug(slug, null, { signal: controller.signal })
@@ -270,38 +293,24 @@ export function ProductDetailPage() {
       cancelled = true;
       controller.abort();
     };
-  }, [slug, retry]);
+  }, [slug, retry, initialPage]);
 
   useEffect(() => {
-    if (state.status === 'success') {
-      const cleanSlug = encodeURIComponent(slug);
-      return applyRouteMeta({
-        title: `${state.product.name} · AREA LRMQ`,
-        description: state.product.description || `${state.product.name} de ${state.product.brand || state.product.supplierName || 'AREA LRMQ'}. Solicita presupuesto.`,
-        canonicalPath: `/productos/${cleanSlug}`,
-      });
-    }
-    if (state.status === 'not-found') {
-      return applyRouteMeta({
-        title: 'Producto no encontrado · AREA LRMQ',
-        description: 'No hemos encontrado una ficha pública para este producto. Explora el catálogo completo de AREA LRMQ.',
-        canonicalPath: null,
-        noindex: true,
-      });
-    }
-    return undefined;
+    const meta = getProductMeta(state, slug);
+    return meta ? applyRouteMeta(meta) : undefined;
   }, [state, slug]);
 
-  const returnTo = (() => {
+  const [returnTo, setReturnTo] = useState<string | null>(null);
+  useEffect(() => {
     try {
       const raw = sessionStorage.getItem(CATALOG_RETURN_STORAGE_KEY);
-      if (!raw) return null;
+      if (!raw) return;
       const parsed = JSON.parse(raw) as { search?: string; scrollY?: number };
-      return typeof parsed.search === 'string' ? parsed.search : null;
+      setReturnTo(typeof parsed.search === 'string' ? parsed.search : null);
     } catch {
-      return null;
+      return;
     }
-  })();
+  }, []);
 
   const assetBaseUrl = state.status === 'success'
     ? config?.asset_base_url || inferAssetBaseUrl(state.product)

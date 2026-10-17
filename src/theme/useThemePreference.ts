@@ -1,42 +1,40 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { applyTheme, nextTheme, persistTheme, readStoredTheme, THEME_STORAGE_KEY, type ThemeValue } from './preference';
 
-function parseValidTheme(value: string | null): ThemeValue | null {
-  return value === 'light' || value === 'dark' ? value : null;
+const THEME_CHANGE_EVENT = 'lrmq:theme-change';
+
+function subscribe(onChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key !== THEME_STORAGE_KEY || (event.newValue !== 'light' && event.newValue !== 'dark')) return;
+    applyTheme(event.newValue);
+    onChange();
+  };
+  window.addEventListener('storage', onStorage);
+  window.addEventListener(THEME_CHANGE_EVENT, onChange);
+  return () => {
+    window.removeEventListener('storage', onStorage);
+    window.removeEventListener(THEME_CHANGE_EVENT, onChange);
+  };
 }
 
+function currentTheme(): ThemeValue {
+  const applied = document.documentElement.getAttribute('data-theme');
+  return applied === 'light' || applied === 'dark' ? applied : readStoredTheme();
+}
+
+const serverTheme = (): ThemeValue => 'light';
+
 export function useThemePreference() {
-  const [theme, setTheme] = useState<ThemeValue>(() => readStoredTheme());
-
+  const theme = useSyncExternalStore(subscribe, currentTheme, serverTheme);
   useEffect(() => {
-    if (document.documentElement.getAttribute('data-theme') === null) {
-      applyTheme(theme);
-    } else {
-      const coherent = readStoredTheme();
-      if (coherent !== theme) setTheme(coherent);
-    }
-    // Keep the JS decision aligned with the same-origin bootstrap script.
-  }, []);
-
-  useEffect(() => {
-    const onStorage = (event: StorageEvent) => {
-      if (event.key !== THEME_STORAGE_KEY) return;
-      const next = parseValidTheme(event.newValue);
-      if (!next) return;
-      setTheme(next);
-      applyTheme(next);
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    if (document.documentElement.getAttribute('data-theme') === null) applyTheme(readStoredTheme());
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme((current) => {
-      const next = nextTheme(current);
-      applyTheme(next); // attribute updates first: visible even if storage throws
-      persistTheme(next);
-      return next;
-    });
+    const next = nextTheme(currentTheme());
+    applyTheme(next);
+    persistTheme(next);
+    window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }, []);
 
   return { theme, toggleTheme };

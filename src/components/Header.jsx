@@ -9,10 +9,9 @@ import { prefetchCatalogFirstPage } from '../features/catalog/api/client';
 
 export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [wideHeader, setWideHeader] = useState(() => window.matchMedia('(min-width: 1280px)').matches);
   useEffect(() => {
     const media = window.matchMedia('(min-width: 1280px)');
-    const update = () => { setWideHeader(media.matches); if (media.matches) setMobileOpen(false); };
+    const update = () => { if (media.matches) setMobileOpen(false); };
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
   }, []);
@@ -23,9 +22,9 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = previousOverflow; };
   }, [mobileOpen]);
 
-  if (!wideHeader) {
-    return (
-      <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
+  return (
+    <>
+      <header data-inicio={isInicio} className="lrmq-compact-header fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6 xl:hidden">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <a href="#inicio" className={`flex min-w-0 items-center gap-3 transition-all duration-500 ${isInicio && isDesktop ? 'pointer-events-none max-w-0 -translate-x-2 opacity-0' : 'opacity-100'}`} tabIndex={isInicio && isDesktop ? -1 : undefined} aria-hidden={isInicio && isDesktop ? true : undefined} aria-label="AREA LRMQ DESIGN S.L. inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); setMobileOpen(false); } }}>
             <LogoMark className="lrmq-contact-mark h-10 w-10 shrink-0" minimal />
@@ -38,11 +37,7 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
         </div>
         {mobileOpen && <MobileDrawer activeSectionId={activeSectionId} onNavigate={onNavigate} onClose={() => setMobileOpen(false)} />}
       </header>
-    );
-  }
-
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
+    <header className="lrmq-wide-header fixed inset-x-0 top-0 z-50 hidden px-4 py-4 sm:px-6 xl:block">
       <div className={`mx-auto grid items-center ${isInicio ? 'max-w-7xl grid-cols-[1fr_auto_1fr]' : 'max-w-[96rem] grid-cols-[auto_minmax(0,1fr)_auto] gap-4'}`}>
         <div className={`flex items-center gap-3 overflow-hidden transition-all duration-500 ease-out ${isInicio ? 'max-w-0 opacity-0 -translate-x-2' : 'max-w-md opacity-100 translate-x-0'}`}>
           <a href="#inicio" className="flex items-center gap-3 font-semibold tracking-tight text-primary" tabIndex={isInicio ? -1 : undefined} aria-hidden={isInicio ? true : undefined} aria-label="AREA LRMQ DESIGN S.L. inicio" onClick={(e) => { if (onNavigate) { e.preventDefault(); onNavigate('inicio'); } }}>
@@ -68,5 +63,6 @@ export function Header({ activeSectionId, onNavigate, isInicio, isDesktop }) {
         </div>
       </div>
     </header>
+    </>
   );
 }

@@ -3,15 +3,14 @@ import { prefetchCatalogFirstPage } from '../../features/catalog/api/client';
 import { AnimatedLogoMark } from '../../components/AnimatedLogoMark';
 import { methodSteps } from '../../data/methodSteps';
 import { LRMQ_PHOTOS } from '../../config/mediaAssets';
+import { ResponsivePhoto } from '../../components/ResponsivePhoto';
 
 export function Inicio({ step, isActive, onLogoDone }) {
   const s = isActive ? step : 0;
   return (
     <div className="lrmq-desktop-inicio lrmq-hero-legibility relative flex h-full flex-col items-center justify-center">
-      <img
-        src={LRMQ_PHOTOS.inicioCocina.desktop.src}
-        srcSet={LRMQ_PHOTOS.inicioCocina.desktop.srcSet}
-        sizes={LRMQ_PHOTOS.inicioCocina.desktop.sizes}
+      <ResponsivePhoto
+        photo={LRMQ_PHOTOS.inicioCocina}
         alt="" aria-hidden="true"
         className="absolute inset-0 h-full w-full object-cover"
         loading="eager" fetchPriority="high" decoding="async"
@@ -39,7 +38,8 @@ export function Inicio({ step, isActive, onLogoDone }) {
       </div>
       <div className={`absolute bottom-6 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-500 ${s >= 1 ? 'opacity-0' : 'opacity-100'}`}>
         <span className="block h-8 w-px bg-surface-elevated/35 mx-auto" />
-        <span className="mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Gira para avanzar</span>
+        <span className="lrmq-narrative-only mt-2 block text-xs tracking-[0.2em] text-white/45 uppercase">Gira para avanzar</span>
+        <span className="lrmq-native-only mt-2 text-xs tracking-[0.2em] text-white/70 uppercase">Desliza para continuar</span>
       </div>
     </div>
   );

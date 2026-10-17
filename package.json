@@ -12,8 +12,9 @@
     "lint": "eslint src api server vite.config.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build && node server/seo/build.js",
+    "preview": "vite preview",
+    "preview:seo": "node server/seo/preview.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",

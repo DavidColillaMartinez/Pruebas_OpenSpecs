@@ -1,11 +1,32 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { Link, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { CatalogPage } from './CatalogPage';
+import { createInitialCatalogPage } from '../model/useCatalogDiscovery';
+import { normalizeProductList } from '../model/normalize';
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe('CatalogPage', () => {
+  it('uses bootstrap once and reads normally after returning to the original catalogue route', async () => {
+    const raw = { items: [{ id: 'public-item', slug: 'public-item', name: 'Antes', category_id: 'espejos', category_name: 'Espejos' }], pagination: { limit: 24, offset: 0, total: 1, has_more: false } };
+    const initialPage = createInitialCatalogPage([normalizeProductList(raw)], '');
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ ...raw, items: [{ ...raw.items[0], name: 'Actualizado' }] }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<MemoryRouter initialEntries={['/productos']}>
+      <Link to="/auxiliar">Auxiliar</Link>
+      <Routes>
+        <Route path="/productos" element={<CatalogPage initialPage={initialPage} />} />
+        <Route path="/auxiliar" element={<Link to="/productos">Volver al catálogo original</Link>} />
+      </Routes>
+    </MemoryRouter>);
+    expect(await screen.findByRole('heading', { name: 'Antes' })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('link', { name: 'Auxiliar' }));
+    fireEvent.click(await screen.findByRole('link', { name: 'Volver al catálogo original' }));
+    expect(await screen.findByRole('heading', { name: 'Actualizado' })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalled();
+  });
   it('renders a recoverable error when the list request fails', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
 
@@ -13,6 +34,31 @@ describe('CatalogPage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('No se pudo conectar');
     expect(await screen.findByRole('button', { name: 'Reintentar' })).toBeInTheDocument();
+  });
+
+  it('declares the catalog canonical without a trailing slash', async () => {
+    document.head.innerHTML = '<link rel="canonical" href="https://arealrmq.es/">';
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+
+    render(<MemoryRouter><CatalogPage /></MemoryRouter>);
+
+    await screen.findByRole('alert');
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://arealrmq.es/productos');
+    document.head.innerHTML = '';
+  });
+
+  it('marks a confirmed out-of-range URL noindex instead of repeating the last valid results', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      items: [{ id: 'only-product', slug: 'only-product', name: 'Único producto', images: [] }],
+      pagination: { limit: 24, offset: 0, total: 1, has_more: false },
+    }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<MemoryRouter initialEntries={['/productos?page=3']}><CatalogPage /></MemoryRouter>);
+    expect(await screen.findByRole('alert')).toHaveTextContent('No existe esta página de resultados');
+    expect(screen.queryByRole('heading', { name: 'Único producto' })).not.toBeInTheDocument();
+    await waitFor(() => expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow'));
+    expect(document.querySelector('link[rel="canonical"]')).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('renders active URL criteria, dynamic counts and honest disabled sorts', async () => {
@@ -235,7 +281,7 @@ describe('CatalogPage', () => {
     }), { status: 200, headers: { 'content-type': 'application/json' } })));
     vi.stubGlobal('fetch', fetchMock);
 
-    render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos&page=3']}><CatalogPage /></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/productos?category=muebles-y-lavabos']}><CatalogPage /></MemoryRouter>);
 
     expect(await screen.findByRole('button', { name: 'Modelo' })).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([url]) => {

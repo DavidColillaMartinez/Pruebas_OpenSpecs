@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProductDetail } from '../model/types';
-import { getSelectableUnits, selectInitialUnit } from '../model/selection';
+import { getSelectableUnits } from '../model/selection';
+import { DUPLACH_OPTION_ORDER, getInitialDuplachSelection } from '../model/initialDuplachSelection';
 import type { SelectableUnit } from '../model/selection';
 import type { SelectionChangeMeta } from './ProductVariantSelector';
 import {
@@ -21,32 +22,16 @@ type DuplachVariantSelectorProps = {
   onSelectionChange: (unit: SelectableUnit | null, metadata: DuplachSelectionMeta) => void;
 };
 
-const OPTION_ORDER = ['measure', 'texture', 'color', 'grille', 'valve', 'orientation', 'finish_family', 'finish'];
-
 export function DuplachVariantSelector({ product, assetBaseUrl, onSelectionChange }: DuplachVariantSelectorProps) {
   const units = useMemo(() => getSelectableUnits(product), [product]);
   const model = useMemo(() => getDuplachSelectorModel(product), [product]);
   const configurationKeys = useMemo(
-    () => model.configurationKeys.filter((key) => OPTION_ORDER.includes(key)),
+    () => model.configurationKeys.filter((key) => DUPLACH_OPTION_ORDER.includes(key)),
     [model.configurationKeys],
   );
   const familyFirst = model.familyFirst;
   const usesCompactOptions = units.length === 0 && configurationKeys.some((key) => model.compactOptions[key]?.length);
-  const initialUnit = useMemo(() => selectInitialUnit(units), [units]);
-  const initialSelection = useMemo<Record<string, string>>(() => {
-    if (usesCompactOptions) {
-      const measure = model.compactOptions.measure?.[0];
-      if (familyFirst) return measure ? { measure } : {};
-      return Object.fromEntries(configurationKeys
-        .map((key) => [key, getCompactDuplachOptions(model, {}, key)[0]] as const)
-        .filter((entry): entry is [string, string] => Boolean(entry[1])));
-    }
-    if (!initialUnit) return {};
-    if (familyFirst) return initialUnit.attributes.measure ? { measure: initialUnit.attributes.measure } : {};
-    return Object.fromEntries(configurationKeys
-      .map((key) => [key, initialUnit.attributes[key]] as const)
-      .filter((entry): entry is [string, string] => entry[1] !== undefined && entry[1] !== ''));
-  }, [configurationKeys, familyFirst, initialUnit, model, usesCompactOptions]);
+  const initialSelection = useMemo(() => getInitialDuplachSelection(product).selection, [product]);
   const [selection, setSelection] = useState<Record<string, string>>(initialSelection);
   const [enlarged, setEnlarged] = useState<{ group: string; value: string } | null>(null);
   const productIdRef = useRef(product.id);

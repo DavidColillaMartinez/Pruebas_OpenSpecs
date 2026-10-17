@@ -9,19 +9,13 @@ import { Reformas } from './sections/desktop/Reformas';
 import { Vision } from './sections/desktop/Vision';
 import { Opiniones } from './sections/desktop/Opiniones';
 import { Contacto } from './sections/desktop/Contacto';
-import { MobileInicio } from './sections/mobile/Inicio';
-import { MobileQuienesSomos } from './sections/mobile/QuienesSomos';
-import { MobileColeccion } from './sections/mobile/Coleccion';
-import { MobileReformas } from './sections/mobile/Reformas';
-import { MobileVision } from './sections/mobile/Vision';
-import { MobileOpiniones } from './sections/mobile/Opiniones';
-import { MobileContacto } from './sections/mobile/Contacto';
-import { sectionIds, chapterLabels } from './data/copy';
+import { sectionIds, chapterLabels, isNarrativeViewport } from './data/copy';
 import { BusinessJsonLd } from './components/BusinessJsonLd';
 import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from './components/ScrollTopButton';
 import { QuoteSelectionProvider } from './features/quote/model/selectionStore';
 import { AssistantProvider } from './features/assistant/model/assistantStore';
 import { pageScrollY, scrollPageTo } from './components/pageScroll';
+import { applyRouteMeta, HOME_META } from './routes/routeMeta';
 
 const AssistantShell = lazy(() => import('./features/assistant/AssistantShell').then((module) => ({ default: module.AssistantShell })));
 
@@ -61,24 +55,12 @@ function ChapterDots({ active, labels, onNavigate }) {
   );
 }
 
-function MobileSections({ reducedMotion }) {
-  return (
-    <div className="lrmq-mobile-sections bg-transparent text-primary">
-      <MobileInicio />
-      <MobileQuienesSomos />
-      <MobileColeccion />
-      <MobileReformas reducedMotion={reducedMotion} />
-      <MobileVision reducedMotion={reducedMotion} />
-      <MobileOpiniones />
-      <MobileContacto />
-    </div>
-  );
-}
-
 export function LandingPage() {
+  useEffect(() => applyRouteMeta(HOME_META), []);
   const { activeChapter, step, smoothProgress, setChapterHold, isDesktop, reducedMotion, activeSectionId, navigateTo } = useNarrativeScroll();
   const [mobileActiveSection, setMobileActiveSection] = useState('inicio');
   const previousModeRef = useRef(isDesktop);
+  const modeReadyRef = useRef(false);
   const nativeSectionRef = useRef('inicio');
   const resizingRef = useRef(false);
 
@@ -103,6 +85,11 @@ export function LandingPage() {
   }, []);
 
   useLayoutEffect(() => {
+    if (!modeReadyRef.current) {
+      previousModeRef.current = isDesktop;
+      modeReadyRef.current = isDesktop === isNarrativeViewport(window.innerWidth, window.innerHeight);
+      return;
+    }
     if (previousModeRef.current === isDesktop) return;
     previousModeRef.current = isDesktop;
     if (isDesktop) {
@@ -118,11 +105,12 @@ export function LandingPage() {
   const hashHandledRef = useRef(false);
   useEffect(() => {
     if (hashHandledRef.current) return;
+    if (isDesktop !== isNarrativeViewport(window.innerWidth, window.innerHeight)) return;
     hashHandledRef.current = true;
     const id = window.location.hash.replace('#', '');
     const index = sectionIds.indexOf(id);
     if (index > 0) navigateTo(index);
-  }, [navigateTo]);
+  }, [navigateTo, isDesktop]);
 
   useEffect(() => {
     document.body.classList.add('landing-surface');
@@ -227,9 +215,9 @@ export function LandingPage() {
     <Inicio key="inicio" step={activeChapter === 0 ? step : 0} isActive={activeChapter === 0} onLogoDone={() => setChapterHold(sectionIds.indexOf('inicio'), false)} />,
     <QuienesSomos key="quienes-somos" step={activeChapter === 1 ? step : 0} isActive={activeChapter === 1} />,
     <Coleccion key="coleccion" step={activeChapter === 2 ? step : 0} isActive={activeChapter === 2} />,
-    <Reformas key="reformas" smoothProgress={activeChapter === 3 ? smoothProgress : 0} isActive={activeChapter === 3} />,
-    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} onHold={(held) => setChapterHold(sectionIds.indexOf('vision'), held)} />,
-    <Opiniones key="opiniones" step={activeChapter === 5 ? step : 0} isActive={activeChapter === 5} />,
+    <Reformas key="reformas" smoothProgress={activeChapter === 3 ? smoothProgress : 0} isActive={activeChapter === 3} narrative={isDesktop} />,
+    <Vision key="vision" step={activeChapter === 4 ? step : 0} isActive={activeChapter === 4} narrative={isDesktop} onHold={(held) => setChapterHold(sectionIds.indexOf('vision'), held)} />,
+    <Opiniones key="opiniones" step={activeChapter === 5 ? step : 0} isActive={activeChapter === 5} narrative={isDesktop} />,
     <Contacto key="contacto" step={activeChapter === 6 ? step : 0} isActive={activeChapter === 6} />,
   ];
 
@@ -247,19 +235,25 @@ export function LandingPage() {
           }}
         />
       )}
-      {isDesktop ? (
-        <div className="fixed inset-0 hidden overflow-hidden md:block" style={{ height: '100svh' }}>
+      <div className="lrmq-landing-stage">
+        <div className="lrmq-narrative-only">
           <ChapterDots active={activeChapter} labels={chapterLabels} onNavigate={(index) => navigateTo(index)} />
-          <div className={`absolute inset-0 ease-out ${reducedMotion ? 'transition-none' : 'transition-transform duration-500'}`} style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
-            {chapters.map((chapter, index) => <div key={index} data-chapter={sectionIds[index]} className="lrmq-desktop-chapter w-full" style={{ height: '100svh' }}>{chapter}</div>)}
-          </div>
         </div>
-      ) : <MobileSections reducedMotion={reducedMotion} />}
+        <div className={`lrmq-chapter-stack ease-out ${reducedMotion ? 'transition-none' : 'transition-transform duration-500'}`} style={{ transform: `translateY(${activeChapter * -100}svh)` }}>
+          {chapters.map((chapter, index) => <section key={sectionIds[index]} id={sectionIds[index]} aria-label={chapterLabels[index]} data-chapter={sectionIds[index]} className="lrmq-desktop-chapter w-full">{chapter}</section>)}
+        </div>
+      </div>
     </main>
   );
 }
 
-export default function App() {
+export default function App({ Router = BrowserRouter, routerProps = {}, ProductPage = ProductDetailPage, initialProductPage = null, initialDocument = null, pages = {} }) {
+  const CatalogView = pages.CatalogPage || CatalogPage;
+  const QuoteView = pages.QuoteSelectionPage || QuoteSelectionPage;
+  const LegalView = pages.LegalPage || LegalPage;
+  const routeView = (name, element) => pages[name] ? element : <Suspense fallback={<RouteFallback />}>{element}</Suspense>;
+  const [assistantReady, setAssistantReady] = useState(!initialProductPage && !initialDocument);
+  useEffect(() => { setAssistantReady(true); }, []);
   useEffect(() => {
     let narrow = window.innerWidth < 1024;
     let position = pageScrollY();
@@ -277,24 +271,24 @@ export default function App() {
     return () => { window.removeEventListener('scroll', remember, true); window.removeEventListener('resize', resize); };
   }, []);
   return (
-    <BrowserRouter>
+    <Router {...routerProps}>
       <QuoteSelectionProvider>
         <AssistantProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/productos" element={<Suspense fallback={<RouteFallback />}><CatalogPage /></Suspense>} />
-            <Route path="/productos/:slug" element={<Suspense fallback={<RouteFallback />}><ProductDetailPage /></Suspense>} />
-            <Route path="/presupuesto" element={<Suspense fallback={<RouteFallback />}><QuoteSelectionPage /></Suspense>} />
-            <Route path="/aviso-legal" element={<Suspense fallback={<RouteFallback />}><LegalPage kind="notice" /></Suspense>} />
-            <Route path="/privacidad" element={<Suspense fallback={<RouteFallback />}><LegalPage kind="privacy" /></Suspense>} />
-            <Route path="/cookies" element={<Suspense fallback={<RouteFallback />}><LegalPage kind="cookies" /></Suspense>} />
+            <Route path="/productos" element={routeView('CatalogPage', <CatalogView initialPage={initialDocument?.catalog} />)} />
+            <Route path="/productos/:slug" element={initialProductPage ? <ProductPage initialPage={initialProductPage} /> : <Suspense fallback={<RouteFallback />}><ProductPage /></Suspense>} />
+            <Route path="/presupuesto" element={routeView('QuoteSelectionPage', <QuoteView />)} />
+            <Route path="/aviso-legal" element={routeView('LegalPage', <LegalView kind="notice" />)} />
+            <Route path="/privacidad" element={routeView('LegalPage', <LegalView kind="privacy" />)} />
+            <Route path="/cookies" element={routeView('LegalPage', <LegalView kind="cookies" />)} />
             <Route path="*" element={<Suspense fallback={<RouteFallback />}><NotFoundPage /></Suspense>} />
           </Routes>
-          <Suspense fallback={null}>
+          {assistantReady && <Suspense fallback={null}>
             <AssistantShell />
-          </Suspense>
+          </Suspense>}
         </AssistantProvider>
       </QuoteSelectionProvider>
-    </BrowserRouter>
+    </Router>
   );
 }

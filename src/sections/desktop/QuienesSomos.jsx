@@ -1,4 +1,5 @@
 import { aboutBlocks } from '../../data/aboutContent';
+import { ResponsivePhoto } from '../../components/ResponsivePhoto';
 
 // 3 pasos: cada paso revela una fila completa con texto e imagen simultáneos.
 // Estudio (imagen izquierda + texto derecha): ambos desde arriba.
@@ -26,10 +27,8 @@ export function QuienesSomos({ step, isActive }) {
             const row = ROWS[index];
             const visible = s >= ROW_STEPS[index];
             const image = (
-              <img
-                src={block.photo.desktop.src}
-                srcSet={block.photo.desktop.srcSet}
-                sizes={block.photo.desktop.sizes}
+              <ResponsivePhoto
+                photo={block.photo}
                 alt={block.imageAlt}
                 loading="lazy"
                 decoding="async"

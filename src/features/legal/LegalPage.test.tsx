@@ -9,7 +9,7 @@ import { BROWSER_STORAGE, LEGAL_DOCUMENTS, PROVIDER_PRIVACY_LINKS } from './cont
 import { PrivacyNotice } from './PrivacyNotice';
 
 function CatalogStub() {
-  useEffect(() => applyRouteMeta({ title: 'Catálogo', description: 'Catálogo de prueba', canonicalPath: '/productos/' }), []);
+  useEffect(() => applyRouteMeta({ title: 'Catálogo', description: 'Catálogo de prueba', canonicalPath: '/productos' }), []);
   return <h1>Catálogo de prueba</h1>;
 }
 
@@ -99,7 +99,7 @@ describe('Legal pages metadata isolation', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Catálogo' }));
     await waitFor(() => expect(document.title).toBe('Catálogo'));
     expect(document.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'index, follow');
-    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://arealrmq.es/productos/');
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute('href', 'https://arealrmq.es/productos');
     expect(document.querySelector('meta[name="description"]')).toHaveAttribute('content', 'Catálogo de prueba');
   });
 

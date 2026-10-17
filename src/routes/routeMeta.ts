@@ -3,54 +3,53 @@ export type RouteMeta = {
   description: string;
   canonicalPath?: string | null;
   noindex?: boolean;
+  socialDescription?: string;
 };
 
-function originFromCanonical(canonicalHref: string | null): string {
-  if (!canonicalHref) return window.location.origin;
-  try {
-    return new URL(canonicalHref).origin;
-  } catch {
-    return window.location.origin;
-  }
-}
+const SITE_ORIGIN = 'https://arealrmq.es';
 
-export function applyRouteMeta({ title, description, canonicalPath = null, noindex = false }: RouteMeta): () => void {
+export { HOME_META } from './pageMeta';
+
+export function applyRouteMeta({ title, description, canonicalPath = null, noindex = false, socialDescription = description }: RouteMeta): () => void {
   const previousTitle = document.title;
-  const descriptionEl = document.querySelector('meta[name="description"]');
-  const previousDescription = descriptionEl?.getAttribute('content') ?? null;
-  const canonicalEl = document.querySelector('link[rel="canonical"]');
-  const previousCanonical = canonicalEl?.getAttribute('href') ?? null;
-  let robotsEl = document.querySelector('meta[name="robots"]');
-  const addedRobotsEl = robotsEl === null;
-  const previousRobots = robotsEl?.getAttribute('content') ?? null;
-
-  document.title = title;
-  const siteOrigin = originFromCanonical(canonicalEl?.getAttribute('href') ?? null);
-  descriptionEl?.setAttribute('content', description);
-  if (canonicalPath && canonicalEl) canonicalEl.setAttribute('href', `${siteOrigin}${canonicalPath}`);
-
-  if (noindex) {
-    if (!robotsEl) {
-      robotsEl = document.createElement('meta');
-      robotsEl.setAttribute('name', 'robots');
-      document.head.appendChild(robotsEl);
+  const restore: Array<() => void> = [];
+  function setTag(selector: string, tagName: string, identity: Record<string, string>, attribute: string, value: string | null) {
+    const existing = document.querySelector(selector);
+    if (value === null) {
+      if (existing) {
+        const parent = existing.parentNode;
+        const next = existing.nextSibling;
+        existing.remove();
+        restore.push(() => parent?.insertBefore(existing, next?.parentNode === parent ? next : null));
+      }
+      return;
     }
-    robotsEl.setAttribute('content', 'noindex, follow');
+    const element = existing || document.createElement(tagName);
+    const previous = element.getAttribute(attribute);
+    if (!existing) {
+      for (const [key, content] of Object.entries(identity)) element.setAttribute(key, content);
+      document.head.appendChild(element);
+    }
+    element.setAttribute(attribute, value);
+    restore.push(() => {
+      if (!existing) element.remove();
+      else if (previous === null) element.removeAttribute(attribute);
+      else element.setAttribute(attribute, previous);
+    });
   }
-
+  const canonical = canonicalPath ? `${SITE_ORIGIN}${canonicalPath}` : null;
+  document.title = title;
+  setTag('meta[name="description"]', 'meta', { name: 'description' }, 'content', description);
+  setTag('meta[name="robots"]', 'meta', { name: 'robots' }, 'content', noindex ? 'noindex, follow' : 'index, follow');
+  setTag('link[rel="canonical"]', 'link', { rel: 'canonical' }, 'href', canonical);
+  for (const [property, content] of Object.entries({ 'og:title': title, 'og:description': socialDescription, 'og:url': canonical })) {
+    setTag(`meta[property="${property}"]`, 'meta', { property }, 'content', content);
+  }
+  for (const [name, content] of Object.entries({ 'twitter:title': title, 'twitter:description': socialDescription })) {
+    setTag(`meta[name="${name}"]`, 'meta', { name }, 'content', content);
+  }
   return () => {
     document.title = previousTitle;
-    if (descriptionEl) {
-      if (previousDescription === null) descriptionEl.removeAttribute('content');
-      else descriptionEl.setAttribute('content', previousDescription);
-    }
-    if (canonicalEl) {
-      if (previousCanonical === null) canonicalEl.removeAttribute('href');
-      else canonicalEl.setAttribute('href', previousCanonical);
-    }
-    if (robotsEl) {
-      if (addedRobotsEl) robotsEl.remove();
-      else if (previousRobots !== null) robotsEl.setAttribute('content', previousRobots);
-    }
+    for (const undo of restore.reverse()) undo();
   };
 }

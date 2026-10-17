@@ -3,15 +3,40 @@
   "functions": {
     "api/chat/messages.js": {
       "maxDuration": 35
+    },
+    "api/sitemap.js": {
+      "maxDuration": 30
+    },
+    "api/product-page.js": {
+      "maxDuration": 15,
+      "includeFiles": "dist/server/**"
+    },
+    "api/catalog-page.js": {
+      "maxDuration": 15,
+      "includeFiles": "dist/server/**"
     }
   },
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/presupuesto.html", "destination": "/presupuesto", "permanent": true },
+    { "source": "/aviso-legal.html", "destination": "/aviso-legal", "permanent": true },
+    { "source": "/privacidad.html", "destination": "/privacidad", "permanent": true },
+    { "source": "/cookies.html", "destination": "/cookies", "permanent": true },
+    { "source": "/productos/:slug/", "destination": "/productos/:slug", "permanent": true },
+    { "source": "/productos/", "destination": "/productos", "permanent": true },
+    { "source": "/presupuesto/", "destination": "/presupuesto", "permanent": true },
+    { "source": "/aviso-legal/", "destination": "/aviso-legal", "permanent": true },
+    { "source": "/privacidad/", "destination": "/privacidad", "permanent": true },
+    { "source": "/cookies/", "destination": "/cookies", "permanent": true }
+  ],
   "rewrites": [
-    { "source": "/aviso-legal", "destination": "/index.html" },
-    { "source": "/privacidad", "destination": "/index.html" },
-    { "source": "/cookies", "destination": "/index.html" },
-    { "source": "/presupuesto", "destination": "/index.html" },
-    { "source": "/productos", "destination": "/index.html" },
-    { "source": "/productos/:slug", "destination": "/index.html" }
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/aviso-legal", "destination": "/aviso-legal.html" },
+    { "source": "/privacidad", "destination": "/privacidad.html" },
+    { "source": "/cookies", "destination": "/cookies.html" },
+    { "source": "/presupuesto", "destination": "/presupuesto.html" },
+    { "source": "/productos", "destination": "/api/catalog-page" },
+    { "source": "/productos/:slug", "destination": "/api/product-page?slug=:slug" }
   ],
   "headers": [
     {

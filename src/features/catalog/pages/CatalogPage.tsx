@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { applyRouteMeta } from '../../../routes/routeMeta';
+import { getCatalogMeta } from '../../../routes/pageMeta';
 import { CatalogFilterPanel } from '../components/CatalogFilterPanel';
 import { CatalogMasthead } from '../components/CatalogMasthead';
 import { CatalogProductCard } from '../components/CatalogProductCard';
@@ -10,7 +11,7 @@ import { ScrollTopButton, scrollWindowToTop, useScrollTopVisibility } from '../.
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { scrollPageTo } from '../../../components/pageScroll';
 import { CATALOG_RETURN_STORAGE_KEY, getCatalogFacetLabel, getCatalogFilterProfile, getDisplayCatalogFilterKeys, type CatalogQueryState } from '../model/catalogQuery';
-import { useCatalogDiscovery } from '../model/useCatalogDiscovery';
+import { useCatalogDiscovery, type InitialCatalogPage } from '../model/useCatalogDiscovery';
 import type { CatalogFacetKey, CatalogSortValue } from '../model/types';
 
 const sortLabels: Record<CatalogSortValue, string> = {
@@ -42,8 +43,8 @@ function ActiveFilters({ query, labels, visibleKeys, onRemove }: { query: Catalo
   );
 }
 
-export function CatalogPage() {
-  const { query, searchInput, setSearchInput, data, setFilter, removeFilter, clearFilters, setSort, loadMore, retry } = useCatalogDiscovery();
+export function CatalogPage({ initialPage }: { initialPage?: InitialCatalogPage } = {}) {
+  const { query, searchInput, setSearchInput, data, setFilter, removeFilter, clearFilters, setSort, loadMore, retry } = useCatalogDiscovery(initialPage);
   const location = useLocation();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const filtersButtonRef = useRef<HTMLButtonElement>(null);
@@ -78,11 +79,7 @@ export function CatalogPage() {
   const showing = data.items.length;
   const scrollTopVisible = useScrollTopVisibility(true);
 
-  useEffect(() => applyRouteMeta({
-    title: 'Catálogo de baños a medida · AREA LRMQ',
-    description: 'Explora mamparas a medida, platos de ducha minerales, grifería premium y accesorios del catálogo AREA LRMQ en Madrid. Solicita información y un presupuesto para tu proyecto.',
-    canonicalPath: '/productos/',
-  }), []);
+  useEffect(() => applyRouteMeta(getCatalogMeta(location.search, data.statusCode)), [location.search, data.statusCode]);
   const isLoadingInitial = data.status === 'loading' && showing === 0;
   const totalLabel = data.total !== null
     ? `${data.total} productos disponibles`

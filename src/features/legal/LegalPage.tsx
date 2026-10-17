@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { applyRouteMeta } from '../../routes/routeMeta';
+import { getLegalMeta } from '../../routes/pageMeta';
 import { BROWSER_STORAGE, LEGAL_DOCUMENTS, PROVIDER_PRIVACY_LINKS } from './content';
 import { LEGAL_BUSINESS } from './business';
 import { LegalLinks } from './LegalLinks';
@@ -9,30 +10,8 @@ import { LegalLinks } from './LegalLinks';
 export function LegalPage({ kind }: { kind: keyof typeof LEGAL_DOCUMENTS }) {
   const documentContent = LEGAL_DOCUMENTS[kind];
   useEffect(() => {
-    const { title, description, path } = documentContent;
-    const restoreRoute = applyRouteMeta({ title: `${title} · ${LEGAL_BUSINESS.brand}`, description, canonicalPath: path, noindex: true });
-    // Keep social metadata scoped to this page, including client-side return.
-    const values: Record<string, string> = {
-      'meta[property="og:title"]': `${title} · ${LEGAL_BUSINESS.brand}`,
-      'meta[property="og:description"]': description,
-      'meta[property="og:url"]': `${LEGAL_BUSINESS.origin}${path}`,
-      'meta[name="twitter:title"]': `${title} · ${LEGAL_BUSINESS.brand}`,
-      'meta[name="twitter:description"]': description,
-    };
-    const originals = Object.entries(values).map(([selector, value]) => {
-      const element = document.querySelector(selector);
-      const original = element?.getAttribute('content') ?? null;
-      element?.setAttribute('content', value);
-      return { element, original };
-    });
-    return () => {
-      restoreRoute();
-      originals.forEach(({ element, original }) => {
-        if (original === null) element?.removeAttribute('content');
-        else element?.setAttribute('content', original);
-      });
-    };
-  }, [documentContent]);
+    return applyRouteMeta(getLegalMeta(kind));
+  }, [kind]);
 
   return (
     <main id="legal-content" className="min-h-svh bg-surface px-5 py-8 pb-32 text-primary sm:px-8 sm:py-12 sm:pb-32">

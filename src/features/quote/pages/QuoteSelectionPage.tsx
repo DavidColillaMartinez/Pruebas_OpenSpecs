@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { applyRouteMeta } from '../../../routes/routeMeta';
+import { QUOTE_META } from '../../../routes/pageMeta';
 import { CatalogApiError, createQuoteRequest } from '../../catalog/api/client';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { getQuoteSelectionKey, useQuoteSelection } from '../model/selectionStore';
@@ -24,12 +25,7 @@ export function QuoteSelectionPage() {
   const updateField = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
   const submitting = status === 'submitting';
 
-  useEffect(() => applyRouteMeta({
-    title: 'Mi presupuesto · AREA LRMQ',
-    description: 'Revisa las variantes seleccionadas y envía una solicitud única de presupuesto para tu reforma con AREA LRMQ.',
-    canonicalPath: '/presupuesto/',
-    noindex: true,
-  }), []);
+  useEffect(() => applyRouteMeta(QUOTE_META), []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

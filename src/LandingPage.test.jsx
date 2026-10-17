@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { LandingPage } from './App';
 import { chapterLabels, navItems, sectionIds } from './data/copy';
@@ -52,11 +52,12 @@ describe('LandingPage narrative lifecycle', () => {
     // Compact desktop keeps the same destinations in the existing menu; the
     // legal pages (added in feat(legal)) append after the chapter links.
     fireEvent.click(screen.getByRole('button', { name: 'Menú' }));
-    const navLabels = [...document.querySelectorAll('nav a')].map((link) => link.textContent);
-    expect(navLabels.slice(0, 7)).toEqual(['Inicio', ...navItems.map((item) => item.label)]);
+    const drawer = screen.getByRole('dialog', { name: 'Menú de navegación' });
+    const navLabels = within(drawer).getByRole('navigation').querySelectorAll('a');
+    expect([...navLabels].map((link) => link.textContent)).toEqual(['Inicio', ...navItems.map((item) => item.label)]);
     expect(navItems[0].label).toBe('Quiénes somos');
     expect(navItems[navItems.length - 2].label).toBe('Opiniones');
-    expect(navLabels.slice(7)).toEqual(['Aviso legal', 'Política de privacidad', 'Cookies y almacenamiento']);
+    for (const label of ['Aviso legal', 'Política de privacidad', 'Cookies y almacenamiento']) expect(screen.getByRole('link', { name: label })).toBeInTheDocument();
   });
 
   it('routes a deep link hash to its chapter on mount', () => {

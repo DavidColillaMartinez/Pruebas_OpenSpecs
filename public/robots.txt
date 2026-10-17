@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /api/catalog/config
+Allow: /api/catalog/products
 Disallow: /api/
-Disallow: /presupuesto/
 
 Sitemap: https://arealrmq.es/sitemap.xml

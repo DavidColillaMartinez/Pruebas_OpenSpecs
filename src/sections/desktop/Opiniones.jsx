@@ -25,7 +25,7 @@ function StarRow({ rating }) {
   );
 }
 
-export function Opiniones({ step, isActive }) {
+export function Opiniones({ step, isActive, narrative = true }) {
   const s = isActive ? step : 0;
   const total = googleReviews.length;
   const [index, setIndex] = useState(0);
@@ -41,11 +41,11 @@ export function Opiniones({ step, isActive }) {
   // active chapter, pointer hover, or keyboard focus. It only stops for
   // reduced motion. Manual navigation repositions and restarts the countdown.
   useEffect(() => {
-    if (total < 2) return;
+    if (!narrative || total < 2) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const timer = window.setTimeout(() => setIndex((current) => (current + 1) % total), AUTOPLAY_MS);
     return () => window.clearTimeout(timer);
-  }, [index, manualTick, total]);
+  }, [index, manualTick, total, narrative]);
 
   const offsetFrom = (reviewIndex) => {
     const raw = (reviewIndex - index + total) % total;
@@ -73,7 +73,7 @@ export function Opiniones({ step, isActive }) {
             aria-label="Reseñas de Google"
             className={`mt-10 transition-all duration-500 ease-out ${s >= 1 ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-8 blur-[2px]'}`}
           >
-            <div className="relative h-[clamp(23rem,45svh,30rem)] w-full overflow-hidden">
+            <div className="lrmq-review-track relative h-[clamp(23rem,45svh,30rem)] w-full overflow-hidden">
               {googleReviews.map((review, reviewIndex) => {
                 const offset = offsetFrom(reviewIndex);
                 const state = cardTransform(offset);
@@ -81,8 +81,8 @@ export function Opiniones({ step, isActive }) {
                 return (
                   <figure
                     key={`${review.author}-${reviewIndex}`}
-                    aria-hidden={!active}
-                    inert={!active}
+                    aria-hidden={narrative && !active}
+                    inert={narrative && !active}
                     style={{ transform: state.transform, zIndex: state.zIndex, opacity: state.opacity, filter: state.blurred ? 'blur(5px)' : 'none', transition: `transform ${GLIDE_MS}ms ${MECHANICAL_EASE}, opacity ${GLIDE_MS}ms ${MECHANICAL_EASE}, filter ${GLIDE_MS}ms ${MECHANICAL_EASE}` }}
                     className="absolute left-1/2 top-1/2 flex h-full w-[clamp(20rem,34vw,24rem)] flex-col items-center justify-center overflow-hidden rounded-[1.8rem] border border-hairline/8 bg-surface-elevated/85 p-8 text-center shadow-soft will-change-transform"
                   >
@@ -98,12 +98,12 @@ export function Opiniones({ step, isActive }) {
                       <span className="text-sm font-semibold uppercase tracking-[0.16em] text-secondary/55">{review.author}</span>
                       {review.date ? <span className="text-xs uppercase tracking-[0.14em] text-secondary/40">{review.date}</span> : null}
                     </figcaption>
-                    <a href={review.googleUrl} target="_blank" rel="noopener noreferrer" tabIndex={active ? undefined : -1} className="mt-3 inline-block text-xs font-semibold uppercase tracking-[0.16em] text-clay underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Ver en Google</a>
+                    <a href={review.googleUrl} target="_blank" rel="noopener noreferrer" tabIndex={!narrative || active ? undefined : -1} className="mt-3 inline-block text-xs font-semibold uppercase tracking-[0.16em] text-clay underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">Ver en Google</a>
                   </figure>
                 );
               })}
             </div>
-            <div className={`mt-6 flex items-center justify-center gap-4 transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <div className={`lrmq-narrative-only mt-6 flex items-center justify-center gap-4 transition-all duration-500 ease-out ${s >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <button type="button" onClick={() => goTo(index - 1)} aria-label="Reseña anterior" className="grid h-11 w-11 place-items-center rounded-full border border-hairline/12 text-secondary/60 transition hover:border-hairline/30 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2">
                 <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
               </button>

@@ -28,6 +28,9 @@ export function scrollWindowToTop(): void {
 }
 
 export function ScrollTopButton({ show, onClick, className = '' }: { show: boolean; onClick: () => void; className?: string }) {
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => { setPortalReady(true); }, []);
+  if (!portalReady) return null;
   return createPortal(
     <button
       type="button"

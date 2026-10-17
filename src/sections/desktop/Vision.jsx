@@ -3,14 +3,17 @@ import { LRMQ_ASSETS } from '../../config/mediaAssets';
 import { LogoMark } from '../../components/LogoMark';
 import { CompareSlider } from '../../components/CompareSlider';
 
+// Browser-session playback memory, as before. Server rendering never reads or
+// writes this flag: it is used only by playback events and effects.
 const visionSeenRef = { current: false };
 
-export function Vision({ step, isActive, onHold }) {
+export function Vision({ step, isActive, onHold, narrative = true }) {
   const videoRef = useRef(null);
   const sliderRef = useRef(null);
   const draggingRef = useRef(false);
   const activeRef = useRef(false);
   const [videoDone, setVideoDone] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const [sliderX, setSliderX] = useState(0.5);
   const holdRef = useRef(onHold);
   holdRef.current = onHold;
@@ -20,25 +23,32 @@ export function Vision({ step, isActive, onHold }) {
     if (!activeRef.current) return;
     videoRef.current?.pause();
     setVideoDone(true);
-    holdRef.current(false);
+    setPlaying(false);
+    holdRef.current?.(false);
     visionSeenRef.current = true;
   };
 
   useEffect(() => {
-    activeRef.current = isActive;
-    if (!isActive) {
+    activeRef.current = !narrative || isActive;
+    if (narrative && !isActive) {
       videoRef.current?.pause();
-      return () => { activeRef.current = false; videoRef.current?.pause(); };
+      const video = videoRef.current;
+      return () => { activeRef.current = false; video?.pause(); };
     }
     if (!videoRef.current) return;
     const video = videoRef.current;
     const done = () => finishPlayback();
     video.addEventListener('ended', done);
     video.addEventListener('error', done);
+    if (!narrative) {
+      video.pause();
+      setPlaying(false);
+      return () => { video.removeEventListener('ended', done); video.removeEventListener('error', done); video.pause(); };
+    }
     if (visionSeenRef.current) {
       video.pause();
       setVideoDone(true);
-      holdRef.current(false);
+      holdRef.current?.(false);
       return () => {
         video.removeEventListener('ended', done);
         video.removeEventListener('error', done);
@@ -46,8 +56,9 @@ export function Vision({ step, isActive, onHold }) {
         video.pause();
       };
     }
-    holdRef.current(true);
+    holdRef.current?.(true);
     setVideoDone(false);
+    setPlaying(true);
     video.currentTime = 0;
     video.play().catch(done);
     return () => {
@@ -56,13 +67,14 @@ export function Vision({ step, isActive, onHold }) {
       activeRef.current = false;
       video.pause();
     };
-  }, [isActive]);
+  }, [isActive, narrative]);
 
   const handleReplay = () => {
     if (!videoRef.current) return;
     visionSeenRef.current = true;
-    holdRef.current(true);
+    if (narrative) holdRef.current?.(true);
     setVideoDone(false);
+    setPlaying(true);
     setSliderX(0.5);
     videoRef.current.currentTime = 0;
     videoRef.current.play().catch(finishPlayback);
@@ -79,7 +91,8 @@ export function Vision({ step, isActive, onHold }) {
     const up = () => { draggingRef.current = false; };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
-    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointercancel', up);
+    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); };
   }, []);
 
   return (
@@ -97,7 +110,8 @@ export function Vision({ step, isActive, onHold }) {
           finalImage={LRMQ_ASSETS.sketchFinal}
           finalImageAlt="Imagen final del proyecto"
         >
-          <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className="btn-replay grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10">
+          {!videoDone && !playing && <div className="lrmq-native-only absolute inset-0 items-center justify-center bg-ink/15"><button type="button" onClick={handleReplay} className="min-h-11 rounded-full border border-clay/40 bg-white px-7 py-3 text-sm font-semibold text-ink shadow-lift focus-visible:ring-2 focus-visible:ring-clay">Reproducir boceto</button></div>}
+          <button type="button" onClick={handleReplay} aria-label="Reproducir video de nuevo" className={`btn-replay ${!videoDone && !playing ? 'lrmq-replay-idle' : ''} grid min-h-[44px] min-w-[44px] place-items-center rounded-full bg-white/90 p-0 text-ink shadow-lift hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2 absolute bottom-3 right-3 z-10`}>
             <span className="replay-arrow grid h-5 w-5 place-items-center" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full" aria-hidden="true" focusable="false">
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
