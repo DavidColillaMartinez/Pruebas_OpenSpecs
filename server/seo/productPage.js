@@ -134,10 +134,18 @@ function logResult(status, reason) {
   console.info(JSON.stringify({ event: 'product_page.result', status, reason: reason ?? null }));
 }
 
-function sendDocument(response, method, status, html, headers) {
+function logDiagnostic(phase, errorClass) {
+  // Closed diagnostic vocabulary: renderer/shell phase plus a safe error class.
+  console.info(JSON.stringify({ event: 'product_page.diagnostic', phase, errorClass }));
+}
+
+function sendDocument(response, method, status, html, headers, diag = null) {
   response.status(status);
   response.setHeader('Content-Type', 'text/html; charset=utf-8');
   for (const [name, value] of Object.entries(headers)) response.setHeader(name, value);
+  // Every 503 carries a closed diagnostic phase in X-LRMQ-Diag: no slugs or
+  // visitor data, and only for recoverable failures.
+  if (diag) response.setHeader('X-LRMQ-Diag', diag);
   return method === 'HEAD' ? response.end() : response.send(html);
 }
 
@@ -153,9 +161,11 @@ export async function handleProductPageRequest(request, response, deps = {}) {
   let template;
   try {
     template = typeof readShell === 'function' ? await readShell() : FALLBACK_TEMPLATE;
-  } catch {
+  } catch (error) {
+    const phase = typeof error?.seoPhase === 'string' && /^[a-z-]{3,48}$/.test(error.seoPhase) ? error.seoPhase : 'shell-unavailable';
+    logDiagnostic(phase, typeof error?.seoErrorClass === 'string' ? error.seoErrorClass : error?.name ?? 'unknown');
     logResult('unavailable', 'shell-unavailable');
-    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable);
+    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable, phase);
   }
 
   const slug = decodeSlug(request.query?.slug);
@@ -171,12 +181,14 @@ export async function handleProductPageRequest(request, response, deps = {}) {
   try {
     const rendered = renderPage ? await renderPage(result, slug) : undefined;
     html = renderProductDocument(template, result, slug, rendered);
-  } catch {
+  } catch (error) {
+    const phase = typeof error?.seoPhase === 'string' && /^[a-z-]{3,48}$/.test(error.seoPhase) ? error.seoPhase : 'render';
+    logDiagnostic(phase, typeof error?.seoErrorClass === 'string' ? error.seoErrorClass : error?.name ?? 'unknown');
     logResult('unavailable', 'template-invalid');
-    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable);
+    return sendDocument(response, method, 503, renderProductDocument(FALLBACK_TEMPLATE, { status: 'unavailable' }, ''), HEADERS.unavailable, phase);
   }
 
   if (result.status === 'found') return sendDocument(response, method, 200, html, HEADERS.found);
   if (result.status === 'not-found') return sendDocument(response, method, 404, html, HEADERS.notFound);
-  return sendDocument(response, method, 503, html, HEADERS.unavailable);
+  return sendDocument(response, method, 503, html, HEADERS.unavailable, result.reason ?? 'unknown');
 }

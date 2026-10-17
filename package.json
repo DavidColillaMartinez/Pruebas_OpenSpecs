@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "build": "vite build && node server/seo/build.js",
+    "package:seo": "node server/seo/packageCheck.js",
     "preview": "vite preview",
     "preview:seo": "node server/seo/preview.js"
   },

@@ -159,6 +159,7 @@ describe('handleProductPageRequest', () => {
     expect(res.statusCode).toBe(503);
     expect(res.headers['retry-after']).toBe('300');
     expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.headers['x-lrmq-diag']).toBe('upstream-status');
     expect(res.headers['x-robots-tag']).toBeUndefined();
   });
 
@@ -170,11 +171,17 @@ describe('handleProductPageRequest', () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it('answers 503 when the shell cannot be read', async () => {
+  it('answers 503 with a shell diagnostic phase when the shell cannot be read', async () => {
     const res = fakeResponse();
-    await handleProductPageRequest(request(), res, { readShell: async () => { throw new Error('ENOENT'); }, env: ENV });
+    await handleProductPageRequest(request(), res, {
+      readShell: async () => { throw Object.assign(new Error('hidden path'), { seoPhase: 'shell-missing', seoErrorClass: 'ENOENT' }); },
+      env: ENV,
+    });
     expect(res.statusCode).toBe(503);
+    expect(res.headers['x-lrmq-diag']).toBe('shell-missing');
+    expect(res.headers['retry-after']).toBe('300');
     expect(res.body).not.toContain('content="noindex');
+    expect(res.body).not.toContain('hidden path');
   });
 
   it('fails recoverably if shared rendering fails instead of serving an empty success document', async () => {
@@ -187,6 +194,7 @@ describe('handleProductPageRequest', () => {
     });
     expect(res.statusCode).toBe(503);
     expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.headers['x-lrmq-diag']).toBe('render');
     expect(res.body).not.toContain('content="noindex');
   });
 

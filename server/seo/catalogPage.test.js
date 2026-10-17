@@ -32,24 +32,39 @@ describe('catalog document public data loading', () => {
     expect((await loadCatalogPages('page=2', renderer, { env, fetchImpl: async () => answer(page([item])) })).statusCode).toBe(404);
   });
 
-  it.each(['timeout', 'invalid-json', 'upstream', 'duplicate', 'non-public'])('reports %s as recoverable 503 rather than an empty catalogue', async (failure) => {
-    const fetchImpl = vi.fn(async () => {
-      if (failure === 'timeout') throw new DOMException('timeout', 'TimeoutError');
-      if (failure === 'invalid-json') return new Response('not JSON');
-      if (failure === 'upstream') return answer({}, 502);
-      if (failure === 'non-public') return answer(page([{ ...item, publication_status: 'draft' }]));
-      return answer(page([item, item]));
-    });
-    expect(await loadCatalogPages('', renderer, { env, fetchImpl })).toEqual({ statusCode: 503, pages: [] });
+  it('reports timeout, response and contract failures as classified recoverable 503s', async () => {
+    const cases = {
+      timeout: async () => { throw new DOMException('timeout', 'TimeoutError'); },
+      invalidBody: async () => new Response('not JSON'),
+      upstream: async () => answer({}, 502),
+      nonPublic: async () => answer(page([{ ...item, publication_status: 'draft' }])),
+      duplicate: async () => answer(page([item, item])),
+    };
+    expect(await loadCatalogPages('', renderer, { env, fetchImpl: cases.timeout })).toEqual({ statusCode: 503, pages: [], reason: 'timeout' });
+    expect(await loadCatalogPages('', renderer, { env, fetchImpl: cases.invalidBody })).toEqual({ statusCode: 503, pages: [], reason: 'invalid-body' });
+    expect(await loadCatalogPages('', renderer, { env, fetchImpl: cases.upstream })).toEqual({ statusCode: 503, pages: [], reason: 'upstream-status' });
+    expect(await loadCatalogPages('', renderer, { env, fetchImpl: cases.nonPublic })).toEqual({ statusCode: 503, pages: [], reason: 'inventory' });
+    expect(await loadCatalogPages('', renderer, { env, fetchImpl: cases.duplicate })).toEqual({ statusCode: 503, pages: [], reason: 'inventory' });
+  });
+
+  it('reports a network failure as a recoverable 503 without invoking upstream twice', async () => {
+    const fetchImpl = async () => { throw new TypeError('fetch failed'); };
+    expect(await loadCatalogPages('', renderer, { env, fetchImpl })).toEqual({ statusCode: 503, pages: [], reason: 'network' });
+  });
+
+  it('reports a missing upstream configuration as not-configured without fetching', async () => {
+    const fetchImpl = vi.fn();
+    expect(await loadCatalogPages('', renderer, { env: {}, fetchImpl })).toEqual({ statusCode: 503, pages: [], reason: 'not-configured' });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it('bounds pathological page requests without allocating or fetching an unbounded number of pages', async () => {
     const fetchImpl = vi.fn();
-    expect((await loadCatalogPages('page=999999999999999999999', renderer, { env, fetchImpl })).statusCode).toBe(503);
+    expect(await loadCatalogPages('page=999999999999999999999', renderer, { env, fetchImpl })).toEqual({ statusCode: 503, pages: [], reason: 'request-limit' });
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it('serves error status, body and cache policy from the compiled-document adapter contract', async () => {
+  it('serves the renderer error view with cache policy from the compiled-document adapter contract', async () => {
     const res = { headers: {}, status(code) { this.statusCode = code; return this; }, setHeader(key, value) { this.headers[key] = value; }, send(body) { this.body = body; }, end() {} };
     await handleCatalogPageRequest({ method: 'GET', url: '/productos?search=baño&utm_source=private-canary' }, res, {
       readShell: async () => template, loadRenderer: async () => renderer, env, fetchImpl: async () => answer({}, 502),
@@ -57,8 +72,33 @@ describe('catalog document public data loading', () => {
     expect(res.statusCode).toBe(503);
     expect(res.headers['Cache-Control']).toBe('no-store');
     expect(res.headers['Retry-After']).toBe('300');
+    expect(res.headers['X-LRMQ-Diag']).toBe('upstream-status');
     expect(res.body).toContain('Reintentar');
     expect(res.body).not.toContain('private-canary');
     expect(res.body).not.toContain('content="noindex');
+  });
+
+  it('classifies a missing shell with a diagnostic phase and serves the emergency document', async () => {
+    const res = { headers: {}, status(code) { this.statusCode = code; return this; }, setHeader(key, value) { this.headers[key] = value; }, send(body) { this.body = body; }, end() {} };
+    await handleCatalogPageRequest({ method: 'GET', url: '/productos' }, res, {
+      readShell: async () => { throw Object.assign(new Error('hidden path'), { seoPhase: 'shell-missing', seoErrorClass: 'ENOENT' }); },
+      loadRenderer: async () => renderer, env,
+    });
+    expect(res.statusCode).toBe(503);
+    expect(res.headers['X-LRMQ-Diag']).toBe('shell-missing');
+    expect(res.headers['Retry-After']).toBe('300');
+    expect(res.body).toContain('Reintentar');
+    expect(res.body).not.toContain('hidden path');
+  });
+
+  it('classifies a failing renderer import as renderer-import instead of blaming the catalog service', async () => {
+    const res = { headers: {}, status(code) { this.statusCode = code; return this; }, setHeader(key, value) { this.headers[key] = value; }, send(body) { this.body = body; }, end() {} };
+    await handleCatalogPageRequest({ method: 'GET', url: '/productos' }, res, {
+      readShell: async () => template,
+      loadRenderer: async () => { throw Object.assign(new Error('hidden path'), { seoPhase: 'renderer-import', seoErrorClass: 'ERR_MODULE_NOT_FOUND' }); },
+      env,
+    });
+    expect(res.statusCode).toBe(503);
+    expect(res.headers['X-LRMQ-Diag']).toBe('renderer-import');
   });
 });

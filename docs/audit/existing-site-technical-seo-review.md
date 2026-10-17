@@ -396,3 +396,46 @@ Comandos de evidencia: `node server/seo/documentReview.js`; `node server/seo/bro
 - **8.3:** rutina entregada, pendiente acordar responsable y aceptación: revisar incidencias/consultas tras publicación; revisión mensual de consultas comerciales conocidas/rendimiento de búsqueda cuando exista acceso; repetir inventario/URLs tras cambios de catálogo. No requiere analítica adicional ni nuevo contenido. Mantener también el contraste de dirección/Perfil de Empresa como seguimiento del propietario.
 
 Safari/iPhone físico y entrega real de proveedores siguen fuera de la evidencia local. No se han inventado aceptación, hosting, verificación DNS, indexación ni resultados de entrega externa.
+
+## 11. Incidencia en producción tras el despliegue de `2e08e35` · 2026-10-17
+
+Síntoma reportado y reproducido por lectura pública: `https://arealrmq.es/productos` y `/productos/mt-espejos-alba` respondían 503 con los documentos de emergencia de los handlers, de forma consistente, mientras las fuentes públicas `/api/catalog/config` y `/api/catalog/products?limit=1&offset=0&include_facets=false` respondían 200 con datos, y `sitemap.xml` seguía obteniendo 200 con 153 URL (application/xml).
+
+### 11.1 Diagnóstico
+
+- `/presupuesto` y `/privacidad` servían 200 el HTML prerrenderizado de `server/seo/build.js` (canonical y head correctos): el paso SSR del build sí se ejecutó en la VM de Vercel y `dist/server/*` existió en el directorio de salida.
+- Las funciones `/api/catalog/*` (preexistentes) y `api/sitemap.js` funcionaban: upstream n8n y variables `N8N_*_UPSTREAM_BASE_URL` alcanzables desde las funciones. Descartada caída de n8n y de configuración.
+- El 503 de ficha coincidía con el documento de `FALLBACK_TEMPLATE` (fase shell-unavailable o template-invalid del handler); el 503 de catálogo con el documento de emergencia del catch. Ambos caracterizan fallo en localizar/cargar la shell o el renderer dentro del sandbox de la función.
+- Causa identificada (capa concretamente en producción, no reproducible localmente): los dos artefactos críticos se cargaban por lectura de fichero (`new URL('../dist/server/shell.html', import.meta.url)`) y por importación dinámica, con `includeFiles: "dist/server/**"` como única red de entrega de ficheros al sandbox. Cualquier discrepancia del empaquetado (@vercel/node: trazado nft del import dinámico, resolución de `import.meta.url` en la entrada compilada o cobertura del glob) dejaba la función sin artefactos y derivaba en el documento de emergencia 503, sin evidencia diferenciada en el cuerpo.
+- Los logs remotos no estaban disponibles desde este entorno; la corrección prioriza que el fallo no dependa de esa entrega y que sea observables las fases.
+
+### 11.2 Corrección
+
+- `server/seo/build.js`: escribe la shell también como módulo ESM trazable `dist/server/shell.js` (además del `shell.html` existente, que queda como reserva de lectura).
+- `server/seo/artifacts.js` (nuevo): `loadShellArtifact` importa primero el módulo trazado y, como reserva, lee `dist/server/shell.html` en dos ubicaciones (URL módulo y cwd); `loadRendererArtifact` importa el bundle dinámicamente y valida sus exports. Todo fallo se clasifica en fases cerradas `shell-missing | shell-io | shell-invalid | renderer-import | renderer-contract`, con clase de error pública (código/nombre), nunca rutas ni mensajes del intérprete.
+- `api/product-page.js` y `api/catalog-page.js`: usan los cargadores clasificados; cada 503 añade cabecera `X-LRMQ-Diag` (fase cerrada) y consolida en el log el evento `*_page.diagnostic`. Los status, Retry-After, no-store, robots y cuerpos quedan idénticos; no se devuelve nunca 200 a cambio de ocultar el fallo.
+- `server/seo/catalogPage.js`: separa etapas (shell → renderer → normalización/render → upstream). La indisponibilidad del servicio sigue sirviendo la vista hidratable del renderer con botón «Reintentar» (igual que antes del despliegue);
+ `loadCatalogPages` devuelve `reason` clasificada (`not-configured | request-limit | timeout | network | upstream-status | response-limit | invalid-body | contract | inventory`) que alimenta `X-LRMQ-Diag`. El documento de emergencia sin estilos queda reservado a fallos de pipeline.
+- `vercel.json`, rutas, rewrites, sitemap y robots: sin cambios.
+- `package.json`: añade `npm run package:seo` (`server/seo/packageCheck.js`).
+
+### 11.3 Comprobación del empaquetado (representativa del runtime serverless)
+
+`node server/seo/packageCheck.js` tras `npm run build`:
+1. Verifica que el bundle del renderer no referencia ficheros relativos ausentes bajo `dist/server` ni dependencias no instaladas.
+2. Copia `dist/server/**` (el alcance declarado en `includeFiles`) a un sandbox temporal con node_modules, y en ese árbol aislado importa y ejecuta el renderer (estáticas, catálogo 503, ficha 404) y la shell módulo. Resultado: `package-seo ok`.
+3. No equivale a evidencia de Vercel: el empaquetado real (@vercel/node, nft, runtime) solo se confirma con despliegue, logs o las cabeceras `X-LRMQ-Diag` en producción.
+
+### 11.4 Verificación local ejecutada tras la corrección
+
+- Suite completa: 64 archivos, 582 pruebas pasan, 1 omitida preexistente. Lint 0 errores/10 avisos conocidos; typecheck OK; `git diff --check` limpio.
+- Batería HTTP/no-JS (`documentReview.js`, informe `/tmp/opencode/seo-document-review-incident-fix.json`): 11 documentos correctos, canonical/robots/sitemap, alias y 308; 503 con upstream caído en `/productos` y ficha (Retry-After 300, no-store, `X-LRMQ-Diag: network`), recuperación al reintentar sin errores de página; sitemap 153 URLs.
+- Flujos de navegador completos a 1440 y 390 (`browserFlows.js`): 14 y 15 flujos sin errores, apertura directa, recarga, navegación cliente, hidratación sin petición duplicada, 1 POST de chat y 4 POST de presupuesto controlados, sin entrega externa.
+- Empaquetado (`npm run package:seo`): correcto.
+- Sitemap: sin cambios; verificación externa vigente (200, application/xml, 153 URLs). El error de Search Console al leerlo no se atribuye al 503 de las fichas ni a ningún cambio del sitemap: se desconoce el detalle y sigue pendiente de la Vista al detalle de Search Console.
+
+### 11.5 Pendientes en producción (no verificable desde este entorno)
+
+- Desplegar y comprobar: 200 con contenido y metadatos en `/productos` y fichas, 404/503 con sus cabeceras, y `X-LRMQ-Diag` si reapareciera algún 503.
+- Lectura de logs de Vercel de las funciones para correlacionar fases si persistiera.
+- Vista al detalle de Search Console sobre sitemap.xml (pendiente; sin atribución de causa).
