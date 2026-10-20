@@ -44,6 +44,21 @@ export function applyHead(template, meta) {
     if (!matches || matches.length !== 1) throw new Error(`SEO_TEMPLATE_TAG_MISSING:${tag.name}`);
     html = html.replace(tag.pattern, () => tag.render(meta));
   }
+  // Only model-specific pages override the shell's site-level social image.
+  // Emergency/legacy templates without these optional tags still render.
+  if (meta.imageUrl) {
+    const alt = meta.imageAlt || '';
+    for (const [identity, key, value] of [
+      ['property', 'og:image', meta.imageUrl], ['property', 'og:image:alt', alt],
+      ['name', 'twitter:image', meta.imageUrl], ['name', 'twitter:image:alt', alt],
+    ]) {
+      const pattern = new RegExp(`<meta ${identity}="${key}" content="[^"]*"\\s*\\/?>`, 'g');
+      const replacement = `<meta ${identity}="${key}" content="${escapeAttribute(value)}" />`;
+      const matches = html.match(pattern);
+      if (matches && matches.length > 1) throw new Error(`SEO_TEMPLATE_TAG_DUPLICATED:${key}`);
+      html = matches ? html.replace(pattern, () => replacement) : html.replace('</head>', () => `${replacement}</head>`);
+    }
+  }
   return html;
 }
 

@@ -18,6 +18,7 @@ import { QuoteRequestForm } from '../../quote/components/QuoteRequestForm';
 import { CATALOG_RETURN_STORAGE_KEY } from '../model/catalogQuery';
 import { buildQuoteRequestItem } from '../../quote/model/payload';
 import { useQuoteSelection } from '../../quote/model/selectionStore';
+import { KitchenProductJsonLd } from '../components/KitchenProductJsonLd';
 
 export type DetailState =
   | { status: 'loading' }
@@ -330,6 +331,7 @@ export function ProductDetailPage({ initialPage: bootstrapPage }: { initialPage?
 
   return (
     <main className="min-h-screen bg-surface px-5 py-10 text-primary sm:px-8" id="product-content">
+      {state.status === 'success' && <KitchenProductJsonLd product={state.product} />}
       <div className="mx-auto max-w-7xl">
         <div className="flex items-center justify-between text-sm text-secondary">
           <nav aria-label="Migas de pan">

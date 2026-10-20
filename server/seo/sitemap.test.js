@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { SITEMAP_PAGE_SIZE, buildSitemapResponse, buildSitemapXml, enumeratePublicSlugs, escapeXml } from './sitemap.js';
+import kitchen from '../../src/features/catalog/api/fixtures/gme-kitchen-contract.json';
 
 const UPSTREAM = 'https://upstream.example/catalog';
 const quiet = () => {};
@@ -110,6 +111,24 @@ describe('enumeratePublicSlugs', () => {
 });
 
 describe('buildSitemapResponse', () => {
+  it('includes the eleven kitchen models and excludes the retired Sirio handle without a static URL list', async () => {
+    const retired = 'gme-ducha-empotrable-sirio-1-funcion';
+    const current = [...range(0, 150).map(slug => item(slug)),
+      ...kitchen.products.map(product => item(product.slug)), item(retired, { publication_status: 'archived' })];
+    const fetchImpl = vi.fn(async url => {
+      const offset = Number(new URL(url).searchParams.get('offset'));
+      return pageOf(current.slice(offset, offset + 60), offset, offset + 60 < current.length);
+    });
+    const result = await buildSitemapResponse({ env: { N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL: UPSTREAM }, fetchImpl, log: quiet });
+    expect(result.status).toBe(200);
+    const urls = [...result.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
+    expect(urls).toHaveLength(163);
+    expect(new Set(urls).size).toBe(163);
+    for (const product of kitchen.products) expect(urls).toContain(`https://arealrmq.es/productos/${product.slug}`);
+    expect(result.body).not.toContain(retired);
+    expect(result.body).not.toContain('tap_scope');
+    expect(result.body).not.toContain('lastmod');
+  });
   it('returns XML with bounded cache headers for a complete inventory', async () => {
     const fetchImpl = sequentialFetch([pageOf([item('a-1'), item('b-2')], 0, false)]);
     const result = await buildSitemapResponse({ env: { N8N_CATALOG_PRODUCTS_UPSTREAM_BASE_URL: UPSTREAM }, fetchImpl, log: quiet });

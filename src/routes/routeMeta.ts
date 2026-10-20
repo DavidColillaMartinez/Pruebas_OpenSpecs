@@ -1,16 +1,20 @@
+import { LRMQ_ASSETS } from '../config/mediaAssets';
+
 export type RouteMeta = {
   title: string;
   description: string;
   canonicalPath?: string | null;
   noindex?: boolean;
   socialDescription?: string;
+  imageUrl?: string;
+  imageAlt?: string;
 };
 
 const SITE_ORIGIN = 'https://arealrmq.es';
 
 export { HOME_META } from './pageMeta';
 
-export function applyRouteMeta({ title, description, canonicalPath = null, noindex = false, socialDescription = description }: RouteMeta): () => void {
+export function applyRouteMeta({ title, description, canonicalPath = null, noindex = false, socialDescription = description, imageUrl = LRMQ_ASSETS.socialLogo, imageAlt = 'Logotipo AREA LRMQ' }: RouteMeta): () => void {
   const previousTitle = document.title;
   const restore: Array<() => void> = [];
   function setTag(selector: string, tagName: string, identity: Record<string, string>, attribute: string, value: string | null) {
@@ -42,10 +46,10 @@ export function applyRouteMeta({ title, description, canonicalPath = null, noind
   setTag('meta[name="description"]', 'meta', { name: 'description' }, 'content', description);
   setTag('meta[name="robots"]', 'meta', { name: 'robots' }, 'content', noindex ? 'noindex, follow' : 'index, follow');
   setTag('link[rel="canonical"]', 'link', { rel: 'canonical' }, 'href', canonical);
-  for (const [property, content] of Object.entries({ 'og:title': title, 'og:description': socialDescription, 'og:url': canonical })) {
+  for (const [property, content] of Object.entries({ 'og:title': title, 'og:description': socialDescription, 'og:url': canonical, 'og:image': imageUrl, 'og:image:alt': imageAlt })) {
     setTag(`meta[property="${property}"]`, 'meta', { property }, 'content', content);
   }
-  for (const [name, content] of Object.entries({ 'twitter:title': title, 'twitter:description': socialDescription })) {
+  for (const [name, content] of Object.entries({ 'twitter:title': title, 'twitter:description': socialDescription, 'twitter:image': imageUrl, 'twitter:image:alt': imageAlt })) {
     setTag(`meta[name="${name}"]`, 'meta', { name }, 'content', content);
   }
   return () => {

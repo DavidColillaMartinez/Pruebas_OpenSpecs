@@ -3,6 +3,7 @@ import type { ProductDetail } from '../features/catalog/model/types';
 import { parseCatalogQuery, serializeCatalogQuery } from '../features/catalog/model/catalogQuery';
 import { LEGAL_DOCUMENTS } from '../features/legal/content';
 import { LEGAL_BUSINESS } from '../features/legal/business';
+import { getKitchenSeo } from '../features/catalog/model/kitchenSeo';
 
 export const HOME_META: RouteMeta = {
   title: 'AREA LRMQ · Reformas integrales y tienda en Madrid',
@@ -26,8 +27,8 @@ export function getCatalogMeta(search: string, statusCode = 200): RouteMeta {
   const query = parseCatalogQuery(search);
   const normalized = serializeCatalogQuery(query).toString();
   return {
-    title: 'Catálogo de baños a medida · AREA LRMQ',
-    description: 'Explora mamparas a medida, platos de ducha minerales, grifería premium y accesorios del catálogo AREA LRMQ en Madrid. Solicita información y un presupuesto para tu proyecto.',
+    title: 'Catálogo de baño y grifería de cocina · AREA LRMQ',
+    description: 'Explora muebles de baño, mamparas, platos de ducha, espejos y grifería de baño y cocina en AREA LRMQ, Madrid. Consulta opciones y solicita presupuesto.',
     canonicalPath: statusCode >= 400 ? null : `/productos${normalized ? `?${normalized}` : ''}`,
     noindex: statusCode === 404 || (statusCode !== 503 && Boolean(query.search || Object.keys(query.filters).length || query.sort !== 'relevance')),
   };
@@ -38,6 +39,7 @@ export function getProductMeta(state: { status: string; product?: ProductDetail 
     title: `${state.product.name} · AREA LRMQ`,
     description: state.product.description || `${state.product.name} de ${state.product.brand || state.product.supplierName || 'AREA LRMQ'}. Solicita presupuesto.`,
     canonicalPath: `/productos/${encodeURIComponent(slug)}`,
+    ...getKitchenSeo(state.product),
   };
   if (state.status === 'not-found') return {
     title: 'Producto no encontrado · AREA LRMQ',
