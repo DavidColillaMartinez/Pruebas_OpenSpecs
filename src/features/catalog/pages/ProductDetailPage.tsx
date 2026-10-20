@@ -10,7 +10,7 @@ import { getInitialDuplachSelection } from '../model/initialDuplachSelection';
 import { isGmeIoProduct, buildGmeIoGallery, getGmeIoFinishImageUrl } from '../model/gmeIo';
 import { isRoyoFurnitureScope } from '../model/royo';
 import { buildDuplachProductGallery, getDuplachFamilyImages, getDuplachSelectorModel, isDuplachShowerTrayProduct } from '../model/duplach';
-import { buildRoyoProductGallery } from '../model/gallery';
+import { buildRoyoProductGallery, buildEnclosureVariantGallery, hasEnclosureVariantGallery } from '../model/gallery';
 import { ProductGallery } from '../components/ProductGallery';
 import { ProductVariantSelector, type SelectionChangeMeta } from '../components/ProductVariantSelector';
 import { DuplachVariantSelector } from '../components/DuplachVariantSelector';
@@ -103,10 +103,12 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [duplachFamily, setDuplachFamily] = useState<string | null>(null);
   const [manualFinish, setManualFinish] = useState<{ eventId: number; finish?: string } | null>(null);
+  const [manualEnclosureImage, setManualEnclosureImage] = useState<{ eventId: number; url?: string } | null>(null);
   const { addLine } = useQuoteSelection();
   const isRoyo = isRoyoFurnitureScope({ supplierId: product.supplierId, categoryId: product.categoryId });
   const isDuplach = isDuplachShowerTrayProduct(product);
   const isIo = isGmeIoProduct(product);
+  const isEnclosureGallery = hasEnclosureVariantGallery(product);
   const handleSelectionChange = useCallback((unit: SelectableUnit | null, metadata: SelectionChangeMeta & { family?: string | null }) => {
     if (metadata.source === 'user' && isRoyo) setHasManualRoyoSelection(true);
     if (metadata.source === 'user' && isDuplach) setHasManualDuplachSelection(true);
@@ -116,15 +118,20 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
       if (metadata.changedKey === 'finish') setManualFinish((current) => ({ eventId: (current?.eventId ?? 0) + 1, finish: unit?.attributes.finish }));
       else setManualFinish((current) => ({ eventId: current?.eventId ?? 0, finish: undefined }));
     }
+    if (metadata.source === 'user' && isEnclosureGallery) {
+      setManualEnclosureImage((current) => ({ eventId: (current?.eventId ?? 0) + 1, url: unit?.images?.[0]?.url }));
+    }
     if (isDuplach) setDuplachFamily(metadata.family ?? null);
     setSelectedUnit(unit);
-  }, [isDuplach, isIo, isRoyo]);
+  }, [isDuplach, isIo, isRoyo, isEnclosureGallery]);
   const duplachModel = useMemo(() => isDuplach ? getDuplachSelectorModel(product) : null, [isDuplach, product]);
   const galleryUnit = isRoyo && !hasManualRoyoSelection ? null : selectedUnit;
   // IO gallery must keep a stable identity across renders: rebuilding it on
   // every selection change would reset the active photo to the cover.
   const ioGalleryImages = useMemo(() => isIo ? buildGmeIoGallery(product, assetBaseUrl) : null, [isIo, product, assetBaseUrl]);
+  const enclosureGalleryImages = useMemo(() => isEnclosureGallery ? buildEnclosureVariantGallery(product) : null, [isEnclosureGallery, product]);
   const galleryImages = ioGalleryImages
+    ?? enclosureGalleryImages
     ?? (isDuplach
     ? (duplachFamily && duplachModel
       ? getDuplachFamilyImages(product, duplachModel, duplachFamily, assetBaseUrl)
@@ -159,7 +166,12 @@ function ProductContent({ product, assetBaseUrl }: { product: ProductDetail; ass
         {/* IO gallery order comes already deduplicated and cover-first from
             the builder; re-sorting here would demote a cover without a
             numbered sort_order behind the gallery photos. */}
-        <ProductGallery images={galleryImages} productName={product.name} variantLabel={variantLabel} preserveInputOrder={isRoyo || isDuplach || isIo} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} activation={ioActivation} />
+        <div className="min-w-0">
+          <ProductGallery images={galleryImages} productName={product.name} variantLabel={isEnclosureGallery ? undefined : variantLabel} preserveInputOrder={isRoyo || isDuplach || isIo || isEnclosureGallery} preserveActiveImageOnChange={isRoyo || isDuplach} wideFrame={isRoyo && product.modularity === 'modular'} activation={ioActivation ?? (isEnclosureGallery ? manualEnclosureImage ?? undefined : undefined)} />
+          {isEnclosureGallery && manualEnclosureImage && !manualEnclosureImage.url && (
+            <p role="status" className="mt-3 text-sm text-secondary">No hay una fotografía publicada de esta combinación. La selección para presupuesto se mantiene; puedes recorrer las fotografías disponibles.</p>
+          )}
+        </div>
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-secondary">{product.brand || product.supplierName || product.categoryName}</p>
           <h1 className="mt-3 font-display text-5xl leading-none">{product.name}</h1>

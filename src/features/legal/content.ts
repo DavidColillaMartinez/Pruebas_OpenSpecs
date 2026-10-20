@@ -16,7 +16,7 @@ export const LEGAL_DOCUMENTS: Record<'notice' | 'privacy' | 'cookies', LegalDocu
       ] },
       { id: 'actividad', title: 'Información y presupuestos gratuitos', paragraphs: [
         'La web presenta reformas integrales, cocinas y baños, oficios especializados y una tienda de exposición. Su catálogo de productos de baño permite solicitar información y presupuestos gratuitos. No permite comprar, contratar ni pagar online. Enviar una solicitud no formaliza una contratación.',
-        'Para proyectos de arquitectura y tramitaciones, incluidos cambios de local a vivienda, facilitamos el contacto de profesionales independientes. El interesado contrata con ellos por separado; esos profesionales gestionan proyectos, trámites y facturación bajo su propia actividad. ÁREA LRMQ realiza las obras cuando procede, una vez resueltos los trámites, y no gestiona ni factura esos servicios profesionales.',
+        'Realizamos cambios de local a vivienda y proyectos de arquitectura, ofreciendo soluciones a medida con calidad y profesionalidad. En nuestra tienda de exposición puedes elegir productos y acabados para tu reforma.',
       ] },
       { id: 'uso', title: 'Uso del sitio y sus contenidos', paragraphs: [
         'Utiliza la web de forma lícita y facilita únicamente la información necesaria para tu consulta. No intentes interferir en su funcionamiento ni enviar contenidos ilícitos o datos de otras personas sin estar legitimado para ello.',

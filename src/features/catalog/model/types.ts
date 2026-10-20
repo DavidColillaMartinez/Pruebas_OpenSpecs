@@ -138,6 +138,7 @@ export const CATALOG_FACET_KEYS = [
   'orientation',
   'finish_family',
   'catalog_section',
+  'tap_scope',
   'tap_type',
   'installation',
   'mechanism',

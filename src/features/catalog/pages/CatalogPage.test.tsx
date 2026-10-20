@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Link, MemoryRouter, Route, Routes } from 'react-router-dom';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { Link, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { CatalogPage } from './CatalogPage';
 import { createInitialCatalogPage } from '../model/useCatalogDiscovery';
 import { normalizeProductList } from '../model/normalize';
@@ -358,5 +358,34 @@ describe('CatalogPage', () => {
     expect(screen.getByRole('link', { name: 'Volver a la página principal' })).toHaveAttribute('href', '/');
     expect(screen.getByRole('link', { name: 'Saltar a resultados' })).toHaveAttribute('href', '#catalog-results');
     expect(screen.getByRole('region', { name: 'Resultados' })).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('lists the bathroom/kitchen scope as an active chip that can be removed', async () => {
+    function LocationProbe() {
+      return <output data-testid="catalog-location">{useLocation().search}</output>;
+    }
+
+    const payload = JSON.stringify({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0, has_more: false },
+      facets: {
+        catalog_section: [{ value: 'griferia', label: 'Grifería', count: 11 }],
+        tap_scope: [{ value: 'bano', label: 'Grifería de baño', count: 24 }, { value: 'cocina', label: 'Grifería de cocina', count: 11 }],
+      },
+      sort: { supported: ['relevance'] },
+    });
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(payload, { status: 200, headers: { 'content-type': 'application/json' } })));
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<MemoryRouter initialEntries={['/productos?supplier=gme&category=griferia&catalog_section=griferia&tap_scope=cocina']}><CatalogPage /><LocationProbe /></MemoryRouter>);
+    const active = await screen.findByLabelText('Filtros activos');
+    const chip = within(active).getByRole('button', { name: /Grifería de cocina/ });
+    fireEvent.click(chip);
+    await waitFor(() => expect(within(screen.getByLabelText('Filtros activos')).queryByRole('button', { name: /Grifería de cocina/ })).not.toBeInTheDocument());
+    const remainingFilters = new URLSearchParams(screen.getByTestId('catalog-location').textContent ?? '');
+    expect(remainingFilters.has('tap_scope')).toBe(false);
+    expect(remainingFilters.get('supplier')).toBe('gme');
+    expect(remainingFilters.get('category')).toBe('griferia');
+    expect(remainingFilters.get('catalog_section')).toBe('griferia');
   });
 });

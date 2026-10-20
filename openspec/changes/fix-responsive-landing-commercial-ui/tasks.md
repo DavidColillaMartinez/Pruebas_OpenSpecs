@@ -101,5 +101,5 @@
 - [x] 12.5 Ejecutar coordenadas durante scroll descendente/ascendente, campos intermedios/foco, bienvenida y cesta vacía/poblada; tolerancia máxima 1 CSS px.
 - [x] 12.6 Ejecutar matriz geométrica completa de 44 tamaños más tablets únicas y frontera de bienvenida599/600/601 (53 tamaños), Chromium/Firefox claro/oscuro y medios/animación normal en modos críticos.
 - [x] 12.7 Ejecutar gates finales, documentar medidas/resultados/datos/limitaciones y revisión local de navegador; mantener aceptación y comprobaciones externas pendientes.
-- [ ] 12.8 Revisar diff/stage propios, crear commit y push autorizado a origin/main; entregar SHA sin promoción manual.
+- [x] 12.8 Revisar diff/stage propios, crear commit y push autorizado a origin/main; entregar SHA sin promoción manual.
 - [ ] 12.9 Verificar externamente zoom real125/200% en Firefox: en este entorno las ventanas X11/aceleradores no cambiaron el viewport (ratio1), y el contexto oscuro no expuso ventana visible. No sustituirlo por DPR/CSS zoom.

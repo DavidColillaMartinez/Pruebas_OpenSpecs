@@ -1,0 +1,21 @@
+# Tasks
+
+- [x] 1. Revisar contratos del repositorio, consultas reales, datos actuales y PDF.
+- [x] 2. Extraer 47 WebP con huellas y correspondencia de 11 portadas y 23 selectores.
+- [x] 3. Preparar 11 productos y 23 variantes sin precios/Puntos; Silver Cromo y Osmosis sin duplicado genérico.
+- [x] 4. Corregir maneta Sirio, nueve nombres y mapa de 28 fotos Basic con siete ausencias explícitas.
+- [x] 5. Implementar tarjetas y galería optativa, conservando comportamiento IO y presupuesto.
+- [x] 6. Verificar pruebas, typecheck, lint y build. Base del paquete: 606 pasan y una omitida; resultados de integración y de esta revisión registrados en la auditoría.
+- [x] 7. Aplicar y verificar SQL de listado/detalle en rama aislada; probar filtros e integridad.
+- [x] 8. Ejecutar retorno en rama hija y verificar restauración de contenido.
+- [x] 9. Preparar SQL, parche, manifiestos, instrucciones y verificador de assets.
+- [x] 9.1 Añadir filtro secuencial de ámbito `tap_scope` en frontend/proxy y preparar los dos nodos existentes de n8n con validación en rama aislada: Baño 24, Cocina 11; alternancia conserva ambas opciones.
+- [x] 9.2 Registrar la faceta `tap_scope` en el normalizador de listados y en los chips de filtros activos, con pruebas de regresión.
+- [x] 10. Subir assets a origen y verificar 47 respuestas HTTP y SHA256 (evidencia aportada del 20/10/2026 con `tools/verify_assets.py`; no repetida en esta revisión).
+- [x] 11.1 Registrar la evidencia aportada de Chromium local en escritorio/móvil con API simulada: ámbito/chip, tarjetas cocina y portada/cambio de acabado Noah; no equivale a validación en producción ni se ha repetido en esta revisión.
+- [ ] 11.2 Revisar Safari/macOS y el entorno real del propietario.
+- [ ] 11.3 Revisar Basic de bañera, su galería y presupuesto en navegador; completar revisión manual de todas las referencias.
+- [x] 12.1 Integrar código localmente y revisar los dos fallos de faceta/chip con regresiones; cambios sin commit ni push.
+- [ ] 12.2 Aplicar y verificar SQL en producción (`010`, `020` y `030`) tras releer el estado real.
+- [ ] 13. Completar despliegue y verificación de endpoints reales de listado/detalle y filtros tras despliegue. Publicación compatible de rótulo/faceta/preparador n8n comunicada por Codex (ejecución 7702); no repetida ni modificada por OpenCode en esta revisión.
+- [ ] 14. Cerrar publicación y evidencias manuales sin dar por completados otros cambios OpenSpec.

@@ -118,7 +118,9 @@ El verificador encontró cuatro rechazos en Firefox390×600/601 al exigir conten
 
 Las tablas se generan mediante `node scripts/responsive-report.mjs <JSON[,JSON]> <ruta.md> 2026-10-13`. Las medidas completas por muestra/medio/estado están en los JSON reproducibles de los runners. Deduplicación incluye motor, tamaño, tema, ruta, estado, motion y zoom; ningún caso se crea PASA por defecto. La revisión local consistió en interacción y medidas en navegador, incluida ventana real de zoom; **no se realizó aceptación visual manual ni se generaron capturas**, conforme al encargo. La aceptación queda reservada para el propietario/ChatGPT sobre el SHA publicado.
 
-Servidor `vite preview` propio detenido tras las comprobaciones. Todos los contextos y ventanas de prueba fueron cerrados; no se conservan sesiones comerciales activas ni solicitudes externas. Se preservan las entradas ajenas de skills. Entrega Git pendiente de registrar tras commit/push autorizado; todas las tareas externas continúan abiertas.
+Servidor `vite preview` propio detenido tras las comprobaciones. Todos los contextos y ventanas de prueba fueron cerrados; no se conservan sesiones comerciales activas ni solicitudes externas. Se preservan las entradas ajenas de skills.
+
+**Entrega Git:** reparación runtime y evidencia publicadas en `206a172` sobre `5e2978c`, con push confirmado a `origin/main`. El seguimiento de entrega se cierra en un commit documental posterior, sin cambios runtime. No se realizó promoción manual ni cambio de Vercel/hosting. Todas las tareas externas continúan abiertas; el SHA final del seguimiento se entrega en la respuesta de cierre para revisión posterior.
 
 ## Pendientes externos
 

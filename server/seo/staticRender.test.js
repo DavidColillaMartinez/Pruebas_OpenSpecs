@@ -12,7 +12,7 @@ describe('initial public documents', () => {
     const html = renderInitialDocument(template, renderStaticPage('/'));
     expect(html.match(/<h1[ >]/g)).toHaveLength(1);
     for (const id of ['inicio', 'quienes-somos', 'coleccion', 'reformas', 'vision', 'opiniones', 'contacto']) expect(html).toContain(`id="${id}"`);
-    expect(html).toContain('profesionales independientes, con contratación separada');
+    expect(html).toContain('Realizamos cambios de local a vivienda y proyectos de arquitectura, ofreciendo soluciones a medida con calidad y profesionalidad.');
     expect(html.match(/type="application\/ld\+json"/g)).toHaveLength(1);
     expect(html).toContain('C/ Aquitania, 69, local 1');
     expect(html).not.toContain('priceRange');

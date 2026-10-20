@@ -29,6 +29,7 @@ export const CATALOG_FILTER_KEYS: CatalogFacetKey[] = [
   'orientation',
   'finish_family',
   'catalog_section',
+  'tap_scope',
   'tap_type',
   'installation',
   'mechanism',
@@ -39,14 +40,14 @@ export const MAMPARAS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', '
 export const ESPEJOS_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['subcategory', 'collection', 'shape', 'has_led', 'lighting_type', 'finish'];
 export const ROYO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['modularity', 'collection', 'subcategory', 'finish', 'measure', 'product_kind'];
 export const DUPLACH_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['model', 'measure', 'grille', 'valve'];
-export const GME_IO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['catalog_section', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish'];
+export const GME_IO_CATALOG_FILTER_KEYS: CatalogFacetKey[] = ['catalog_section', 'tap_scope', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish'];
 // Filters that only apply to one GME IO family; cleaning up dependent filters already selected
 export const GME_IO_SECTION_DEPENDENT_KEYS: Record<string, CatalogFacetKey[]> = {
-  duchas: ['tap_type'],
+  duchas: ['tap_scope', 'tap_type'],
   griferia: ['installation', 'mechanism'],
 };
-export const GME_IO_DEFAULT_DEPENDENT_KEYS: CatalogFacetKey[] = ['installation', 'mechanism'];
-export const GME_IO_SINGLE_VALUE_KEYS: CatalogFacetKey[] = ['catalog_section', 'tap_type', 'installation', 'mechanism'];
+export const GME_IO_DEFAULT_DEPENDENT_KEYS: CatalogFacetKey[] = ['installation', 'mechanism', 'tap_scope'];
+export const GME_IO_SINGLE_VALUE_KEYS: CatalogFacetKey[] = ['catalog_section', 'tap_scope', 'tap_type', 'installation', 'mechanism'];
 export const DEPENDENT_CATALOG_FILTER_KEYS: CatalogFacetKey[] = [...new Set([...MAMPARAS_CATALOG_FILTER_KEYS, ...ESPEJOS_CATALOG_FILTER_KEYS])];
 
 export type CatalogFamilyId = 'mamparas' | 'espejos' | 'royo' | 'duplach' | 'gme-io';
@@ -108,6 +109,7 @@ export const CATALOG_FAMILY_PROFILES: CatalogFamilyProfile[] = [
     facetKeys: GME_IO_CATALOG_FILTER_KEYS,
     labels: {
       catalog_section: 'Familia',
+      tap_scope: 'Tipo de grifería',
       collection: 'Serie/modelo',
       tap_type: 'Tipo de grifo',
       installation: 'Instalación',
@@ -193,8 +195,9 @@ export function getCatalogFilterKeys(profile: CatalogFilterProfile): CatalogFace
 
 const ROYO_HIDDEN_DISPLAY_FILTER_KEYS: CatalogFacetKey[] = ['modularity', 'product_kind'];
 
-export function getDisplayCatalogFilterKeys(profile: CatalogFilterProfile): CatalogFacetKey[] {
+export function getDisplayCatalogFilterKeys(profile: CatalogFilterProfile, filters?: CatalogFilters): CatalogFacetKey[] {
   const keys = getCatalogFilterKeys(profile);
+  if (profile === 'gme-io' && filters?.catalog_section?.[0] !== 'griferia') return keys.filter((key) => key !== 'tap_scope');
   if (profile !== 'royo') return keys;
   return keys.filter((key) => !ROYO_HIDDEN_DISPLAY_FILTER_KEYS.includes(key));
 }

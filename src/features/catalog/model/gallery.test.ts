@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getSelectableUnits, selectInitialUnit } from './selection';
 import { normalizeProductDetail } from './normalize';
-import { buildRoyoProductGallery } from './gallery';
+import { buildRoyoProductGallery, buildEnclosureVariantGallery, hasEnclosureVariantGallery } from './gallery';
 
 function royoProduct(overrides: Record<string, unknown> = {}) {
   return normalizeProductDetail({
@@ -17,6 +17,24 @@ function royoProduct(overrides: Record<string, unknown> = {}) {
     variants: [{ id: 'royo-gallery-v1', finish: 'Blanco', attributes: {}, ...overrides }],
   });
 }
+
+describe('API-mapped enclosure gallery', () => {
+  it('requires explicit opt-in and preserves all product and variant images once', () => {
+    const product = normalizeProductDetail({
+      id: 'basic', slug: 'basic', name: 'Basic', supplier_id: 'gme', category_id: 'mamparas',
+      specs: { variant_gallery: true }, main_image_url: 'https://assets.example/cover.webp',
+      images: [{ url: 'https://assets.example/cover.webp' }, { url: 'https://assets.example/other.webp' }],
+      variants: [{ id: 'negro', finish: 'Negro', images: [{ url: 'https://assets.example/other.webp' }, { url: 'https://assets.example/negro.webp' }] }],
+    });
+    expect(hasEnclosureVariantGallery(product)).toBe(true);
+    expect(buildEnclosureVariantGallery(product).map((image) => image.url)).toEqual([
+      'https://assets.example/cover.webp', 'https://assets.example/other.webp', 'https://assets.example/negro.webp',
+    ]);
+    expect(hasEnclosureVariantGallery({ ...product, specs: {} })).toBe(false);
+    expect(hasEnclosureVariantGallery({ ...product, categoryId: 'griferia' })).toBe(false);
+    expect(hasEnclosureVariantGallery({ ...product, supplierId: 'royo' })).toBe(false);
+  });
+});
 
 describe('Royo product gallery', () => {
   it('places a selected variant image first and preserves the complete product gallery', () => {

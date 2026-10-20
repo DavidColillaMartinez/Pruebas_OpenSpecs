@@ -1,0 +1,1804 @@
+{
+  "source": "Isolated Neon branch, existing public-detail SQL, 2026-10-19. Test fixture only; never imported at runtime.",
+  "products": [
+    {
+      "id": "gme-cocina-alexia-abatible",
+      "slug": "gme-cocina-alexia-abatible",
+      "name": "Alexia abatible · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Alexia",
+      "product_kind": "simple_product",
+      "specs": {
+        "series": "Alexia",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/alexia-abatible/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/alexia-abatible/cromo.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Cuerpo de latón cromado, sistema abatible 90 grados, cartucho cerámico de 40 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/alexia-abatible/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/alexia-abatible/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp",
+      "description": "Cuerpo de latón cromado, sistema abatible 90 grados, cartucho cerámico de 40 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+      "variants": [
+        {
+          "id": "gme-cocina-alexia-abatible-v-3233",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Alexia abatible · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3233",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/alexia-abatible/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/alexia-abatible/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 330,
+          "variant_key": "3233",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Alexia abatible, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-alexia-abatible/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 747,
+          "status": "auto_ok",
+          "sort_order": 1
+        },
+        {
+          "alt": "Alexia abatible, detalle del abatimiento 90 grados",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/alexia-abatible/abatimiento-90.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/alexia-abatible/abatimiento-90.webp",
+          "role": "detail",
+          "width": 286,
+          "height": 266,
+          "status": "auto_ok",
+          "sort_order": 2
+        }
+      ],
+      "available_finishes": [
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-noah",
+      "slug": "gme-cocina-noah",
+      "name": "Noah · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Noah",
+      "product_kind": "configurable_product",
+      "specs": {
+        "series": "Noah",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Acero cepillado",
+            "value": "acero-cepillado",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/acero-cepillado.webp"
+          },
+          {
+            "name": "Negro",
+            "value": "negro",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/negro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/negro.webp"
+          },
+          {
+            "name": "Oro",
+            "value": "oro",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/oro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/oro.webp"
+          },
+          {
+            "name": "Titanio",
+            "value": "titanio",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/titanio.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/titanio.webp"
+          },
+          {
+            "name": "Cobre",
+            "value": "cobre",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/cobre.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/cobre.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Cuerpo de acero inoxidable 304. Cartucho cerámico de 35 mm con apertura en frío. Aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/acero-cepillado.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Oro": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/oro.webp",
+          "Cobre": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/cobre.webp",
+          "Negro": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/negro.webp",
+          "Titanio": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/titanio.webp",
+          "Acero cepillado": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp",
+      "description": "Cuerpo de acero inoxidable 304. Cartucho cerámico de 35 mm con apertura en frío. Aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+      "variants": [
+        {
+          "id": "gme-cocina-noah-v-3184",
+          "label": "Acero cepillado",
+          "finish": "Acero cepillado",
+          "images": [
+            {
+              "alt": "Noah · Grifo de cocina - Acero cepillado",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3184",
+          "attributes": {
+            "finish": "Acero cepillado",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/acero-cepillado.webp"
+          },
+          "sort_order": 1,
+          "source_page": 311,
+          "variant_key": "3184",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-noah-v-3183",
+          "label": "Negro",
+          "finish": "Negro",
+          "images": [
+            {
+              "alt": "Noah · Grifo de cocina - Negro",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/negro.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/negro.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3183",
+          "attributes": {
+            "finish": "Negro",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/negro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/negro.webp"
+          },
+          "sort_order": 2,
+          "source_page": 312,
+          "variant_key": "3183",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-noah-v-3185",
+          "label": "Oro",
+          "finish": "Oro",
+          "images": [
+            {
+              "alt": "Noah · Grifo de cocina - Oro",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/oro.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/oro.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3185",
+          "attributes": {
+            "finish": "Oro",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/oro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/oro.webp"
+          },
+          "sort_order": 3,
+          "source_page": 312,
+          "variant_key": "3185",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-noah-v-3187",
+          "label": "Titanio",
+          "finish": "Titanio",
+          "images": [
+            {
+              "alt": "Noah · Grifo de cocina - Titanio",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/titanio.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/titanio.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3187",
+          "attributes": {
+            "finish": "Titanio",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/titanio.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/titanio.webp"
+          },
+          "sort_order": 4,
+          "source_page": 313,
+          "variant_key": "3187",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-noah-v-3186",
+          "label": "Cobre",
+          "finish": "Cobre",
+          "images": [
+            {
+              "alt": "Noah · Grifo de cocina - Cobre",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/cobre.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/cobre.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3186",
+          "attributes": {
+            "finish": "Cobre",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/noah/cobre.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/noah/cobre.webp"
+          },
+          "sort_order": 5,
+          "source_page": 314,
+          "variant_key": "3186",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Noah, grifo de cocina, acabado Acero cepillado",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-noah/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 775,
+          "status": "auto_ok",
+          "sort_order": 1
+        },
+        {
+          "alt": "Noah, grifo de cocina, acabado Negro",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/negro.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/negro.webp",
+          "role": "gallery",
+          "width": 358,
+          "height": 573,
+          "status": "auto_ok",
+          "sort_order": 2
+        },
+        {
+          "alt": "Noah, grifo de cocina, acabado Oro",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/oro.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/oro.webp",
+          "role": "gallery",
+          "width": 358,
+          "height": 570,
+          "status": "auto_ok",
+          "sort_order": 3
+        },
+        {
+          "alt": "Noah, grifo de cocina, acabado Titanio",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/titanio.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/titanio.webp",
+          "role": "gallery",
+          "width": 729,
+          "height": 775,
+          "status": "auto_ok",
+          "sort_order": 4
+        },
+        {
+          "alt": "Noah, grifo de cocina, acabado Cobre",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/noah/cobre.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/noah/cobre.webp",
+          "role": "gallery",
+          "width": 729,
+          "height": 772,
+          "status": "auto_ok",
+          "sort_order": 5
+        }
+      ],
+      "available_finishes": [
+        "Acero cepillado",
+        "Cobre",
+        "Negro",
+        "Oro",
+        "Titanio"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-round",
+      "slug": "gme-cocina-round",
+      "name": "Round · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Round",
+      "product_kind": "configurable_product",
+      "specs": {
+        "series": "Round",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/round/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/round/cromo.webp"
+          },
+          {
+            "name": "Acero cepillado",
+            "value": "acero-cepillado",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/round/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/round/acero-cepillado.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Cartucho cerámico de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. Cuerpo de latón en cromo y acero inoxidable 304 en acero cepillado.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/round/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/round/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+          "Acero cepillado": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/round/acero-cepillado.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+      "description": "Cartucho cerámico de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. Cuerpo de latón en cromo y acero inoxidable 304 en acero cepillado.",
+      "variants": [
+        {
+          "id": "gme-cocina-round-v-3142",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Round · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3142",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/round/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/round/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 315,
+          "variant_key": "3142",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-round-v-3138",
+          "label": "Acero cepillado",
+          "finish": "Acero cepillado",
+          "images": [
+            {
+              "alt": "Round · Grifo de cocina - Acero cepillado",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/round/acero-cepillado.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/round/acero-cepillado.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3138",
+          "attributes": {
+            "finish": "Acero cepillado",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/round/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/round/acero-cepillado.webp"
+          },
+          "sort_order": 2,
+          "source_page": 316,
+          "variant_key": "3138",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Round, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-round/cover.webp",
+          "role": "main",
+          "width": 726,
+          "height": 753,
+          "status": "auto_ok",
+          "sort_order": 1
+        },
+        {
+          "alt": "Round, grifo de cocina, acabado Acero cepillado",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/round/acero-cepillado.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/round/acero-cepillado.webp",
+          "role": "gallery",
+          "width": 729,
+          "height": 753,
+          "status": "auto_ok",
+          "sort_order": 2
+        }
+      ],
+      "available_finishes": [
+        "Acero cepillado",
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-quadra",
+      "slug": "gme-cocina-quadra",
+      "name": "Quadra · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Quadra",
+      "product_kind": "configurable_product",
+      "specs": {
+        "series": "Quadra",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/quadra/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/quadra/cromo.webp"
+          },
+          {
+            "name": "Acero cepillado",
+            "value": "acero-cepillado",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/quadra/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/quadra/acero-cepillado.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Cartucho cerámico de 35 mm y aireador Neoperl. La versión cromo tiene cuerpo de latón y latiguillos Tucai 3/8 pulgadas DVGW; la versión acero tiene cuerpo de acero inoxidable 304, apertura en frío y latiguillos 3/8 pulgadas N CE.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/quadra/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/quadra/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+          "Acero cepillado": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/quadra/acero-cepillado.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+      "description": "Cartucho cerámico de 35 mm y aireador Neoperl. La versión cromo tiene cuerpo de latón y latiguillos Tucai 3/8 pulgadas DVGW; la versión acero tiene cuerpo de acero inoxidable 304, apertura en frío y latiguillos 3/8 pulgadas N CE.",
+      "variants": [
+        {
+          "id": "gme-cocina-quadra-v-3143",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Quadra · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3143",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/quadra/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/quadra/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 317,
+          "variant_key": "3143",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-quadra-v-3181",
+          "label": "Acero cepillado",
+          "finish": "Acero cepillado",
+          "images": [
+            {
+              "alt": "Quadra · Grifo de cocina - Acero cepillado",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/quadra/acero-cepillado.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/quadra/acero-cepillado.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3181",
+          "attributes": {
+            "finish": "Acero cepillado",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/quadra/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/quadra/acero-cepillado.webp"
+          },
+          "sort_order": 2,
+          "source_page": 318,
+          "variant_key": "3181",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Quadra, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-quadra/cover.webp",
+          "role": "main",
+          "width": 730,
+          "height": 769,
+          "status": "auto_ok",
+          "sort_order": 1
+        },
+        {
+          "alt": "Quadra, grifo de cocina, acabado Acero cepillado",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/quadra/acero-cepillado.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/quadra/acero-cepillado.webp",
+          "role": "gallery",
+          "width": 729,
+          "height": 772,
+          "status": "auto_ok",
+          "sort_order": 2
+        }
+      ],
+      "available_finishes": [
+        "Acero cepillado",
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-extraible-round",
+      "slug": "gme-cocina-extraible-round",
+      "name": "Extraíble Round · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Round extraíble",
+      "product_kind": "configurable_product",
+      "specs": {
+        "series": "Round extraíble",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cromo.webp"
+          },
+          {
+            "name": "Acero cepillado",
+            "value": "acero-cepillado",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/acero-cepillado.webp"
+          },
+          {
+            "name": "Negro",
+            "value": "negro",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/negro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/negro.webp"
+          },
+          {
+            "name": "Oro",
+            "value": "oro",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/oro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/oro.webp"
+          },
+          {
+            "name": "Cobre",
+            "value": "cobre",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cobre.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cobre.webp"
+          },
+          {
+            "name": "Titanio",
+            "value": "titanio",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/titanio.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/titanio.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Sistema extraíble, salida de dos funciones, apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. Cromo: cuerpo de latón y cartucho de 40 mm. Resto de acabados: cuerpo de acero inoxidable 304 y cartucho de 35 mm.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Oro": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/oro.webp",
+          "Cobre": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/cobre.webp",
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+          "Negro": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/negro.webp",
+          "Titanio": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/titanio.webp",
+          "Acero cepillado": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/acero-cepillado.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+      "description": "Sistema extraíble, salida de dos funciones, apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. Cromo: cuerpo de latón y cartucho de 40 mm. Resto de acabados: cuerpo de acero inoxidable 304 y cartucho de 35 mm.",
+      "variants": [
+        {
+          "id": "gme-cocina-extraible-round-v-3144",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Extraíble Round · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3144",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 319,
+          "variant_key": "3144",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-extraible-round-v-3180",
+          "label": "Acero cepillado",
+          "finish": "Acero cepillado",
+          "images": [
+            {
+              "alt": "Extraíble Round · Grifo de cocina - Acero cepillado",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/acero-cepillado.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/acero-cepillado.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3180",
+          "attributes": {
+            "finish": "Acero cepillado",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/acero-cepillado.webp"
+          },
+          "sort_order": 2,
+          "source_page": 320,
+          "variant_key": "3180",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-extraible-round-v-3180ng",
+          "label": "Negro",
+          "finish": "Negro",
+          "images": [
+            {
+              "alt": "Extraíble Round · Grifo de cocina - Negro",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/negro.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/negro.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3180NG",
+          "attributes": {
+            "finish": "Negro",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/negro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/negro.webp"
+          },
+          "sort_order": 3,
+          "source_page": 320,
+          "variant_key": "3180NG",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-extraible-round-v-3180or",
+          "label": "Oro",
+          "finish": "Oro",
+          "images": [
+            {
+              "alt": "Extraíble Round · Grifo de cocina - Oro",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/oro.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/oro.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3180OR",
+          "attributes": {
+            "finish": "Oro",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/oro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/oro.webp"
+          },
+          "sort_order": 4,
+          "source_page": 321,
+          "variant_key": "3180OR",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-extraible-round-v-3180cb",
+          "label": "Cobre",
+          "finish": "Cobre",
+          "images": [
+            {
+              "alt": "Extraíble Round · Grifo de cocina - Cobre",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/cobre.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/cobre.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3180CB",
+          "attributes": {
+            "finish": "Cobre",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cobre.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/cobre.webp"
+          },
+          "sort_order": 5,
+          "source_page": 322,
+          "variant_key": "3180CB",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-extraible-round-v-3180t",
+          "label": "Titanio",
+          "finish": "Titanio",
+          "images": [
+            {
+              "alt": "Extraíble Round · Grifo de cocina - Titanio",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/titanio.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/titanio.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3180T",
+          "attributes": {
+            "finish": "Titanio",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-round/titanio.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-round/titanio.webp"
+          },
+          "sort_order": 6,
+          "source_page": 322,
+          "variant_key": "3180T",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Extraíble Round, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-round/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 773,
+          "status": "auto_ok",
+          "sort_order": 1
+        },
+        {
+          "alt": "Extraíble Round, grifo de cocina, acabado Acero cepillado",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/acero-cepillado.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/acero-cepillado.webp",
+          "role": "gallery",
+          "width": 358,
+          "height": 570,
+          "status": "auto_ok",
+          "sort_order": 2
+        },
+        {
+          "alt": "Extraíble Round, grifo de cocina, acabado Negro",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/negro.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/negro.webp",
+          "role": "gallery",
+          "width": 358,
+          "height": 573,
+          "status": "auto_ok",
+          "sort_order": 3
+        },
+        {
+          "alt": "Extraíble Round, grifo de cocina, acabado Oro",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/oro.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/oro.webp",
+          "role": "gallery",
+          "width": 729,
+          "height": 770,
+          "status": "auto_ok",
+          "sort_order": 4
+        },
+        {
+          "alt": "Extraíble Round, grifo de cocina, acabado Cobre",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/cobre.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/cobre.webp",
+          "role": "gallery",
+          "width": 358,
+          "height": 570,
+          "status": "auto_ok",
+          "sort_order": 5
+        },
+        {
+          "alt": "Extraíble Round, grifo de cocina, acabado Titanio",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/extraible-round/titanio.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/extraible-round/titanio.webp",
+          "role": "gallery",
+          "width": 358,
+          "height": 570,
+          "status": "auto_ok",
+          "sort_order": 6
+        }
+      ],
+      "available_finishes": [
+        "Acero cepillado",
+        "Cobre",
+        "Cromo",
+        "Negro",
+        "Oro",
+        "Titanio"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-extraible-design",
+      "slug": "gme-cocina-extraible-design",
+      "name": "Extraíble Design · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Design",
+      "product_kind": "simple_product",
+      "specs": {
+        "series": "Design",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-design/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-design/cromo.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Sistema extraíble. Cuerpo de latón cromado, cartucho cerámico de 25 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-design/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-design/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp",
+      "description": "Sistema extraíble. Cuerpo de latón cromado, cartucho cerámico de 25 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+      "variants": [
+        {
+          "id": "gme-cocina-extraible-design-v-3141",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Extraíble Design · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3141",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-design/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-design/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 323,
+          "variant_key": "3141",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Extraíble Design, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-design/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 761,
+          "status": "auto_ok",
+          "sort_order": 1
+        }
+      ],
+      "available_finishes": [
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-extraible-silver",
+      "slug": "gme-cocina-extraible-silver",
+      "name": "Extraíble Silver · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Silver",
+      "product_kind": "simple_product",
+      "specs": {
+        "series": "Silver",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-silver/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-silver/cromo.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Sistema extraíble y salida de dos funciones. Cuerpo de latón cromado, cartucho de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-silver/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-silver/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp",
+      "description": "Sistema extraíble y salida de dos funciones. Cuerpo de latón cromado, cartucho de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW.",
+      "variants": [
+        {
+          "id": "gme-cocina-extraible-silver-v-3188",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Extraíble Silver · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3188",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/extraible-silver/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/extraible-silver/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 324,
+          "variant_key": "3188",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Extraíble Silver, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-extraible-silver/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 761,
+          "status": "auto_ok",
+          "sort_order": 1
+        }
+      ],
+      "available_finishes": [
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-silver",
+      "slug": "gme-cocina-silver",
+      "name": "Silver · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Silver",
+      "product_kind": "simple_product",
+      "specs": {
+        "series": "Silver",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/silver/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/silver/cromo.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Cuerpo de latón cromado, cartucho cerámico de 25 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. Silver es el modelo; el acabado publicado es cromo.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/silver/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/silver/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp",
+      "description": "Cuerpo de latón cromado, cartucho cerámico de 25 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. Silver es el modelo; el acabado publicado es cromo.",
+      "variants": [
+        {
+          "id": "gme-cocina-silver-v-3145",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Silver · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3145",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/silver/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/silver/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 325,
+          "variant_key": "3145",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Silver, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-silver/cover.webp",
+          "role": "main",
+          "width": 726,
+          "height": 770,
+          "status": "auto_ok",
+          "sort_order": 1
+        }
+      ],
+      "available_finishes": [
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-dior",
+      "slug": "gme-cocina-dior",
+      "name": "Dior · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Dior",
+      "product_kind": "simple_product",
+      "specs": {
+        "series": "Dior",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Cromo",
+            "value": "cromo",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/dior/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/dior/cromo.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Cuerpo de latón cromado, cartucho cerámico de 25 mm con apertura en frío, aireador de cascada y latiguillos Tucai 3/8 pulgadas DVGW.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/dior/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/dior/cromo.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Cromo": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp",
+      "description": "Cuerpo de latón cromado, cartucho cerámico de 25 mm con apertura en frío, aireador de cascada y latiguillos Tucai 3/8 pulgadas DVGW.",
+      "variants": [
+        {
+          "id": "gme-cocina-dior-v-3140",
+          "label": "Cromo",
+          "finish": "Cromo",
+          "images": [
+            {
+              "alt": "Dior · Grifo de cocina - Cromo",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3140",
+          "attributes": {
+            "finish": "Cromo",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/dior/cromo.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/dior/cromo.webp"
+          },
+          "sort_order": 1,
+          "source_page": 326,
+          "variant_key": "3140",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Dior, grifo de cocina, acabado Cromo",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-dior/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 770,
+          "status": "auto_ok",
+          "sort_order": 1
+        }
+      ],
+      "available_finishes": [
+        "Cromo"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-osmosis-extraible",
+      "slug": "gme-cocina-osmosis-extraible",
+      "name": "Osmosis Extraíble · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Osmosis",
+      "product_kind": "configurable_product",
+      "specs": {
+        "series": "Osmosis",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Acero cepillado",
+            "value": "acero-cepillado",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-cepillado.webp"
+          },
+          {
+            "name": "Acero/Negro",
+            "value": "acero-negro",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-negro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-negro.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Grifo de cocina para ósmosis con sistema extraíble, cuerpo de acero inoxidable 304, cartucho de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. La referencia acero/negro incorpora flexo de PVC. No se declara incluido un equipo de filtración.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-cepillado.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Acero/Negro": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/osmosis-extraible/acero-negro.webp",
+          "Acero cepillado": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp",
+      "description": "Grifo de cocina para ósmosis con sistema extraíble, cuerpo de acero inoxidable 304, cartucho de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. La referencia acero/negro incorpora flexo de PVC. No se declara incluido un equipo de filtración.",
+      "variants": [
+        {
+          "id": "gme-cocina-osmosis-extraible-v-3230",
+          "label": "Acero cepillado",
+          "finish": "Acero cepillado",
+          "images": [
+            {
+              "alt": "Osmosis Extraíble · Grifo de cocina - Acero cepillado",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3230",
+          "attributes": {
+            "finish": "Acero cepillado",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-cepillado.webp"
+          },
+          "sort_order": 1,
+          "source_page": 327,
+          "variant_key": "3230",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        },
+        {
+          "id": "gme-cocina-osmosis-extraible-v-3231",
+          "label": "Acero/Negro",
+          "finish": "Acero/Negro",
+          "images": [
+            {
+              "alt": "Osmosis Extraíble · Grifo de cocina - Acero/Negro",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/osmosis-extraible/acero-negro.webp",
+              "path": "images/gme_griferia/io-2026/gallery/kitchen/osmosis-extraible/acero-negro.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3231",
+          "attributes": {
+            "finish": "Acero/Negro",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-negro.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-extraible/acero-negro.webp"
+          },
+          "sort_order": 2,
+          "source_page": 328,
+          "variant_key": "3231",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Osmosis Extraíble, grifo de cocina, acabado Acero cepillado",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-extraible/cover.webp",
+          "role": "main",
+          "width": 729,
+          "height": 734,
+          "status": "auto_ok",
+          "sort_order": 1
+        },
+        {
+          "alt": "Osmosis Extraíble, grifo de cocina, acabado Acero/Negro",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/gallery/kitchen/osmosis-extraible/acero-negro.webp",
+          "path": "images/gme_griferia/io-2026/gallery/kitchen/osmosis-extraible/acero-negro.webp",
+          "role": "gallery",
+          "width": 729,
+          "height": 735,
+          "status": "auto_ok",
+          "sort_order": 2
+        }
+      ],
+      "available_finishes": [
+        "Acero cepillado",
+        "Acero/Negro"
+      ],
+      "available_measures": [],
+      "show_price": false
+    },
+    {
+      "id": "gme-cocina-osmosis-acero",
+      "slug": "gme-cocina-osmosis-acero",
+      "name": "Osmosis Acero · Grifo de cocina",
+      "brand": "IO by GME",
+      "supplier_id": "gme",
+      "supplier_name": "GME División Baños",
+      "category_id": "griferia",
+      "category_name": "Grifería",
+      "subcategory": "Grifería de cocina",
+      "collection": "Osmosis",
+      "product_kind": "simple_product",
+      "specs": {
+        "series": "Osmosis",
+        "tap_type": "cocina",
+        "mechanism": "monomando",
+        "gme_io_2026": true,
+        "installation": "vista",
+        "catalog_scope": "CATALOGO GRIFERIA IO by GME 2026",
+        "catalog_family": "griferia-cocina",
+        "finish_options": [
+          {
+            "name": "Acero cepillado",
+            "value": "acero-cepillado",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-acero/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-acero/acero-cepillado.webp"
+          }
+        ],
+        "catalog_section": "griferia",
+        "catalog_version": "io-2026-final",
+        "main_image_role": "product_photo",
+        "tap_type_values": [
+          "cocina"
+        ],
+        "Características": "Grifo de cocina para ósmosis con cuerpo de acero inoxidable 304 cepillado, cartucho cerámico de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. No se declara incluido un equipo de filtración.",
+        "tap_type_options": [
+          {
+            "label": "Cocina",
+            "value": "cocina",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-acero/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-acero/acero-cepillado.webp"
+          }
+        ],
+        "finish_image_urls": {
+          "Acero cepillado": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp"
+        },
+        "source_package_version": "io-2026-cocina-20261019"
+      },
+      "configuration_fields": [
+        "finish"
+      ],
+      "main_image_path": "images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp",
+      "main_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp",
+      "description": "Grifo de cocina para ósmosis con cuerpo de acero inoxidable 304 cepillado, cartucho cerámico de 35 mm con apertura en frío, aireador Neoperl y latiguillos Tucai 3/8 pulgadas DVGW. No se declara incluido un equipo de filtración.",
+      "variants": [
+        {
+          "id": "gme-cocina-osmosis-acero-v-3137",
+          "label": "Acero cepillado",
+          "finish": "Acero cepillado",
+          "images": [
+            {
+              "alt": "Osmosis Acero · Grifo de cocina - Acero cepillado",
+              "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp",
+              "path": "images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp",
+              "role": "variant",
+              "sort_order": 1
+            }
+          ],
+          "has_led": null,
+          "reference": "3137",
+          "attributes": {
+            "finish": "Acero cepillado",
+            "tap_type": "cocina",
+            "mechanism": "monomando",
+            "installation": "vista",
+            "catalog_section": "griferia",
+            "selector_image_url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/faucets/kitchen/osmosis-acero/acero-cepillado.webp",
+            "selector_image_path": "images/gme_griferia/io-2026/faucets/kitchen/osmosis-acero/acero-cepillado.webp"
+          },
+          "sort_order": 1,
+          "source_page": 329,
+          "variant_key": "3137",
+          "price_status": "missing",
+          "lighting_type": null,
+          "component_refs": [],
+          "lighting_technology": null,
+          "image_mapping_status": "mapped"
+        }
+      ],
+      "images": [
+        {
+          "alt": "Osmosis Acero, grifo de cocina, acabado Acero cepillado",
+          "url": "https://assets.colilladavid.es/proyectos/lrmq/catalogo/images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp",
+          "path": "images/gme_griferia/io-2026/covers/catalog/cocina-osmosis-acero/cover.webp",
+          "role": "main",
+          "width": 728,
+          "height": 745,
+          "status": "auto_ok",
+          "sort_order": 1
+        }
+      ],
+      "available_finishes": [
+        "Acero cepillado"
+      ],
+      "available_measures": [],
+      "show_price": false
+    }
+  ]
+}

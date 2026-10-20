@@ -69,7 +69,7 @@ export function CatalogPage({ initialPage }: { initialPage?: InitialCatalogPage 
   }, []);
   const closeMobileFilters = useCallback(() => setMobileFiltersOpen(false), []);
   const filterProfile = getCatalogFilterProfile(query);
-  const visibleFilterKeys = getDisplayCatalogFilterKeys(filterProfile);
+  const visibleFilterKeys = getDisplayCatalogFilterKeys(filterProfile, query.filters);
   const hasActiveCriteria = Boolean(query.search || Object.values(query.filters).some((values) => values && values.length > 0));
   const sortSupported = new Set(data.sort.supported);
   const facetLabels = Object.fromEntries([

@@ -92,6 +92,35 @@ afterEach(() => {
 });
 
 describe('ProductDetailPage', () => {
+  it('activates exact Basic bath photos, retains the full gallery and identifies missing combinations', async () => {
+    const base = gmeProduct('gme-mamparas-banera-basic');
+    const chromeFree = 'https://assets.example/basic-cromo-free.webp';
+    const black = 'https://assets.example/basic-negro-frontal.webp';
+    const response = {
+      ...base, specs: { variant_gallery: true },
+      images: [...base.images, { url: chromeFree }, { url: black }],
+      variants: base.variants.map((variant, index) => ({
+        ...variant, images: index === 0 ? [base.images[0]] : index === 1 ? [{ url: chromeFree }] : index === 2 ? [{ url: black }] : [],
+      })),
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+    renderDetail(response.slug);
+    await screen.findByRole('heading', { name: 'Basic' });
+    await waitFor(() => expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', base.images[0].url));
+    fireEvent.click(screen.getByRole('button', { name: 'Negro' }));
+    await waitFor(() => expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', black));
+    expect(screen.getAllByRole('button', { name: /Ver imagen/ })).toHaveLength(4);
+    fireEvent.click(screen.getByRole('button', { name: 'Free angular' }));
+    expect(await screen.findByText(/No hay una fotografía publicada de esta combinación/)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', black);
+    fireEvent.click(screen.getByRole('button', { name: 'Cromo' }));
+    await waitFor(() => expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', chromeFree));
+    expect(screen.queryByText(/No hay una fotografía publicada de esta combinación/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver imagen 1 de 4' }));
+    expect(screen.getByRole('img', { name: /imagen principal/ })).toHaveAttribute('src', base.images[0].url);
+    expect(screen.getByRole('button', { name: 'Cromo' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Free angular' })).toHaveAttribute('aria-pressed', 'true');
+  });
   it('announces loading and then renders the real product content', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(alba), { status: 200 })));
 

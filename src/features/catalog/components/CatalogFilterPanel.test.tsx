@@ -82,6 +82,29 @@ describe('CatalogFilterPanel', () => {
     expect(onMobileClose).toHaveBeenCalled();
   });
 
+  it('reveals the bathroom/kitchen scope only after choosing the Grifería family', () => {
+    const onToggle = vi.fn();
+    const props = {
+      facets: {
+        catalog_section: [{ value: 'griferia', label: 'Grifería', count: 35 }, { value: 'duchas', label: 'Duchas', count: 17 }],
+        tap_scope: [{ value: 'bano', label: 'Grifería de baño', count: 24 }, { value: 'cocina', label: 'Grifería de cocina', count: 11 }],
+      },
+      profile: 'gme-io' as const,
+      mobileOpen: true,
+      onMobileClose: () => undefined,
+      onToggle,
+    };
+    const view = render(<CatalogFilterPanel {...props} filters={{ supplier: ['gme'], category: ['griferia'] }} />);
+    const dialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    expect(within(dialog).queryByRole('button', { name: 'Tipo de grifería' })).not.toBeInTheDocument();
+
+    view.rerender(<CatalogFilterPanel {...props} filters={{ supplier: ['gme'], category: ['griferia'], catalog_section: ['griferia'] }} />);
+    const updatedDialog = screen.getByRole('dialog', { name: 'Filtrar' });
+    fireEvent.click(within(updatedDialog).getByRole('button', { name: 'Tipo de grifería' }));
+    fireEvent.click(within(updatedDialog).getByRole('checkbox', { name: /Grifería de cocina/ }));
+    expect(onToggle).toHaveBeenCalledWith('tap_scope', 'cocina', true);
+  });
+
   it('orders Mamparas facets and exposes every API option', () => {
     const facets = {
       finish: [{ value: 'Cromo', label: 'Cromo', count: 21 }],

@@ -63,3 +63,19 @@ export function buildRoyoProductGallery(product: ProductDetail, unit: Selectable
   if (quickImages.length === 0) return product.images;
   return [...new Map([...quickImages, ...product.images].map((image) => [image.url, image])).values()];
 }
+
+// Explicit API opt-in: enclosure imagery is mapped to exact real variants in
+// the catalogue, never inferred from a model/finish/filename in the browser.
+export function hasEnclosureVariantGallery(product: ProductDetail): boolean {
+  return product.supplierId?.toLocaleLowerCase() === 'gme'
+    && product.categoryId?.toLocaleLowerCase() === 'mamparas'
+    && product.specs.variant_gallery === true;
+}
+
+export function buildEnclosureVariantGallery(product: ProductDetail): ProductImage[] {
+  const images = [...product.images, ...product.variants.flatMap((variant) => variant.images ?? [])];
+  const cover = product.mainImageUrl
+    ? images.find((image) => image.url === product.mainImageUrl) ?? { url: product.mainImageUrl, alt: product.name, role: 'main' }
+    : product.images[0];
+  return [...new Map([...(cover ? [cover] : []), ...images].map((image) => [image.url, image])).values()];
+}

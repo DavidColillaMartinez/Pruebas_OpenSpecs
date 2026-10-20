@@ -182,9 +182,12 @@ describe('catalog query state', () => {
       expect(getCatalogFilterProfile({ filters: { supplier: ['gme'], category: ['mamparas'] } })).toBe('mamparas');
       expect(getCatalogFilterProfile({ filters: { category: ['mamparas'] } })).toBe('mamparas');
       expect(getCatalogFilterKeys('gme-io')).toEqual([
-        'category', 'supplier', 'catalog_section', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish',
+        'category', 'supplier', 'catalog_section', 'tap_scope', 'collection', 'tap_type', 'installation', 'mechanism', 'subcategory', 'finish',
       ]);
+      expect(getDisplayCatalogFilterKeys('gme-io', { category: ['griferia'] })).not.toContain('tap_scope');
+      expect(getDisplayCatalogFilterKeys('gme-io', { category: ['griferia'], catalog_section: ['griferia'] })).toContain('tap_scope');
       expect(getCatalogFacetLabel('catalog_section', 'gme-io')).toBe('Familia');
+      expect(getCatalogFacetLabel('tap_scope', 'gme-io')).toBe('Tipo de grifería');
       expect(getCatalogFacetLabel('collection', 'gme-io')).toBe('Serie/modelo');
       expect(getCatalogFacetLabel('tap_type', 'gme-io')).toBe('Tipo de grifo');
     });
@@ -202,6 +205,12 @@ describe('catalog query state', () => {
         mechanism: ['termostatico'],
         offset: 48,
       });
+      expect(request).not.toHaveProperty('tap_scope');
+
+      const kitchenScope = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=griferia&tap_scope=cocina');
+      expect(kitchenScope.filters.tap_scope).toEqual(['cocina']);
+      expect(catalogQueryToRequest(kitchenScope, true).tap_scope).toEqual(['cocina']);
+      expect(serializeCatalogQuery(kitchenScope).get('tap_scope')).toBe('cocina');
 
       const tapsQuery = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=griferia&collection=Persio&tap_type=lavabo_alto&finish=N%C3%ADquel');
       expect(tapsQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['griferia'], collection: ['Persio'], tap_type: ['lavabo_alto'], finish: ['Níquel'] });
@@ -218,8 +227,15 @@ describe('catalog query state', () => {
       const duchasQuery = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=duchas&tap_type=lavabo_bajo&installation=columna');
       expect(duchasQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['duchas'], installation: ['columna'] });
 
+      const incompatibleScope = parseCatalogQuery('supplier=gme&category=griferia&catalog_section=duchas&tap_scope=cocina&page=2');
+      expect(incompatibleScope.filters).toEqual({ supplier: ['gme'], category: ['griferia'], catalog_section: ['duchas'] });
+      expect(incompatibleScope.page).toBe(1);
+
       const sectionlessQuery = parseCatalogQuery('supplier=gme&category=griferia&mechanism=termostatico');
       expect(sectionlessQuery.filters).toEqual({ supplier: ['gme'], category: ['griferia'] });
+
+      const sectionlessScope = parseCatalogQuery('supplier=gme&category=griferia&tap_scope=cocina');
+      expect(sectionlessScope.filters).toEqual({ supplier: ['gme'], category: ['griferia'] });
     });
   });
 

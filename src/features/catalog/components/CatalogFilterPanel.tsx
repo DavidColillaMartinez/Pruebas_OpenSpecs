@@ -33,6 +33,7 @@ const facetLabels: Record<CatalogFacetKey, string> = {
   orientation: 'Orientación',
   finish_family: 'Familia de acabado',
   catalog_section: 'Familia',
+  tap_scope: 'Tipo de grifería',
   tap_type: 'Tipo de grifo',
   installation: 'Instalación',
   mechanism: 'Mecanismo',
@@ -50,7 +51,7 @@ function FilterGroups({ facets, filters, profile, onToggle, openGroups, expanded
   const groupEntries = (Object.entries(facets) as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>][])
     .map(([key, options]) => [key, options.filter((option) => option.count > 0 || filters[key]?.includes(option.value))] as [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>])
     .filter(([, options]) => options.length > 0);
-  const visibleKeys = getDisplayCatalogFilterKeys(profile);
+  const visibleKeys = getDisplayCatalogFilterKeys(profile, filters);
   const groups = visibleKeys
     .map((key) => groupEntries.find(([groupKey]) => groupKey === key))
     .filter((entry): entry is [CatalogFacetKey, NonNullable<CatalogFacets[CatalogFacetKey]>] => Boolean(entry));

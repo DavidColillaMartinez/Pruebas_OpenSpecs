@@ -18,6 +18,22 @@ const product = {
 };
 
 describe('CatalogProductCard', () => {
+  it('shows the product type instead of repeating a collection that matches the title', () => {
+    render(<MemoryRouter><CatalogProductCard product={{ ...product, name: 'Fiore', collection: 'Fiore', subcategory: 'Grifería de lavabo', supplierId: 'gme', categoryId: 'griferia', io2026: true }} /></MemoryRouter>);
+    expect(screen.getAllByText('Fiore')).toHaveLength(1);
+    expect(screen.getByText('Grifería de lavabo')).toBeInTheDocument();
+  });
+
+  it('distinguishes products in a shared Basic series without changing their links', () => {
+    render(<MemoryRouter>
+      <CatalogProductCard product={{ ...product, name: 'Basic · Espejo', collection: 'Basic', slug: 'mt-espejos-basic', subcategory: 'Canto recto' }} />
+      <CatalogProductCard product={{ ...product, name: 'Basic · Mampara de bañera', collection: 'Basic', slug: 'gme-mamparas-banera-basic', subcategory: 'Mamparas de bañera' }} />
+      <CatalogProductCard product={{ ...product, name: 'Basic · Mampara de ducha', collection: 'Basic', slug: 'gme-mamparas-ducha-basic', subcategory: 'Mamparas de ducha' }} />
+    </MemoryRouter>);
+    expect(screen.getAllByRole('heading').map((heading) => heading.textContent)).toEqual(['Basic · Espejo', 'Basic · Mampara de bañera', 'Basic · Mampara de ducha']);
+    expect(screen.queryByText('Basic')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Basic · Mampara de bañera' }).closest('a')).toHaveAttribute('href', '/productos/gme-mamparas-banera-basic');
+  });
   it('renders a complete encoded product link with stable image semantics', () => {
     render(<MemoryRouter><CatalogProductCard product={product} /></MemoryRouter>);
 

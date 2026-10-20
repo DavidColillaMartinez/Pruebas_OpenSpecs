@@ -107,6 +107,7 @@ describe('explicit Vercel catalog entrypoints', () => {
       texture: ['Liso', 'Pizarra'],
       color: 'Antracita',
       lighting_type: 'Retroiluminada',
+      tap_scope: 'cocina',
       injected: 'discard-me',
     } }, response);
 
@@ -116,6 +117,7 @@ describe('explicit Vercel catalog entrypoints', () => {
     expect(requested).toContain('texture=Pizarra');
     expect(requested).toContain('color=Antracita');
     expect(requested).toContain('lighting_type=Retroiluminada');
+    expect(requested).toContain('tap_scope=cocina');
     expect(requested).not.toContain('injected=');
   });
 

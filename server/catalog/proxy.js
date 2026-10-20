@@ -38,6 +38,7 @@ const CATALOG_PRODUCT_QUERY_KEYS = Object.freeze([
   'orientation',
   'finish_family',
   'catalog_section',
+  'tap_scope',
   'tap_type',
   'installation',
   'mechanism',

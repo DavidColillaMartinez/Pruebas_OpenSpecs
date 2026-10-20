@@ -31,7 +31,11 @@ export function Inicio({ step, isActive, onLogoDone }) {
             >
               <span className="font-display text-3xl text-clay">{index + 1}</span>
               <h3 className="mt-3 text-lg font-semibold text-white">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>
+              {item.points ? (
+                <ul className="mt-2 text-sm leading-relaxed text-white/70">
+                  {item.points.map((point) => <li key={point} className="flex gap-2"><span aria-hidden="true">-</span><span>{point}</span></li>)}
+                </ul>
+              ) : <p className="mt-2 text-sm leading-relaxed text-white/70">{item.copy}</p>}
             </article>
           ))}
         </div>

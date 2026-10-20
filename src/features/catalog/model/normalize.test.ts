@@ -126,6 +126,25 @@ describe('product normalization', () => {
     expect(response.discardedItemCount).toBe(1);
   });
 
+  it('keeps the bathroom/kitchen tap_scope facet returned by the list API', () => {
+    const response = normalizeProductList({
+      items: [],
+      pagination: { limit: 24, offset: 0, total: 0, has_more: false },
+      facets: {
+        tap_scope: [
+          { value: 'bano', label: 'Grifería de baño', count: 24 },
+          { value: 'cocina', label: 'Grifería de cocina', count: 11 },
+        ],
+      },
+      sort: { supported: ['relevance'] },
+    });
+
+    expect(response.facets.tap_scope).toEqual([
+      { value: 'bano', label: 'Grifería de baño', count: 24 },
+      { value: 'cocina', label: 'Grifería de cocina', count: 11 },
+    ]);
+  });
+
   it('accepts the lightweight first-page contract without a global total', () => {
     const response = normalizeProductList({
       items: [{ id: 'p', name: 'Producto', slug: 'p', images: [] }],

@@ -459,6 +459,7 @@ const facetAliases: Record<string, CatalogFacetKey> = {
   finish_family: 'finish_family',
   catalog_section: 'catalog_section',
   catalogSections: 'catalog_section',
+  tap_scope: 'tap_scope',
   tap_types: 'tap_type',
   tapType: 'tap_type',
   tap_type: 'tap_type',
