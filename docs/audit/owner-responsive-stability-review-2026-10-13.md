@@ -107,11 +107,9 @@ Fin de verificaciones locales:2026-10-13,11:57(+02:00). Build revisado: JS princ
 
 El verificador encontró cuatro rechazos en Firefox390×600/601 al exigir contención completa de un botón-imagen430px de alto dentro de un scrollport356px, con redondeo y≈−0.5. Es superficie de media desplazable aprobada: ahora exige que su **centro real esté dentro del scrollport y reciba hit-testing**; flechas, miniaturas, cierre y restantes campos/acciones siguen comprobados individualmente. Se repitieron las combinaciones afectadas:1176PASA finales. No se acepta un campo cubierto ni se eximen herramientas del detector de solapes.
 
-### Tablas y reproducción
+### Resúmenes y reproducción
 
-- [Geometría completa](owner-responsive-stability-geometry-2026-10-13.md).
-- [Casos de estabilidad](owner-responsive-stability-tools-2026-10-13.md), [coordenadas min/max](owner-responsive-stability-tools-2026-10-13-coordinates.md), [contraste compuesto](owner-responsive-stability-tools-2026-10-13-contrast.md).
-- [Interacciones](owner-responsive-stability-interactions-2026-10-13.md).
+Las matrices extensas se consolidaron en [evidencia responsive resumida](responsive-evidence.md) el 21/10/2026. Los resultados siguientes conservan su fecha y alcance históricos.
 - [Medios y chat con motion normal](owner-responsive-stability-media-2026-10-13.md).
 - [Preservación](owner-responsive-stability-preservation-2026-10-13.md).
 - [Zoom real y límites Firefox](owner-responsive-stability-zoom-2026-10-13.md).

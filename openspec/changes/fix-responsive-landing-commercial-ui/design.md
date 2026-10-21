@@ -21,7 +21,7 @@ Las auditorías de septiembre describen otros commits y cobertura principalmente
 
 ### 1. Diagnóstico y cambios por componente, con base preservada
 
-Inspeccionar diffs previos, instrucciones de las áreas y fixtures disponibles antes de editar. Preparar un inventario de vistas/estados y una baseline local. Los cambios responsive afectarán los componentes necesarios, aunque superen cinco archivos (autorizado), sin refactor transversal ajeno. Reutilizar la skill `responsive-design` encontrada en `.agents/skills/.agents/skills/responsive-design/` mediante lectura si el harness no la expone, además de instrucciones UI aplicables al implementar; no mover ni incluir su instalación ajena.
+Inspeccionar diffs previos, instrucciones de las áreas y fixtures disponibles antes de editar. Preparar un inventario de vistas/estados y una baseline local. Los cambios responsive afectarán los componentes necesarios, aunque superen cinco archivos (autorizado), sin refactor transversal ajeno. Reutilizar la skill `responsive-design` encontrada en `.agents/skills/responsive-design/` mediante lectura si el harness no la expone, además de instrucciones UI aplicables al implementar; no mover ni incluir su instalación ajena.
 
 Alternativa descartada: restaurar la base de ChatGPT o aplicar ajustes globales antes de medir; perdería trabajo y podría ocultar causas diferentes.
 

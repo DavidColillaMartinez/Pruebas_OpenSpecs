@@ -42,7 +42,7 @@ Fecha: 2026-09-10. Autor: análisis estático y pruebas automatizadas en local (
 - Serve: `vercel.json` con rewrites solo para `/presupuesto`, `/productos`, `/productos/:slug`; CSP/`X-Frame-Options`/`nosniff`/`Referrer-Policy` en `(.*)`; `robots.txt` y `sitemap.xml` añadidos en `public/` (F-SEO-003).
 
 ### Límites externos NO verificables desde este repositorio
-Workflows n8n vigentes (`N8N_*`), permisos y aislamiento reales, rate limiting/protección en el gateway n8n, configuración real del panel de Vercel (más allá del `vercel.json` versionado), Neon, credenciales. Copias como `docs/n8n-chat-v1-backup-2026-09-09.json` son evidencia local, no prueba de lo desplegado.
+Workflows n8n vigentes (`N8N_*`), permisos y aislamiento reales, rate limiting/protección en el gateway n8n, configuración real del panel de Vercel (más allá del `vercel.json` versionado), Neon, credenciales. Las definiciones históricas no acreditan lo desplegado; verificar el estado real del servicio.
 
 ## 2. Estado SEO por ruta (medición y política)
 

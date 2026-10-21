@@ -17,3 +17,18 @@ coverage/
 *.dump
 *.zip
 web.zip
+
+# Reproducible compiler and local review output.
+*.tsbuildinfo
+.impeccable/critique/
+/reports/generated/
+
+# Operational exports and retired setup material stay outside this repository.
+/docs/n8n-*-backup-*.json
+/docs/catalog-inventory-ai.json
+/n8n/**/live-baseline-*.json
+/n8n/quote-delivery/OWNER-SETUP.md
+/n8n/quote-delivery/workflow-sdk.ts
+/n8n/quote-delivery/sql/001-outbox-and-ingest.sql
+/n8n/quote-delivery/sql/002-delivery-worker.sql
+/n8n/quote-delivery/sql/003-verify-in-staging.sql

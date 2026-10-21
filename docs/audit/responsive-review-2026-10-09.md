@@ -102,9 +102,9 @@ La primera ejecución Node24 con navegadores en paralelo tuvo timeout de5000ms e
 
 Hubo timeouts de herramienta al intentar abarcar lotes grandes en una llamada y algunos puntos medidos antes de estabilizar navegación/scroll. Se repitieron esos casos, esperando navegación/frames reales; ningún resultado pendiente/fallido se convirtió en PASA por lectura CSS. Las tablas finales conservan la última ejecución específica; el reporter deduplica por navegador/tamaño/tema/ruta/estado/motion.
 
-### Tablas completas
+### Resúmenes de evidencia
 
-- [Matriz final por navegador/viewport/tema/ruta](responsive-matrix-2026-10-09.md).
+La matriz extensa se retiró del estado actual; consultar [evidencia responsive resumida](responsive-evidence.md). Se mantienen los resultados históricos y las revisiones siguientes.
 - [Estados e interacciones críticas](responsive-interactions-2026-10-09.md), incluida continuidad de sección y fronteras nuevas en ambos sentidos.
 - [Media original y fases con tiempos normales](responsive-media-2026-10-09.md).
 - [Base011b0c1, desktop/móvil, antes de corregir](responsive-baseline-2026-10-09.md):128 casos,74 FALLA/54 PASA, comparados con su estado posterior. Es baseline histórica, no fallos abiertos de la versión entregada.

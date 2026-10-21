@@ -2,7 +2,7 @@
 
 ## Alcance y estado
 
-Despliegue actual indicado por el propietario: https://pruebas-open-specs-lmqzta979-davids-projects-28cb6a13.vercel.app/
+Despliegue actual indicado por el propietario: [URL histórica de despliegue omitida]/
 Commit publicado: 93538c5. La URL anterior lxlrbqfno corresponde a otro despliegue; sus resultados no validan el actual.
 No se declara finalizada la auditoría ni resuelto el timeout.
 

@@ -1,3 +1,5 @@
+> Cambio histórico sustituido por remove-quote-storage. Las casillas conservan su estado original; no autorizan reinstalar almacenamiento retirado. La configuración operativa se mantiene privada.
+
 # Tasks
 
 - [x] Inspect existing quote endpoint and live workflow; preserve definition.
@@ -13,10 +15,10 @@
 - [ ] Run strict OpenSpec validation (CLI unavailable in the current environment).
 - [x] Run a mocked n8n delivery-branch test with PostgreSQL and Gmail pinned; no provider calls made.
 - [x] Fix ambiguous SQL status reference and include renovation type in mail payload/template.
-- [x] Run 47 targeted endpoint/mail tests and mocked n8n execution 5226 after corrections.
+- [x] Run 47 targeted endpoint/mail tests and mocked n8n execution [ejecución simulada] after corrections.
 - [x] Prepare transactional staging SQL verification and exact owner setup guide.
-- [x] Install 001/002 and run 003 in Neon staging branch quote-delivery-test (br-plain-hat-ag4xtzk9): PASS with ROLLBACK, counts unchanged.
+- [x] Install 001/002 and run 003 in Neon staging branch quote-delivery-test ([rama privada omitida]): PASS with ROLLBACK, counts unchanged.
 - [ ] Test concurrency, validation, rate limits, leases and provider failure fixtures.
-- [x] Confirm owner-controlled real request reaches pruebas@colilladavid.es: Resend Delivered and actual inbox screenshots; outbox sent after 1 attempt. Official Gmail configuration follows at client launch.
+- [x] Confirm owner-controlled real request reaches [buzón de pruebas omitido]: Resend Delivered and actual inbox screenshots; outbox sent after 1 attempt. Official Gmail configuration follows at client launch.
 - [ ] Obtain rollout approval, activate v2 and retire/protect legacy quote webhook.
 - [ ] Verify end-to-end production flow and operational monitoring/retention.

@@ -1,6 +1,6 @@
 # Baseline local 011b0c1 — 2026-10-09
 
-Estado anterior a las correcciones, ejecutado en worktree temporal a 1363×936 y320×568. Los FALLA de esta tabla son evidencia histórica, no el resultado final. Comparar con responsive-matrix-2026-10-09.md.
+Estado anterior a las correcciones, ejecutado en worktree temporal a 1363×936 y320×568. Los FALLA de esta tabla son evidencia histórica, no el resultado final. Comparar con responsive-evidence.md.
 
 Evidencia geométrica y funcional local; no equivale a aceptación visual. DPR 1, viewport CSS efectivo registrado. Geometría final en reduced motion; secuencias normales e interacciones críticas se documentan aparte. Comercio: fixtures/mocks explícitos, sin solicitudes externas. Medios originales sin modificar; carga individual en resultados del runner.
 

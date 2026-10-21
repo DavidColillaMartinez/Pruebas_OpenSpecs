@@ -26,17 +26,9 @@ const [alba, royo, detailTests, ioTests, duplach] = await Promise.all([
   declarations('src/features/catalog/pages/ProductDetailPage.gmeIo.test.tsx', ['rhioDetail', 'ioDetail']),
   declarations('src/features/catalog/api/fixtures/duplach-platos-contract.ts', ['ASSET_BASE_URL', 'threeDVariant', 'duplachStone3dFixture']),
 ]);
-// Akord route and commercial options are documented in the local inventory.
+// Public product fields used only by local browser-review mocks.
 // IDs below are explicitly audit-only; they do not claim published variant IDs.
-const inventory = await json('docs/catalog-inventory-ai.json');
-function findProduct(value, slug) {
-  if (value?.slug === slug) return value;
-  if (value && typeof value === 'object') {
-    for (const item of Object.values(value)) { const found = findProduct(item, slug); if (found) return found; }
-  }
-}
-const akordInfo = findProduct(inventory, 'gme-mamparas-ducha-akord');
-if (!akordInfo) throw new Error('Akord not present in local inventory');
+const akordInfo = await json('scripts/fixtures/akord.json');
 const akord = {
   ...detailTests.gmeProduct('gme-mamparas-ducha-glass'),
   id: akordInfo.productId, slug: akordInfo.slug, name: akordInfo.name,
